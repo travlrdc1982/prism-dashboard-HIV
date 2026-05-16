@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PRISM Closed-Loop Architecture · PRD v0.2</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --ink: #1a1a1a;
+  --ink2: #4a4a4a;
+  --rule: #d8d8d8;
+  --bg: #fbfaf7;
+  --accent: #6b4423;
+  --exists: #2d5f3f;
+  --inprogress: #b85c2e;
+  --tobuild: #b8b8b8;
+  --future: #6b6b2e;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 56px 96px;
+}
+header.title {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 24px;
+  margin-bottom: 40px;
+}
+header.title h1 {
+  font-size: 32px;
+  margin: 0 0 6px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+header.title .sub {
+  font-size: 15px;
+  color: var(--ink2);
+  font-style: italic;
+}
+header.title .meta {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--ink2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+nav.toc {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 18px 24px;
+  margin-bottom: 48px;
+  font-size: 14px;
+}
+nav.toc h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  font-weight: 600;
+}
+nav.toc ol {
+  margin: 0;
+  padding-left: 22px;
+  column-count: 2;
+  column-gap: 32px;
+}
+nav.toc ol li { margin: 3px 0; break-inside: avoid; }
+nav.toc a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--ink2);
+}
+nav.toc a:hover { border-bottom-style: solid; }
+section.layer {
+  margin-bottom: 72px;
+  border-top: 1px solid var(--rule);
+  padding-top: 36px;
+}
+section.layer:target { background: #fffef8; }
+.layer-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.layer-num {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--ink2);
+  letter-spacing: 0.1em;
+}
+.layer-head h2 {
+  font-size: 22px;
+  margin: 0;
+  font-weight: 500;
+}
+.layer-head .badge {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  margin-left: auto;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+.b-exists { background: var(--exists); }
+.b-progress { background: var(--inprogress); }
+.b-tobuild { background: var(--tobuild); color: #fff; }
+.b-future { background: var(--future); }
+.lead {
+  font-size: 15px;
+  color: var(--ink2);
+  margin: 0 0 20px;
+  max-width: 78ch;
+}
+.diagram-box {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 24px 20px;
+  margin: 18px 0 24px;
+  overflow-x: auto;
+}
+.landscape {
+  position: relative;
+  left: 50%;
+  margin-left: -49vw;
+  width: 98vw;
+  max-width: 98vw;
+  padding: 28px 36px;
+}
+.landscape .mermaid { min-width: 1300px; }
+.mermaid {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  text-align: center;
+}
+.notes {
+  font-size: 14px;
+  background: #fff;
+  border-left: 3px solid var(--accent);
+  padding: 14px 20px;
+  margin: 16px 0;
+}
+.notes h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.notes ul, .notes ol {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+.notes li { margin: 4px 0; }
+.callout {
+  background: #fef6e8;
+  border: 1px solid #d4a25a;
+  border-left: 4px solid #b85c2e;
+  padding: 12px 18px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.callout strong { color: #6b4423; }
+.legend {
+  display: flex;
+  gap: 24px;
+  font-size: 12px;
+  color: var(--ink2);
+  margin: 8px 0 18px;
+  flex-wrap: wrap;
+}
+.legend .item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend .swatch {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+table.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0 20px;
+  background: #fff;
+}
+table.matrix th, table.matrix td {
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.matrix th {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  font-weight: 600;
+  background: #f5f3ee;
+  border-bottom: 1px solid var(--ink2);
+}
+.pill {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-right: 4px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.pill-exists { background: #e0ebe2; color: var(--exists); }
+.pill-progress { background: #f4e0d0; color: var(--inprogress); }
+.pill-tobuild { background: #e8e8e8; color: var(--ink2); }
+.pill-future { background: #f0f0d8; color: var(--future); }
+.proto-step {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 14px 18px;
+  margin: 10px 0;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.proto-step .num {
+  font-family: 'Courier New', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: bold;
+  min-width: 40px;
+  line-height: 1;
+}
+.proto-step .body { flex: 1; }
+.proto-step .body h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.proto-step .body p { margin: 4px 0; font-size: 14px; }
+.proto-step .meta-row {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink2);
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.proto-step .meta-row .deliv { color: var(--accent); font-style: italic; }
+.proto-step .meta-row .accept { color: var(--exists); }
+footer {
+  margin-top: 72px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--ink2);
+}
+@media (max-width: 720px) {
+  .page { padding: 24px 18px 48px; }
+  nav.toc ol { column-count: 1; }
+  .landscape { left: 0; margin-left: 0; width: 100%; }
+  .landscape .mermaid { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="title">
+<h1>PRISM Closed-Loop Architecture</h1>
+<div class="sub">From canonical study definition to simulation engine — eliminating the type-it-three-times problem</div>
+<div class="meta">PRD v0.2 · Internal · Reservoir Communications Group / HAIG · May 2026</div>
+</header>
+
+<nav class="toc">
+<h3>Contents</h3>
+<ol>
+<li><a href="#overview">Overview: the closed loop</a></li>
+<li><a href="#canonical">L1 — Canonical layer</a></li>
+<li><a href="#authoring">L2 — Authoring layer</a></li>
+<li><a href="#generators">L3 — Generator layer (landscape)</a></li>
+<li><a href="#runtime">L4 — Field / runtime layer</a></li>
+<li><a href="#analytics">L5 — Analytics: topline → client dashboard</a></li>
+<li><a href="#norms">L6 — Norms accumulation</a></li>
+<li><a href="#simulator">L7 — Simulation engine (endpoint)</a></li>
+<li><a href="#status">Build status matrix</a></li>
+<li><a href="#prototype">Prototyping plan: HIV as proof study</a></li>
+</ol>
+</nav>
+
+<div class="callout">
+<strong>Revision notes (v0.2):</strong> Composite formulas moved from canonical registries into per-study YAML — they are new indices developed study-by-study, not stable cross-study constants. Client dashboard added as the persistent multi-study consumer of every <code>dashboard.json</code> build; topline HTML and client dashboard are now shown as siblings sharing the same data feed, not as parallel paths. Overview simplified to a single 7-layer flow. L2 vertical. L3 in landscape mode.
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- OVERVIEW                                                          -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="overview">
+<div class="layer-head">
+  <span class="layer-num">§ 0</span>
+  <h2>Overview: the closed loop</h2>
+</div>
+<p class="lead">
+Seven layers. Information flows down from canonical through generators into runtime and analytics. Analytics feeds the client dashboard for ongoing access. Approved study results promote into norms via a QC gate; norms feed back into canonical (priors for next study) and forward into the simulator. One loop, one source of truth.
+</p>
+<div class="legend">
+  <div class="item"><span class="swatch" style="background:#e0ebe2;border-color:#2d5f3f;"></span>Exists in production</div>
+  <div class="item"><span class="swatch" style="background:#f4e0d0;border-color:#b85c2e;"></span>In development</div>
+  <div class="item"><span class="swatch" style="background:#e8e8e8;border-color:#b8b8b8;"></span>To build</div>
+  <div class="item"><span class="swatch" style="background:#f0f0d8;border-color:#6b6b2e;"></span>Future</div>
+</div>
+<div class="diagram-box">
+<div class="mermaid" id="m_overview">
+flowchart TB
+  L2["L2 · AUTHORING<br/><i>Excel → YAML → git</i>"]
+  L1["L1 · CANONICAL LAYER<br/><i>shared libraries · versioned registries · per-study YAML</i>"]
+  L3["L3 · GENERATORS<br/><i>one canonical → seven artifacts</i>"]
+  L4["L4 · FIELD / RUNTIME<br/><i>Decipher · Typing Tool · DQMA · ROI scoring</i>"]
+  L5["L5 · ANALYTICS<br/><i>SPSS · compute_core · topline HTML · client dashboard</i>"]
+  L6["L6 · NORMS<br/><i>QC gate → prism_norms.db</i>"]
+  L7["L7 · SIMULATION<br/><i>scenario engine</i>"]
+
+  L2 ==> L1
+  L1 ==> L3
+  L3 --> L4
+  L4 --> L5
+  L5 ==> L6
+  L6 -.priors feed back.-> L1
+  L6 ==> L7
+  L1 -.canonical structure.-> L7
+
+  classDef exists fill:#e0ebe2,stroke:#2d5f3f,color:#1a1a1a,stroke-width:1.5px;
+  classDef progress fill:#f4e0d0,stroke:#b85c2e,color:#1a1a1a,stroke-width:1.5px;
+  classDef tobuild fill:#f0f0f0,stroke:#b8b8b8,color:#4a4a4a,stroke-dasharray: 4 3;
+  classDef future fill:#f0f0d8,stroke:#6b6b2e,color:#4a4a4a,stroke-dasharray: 4 3;
+
+  class L5 exists;
+  class L1,L4,L6 progress;
+  class L2,L3 tobuild;
+  class L7 future;
+</div>
+</div>
+
+<div class="notes">
+<h4>How to read this</h4>
+<ul>
+<li><strong>Heavy arrows (==&gt;)</strong> are the canonical information flow.</li>
+<li><strong>Dotted arrows</strong> are feedback loops. Norms feed canonical (priors for the next study's DQMA shrinkage and the simulator's baselines).</li>
+<li><strong>Only L5 is in production today.</strong> The HIV topline is built and rendering. L1, L2, L3 are the new build that retrofits canonical-driven structure beneath the existing analytics pipeline.</li>
+<li><strong>The dashboard is now in L5</strong> (next section). Topline HTML and the client dashboard React app are not parallel outputs — they are sequential consumers of the same <code>dashboard.json</code>.</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L1 CANONICAL                                                      -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="canonical">
+<div class="layer-head">
+  <span class="layer-num">§ 1</span>
+  <h2>L1 — Canonical layer (the source of truth)</h2>
+  <span class="badge b-progress">Partial</span>
+</div>
+<p class="lead">
+Three classes of canonical content. <strong>Shared libraries</strong> are stable across studies (segments, scales, the typing tool spec). <strong>Versioned registries</strong> change deliberately with explicit version stamps (battery templates, ROI model coefficients, DQMA parameters). <strong>Per-study definitions</strong> select from libraries, override where the study deviates, and define this study's <em>new</em> content — including composites, which are study-specific.
+</p>
+<div class="diagram-box">
+<div class="mermaid" id="m_canonical">
+flowchart LR
+  subgraph SHARED["SHARED LIBRARIES (stable)"]
+    direction TB
+    SEG["Segments Registry<br/>16-segment frame<br/>id · code · name · coalition"]
+    SCL["Scales Library<br/>likert7 · binary · maxdiff"]
+    ITM["Item Bank<br/>stable item_ids<br/>fielded items history"]
+    TTS["Typing Tool Spec<br/>GOP 13-item BIBD<br/>DEM 15-item BIBD<br/>centroids · z-params"]
+    QPM["QBALLOT × QPARTY<br/>21-case routing matrix"]
+  end
+
+  subgraph REG["VERSIONED REGISTRIES (deliberate updates)"]
+    direction TB
+    BTM["Battery Templates<br/>structural types only<br/>HIVSTIGMA-style · MFQ-style<br/>Critics-style · Influencer-style"]
+    RMR["ROI Model Registry<br/>v2.1 · ACTPROB coefs<br/>BCS L0–L3 weights<br/>REACH_wgt · ALIGN_MOVE"]
+    DPS["DQMA Parameters<br/>kappa thresholds<br/>tier budgets · ROI weights<br/>rebalance cadence"]
+  end
+
+  subgraph STUDY["PER-STUDY DEFINITION (this study's YAML)"]
+    direction TB
+    META["Study Metadata<br/>id · client · weighting"]
+    SEL["Library Selections<br/>which batteries · which scales<br/>which model version"]
+    ITX["Per-Study Items<br/>this study's question set<br/>with item_id references"]
+    CMP["Composites (NEW)<br/><b>study-specific indices</b><br/>MBS · SDS · CFS · PFS · HKS<br/>built fresh per study"]
+    OVR["Study Overrides<br/>screeners · eligibility<br/>sample frame"]
+    MXD["Message MaxDiff Spec<br/>stimuli set · BIBD generated<br/>persona variants"]
+  end
+
+  STUDY -->|references| SHARED
+  STUDY -->|references| REG
+  ITM <-.contains items used by.-> ITX
+  TTS -.consumes.-> SEG
+
+  classDef exists fill:#e0ebe2,stroke:#2d5f3f;
+  classDef progress fill:#f4e0d0,stroke:#b85c2e;
+  classDef tobuild fill:#f0f0f0,stroke:#b8b8b8,stroke-dasharray: 4 3;
+  classDef important fill:#fff0e8,stroke:#b85c2e,stroke-width:2px;
+  class SEG,TTS,QPM exists;
+  class ITM,RMR,DPS progress;
+  class SCL,BTM,META,SEL,ITX,OVR,MXD tobuild;
+  class CMP important;
+</div>
+</div>
+
+<div class="callout">
+<strong>Correction from v0.1 — composites are per-study, not canonical.</strong> Each study defines its own indices (MBS, SDS, EDS, SCS, CFS, PFS, SCF, HKS for HIV; entirely different composites for the next study). The architecture must support this directly: composites live in per-study YAML, with formulas referencing this study's items. A recurring composite (e.g., BCS, which appears in many studies) can be promoted into a Composite Library through the QC gate later — but the v1 architecture assumes everything composite is study-local.
+</div>
+
+<div class="notes">
+<h4>What's canonical vs. what's per-study</h4>
+<ul>
+<li><strong>Canonical:</strong> the 16 segments, the typing tool design, the QBALLOT/QPARTY routing matrix, the ROI model coefficients (versioned), the DQMA parameter set, scale definitions, the Item Bank with stable IDs.</li>
+<li><strong>Per-study (overrides + new content):</strong> this study's screeners, eligibility rules, sample frame, message stimuli, persona variants, <em>and all composite formulas</em>.</li>
+<li><strong>Battery Templates are structural, not content.</strong> "HIVSTIGMA-style" means "a Likert-7 agree battery with split-sample fielding"; the actual items belong to the per-study definition (referencing item_bank IDs where reused, or introducing new ones).</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L2 AUTHORING                                                      -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="authoring">
+<div class="layer-head">
+  <span class="layer-num">§ 2</span>
+  <h2>L2 — Authoring layer</h2>
+  <span class="badge b-tobuild">To build</span>
+</div>
+<p class="lead">
+Analysts edit in Excel. A sync script converts to canonical YAML. YAML is versioned in git. The analyst never sees YAML until a future Study Editor UI replaces Excel. Excel is the v1 authoring interface because it carries no migration cost and matches existing workflow.
+</p>
+<div class="diagram-box">
+<div class="mermaid" id="m_authoring">
+flowchart TB
+  ANA(("Analyst"))
+  XLB["Excel Workbook<br/>(.xlsx with data validation)"]
+  SHEETS["Sheets:<br/>Study · Segments · Scales<br/>Batteries · Items · Composites<br/>Modules · MaxDiff Stimuli · Demographics"]
+  SYN["YAML Sync Script (Python)"]
+  VAL["Schema Validator<br/>references resolve · formulas parse<br/>scale anchors complete"]
+  YML["study.yaml (canonical)"]
+  GIT[("Git Repository<br/>versioned history")]
+  GEN["⇩ to Generators (L3)"]
+
+  ANA -->|edits| XLB
+  XLB --- SHEETS
+  XLB -->|on save / on demand| SYN
+  SYN --> VAL
+  VAL -->|valid| YML
+  VAL -.errors.-> ANA
+  YML -->|commit| GIT
+  GIT -.reads.-> GEN
+
+  classDef tobuild fill:#f0f0f0,stroke:#b8b8b8,stroke-dasharray: 4 3;
+  classDef io fill:#fff,stroke:#1a1a1a,stroke-width:1.5px;
+  classDef analyst fill:#fef6e8,stroke:#b85c2e,stroke-width:2px;
+  class SHEETS,SYN,VAL,YML,XLB tobuild;
+  class GIT io;
+  class ANA analyst;
+</div>
+</div>
+
+<div class="notes">
+<h4>Why the two-step (Excel → YAML → git)</h4>
+<ul>
+<li><strong>Excel diffs are unreadable.</strong> An .xlsx file is a zip of XML. Git stores it but cannot show what changed between v1.0 and v1.1. YAML diffs line-by-line.</li>
+<li><strong>Excel format drifts.</strong> A YAML schema survives Excel column reshuffling. The YAML is the contract; Excel is one writer.</li>
+<li><strong>Future writers besides Excel.</strong> A Study Editor UI eventually writes YAML directly. Excel is the v1 interface, not the long-term one.</li>
+<li><strong>Validation between Excel and YAML.</strong> Type <code>likert7_agreement</code> instead of <code>likert7_agree</code> and the sync rejects it with a row-and-column error before any generator sees malformed input.</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L3 GENERATORS (LANDSCAPE)                                         -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="generators">
+<div class="layer-head">
+  <span class="layer-num">§ 3</span>
+  <h2>L3 — Generator layer (one canonical → seven artifacts)</h2>
+  <span class="badge b-tobuild">To build</span>
+</div>
+<p class="lead">
+Each generator is a small, focused script: read the canonical YAML, emit one native artifact. Generators are stateless. They don't carry hidden defaults. They don't override the canonical. If the artifact looks wrong, the canonical is wrong. This is what eliminates the redundant-typing problem.
+</p>
+<div class="diagram-box landscape">
+<div class="mermaid" id="m_generators">
+flowchart LR
+  YML[("Canonical YAML<br/>(from L2)")]
+
+  YML --> G1["generate_decipher_xml.py"]
+  YML --> G2["generate_spss_syntax.py"]
+  YML --> G3["generate_topline_config.py"]
+  YML --> G4["generate_banner_spec.py"]
+  YML --> G5["generate_dashboard_schema.py"]
+  YML --> G6["generate_dqma_runtime.py"]
+  YML --> G7["generate_simulator_inputs.py"]
+
+  G1 --> O1["Decipher XML<br/>question text · scales<br/>routing · randomization<br/>screeners · split-sample"]
+  G2 --> O2["SPSS Setup .sps<br/>variable labels · value labels<br/>RECODE · composite syntax<br/>custom attributes"]
+  G3 --> O3["compute_core registries<br/>STUDY · MODULES · ITEMS<br/>BATTERIES · COMPOSITES<br/>DEMOGRAPHICS · INFLUENCER"]
+  G4 --> O4["Banner spec<br/>cuts · sig tests<br/>formatting rules"]
+  G5 --> O5["dashboard.json schema<br/>module layout · labels<br/>codebook prose"]
+  G6 --> O6["Study registry insert<br/>eligibility rules<br/>ROI weights · DQMA targets<br/>per-segment n_base"]
+  G7 -.future.-> O7["Simulator param files<br/>baseline scores · elasticity"]
+
+  O1 -.feeds.-> L4_DEC["L4: Decipher"]
+  O2 -.feeds.-> L5_SPSS["L5: SPSS"]
+  O3 -.feeds.-> L5_CC["L5: compute_core"]
+  O4 -.feeds.-> L5_BAN["L5: Banner build"]
+  O5 -.feeds.-> L5_DSH["L5: Dashboard renderers"]
+  O6 -.feeds.-> L4_DQMA["L4: DQMA runtime"]
+  O7 -.feeds.-> L7_SIM["L7: Simulator"]
+
+  classDef yml fill:#fff,stroke:#1a1a1a,stroke-width:2;
+  classDef gen fill:#f0e8f0,stroke:#7a3e6b;
+  classDef out fill:#fff,stroke:#7a3e6b,stroke-dasharray: 3 2;
+  classDef future fill:#f0f0d8,stroke:#6b6b2e,stroke-dasharray: 4 3;
+  classDef consumer fill:#e8eef4,stroke:#2e6b7a,color:#2e6b7a;
+
+  class YML yml;
+  class G1,G2,G3,G4,G5,G6 gen;
+  class O1,O2,O3,O4,O5,O6 out;
+  class G7,O7,L7_SIM future;
+  class L4_DEC,L4_DQMA,L5_SPSS,L5_CC,L5_BAN,L5_DSH consumer;
+</div>
+</div>
+
+<table class="matrix">
+<thead>
+<tr><th style="width:22%">Generator</th><th>Replaces today's manual step</th><th style="width:18%">Build priority</th></tr>
+</thead>
+<tbody>
+<tr><td><code>generate_spss_syntax.py</code></td><td>Typing variable labels, value labels, and RECODE statements by hand in SPSS Syntax Editor</td><td><span class="pill pill-exists">1st (proves schema)</span></td></tr>
+<tr><td><code>generate_topline_config.py</code></td><td>Editing <code>compute_core.py</code> registries by hand (study text, item labels, module configs, composite formulas)</td><td><span class="pill pill-exists">2nd (closes HIV loop)</span></td></tr>
+<tr><td><code>generate_decipher_xml.py</code></td><td>Typing question text, scales, routing into Decipher; reconciling with SPSS labels later</td><td><span class="pill pill-progress">3rd (next study)</span></td></tr>
+<tr><td><code>generate_dqma_runtime.py</code></td><td>Hand-coding study registry, ROI weights, eligibility rules in the DQMA runtime config</td><td><span class="pill pill-progress">4th</span></td></tr>
+<tr><td><code>generate_dashboard_schema.py</code></td><td>Hand-editing dashboard module layout and labels alongside topline registry</td><td><span class="pill pill-tobuild">5th</span></td></tr>
+<tr><td><code>generate_banner_spec.py</code></td><td>Specifying banner cuts and sig tests in production</td><td><span class="pill pill-tobuild">Later</span></td></tr>
+<tr><td><code>generate_simulator_inputs.py</code></td><td>n/a (net new capability)</td><td><span class="pill pill-future">When simulator builds</span></td></tr>
+</tbody>
+</table>
+
+<div class="notes">
+<h4>The proving generator</h4>
+<ul>
+<li>SPSS Syntax is the right first build because the output is verifiable line-by-line against an existing <code>.sav</code> file. Build it, generate syntax for the HIV study from the canonical YAML, diff against the labels already in <code>260433.sav</code>. If they match, the schema is validated. If they don't, the schema is wrong in a way that is immediately visible.</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L4 RUNTIME                                                        -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="runtime">
+<div class="layer-head">
+  <span class="layer-num">§ 4</span>
+  <h2>L4 — Field / runtime layer (the live survey)</h2>
+  <span class="badge b-progress">In development</span>
+</div>
+<p class="lead">
+What runs during fieldwork. Decipher hosts the typing tool, pre-routing logic, eligibility check, and DQMA router as stages in the respondent flow. The DQMA reads its own live state from Supabase, makes routing decisions per respondent, and rebalances quotas every 6 hours or every 50 completes. ROI scoring fires at completion.
+</p>
+<div class="diagram-box">
+<div class="mermaid" id="m_runtime">
+flowchart TB
+  DYN["Dynata Panel"]
+  DEC["Decipher Survey Container"]
+
+  subgraph FLOW["Respondent flow inside Decipher"]
+    direction TB
+    SCR["1 · PRISM Screeners<br/>age · registration · party"]
+    QPM_FLOW["2 · QBALLOT × QPARTY<br/>determine_batteries()<br/>→ GOP / DEM / BOTH / TERM"]
+    TT_FLOW["3 · Typing Tool<br/>GOP 13-item BIBD or<br/>DEM 15-item BIBD"]
+    XSEG["XSEG_ASSIGNED<br/>argmax over 16 segments"]
+    PRE_R["4 · Pre-routing + Eligibility<br/>(disease state · sample fit)"]
+    DQR["5 · DQMA Router<br/>segment fit + live quota state"]
+    OUT{{"Outcome:<br/>study-assigned<br/>overquota · terminate"}}
+    SCR --> QPM_FLOW --> TT_FLOW --> XSEG --> PRE_R --> DQR --> OUT
+  end
+
+  subgraph SVC["Runtime services (Supabase / Vercel)"]
+    direction TB
+    DST["dqma_state<br/>live segment counts<br/>kappa · phase · OQT flags"]
+    REB["Rebalance Engine<br/>every 50 completes / 6h"]
+    ROI_RT["ROI Scoring (per completion)<br/>component scores + flags"]
+    NRM["prism_norms.db (read-only)<br/>priors for Bayesian shrinkage"]
+  end
+
+  DYN --> DEC --> FLOW
+  DQR <-->|read / write| DST
+  DST -.feeds.-> REB
+  REB -.writes targets.-> DST
+  DQR -.priors.-> NRM
+  OUT -->|on complete| ROI_RT
+  ROI_RT -.appends.-> DST
+
+  classDef exists fill:#e0ebe2,stroke:#2d5f3f;
+  classDef progress fill:#f4e0d0,stroke:#b85c2e;
+  class DYN,DEC,SCR exists;
+  class QPM_FLOW,TT_FLOW,XSEG,PRE_R,DQR,DST,REB,ROI_RT,NRM,OUT progress;
+</div>
+</div>
+
+<div class="notes">
+<h4>Critical separations</h4>
+<ul>
+<li><strong>DQMA parameters vs. dqma_state.</strong> Parameters (kappa thresholds, tier budgets, ROI weights, rebalance cadence) are canonical Layer 1, set by the analyst, change only on deliberate methodology updates. <code>dqma_state</code> is operational live state, changes every 6 hours, lives in Supabase as row-per-segment.</li>
+<li><strong>Typing Tool is Layer 1 platform code, identical across studies.</strong> The 13-item GOP set, 15-item DEM set, BIBD design, centroid matrices, and Z-score parameters are baked in. No per-study override.</li>
+<li><strong>Pre-routing + eligibility lives inside the typing tool stage.</strong> Fires before the DQMA call. DQMA receives an already-eligible respondent with a segment probability vector; its job is routing-by-quota, not eligibility.</li>
+<li><strong>Norms are read-only during fieldwork.</strong> DQMA borrows from <code>prism_norms.db</code> for Bayesian shrinkage of ROI priors. Writes to norms happen only via the QC gate (L6).</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L5 ANALYTICS (TOPLINE → CLIENT DASHBOARD)                         -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="analytics">
+<div class="layer-head">
+  <span class="layer-num">§ 5</span>
+  <h2>L5 — Analytics: topline → banners → client dashboard</h2>
+  <span class="badge b-exists">Exists (HIV prototype + dashboard scaffold)</span>
+</div>
+<p class="lead">
+Field closes, the analyst pulls the .sav locally, SPSS does the analytic work, <code>compute_core.py</code> reads the .sav and produces <code>dashboard.json</code>. From that single computed snapshot, three things render: the topline HTML deliverable (study-specific, deep-dive), the banner books (crosstab output), and the client dashboard React app (multi-study, persistent platform UI). All three consume the same data feed, so changes to wording, segment definitions, or composite formulas propagate automatically.
+</p>
+<div class="diagram-box landscape">
+<div class="mermaid" id="m_analytics">
+flowchart LR
+  DEC[("Decipher<br/>(field close)")]
+  SAV[".sav file<br/>(local / network)"]
+  SPSS["SPSS Analysis<br/>weighting · recodes<br/>composites · QC"]
+  WGT["WGT<br/>rake weights"]
+
+  subgraph BUILD["Build pipeline"]
+    direction TB
+    CC["compute_core.py<br/>registries + build_topline()"]
+    CONF["compute.py<br/>(weight var · paths)"]
+    BLD["build.py"]
+    BLD --> CONF --> CC
+  end
+
+  JSON[("dashboard.json<br/>computed snapshot<br/>(single data feed)")]
+  CSV["results_long.csv<br/>2,414 rows · audit trail"]
+
+  subgraph DELIV["Three consumers · one data feed"]
+    direction TB
+    TOP["Topline HTML<br/>PRISM_HIV_Topline.html<br/>~620KB self-contained<br/>analyst deep-dive"]
+    BAN["Banner Books<br/>crosstab output<br/>full segment cuts"]
+    DSH["Client Dashboard (React/Vite)<br/>SegmentMap · IdeologyHeatmap<br/>AudienceROI · SegmentProfile<br/>MessageMap<br/>multi-study · persistent"]
+  end
+
+  CAN[("Canonical YAML<br/>(from L3 generator)")]
+
+  DEC --> SAV --> SPSS --> WGT --> CC
+  CC --> JSON
+  CC --> CSV
+  JSON --> TOP
+  JSON --> BAN
+  JSON --> DSH
+  CAN -.generates registries.-> CC
+  CAN -.generates labels.-> SPSS
+  CAN -.generates schema.-> DSH
+
+  DSH -.deploys to.-> VRC["Vercel<br/>client + internal access"]
+
+  classDef exists fill:#e0ebe2,stroke:#2d5f3f;
+  classDef progress fill:#f4e0d0,stroke:#b85c2e;
+  classDef tobuild fill:#f0f0f0,stroke:#b8b8b8,stroke-dasharray: 4 3;
+  classDef io fill:#fff,stroke:#1a1a1a,stroke-width:2;
+  classDef important fill:#fff0e8,stroke:#b85c2e,stroke-width:2;
+
+  class DEC,SAV,SPSS,WGT,CC,CONF,BLD,CSV,TOP exists;
+  class JSON important;
+  class DSH,VRC progress;
+  class BAN,CAN tobuild;
+</div>
+</div>
+
+<div class="notes">
+<h4>The data feed chain</h4>
+<ul>
+<li><strong><code>dashboard.json</code> is the single data feed.</strong> One artifact, three consumers. Topline HTML embeds it. Banner books read from it. Client dashboard imports it (as the auto-generated <code>studyData</code> module already shown in <code>AudienceROI.jsx</code> and <code>MessageMap.jsx</code>).</li>
+<li><strong>Client dashboard accumulates studies.</strong> Each completed study contributes its <code>dashboard.json</code> as a new entry in <code>studyData</code>. The dashboard already keys by study (ESI, MA in the current scaffold); HIV is the next addition. Over time the dashboard becomes the persistent multi-study window for clients.</li>
+<li><strong>Canonical feeds in three places.</strong> <code>compute_core</code> registries (from L3 topline generator), SPSS labels (from L3 SPSS generator), and dashboard schema for module layouts (from L3 dashboard schema generator). Same canonical, three downstream views, no drift.</li>
+<li><strong>Same dashboard, both audiences.</strong> One Vercel project, one React app, served to internal team and client. No separate paths, no access partitioning at the app level (handled by auth / route gating).</li>
+</ul>
+</div>
+
+<div class="callout">
+<strong>48-hour priority context.</strong> The HIV deliverable currently exists as the topline HTML (production). To get it into the client dashboard within 48 hours: export <code>dashboard.json</code> from the current <code>compute_core</code> build, drop it into the dashboard's <code>studyData</code> module as a new HIV entry, deploy to Vercel. The canonical-driven path (L1–L3) is the medium-term refactor; the 48-hour path uses today's pipeline unchanged.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L6 NORMS                                                          -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="norms">
+<div class="layer-head">
+  <span class="layer-num">§ 6</span>
+  <h2>L6 — Norms accumulation</h2>
+  <span class="badge b-progress">In development</span>
+</div>
+<p class="lead">
+Each completed study is a candidate for promotion into the longitudinal normative database. The QC gate is explicit: an analyst reviews data quality, item-by-item, then publishes the relevant normative records into <code>prism_norms.db</code>. This is the loop that gives later studies stronger priors and eventually feeds the simulation engine.
+</p>
+<div class="diagram-box">
+<div class="mermaid" id="m_norms">
+flowchart LR
+  L5IN[("From L5 Analytics<br/>completed study<br/>dashboard.json + .sav")]
+
+  subgraph QC["QC Gate (analyst-driven checklist)"]
+    direction TB
+    Q1["1 · Field health<br/>completion rates · flags · traps"]
+    Q2["2 · Item validity<br/>distributions vs. prior waves"]
+    Q3["3 · Composite check<br/>reliability · expected ranges"]
+    Q4["4 · Segment composition<br/>vs. national share · weighting"]
+    Q5["5 · Publish decision<br/>which items promote · which to flag"]
+    Q1 --> Q2 --> Q3 --> Q4 --> Q5
+  end
+
+  subgraph NDB["prism_norms.db"]
+    direction TB
+    SEGT["segments<br/>(stable registry)"]
+    ROIP["ROI normative priors<br/>per segment · per module"]
+    ITMN["Item norms<br/>per item_id · per segment<br/>distributions across waves"]
+    CMPN["Composite norms<br/>per composite · per segment<br/>(recurring composites only)"]
+    STDH["Study history<br/>fielded studies · model versions"]
+  end
+
+  PUB["publish_to_norms.py"]
+
+  L5IN --> Q1
+  Q5 -->|approve| PUB
+  Q5 -.reject.-> L5IN
+  PUB --> ITMN
+  PUB --> CMPN
+  PUB --> ROIP
+  PUB --> STDH
+
+  NDB -.read by.-> DQR_LINK["DQMA Router (L4)<br/>Bayesian shrinkage priors"]
+  NDB -.read by.-> SIM_LINK["Simulator (L7)<br/>baseline scenarios"]
+  NDB -.next-study priors.-> CAN_LINK["Canonical (L1)<br/>next study's defaults"]
+
+  classDef exists fill:#e0ebe2,stroke:#2d5f3f;
+  classDef progress fill:#f4e0d0,stroke:#b85c2e;
+  classDef tobuild fill:#f0f0f0,stroke:#b8b8b8,stroke-dasharray: 4 3;
+
+  class SEGT,ROIP exists;
+  class STDH progress;
+  class L5IN,Q1,Q2,Q3,Q4,Q5,PUB,ITMN,CMPN,DQR_LINK,SIM_LINK,CAN_LINK tobuild;
+</div>
+</div>
+
+<div class="notes">
+<h4>Why explicit QC rather than auto-publish</h4>
+<ul>
+<li>Auto-publish will eventually poison the priors. Some waves contain known data quality issues (vendor anomaly, copy error in stimuli, screener mis-routing); those waves sit in analytics but do not promote into norms.</li>
+<li>The gate doesn't have to be slow. The five checks above can be a one-screen checklist with auto-computed flags ("3 items below prior distribution by &gt; 2 SD — review?"). The analyst confirms or excludes; publishing is a single button.</li>
+<li>The gate is also where <strong>Item Bank backfill</strong> happens. The first time HIVSTIGMA_SB_1 is fielded, it becomes an item_bank entry on publish. Future studies referencing the same item inherit its prior distributions.</li>
+<li><strong>Composite promotion is selective.</strong> Most composites stay study-local. Only recurring composites with stable definitions (BCS is the obvious candidate) get promoted into the Composite Library on publish. The promotion criterion: the composite has the identical formula across at least 3 studies.</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- L7 SIMULATION                                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="simulator">
+<div class="layer-head">
+  <span class="layer-num">§ 7</span>
+  <h2>L7 — Simulation engine (the endpoint)</h2>
+  <span class="badge b-future">Future</span>
+</div>
+<p class="lead">
+The eventual replacement for the topline + dashboard as a primary deliverable. Reads from the canonical (message frame structure, segment definitions, ROI model) and from <code>prism_norms.db</code> (baseline distributions). Lets a user ask: "what happens to coalition support among CEC + TC if ALIGN_MOVE on message X increases by +0.5?" Useful only when enough longitudinal data has accumulated — probably 8–12 published studies.
+</p>
+<div class="diagram-box">
+<div class="mermaid" id="m_simulator">
+flowchart LR
+  CAN[("Canonical Layer<br/>message frame · ROI model<br/>segment definitions")]
+  NRM[("prism_norms.db<br/>baseline distributions<br/>elasticity estimates")]
+
+  subgraph SIM["Simulation Engine"]
+    direction TB
+    UI["Scenario UI<br/>'+0.5 ALIGN_MOVE for msg X<br/>among CEC + TC'"]
+    ENG["Scenario Engine<br/>compute downstream<br/>persuasion · activation<br/>coalition movement"]
+    OUT["Scenario Output<br/>baseline → projected<br/>by segment · by outcome"]
+    UI --> ENG --> OUT
+  end
+
+  CAN --> ENG
+  NRM --> ENG
+  OUT --> CLNT["Client Scenario Report<br/>integrated into client dashboard"]
+
+  classDef future fill:#f0f0d8,stroke:#6b6b2e,stroke-dasharray: 4 3;
+  classDef io fill:#fff,stroke:#1a1a1a,stroke-width:2;
+  class UI,ENG,OUT,CLNT future;
+  class CAN,NRM io;
+</div>
+</div>
+
+<div class="notes">
+<h4>Sequencing dependency</h4>
+<ul>
+<li>The simulator is the end-state because every other layer feeds it. Building it before the canonical and norms are settled is the classic "build the cool UI first, regret the data model later" anti-pattern.</li>
+<li>Norms need at least 6–8 studies of stable canonical structure before scenario projections have meaningful uncertainty ranges.</li>
+<li>The simulator is also the point at which RCG's competitive position becomes hardest to replicate. Audience platforms can be cloned; a 50-study longitudinal normative database with stable item identifiers and a fitted ROI model cannot.</li>
+<li><strong>The simulator integrates into the client dashboard, not as a separate app.</strong> Same Vercel project, new route. Clients move from "view our segments" to "view what happens if we move them" without changing tools.</li>
+</ul>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- BUILD STATUS                                                      -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="status">
+<div class="layer-head">
+  <span class="layer-num">§ 8</span>
+  <h2>Build status matrix</h2>
+</div>
+<table class="matrix">
+<thead>
+<tr><th>Component</th><th>Layer</th><th style="width:14%">Status</th><th>Current artifact</th></tr>
+</thead>
+<tbody>
+<tr><td>16-segment registry</td><td>L1</td><td><span class="pill pill-exists">Exists</span></td><td><code>segments.js</code> · <code>prism_norms_seed.sql</code></td></tr>
+<tr><td>Typing Tool spec (BIBDs + centroids)</td><td>L1</td><td><span class="pill pill-exists">Exists</span></td><td><code>PRISM_Typing_Tool_V2_0.xlsx</code> · <code>prism_typing_tool.sql</code></td></tr>
+<tr><td>QBALLOT × QPARTY routing matrix</td><td>L1</td><td><span class="pill pill-exists">Exists</span></td><td><code>determine_batteries()</code> in Decipher</td></tr>
+<tr><td>Item Bank (stable item_ids)</td><td>L1</td><td><span class="pill pill-progress">Partial</span></td><td><code>PRISM_Questionnaire_Template.docx</code> (Word, not comprehensive)</td></tr>
+<tr><td>Battery Templates (structural types)</td><td>L1</td><td><span class="pill pill-progress">Partial</span></td><td>Embedded in <code>compute_core.py</code></td></tr>
+<tr><td>Composite formulas (per-study)</td><td>L1</td><td><span class="pill pill-progress">Partial</span></td><td>Hardcoded in <code>compute_core.py</code> — needs to move to per-study YAML</td></tr>
+<tr><td>ROI Model Registry (versioned)</td><td>L1</td><td><span class="pill pill-progress">Partial</span></td><td><code>roi.py</code> (un-versioned)</td></tr>
+<tr><td>DQMA Parameters</td><td>L1</td><td><span class="pill pill-progress">Partial</span></td><td><code>dqma.py</code> <code>Params</code> class</td></tr>
+<tr><td>Scales Library</td><td>L1</td><td><span class="pill pill-tobuild">To build</span></td><td>Inferable from existing studies; not formalized</td></tr>
+<tr><td>Per-Study Definition (YAML schema)</td><td>L1</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td>Excel authoring workbook</td><td>L2</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td>YAML sync + validator</td><td>L2</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td>All seven generators</td><td>L3</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td>Decipher survey platform</td><td>L4</td><td><span class="pill pill-exists">Exists</span></td><td>Forsta-hosted</td></tr>
+<tr><td>Dynata panel integration</td><td>L4</td><td><span class="pill pill-exists">Exists</span></td><td>Configured per study</td></tr>
+<tr><td>DQMA router + rebalancer</td><td>L4</td><td><span class="pill pill-progress">In dev</span></td><td><code>dqma.py</code></td></tr>
+<tr><td>ROI scoring engine</td><td>L4</td><td><span class="pill pill-progress">In dev</span></td><td><code>roi.py</code></td></tr>
+<tr><td><code>dqma_state</code> (Supabase)</td><td>L4</td><td><span class="pill pill-progress">In dev</span></td><td>Schema designed; deployment pending</td></tr>
+<tr><td>SPSS analysis (local)</td><td>L5</td><td><span class="pill pill-exists">Exists</span></td><td>Analyst workflow</td></tr>
+<tr><td>compute_core / topline pipeline</td><td>L5</td><td><span class="pill pill-exists">Exists</span></td><td><code>compute_core.py</code> · <code>dashboard_template.html</code></td></tr>
+<tr><td>HIV topline HTML</td><td>L5</td><td><span class="pill pill-exists">Exists</span></td><td><code>PRISM_HIV_Topline.html</code></td></tr>
+<tr><td>Client Dashboard (React/Vite)</td><td>L5</td><td><span class="pill pill-progress">Scaffold built</span></td><td>5 components live (SegmentMap, IdeologyHeatmap, AudienceROI, SegmentProfile, MessageMap); HIV data not yet wired</td></tr>
+<tr><td>Banner books</td><td>L5</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td>QC gate</td><td>L6</td><td><span class="pill pill-tobuild">To build</span></td><td>—</td></tr>
+<tr><td><code>prism_norms.db</code> (full schema)</td><td>L6</td><td><span class="pill pill-progress">Partial</span></td><td>Segment registry + ROI priors seeded; item norms schema not yet</td></tr>
+<tr><td>Simulation engine</td><td>L7</td><td><span class="pill pill-future">Future</span></td><td>Concept only</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- PROTOTYPING PLAN                                                  -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="layer" id="prototype">
+<div class="layer-head">
+  <span class="layer-num">§ 9</span>
+  <h2>Prototyping plan: HIV as the proof study</h2>
+</div>
+<p class="lead">
+Use the just-fielded HIV study as the proof case. Everything about it (data, items, composites, segments, dashboard) is already known and validated. The prototype's job is to demonstrate that the canonical-driven architecture reproduces the existing artifacts bit-identically — same numbers, same labels, same dashboard. Once that round-trip works, every future study runs through canonical from day one.
+</p>
+
+<div class="proto-step">
+<div class="num">0</div>
+<div class="body">
+<h4>Ship the 48-hour client dashboard with HIV data</h4>
+<p>Before any canonical work begins: export <code>dashboard.json</code> from the current HIV <code>compute_core</code> build. Add a <code>HIV</code> entry to the client dashboard's <code>studyData</code> module alongside the existing <code>ESI</code> and <code>MA</code> entries. Wire it into the navigation. Deploy to Vercel. Verify all five components (SegmentMap, IdeologyHeatmap, AudienceROI, SegmentProfile, MessageMap) render correctly for the HIV study.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: HIV live in client dashboard</span>
+<span class="accept">Acceptance: clients can navigate HIV alongside ESI and MA</span>
+<span>Effort: ~2 days</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">1</div>
+<div class="body">
+<h4>Hand-write the canonical YAML for HIV</h4>
+<p>Not using any generator. The point is to stress-test the schema by writing it out longhand. Cover: study metadata, library selections (which battery templates, which scales, which ROI model version), all items with stable item_ids, all eight composites with formulas (MBS, SDS, EDS, SCS, CFS, PFS, SCF, HKS), module layout, demographics, MaxDiff stimuli (when MaxDiff activates in V2), the trap item flag for K5. If any piece of the current HIV dashboard doesn't fit cleanly into the schema, the schema needs another field. Iterate until it fits.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: <code>hiv_2026.yaml</code> · ~400-600 lines</span>
+<span class="accept">Acceptance: schema covers every field in current compute_core.py without gaps</span>
+<span>Effort: 1 week</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">2</div>
+<div class="body">
+<h4>Build the SPSS Syntax generator</h4>
+<p>Read <code>hiv_2026.yaml</code>, emit a <code>.sps</code> file that defines every variable label, value label, RECODE statement, and composite syntax. The output is line-by-line verifiable: open <code>260433.sav</code> in SPSS, look at the variable labels and value labels already there, diff them against what the generator produces. If they match exactly, the schema is right. If they don't, find the mismatch, fix the schema, regenerate.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: <code>generate_spss_syntax.py</code> + generated <code>.sps</code></span>
+<span class="accept">Acceptance: generated SPSS labels match 260433.sav metadata exactly</span>
+<span>Effort: 1 week</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">3</div>
+<div class="body">
+<h4>Build the topline registry generator</h4>
+<p>Read <code>hiv_2026.yaml</code>, emit the Python dictionaries that <code>compute_core.py</code> currently maintains by hand: STUDY, MODULES, ITEMS, BATTERIES, COMPOSITES, DEMOGRAPHICS, INFLUENCER_BLOCKS, SEGMENTS. Either replace the hand-maintained registries with the generated module or import the generated module from <code>compute_core.py</code>. The composite formulas — newly recognized as study-specific — get generated here too, from the YAML's composites section.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: <code>generate_topline_config.py</code> + generated registries module</span>
+<span class="accept">Acceptance: <code>compute_core.py</code> runs unchanged when fed generated registries instead of hand-maintained ones</span>
+<span>Effort: 1 week</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">4</div>
+<div class="body">
+<h4>The round-trip test (decisive moment)</h4>
+<p>Run the full HIV build using the generated registries. Compare the output:</p>
+<ul style="margin: 6px 0; padding-left: 22px; font-size: 14px;">
+<li><code>dashboard.json</code> bit-identical to the current production version</li>
+<li><code>results_long.csv</code> identical row-for-row (2,414 rows)</li>
+<li><code>PRISM_HIV_Topline.html</code> visually identical (diff the rendered HTML)</li>
+<li>Client dashboard renders HIV identically using the regenerated <code>dashboard.json</code></li>
+</ul>
+<p>If they match, the schema is proven. If they don't, the diff tells you exactly which field in the YAML is wrong or missing.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: round-trip test report</span>
+<span class="accept">Acceptance: zero diff between hand-maintained and YAML-generated dashboards</span>
+<span>Effort: 2-3 days</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">5</div>
+<div class="body">
+<h4>Build the Excel authoring workbook</h4>
+<p>Reverse-engineer Excel sheets from the proven YAML schema. One sheet per top-level YAML section (Study, Segments, Scales, Batteries, Items, Composites, Modules, MaxDiff Stimuli, Demographics). Data validation: scale_id is a dropdown sourced from the Scales sheet; battery_id from Batteries; composite_targets is a multi-select from Composites. Write the sync script that reads the workbook and emits the same YAML you hand-wrote in step 1. Round-trip the HIV YAML through it: open in Excel, save, sync, diff against original.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: <code>prism_study.xlsx</code> template + <code>sync_to_yaml.py</code></span>
+<span class="accept">Acceptance: round-trip from YAML → Excel → YAML produces identical YAML</span>
+<span>Effort: 1-2 weeks</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">6</div>
+<div class="body">
+<h4>Author the next study from canonical (day one)</h4>
+<p>Next study after HIV: the analyst opens the Excel template, edits in study metadata, picks library elements, defines new composites, runs sync, gets <code>next_study.yaml</code>. Runs the SPSS generator — gets the labels file for fielding. Runs the topline generator — gets the registries for compute_core. Runs <code>compute_core.py</code> after field — gets the dashboard. Zero hand-typing into Decipher labels, SPSS labels, or topline registries. This is the moment the new architecture replaces the old workflow for real.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: first study fielded canonical-first</span>
+<span class="accept">Acceptance: analyst confirms no hand-edited config files outside the YAML</span>
+<span>Effort: integrated into next study timeline</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">7</div>
+<div class="body">
+<h4>Decipher XML generator and DQMA runtime generator (parallel)</h4>
+<p>Once two studies have round-tripped through canonical, build out the remaining generators. Decipher XML generator works with Forsta as a partner — Forsta provides the configuration tools you'll ultimately drive from canonical. DQMA runtime generator emits the study registry insert (eligibility rules, ROI weights, n_base targets) that the live DQMA reads. After this step, the canonical YAML feeds both the survey instrument and the field management system, closing the loop completely.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: <code>generate_decipher_xml.py</code> + <code>generate_dqma_runtime.py</code></span>
+<span class="accept">Acceptance: full study can be configured, fielded, managed, and reported from one YAML</span>
+<span>Effort: 3-4 weeks</span>
+</div>
+</div>
+</div>
+
+<div class="proto-step">
+<div class="num">8</div>
+<div class="body">
+<h4>QC gate + Item Bank backfill (parallel track)</h4>
+<p>With three or four canonical studies in production, build the QC gate as a one-screen checklist that reads <code>dashboard.json</code> for each completed study, runs the five health checks, and writes approved records into <code>prism_norms.db</code>. The first backfill is item-level: every fielded item with an assigned item_id becomes an entry in the Item Bank with its observed distributions across the four (or more) studies. From here, future studies inherit Item Bank priors automatically.</p>
+<div class="meta-row">
+<span class="deliv">Deliverable: QC gate UI + populated Item Bank</span>
+<span class="accept">Acceptance: next study's DQMA reads improved priors from accumulated norms</span>
+<span>Effort: 3-4 weeks</span>
+</div>
+</div>
+</div>
+
+<div class="notes">
+<h4>What this plan does and doesn't commit to</h4>
+<ul>
+<li><strong>Commits to:</strong> proving the canonical schema against an existing, validated study (HIV) before generalizing; shipping the 48-hour client dashboard with HIV today using the existing pipeline; the round-trip test as the gating criterion for moving forward; sequential, validated, low-risk progression from hand-written YAML to fully generated artifacts.</li>
+<li><strong>Doesn't commit to:</strong> a Study Editor UI before the YAML schema is proven across 3-4 studies; the simulation engine before norms are accumulated; activation pipelines (LiveRamp, DSPs) — out of scope per your direction; migrating off Decipher — Forsta partnership path is preferred.</li>
+<li><strong>Risk surface:</strong> the round-trip test (step 4) is where the schema is proven or broken. If the diff shows fundamental mismatches that can't be patched by adding YAML fields, the schema needs structural revision before steps 5–8 proceed. Budget for one iteration of schema redesign between steps 3 and 4.</li>
+</ul>
+</div>
+</section>
+
+<footer>
+PRISM Closed-Loop Architecture · PRD v0.2 · Internal · Reservoir Communications Group / HAIG · prepared for Bryan Dumont, May 2026.
+Status colors: <span style="color:#2d5f3f">green = exists in production</span> · <span style="color:#b85c2e">orange = in development</span> · <span style="color:#4a4a4a">gray = to build</span> · <span style="color:#6b6b2e">olive = future</span>.
+</footer>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'base',
+  themeVariables: {
+    fontFamily: 'Helvetica Neue, Arial, sans-serif',
+    fontSize: '13px',
+    primaryColor: '#ffffff',
+    primaryTextColor: '#1a1a1a',
+    primaryBorderColor: '#4a4a4a',
+    lineColor: '#4a4a4a',
+    secondaryColor: '#f5f3ee',
+    tertiaryColor: '#fbfaf7',
+    background: '#ffffff',
+    mainBkg: '#ffffff'
+  },
+  flowchart: {
+    curve: 'basis',
+    nodeSpacing: 45,
+    rankSpacing: 55,
+    htmlLabels: true,
+    padding: 14
+  },
+  securityLevel: 'loose'
+});
+</script>
+</body>
+</html>
