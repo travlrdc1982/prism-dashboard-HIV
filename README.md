@@ -19,6 +19,16 @@ npm install
 npm run dev
 ```
 
+## Refresh data from the workbook
+
+The dashboard is fed by `HIV_Study_Template.xlsx` at the repo root. To re-extract after the workbook changes:
+
+```bash
+python extract_hiv.py
+```
+
+This regenerates `src/data/study.js` and the `HIV` block of `src/data/studyData.js`. The number of pre-post items (`K_PREPOST`) is auto-detected from the workbook — add or remove `prepost_keyN_*` column groups in `SegmentMetrics` and K updates on the next extraction. The `tier` column is found by header name (case-insensitive, whitespace-tolerant), so trailing-space header bugs don't break it.
+
 ## Routes
 
 - `/` — SegmentMap (bubble map)
