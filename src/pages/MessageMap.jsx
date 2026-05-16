@@ -1,21 +1,25 @@
 import { useState, useMemo } from "react";
 import DATA from "../data/studyData";
-import { MESSAGES as AL_MESSAGES, CONTROL_SOP, VARIANT_SOP } from "../data/study";
+import { MESSAGES as STUDY_MESSAGES, CONTROL_SOP, VARIANT_SOP, STUDY_META } from "../data/study";
 
 // ─── SEGMENTS from shared data ───
 const SEGMENTS = DATA.segments;
 
-// ─── Build AL message objects from study.js ───
+// ─── Wave-1 vs wave-2 detection ───
+// If the SoP matrix is empty, this study hasn't been scored yet — render a placeholder list.
+const HAS_SOP = Array.isArray(CONTROL_SOP) && CONTROL_SOP.length > 0;
+
+// ─── Build message objects from study.js (wave-2 only) ───
 const SEG_POPS = SEGMENTS.map(s => s.pop);
 const POP_TOTAL = SEG_POPS.reduce((a, b) => a + b, 0);
 
-function buildAlMessages(sopMatrix, useVariants) {
-  return AL_MESSAGES.map((m, i) => {
+function buildMessages(sopMatrix, useVariants) {
+  return STUDY_MESSAGES.map((m, i) => {
     const segSops = sopMatrix[i];
     const wtTotal = segSops.reduce((sum, v, si) => sum + v * (SEG_POPS[si] / POP_TOTAL), 0);
     const text = useVariants
-      ? (Object.values(m.variants || {})[0] || m.control)
-      : m.control;
+      ? (Object.values(m.variants || {})[0] || m.control || m.text)
+      : (m.control || m.text);
     return {
       id: m.id,
       shortName: m.shortName,
@@ -77,7 +81,61 @@ function Tooltip({ msg, x, y, segIdx, isVariant }) {
   );
 }
 
+// ─── Wave-1 placeholder: list-only view, no heatmap ───
+function WavePlaceholder() {
+  return (
+    <div style={{ maxWidth:1100, margin:"0 auto", color:"#e2e8f0" }}>
+      <div style={{ marginBottom:16 }}>
+        <div style={{ fontSize:11, color:"#94a3b8", lineHeight:1.5 }}>
+          <strong style={{ color:"#cbd5e1" }}>Message testing results available in Wave 2.</strong>{" "}
+          Messages and stimulus text shown below for reference.
+        </div>
+        <div style={{ fontSize:10, color:"#64748b", marginTop:6, fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5 }}>
+          {STUDY_META?.nMessages || STUDY_MESSAGES.length} MESSAGES · {STUDY_META?.methodology || ""}
+        </div>
+      </div>
+
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {STUDY_MESSAGES.map(m => (
+          <div key={m.id} style={{
+            background:"#111827", border:"1px solid #1e293b", borderRadius:6,
+            padding:"10px 14px", display:"flex", gap:14, alignItems:"flex-start"
+          }}>
+            <div style={{
+              minWidth:28, fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700,
+              color:"#64748b", padding:"2px 0"
+            }}>{String(m.id).padStart(2,"0")}</div>
+
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
+                <span style={{
+                  fontFamily:"'Poppins',sans-serif", fontSize:12, fontWeight:700, color:"#e2e8f0",
+                  textTransform:"uppercase", letterSpacing:0.5
+                }}>{m.shortName}</span>
+                {m.theme && (
+                  <span style={{
+                    fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:"#94a3b8",
+                    background:"rgba(0,0,0,0.3)", padding:"1px 6px", borderRadius:3,
+                    textTransform:"uppercase", letterSpacing:0.5
+                  }}>{m.theme}</span>
+                )}
+              </div>
+              <div style={{ fontSize:11, color:"#cbd5e1", lineHeight:1.55, fontStyle:"italic" }}>
+                "{m.text}"
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function MessageMap() {
+  return HAS_SOP ? <Heatmap /> : <WavePlaceholder />;
+}
+
+function Heatmap() {
   const [sortCol, setSortCol] = useState(null);
   const [tooltip, setTooltip] = useState(null);
   const [variantMode, setVariantMode] = useState("control");
@@ -85,7 +143,7 @@ export default function MessageMap() {
   const [hoverCol, setHoverCol] = useState(null);
 
   const isVariant = variantMode === "persona";
-  const MESSAGES = buildAlMessages(isVariant ? VARIANT_SOP : CONTROL_SOP, isVariant);
+  const MESSAGES = buildMessages(isVariant ? VARIANT_SOP : CONTROL_SOP, isVariant);
 
   const sorted = useMemo(() => {
     const ix = MESSAGES.map((m, i) => ({ ...m, idx: i }));

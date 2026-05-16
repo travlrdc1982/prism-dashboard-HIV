@@ -1,16 +1,27 @@
-# React + Vite
+# PRISM HIV Treatment & Prevention Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Client-facing dashboard for the HIV Treatment & Prevention study (Gilead, May 2026), built on the PRISM 16-segment audience-intelligence frame.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React 19 + Vite, deployed to Vercel. Auth via Supabase.
 
-## React Compiler
+## Data flow
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/data/segments.js`, `src/data/ideology.js`, `src/data/vectors.js`, `src/data/trust.js`, `src/data/experiential.js` — canonical PRISM content (does not change across studies).
+- `src/data/studyData.js` — canonical 16-segment skeleton consumed by the dashboard pages.
+- `src/data/study.js` — study-specific layer (HIV) auto-generated from `HIV_Study_Template.xlsx` in the repo root. Contains `STUDY_META`, `MESSAGES`, `STUDY_METRICS`, `PREPOST_METRICS`, `THEME_COLORS`, `TIER_CONFIG`, helper functions.
 
-## Expanding the ESLint configuration
+## Local development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Routes
+
+- `/` — SegmentMap (bubble map)
+- `/roi` — AudienceROI scorecard
+- `/messages` — MessageMap (wave-2 placeholder until SoP is computed)
+- `/profile` — SegmentProfile deep-dive
