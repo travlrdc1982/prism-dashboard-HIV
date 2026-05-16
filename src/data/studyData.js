@@ -128,6 +128,7 @@ const DATA = {
         "pop": 2,
         "roi": 1.0236,
         "highRoi": 30,
+        "tier": 1,
         "persuadability": [
           27,
           2,
@@ -177,6 +178,7 @@ const DATA = {
         "pop": 6,
         "roi": 0.8524,
         "highRoi": 16,
+        "tier": 2,
         "persuadability": [
           7,
           9,
@@ -226,6 +228,7 @@ const DATA = {
         "pop": 6,
         "roi": 0.7189,
         "highRoi": 7,
+        "tier": 3,
         "persuadability": [
           0,
           7,
@@ -275,6 +278,7 @@ const DATA = {
         "pop": 2,
         "roi": 1.0796,
         "highRoi": 27,
+        "tier": 1,
         "persuadability": [
           19,
           9,
@@ -324,6 +328,7 @@ const DATA = {
         "pop": 2,
         "roi": 0.7353,
         "highRoi": 9,
+        "tier": 2,
         "persuadability": [
           4,
           5,
@@ -373,6 +378,7 @@ const DATA = {
         "pop": 9,
         "roi": 0.6176,
         "highRoi": 9,
+        "tier": 3,
         "persuadability": [
           3,
           6,
@@ -422,6 +428,7 @@ const DATA = {
         "pop": 4,
         "roi": 0.7958,
         "highRoi": 13,
+        "tier": 2,
         "persuadability": [
           6,
           7,
@@ -471,6 +478,7 @@ const DATA = {
         "pop": 3,
         "roi": 1.043,
         "highRoi": 29,
+        "tier": 1,
         "persuadability": [
           20,
           9,
@@ -520,6 +528,7 @@ const DATA = {
         "pop": 5,
         "roi": 0.8055,
         "highRoi": 14,
+        "tier": 2,
         "persuadability": [
           7,
           8,
@@ -569,6 +578,7 @@ const DATA = {
         "pop": 5,
         "roi": 0.7492,
         "highRoi": 12,
+        "tier": 2,
         "persuadability": [
           5,
           6,
@@ -618,6 +628,7 @@ const DATA = {
         "pop": 11,
         "roi": 1.3316,
         "highRoi": 69,
+        "tier": 1,
         "persuadability": [
           52,
           18,
@@ -667,6 +678,7 @@ const DATA = {
         "pop": 10,
         "roi": 1.2991,
         "highRoi": 56,
+        "tier": 1,
         "persuadability": [
           50,
           6,
@@ -716,6 +728,7 @@ const DATA = {
         "pop": 8,
         "roi": 1.1387,
         "highRoi": 35,
+        "tier": 1,
         "persuadability": [
           30,
           6,
@@ -765,6 +778,7 @@ const DATA = {
         "pop": 8,
         "roi": 1.0605,
         "highRoi": 31,
+        "tier": 2,
         "persuadability": [
           14,
           17,
@@ -814,6 +828,7 @@ const DATA = {
         "pop": 7,
         "roi": 1.0669,
         "highRoi": 29,
+        "tier": 2,
         "persuadability": [
           25,
           4,
@@ -863,6 +878,7 @@ const DATA = {
         "pop": 10,
         "roi": 1.0832,
         "highRoi": 48,
+        "tier": 2,
         "persuadability": [
           32,
           15,

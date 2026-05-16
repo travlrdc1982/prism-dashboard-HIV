@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DATA from "../data/studyData";
-import { STUDY_METRICS, PREPOST_METRICS, getTierNum } from "../data/study";
+import { STUDY_METRICS, PREPOST_METRICS, getAssignedTier } from "../data/study";
+// Tier is always the analyst-configured value from the workbook; never derived from ROI.
 
 // ─── Build segment data by merging shared 16-segment skeleton with study-specific metrics ───
 const HIV_SEGMENTS = DATA.segments.map(seg => {
   const m = STUDY_METRICS[seg.code];
-  if (!m) return { ...seg, roi:0, highRoi:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{} };
+  if (!m) return { ...seg, roi:0, highRoi:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{}, tier:3 };
   return {
     ...seg,
     roi: m.roi,
@@ -16,6 +17,7 @@ const HIV_SEGMENTS = DATA.segments.map(seg => {
     influence: m.influence,
     persuadability: m.persuadability,
     prePost: m.prePost,
+    tier: m.tier,
   };
 });
 
@@ -173,7 +175,7 @@ function MetricLabel({ metric }) {
 
 // ─── SEGMENT COLUMN ───
 function SegmentColumn({ seg, expanded, onNav }) {
-  const t = getTierNum(seg.roi);
+  const t = getAssignedTier(seg.code);
   const tc = tierColor(t);
   const partyColor = seg.party === "GOP" ? C.gop : C.dem;
   const prePostH = H.prePostPad + PRE_POST_METRICS.length * H.prePostRow;

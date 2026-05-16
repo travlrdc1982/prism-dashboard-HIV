@@ -8,6 +8,9 @@ import MessageMap from "./pages/MessageMap";
 import SegmentProfile from "./pages/SegmentProfile";
 import Login from "./pages/Login";
 
+// Auth gate paused per Bryan's request — flip to false to require login again.
+const BYPASS_AUTH = true;
+
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
 
@@ -17,12 +20,13 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (session === undefined) {
-    return <div style={{ minHeight:"100vh", background:"#080c16", display:"flex", alignItems:"center", justifyContent:"center", color:"#64748b", fontFamily:"'Nunito',sans-serif", fontSize:12 }}>Loading...</div>;
-  }
-
-  if (!session) {
-    return <Login onAuth={() => {}} />;
+  if (!BYPASS_AUTH) {
+    if (session === undefined) {
+      return <div style={{ minHeight:"100vh", background:"#080c16", display:"flex", alignItems:"center", justifyContent:"center", color:"#64748b", fontFamily:"'Nunito',sans-serif", fontSize:12 }}>Loading...</div>;
+    }
+    if (!session) {
+      return <Login onAuth={() => {}} />;
+    }
   }
 
   return (

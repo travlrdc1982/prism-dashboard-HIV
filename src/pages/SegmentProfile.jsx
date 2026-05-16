@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import IdeologyHeatmap from "./IdeologyHeatmap";
+import { getAssignedTier } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
 const SEGMENTS = [
@@ -209,8 +210,7 @@ const PREPOST = {
 
 // ─── VECTOR DATA ───
 // ─── STUDY-SPECIFIC ROI DATA (HIV) ───
-// HIV study metrics. Tier computed dynamically from ROI.
-function alTier(roi) { return roi >= 1.07 ? 1 : roi >= 1.00 ? 2 : 3; }
+// HIV study metrics. Tier always sourced from getAssignedTier(code) — analyst-configured in workbook.
 const STUDY_ROI = {
   "TSP":{ HIV:{roi:1.0236,highRoi:30,supporters:32,activation:32,influence:31} },
   "CEC":{ HIV:{roi:0.8524,highRoi:16,supporters:11,activation:16,influence:12} },
@@ -2056,7 +2056,7 @@ export default function SegmentProfile() {
             {STUDY_ROI[seg.code] && (() => {
               const d = STUDY_ROI[seg.code].HIV;
               if (!d) return null;
-              const studyTier = alTier(d.roi);
+              const studyTier = getAssignedTier(seg.code);
               const studyTc = TIER_ACCENT[studyTier];
               return (
                 <div style={{ background:"#111827", borderRadius:8, padding:"8px 10px", border:"1px solid #1e293b" }}>

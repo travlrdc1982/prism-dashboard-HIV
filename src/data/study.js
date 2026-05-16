@@ -39,29 +39,51 @@ export const MESSAGES = [
 export const CONTROL_SOP = [];
 export const VARIANT_SOP = [];
 
+// ─── ASSIGNED TIERS (explicit, from workbook col 50) ───
+// Tiers are assigned in the workbook, not derived from ROI.
+export const ASSIGNED_TIERS = {
+  TSP: 1,
+  CEC: 2,
+  TC: 3,
+  HF: 1,
+  PP: 2,
+  WE: 3,
+  PFF: 2,
+  HHN: 1,
+  MFL: 2,
+  VS: 2,
+  UCP: 1,
+  FJP: 1,
+  HCP: 1,
+  HAD: 2,
+  HCI: 2,
+  GHI: 2,
+};
+
+export function getAssignedTier(code) { return ASSIGNED_TIERS[code] || 3; }
+
 // ─── SEGMENT-LEVEL STUDY METRICS ───
-// Percentage values rounded to integers for display. prePost values to 1 decimal.
+// Each segment includes its assigned tier from the workbook.
 export const STUDY_METRICS = {
-  TSP: { roi:1.0236, highRoi:30, supporters:32, activation:32, influence:31, persuadability:[27, 2, 29, 6, 36], prePost:{item1:[20.4, 27.7],item2:[47.3, 39.0],item3:[43.8, 38.9],item4:[33.9, 39.5],item5:[59.8, 63.2],item6:[28.2, 40.1],item7:[63.3, 51.6]} },
-  CEC: { roi:0.8524, highRoi:16, supporters:11, activation:16, influence:12, persuadability:[7, 9, 35, 8, 41], prePost:{item1:[2.4, 7.9],item2:[14.5, 16.4],item3:[21.7, 24.3],item4:[14.1, 12.5],item5:[51.9, 57.0],item6:[25.3, 39.6],item7:[34.2, 41.5]} },
-  TC: { roi:0.7189, highRoi:7, supporters:2, activation:16, influence:21, persuadability:[0, 7, 37, 18, 38], prePost:{item1:[3.8, 6.8],item2:[18.3, 16.5],item3:[29.9, 22.3],item4:[14.7, 10.2],item5:[53.9, 52.6],item6:[33.1, 30.9],item7:[35.6, 33.1]} },
-  HF: { roi:1.0796, highRoi:27, supporters:21, activation:32, influence:46, persuadability:[19, 9, 38, 9, 26], prePost:{item1:[19.9, 34.3],item2:[41.1, 36.9],item3:[33.9, 35.8],item4:[26.0, 42.8],item5:[59.4, 68.2],item6:[24.7, 21.9],item7:[53.2, 52.3]} },
-  PP: { roi:0.7353, highRoi:9, supporters:6, activation:18, influence:19, persuadability:[4, 5, 29, 9, 53], prePost:{item1:[8.0, 11.6],item2:[14.4, 15.8],item3:[19.7, 21.8],item4:[5.8, 12.5],item5:[50.3, 46.5],item6:[34.0, 31.4],item7:[31.5, 32.6]} },
-  WE: { roi:0.6176, highRoi:9, supporters:5, activation:16, influence:24, persuadability:[3, 6, 23, 15, 53], prePost:{item1:[2.9, 4.6],item2:[22.9, 19.4],item3:[25.1, 20.7],item4:[11.6, 8.9],item5:[44.9, 40.0],item6:[22.0, 18.6],item7:[23.6, 27.3]} },
-  PFF: { roi:0.7958, highRoi:13, supporters:13, activation:21, influence:36, persuadability:[6, 7, 28, 17, 42], prePost:{item1:[10.4, 11.4],item2:[20.4, 20.1],item3:[25.1, 29.7],item4:[12.5, 17.8],item5:[40.4, 50.3],item6:[27.9, 22.6],item7:[36.5, 41.3]} },
-  HHN: { roi:1.043, highRoi:29, supporters:23, activation:29, influence:30, persuadability:[20, 9, 24, 10, 37], prePost:{item1:[0.0, 26.4],item2:[32.4, 40.6],item3:[33.3, 36.9],item4:[32.8, 31.8],item5:[67.1, 51.1],item6:[24.9, 24.4],item7:[43.8, 40.0]} },
-  MFL: { roi:0.8055, highRoi:14, supporters:8, activation:17, influence:21, persuadability:[7, 8, 33, 14, 38], prePost:{item1:[4.6, 12.7],item2:[21.3, 17.8],item3:[27.6, 23.2],item4:[15.4, 15.0],item5:[57.8, 62.1],item6:[32.7, 39.5],item7:[39.2, 40.1]} },
-  VS: { roi:0.7492, highRoi:12, supporters:7, activation:20, influence:25, persuadability:[5, 6, 31, 21, 37], prePost:{item1:[4.3, 4.1],item2:[22.3, 21.2],item3:[30.9, 30.1],item4:[15.8, 15.0],item5:[51.4, 45.5],item6:[25.5, 38.1],item7:[22.2, 34.6]} },
-  UCP: { roi:1.3316, highRoi:69, supporters:64, activation:34, influence:42, persuadability:[52, 18, 12, 1, 17], prePost:{item1:[13.7, 31.2],item2:[43.7, 70.0],item3:[74.1, 76.7],item4:[47.8, 74.3],item5:[98.0, 99.8],item6:[92.5, 95.1],item7:[70.6, 75.9]} },
-  FJP: { roi:1.2991, highRoi:56, supporters:57, activation:34, influence:35, persuadability:[50, 6, 18, 3, 24], prePost:{item1:[13.8, 29.1],item2:[54.4, 66.0],item3:[77.2, 80.4],item4:[44.9, 53.8],item5:[96.9, 99.3],item6:[71.2, 77.4],item7:[65.2, 56.1]} },
-  HCP: { roi:1.1387, highRoi:35, supporters:42, activation:31, influence:26, persuadability:[30, 6, 18, 7, 39], prePost:{item1:[2.9, 19.9],item2:[39.6, 44.4],item3:[73.5, 57.0],item4:[42.6, 36.5],item5:[79.9, 85.7],item6:[67.2, 69.5],item7:[80.3, 60.7]} },
-  HAD: { roi:1.0605, highRoi:31, supporters:23, activation:31, influence:30, persuadability:[14, 17, 22, 4, 42], prePost:{item1:[13.4, 41.1],item2:[31.0, 31.6],item3:[37.3, 40.7],item4:[32.3, 32.5],item5:[69.6, 70.0],item6:[28.1, 31.7],item7:[56.4, 48.2]} },
-  HCI: { roi:1.0669, highRoi:29, supporters:34, activation:22, influence:31, persuadability:[25, 4, 29, 7, 35], prePost:{item1:[20.9, 39.2],item2:[20.3, 31.7],item3:[45.7, 55.9],item4:[36.4, 34.3],item5:[64.3, 62.5],item6:[46.3, 42.5],item7:[40.2, 50.6]} },
-  GHI: { roi:1.0832, highRoi:48, supporters:43, activation:27, influence:29, persuadability:[32, 15, 10, 19, 24], prePost:{item1:[6.9, 27.2],item2:[25.9, 30.0],item3:[56.3, 48.9],item4:[42.3, 43.1],item5:[83.8, 84.7],item6:[76.1, 76.8],item7:[77.0, 62.6]} },
+  TSP: { tier:1, roi:1.0236, highRoi:30, supporters:32, activation:32, influence:31, persuadability:[27, 2, 29, 6, 36], prePost:{item1:[20.4, 27.7],item2:[47.3, 39.0],item3:[43.8, 38.9],item4:[33.9, 39.5],item5:[59.8, 63.2],item6:[28.2, 40.1],item7:[63.3, 51.6]} },
+  CEC: { tier:2, roi:0.8524, highRoi:16, supporters:11, activation:16, influence:12, persuadability:[7, 9, 35, 8, 41], prePost:{item1:[2.4, 7.9],item2:[14.5, 16.4],item3:[21.7, 24.3],item4:[14.1, 12.5],item5:[51.9, 57.0],item6:[25.3, 39.6],item7:[34.2, 41.5]} },
+  TC: { tier:3, roi:0.7189, highRoi:7, supporters:2, activation:16, influence:21, persuadability:[0, 7, 37, 18, 38], prePost:{item1:[3.8, 6.8],item2:[18.3, 16.5],item3:[29.9, 22.3],item4:[14.7, 10.2],item5:[53.9, 52.6],item6:[33.1, 30.9],item7:[35.6, 33.1]} },
+  HF: { tier:1, roi:1.0796, highRoi:27, supporters:21, activation:32, influence:46, persuadability:[19, 9, 38, 9, 26], prePost:{item1:[19.9, 34.3],item2:[41.1, 36.9],item3:[33.9, 35.8],item4:[26.0, 42.8],item5:[59.4, 68.2],item6:[24.7, 21.9],item7:[53.2, 52.3]} },
+  PP: { tier:2, roi:0.7353, highRoi:9, supporters:6, activation:18, influence:19, persuadability:[4, 5, 29, 9, 53], prePost:{item1:[8.0, 11.6],item2:[14.4, 15.8],item3:[19.7, 21.8],item4:[5.8, 12.5],item5:[50.3, 46.5],item6:[34.0, 31.4],item7:[31.5, 32.6]} },
+  WE: { tier:3, roi:0.6176, highRoi:9, supporters:5, activation:16, influence:24, persuadability:[3, 6, 23, 15, 53], prePost:{item1:[2.9, 4.6],item2:[22.9, 19.4],item3:[25.1, 20.7],item4:[11.6, 8.9],item5:[44.9, 40.0],item6:[22.0, 18.6],item7:[23.6, 27.3]} },
+  PFF: { tier:2, roi:0.7958, highRoi:13, supporters:13, activation:21, influence:36, persuadability:[6, 7, 28, 17, 42], prePost:{item1:[10.4, 11.4],item2:[20.4, 20.1],item3:[25.1, 29.7],item4:[12.5, 17.8],item5:[40.4, 50.3],item6:[27.9, 22.6],item7:[36.5, 41.3]} },
+  HHN: { tier:1, roi:1.043, highRoi:29, supporters:23, activation:29, influence:30, persuadability:[20, 9, 24, 10, 37], prePost:{item1:[0.0, 26.4],item2:[32.4, 40.6],item3:[33.3, 36.9],item4:[32.8, 31.8],item5:[67.1, 51.1],item6:[24.9, 24.4],item7:[43.8, 40.0]} },
+  MFL: { tier:2, roi:0.8055, highRoi:14, supporters:8, activation:17, influence:21, persuadability:[7, 8, 33, 14, 38], prePost:{item1:[4.6, 12.7],item2:[21.3, 17.8],item3:[27.6, 23.2],item4:[15.4, 15.0],item5:[57.8, 62.1],item6:[32.7, 39.5],item7:[39.2, 40.1]} },
+  VS: { tier:2, roi:0.7492, highRoi:12, supporters:7, activation:20, influence:25, persuadability:[5, 6, 31, 21, 37], prePost:{item1:[4.3, 4.1],item2:[22.3, 21.2],item3:[30.9, 30.1],item4:[15.8, 15.0],item5:[51.4, 45.5],item6:[25.5, 38.1],item7:[22.2, 34.6]} },
+  UCP: { tier:1, roi:1.3316, highRoi:69, supporters:64, activation:34, influence:42, persuadability:[52, 18, 12, 1, 17], prePost:{item1:[13.7, 31.2],item2:[43.7, 70.0],item3:[74.1, 76.7],item4:[47.8, 74.3],item5:[98.0, 99.8],item6:[92.5, 95.1],item7:[70.6, 75.9]} },
+  FJP: { tier:1, roi:1.2991, highRoi:56, supporters:57, activation:34, influence:35, persuadability:[50, 6, 18, 3, 24], prePost:{item1:[13.8, 29.1],item2:[54.4, 66.0],item3:[77.2, 80.4],item4:[44.9, 53.8],item5:[96.9, 99.3],item6:[71.2, 77.4],item7:[65.2, 56.1]} },
+  HCP: { tier:1, roi:1.1387, highRoi:35, supporters:42, activation:31, influence:26, persuadability:[30, 6, 18, 7, 39], prePost:{item1:[2.9, 19.9],item2:[39.6, 44.4],item3:[73.5, 57.0],item4:[42.6, 36.5],item5:[79.9, 85.7],item6:[67.2, 69.5],item7:[80.3, 60.7]} },
+  HAD: { tier:2, roi:1.0605, highRoi:31, supporters:23, activation:31, influence:30, persuadability:[14, 17, 22, 4, 42], prePost:{item1:[13.4, 41.1],item2:[31.0, 31.6],item3:[37.3, 40.7],item4:[32.3, 32.5],item5:[69.6, 70.0],item6:[28.1, 31.7],item7:[56.4, 48.2]} },
+  HCI: { tier:2, roi:1.0669, highRoi:29, supporters:34, activation:22, influence:31, persuadability:[25, 4, 29, 7, 35], prePost:{item1:[20.9, 39.2],item2:[20.3, 31.7],item3:[45.7, 55.9],item4:[36.4, 34.3],item5:[64.3, 62.5],item6:[46.3, 42.5],item7:[40.2, 50.6]} },
+  GHI: { tier:2, roi:1.0832, highRoi:48, supporters:43, activation:27, influence:29, persuadability:[32, 15, 10, 19, 24], prePost:{item1:[6.9, 27.2],item2:[25.9, 30.0],item3:[56.3, 48.9],item4:[42.3, 43.1],item5:[83.8, 84.7],item6:[76.1, 76.8],item7:[77.0, 62.6]} },
 };
 
 // ─── PRE/POST METRIC DEFINITIONS ───
-// label = SPSS variable name from the workbook; question = human-readable description.
 export const PREPOST_METRICS = [
   { key:"item1", label:"QPRE_1r1", question:"People have different views about which health issues should be the top priority for elected officials. Please rank the following health issues from 1 (most important) to 7 (least important) based on how much you think elected officials should prioritize... HIV/AIDS  [% Ranked top, 2nd or 3rd]", scale:"1--7" },
   { key:"item2", label:"QPRE_2", question:"How concerned are you about the impact of HIV/AIDS on your local community? [% Concerned (5-7)]", scale:"1--7" },
@@ -72,8 +94,7 @@ export const PREPOST_METRICS = [
   { key:"item7", label:"QPRE_7", question:"Which statement comes closest to your view? [% agree with \"The next generation of HIV treatment and prevention will do what existing medicines cannot -- make adherence easier, reach more people, and move us closer to a cure. That innovation requires continued investment.\" (5-7)]", scale:"1--7" },
 ];
 
-// ─── THEME COLORS ───
-// Intentionally empty for HIV (no theme color pattern in Wave 1; themes display as plain text).
+// ─── THEME COLORS (intentionally empty for HIV Wave 1) ───
 export const THEME_COLORS = {};
 
 export const TIER_CONFIG = {
@@ -82,6 +103,8 @@ export const TIER_CONFIG = {
   3: { bg:"#991b1b", text:"#fca5a5", accent:"#ef4444", label:"TIER 3" },
 };
 
+// Deprecated: tier is always analyst-configured via ASSIGNED_TIERS / getAssignedTier(code).
+// Kept here so existing imports don't break; do not call from new code.
 export function getTierNum(roi) { return roi >= 1.07 ? 1 : roi >= 1.00 ? 2 : 3; }
 
 export function getSopColor(v) {
