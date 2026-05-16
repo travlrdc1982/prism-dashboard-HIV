@@ -29,7 +29,7 @@ const H = {
   header: 120,
   roi: 54,
   persuasion: 205,
-  prePostRow: 22,
+  prePostRow: 44, // stacked PRE / POST / Δ — three labeled rows per item
   prePostPad: 30,
   toggle: 28,
   coalition: 74,
@@ -100,30 +100,38 @@ function PBar({ data, h = 120 }) {
 }
 
 // ─── PRE/POST DELTA DISPLAY ───
+// Stacked: three labeled rows per item (PRE, POST, Δ). Fits inside a 62px column.
 function DeltaBar({ pre, post }) {
   const delta = +(post - pre).toFixed(1);
   const isPos = delta > 0;
   const isNeg = delta < 0;
   const deltaColor = isPos ? "#34d399" : isNeg ? "#ef4444" : C.text3;
 
+  const rowStyle = {
+    display: "flex", justifyContent: "space-between", alignItems: "baseline",
+    width: "100%", padding: "0 4px", fontFamily: "'JetBrains Mono',monospace",
+  };
+
   return (
     <div style={{
-      display: "flex", alignItems: "center", justifyContent: "center",
-      gap: 2, height: H.prePostRow
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      gap: 1, height: H.prePostRow,
+      borderBottom: `1px dotted ${C.border}`, padding: "2px 0",
     }}>
-      <span style={{
-        fontSize: 7, color: C.text3, fontFamily: "'JetBrains Mono',monospace"
-      }}>{pre}</span>
-      <span style={{ fontSize: 6, color: C.text3 }}>→</span>
-      <span style={{
-        fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace", fontWeight: 600
-      }}>{post}</span>
-      <span style={{
-        fontSize: 8, fontWeight: 800, fontFamily: "'JetBrains Mono',monospace",
-        color: deltaColor, marginLeft: 1
-      }}>
-        {isPos ? "+" : ""}{delta}
-      </span>
+      <div style={rowStyle}>
+        <span style={{ fontSize: 6, color: C.text3, letterSpacing: 0.5 }}>PRE</span>
+        <span style={{ fontSize: 8, color: C.text2, fontWeight: 600 }}>{pre.toFixed(1)}</span>
+      </div>
+      <div style={rowStyle}>
+        <span style={{ fontSize: 6, color: C.accent, letterSpacing: 0.5 }}>POST</span>
+        <span style={{ fontSize: 8, color: C.text1, fontWeight: 700 }}>{post.toFixed(1)}</span>
+      </div>
+      <div style={rowStyle}>
+        <span style={{ fontSize: 6, color: C.text3, letterSpacing: 0.5 }}>Δ</span>
+        <span style={{ fontSize: 8, color: deltaColor, fontWeight: 800 }}>
+          {isPos ? "+" : ""}{delta}
+        </span>
+      </div>
     </div>
   );
 }
@@ -134,7 +142,10 @@ function MetricLabel({ metric }) {
 
   return (
     <div
-      style={{ height: H.prePostRow, display: "flex", alignItems: "center", position: "relative" }}
+      style={{
+        height: H.prePostRow, display: "flex", alignItems: "center", position: "relative",
+        borderBottom: `1px dotted ${C.border}`, padding: "2px 0",
+      }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
