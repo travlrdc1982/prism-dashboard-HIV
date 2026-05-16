@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PRISM Persona Profile — HIV Tab v5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg-deep: #07090F;
+    --bg-card: #0E1320;
+    --bg-card-2: #131A2A;
+    --bg-elev: #1A2238;
+    --border: #1F2A40;
+    --border-soft: #182238;
+    --text-primary: #E8EAED;
+    --text-secondary: #A8B5C5;
+    --text-muted: #6A7488;
+    --accent-magenta: #C44C8E;
+    --accent-cyan: #5AC8DC;
+    --accent-purple: #8B5CF6;
+    --gop-red: #DC4040;
+    --gop-light: #E8746E;
+    --dem-blue: #4A82E0;
+    --dem-light: #6FA0E8;
+    --us-white: #E8EAED;
+    --champ-green: #2FE079;
+    --warn-amber: #F0AC4A;
+    --bad-red: #E74848;
+    --blame:    #F0AC4A;
+    --avoid:    #4FB8D6;
+    --care:     #6FA0E8;
+    --sanctity: #DC4040;
+    --knowledge: #8B5CF6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-size: 13.5px;
+    line-height: 1.5;
+    width: 1600px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ───── TOP NAV ───── */
+  .topnav { display: flex; align-items: center; padding: 14px 32px;
+    border-bottom: 1px solid var(--border); }
+  .logo { display: flex; align-items: center; gap: 10px; margin-right: 40px; }
+  .logo-mark { width: 32px; height: 32px; border: 2px solid var(--gop-red);
+    border-radius: 50%; position: relative; }
+  .logo-mark::before { content: ''; position: absolute; top: 5px; left: 5px;
+    width: 18px; height: 18px; background: var(--gop-red); border-radius: 50%; }
+  .logo-text { font-size: 9px; letter-spacing: 0.18em; color: var(--text-secondary);
+    text-transform: uppercase; line-height: 1; }
+  .logo-text strong { color: white; font-size: 14px; letter-spacing: 0.05em; display: block; margin-top: 2px; }
+  .nav-platform { color: var(--text-secondary); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-right: auto; }
+  .nav-tabs { display: flex; gap: 24px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .nav-tabs a { color: var(--text-secondary); text-decoration: none; padding: 8px 14px; }
+  .nav-tabs a.active { color: white; background: var(--bg-elev); border-radius: 4px; }
+  .study-tag { margin-left: 32px; padding: 8px 14px; border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text-secondary); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+
+  /* ───── PAGE BODY ───── */
+  .page { padding: 28px 32px; }
+  .page-eyebrow { color: var(--text-muted); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; margin-bottom: 6px; }
+  .page-title { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .page-sub { color: var(--accent-purple); font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; margin-bottom: 22px; }
+
+  /* segment pills */
+  .pills { display: flex; align-items: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+  .pills-label { font-size: 10px; letter-spacing: 0.2em; color: var(--text-muted);
+    text-transform: uppercase; margin-right: 10px; }
+  .pill { padding: 5px 11px; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 11px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+  .pill.gop { color: var(--gop-light); }
+  .pill.dem { color: var(--dem-light); }
+  .pill.active { border-color: var(--dem-blue); color: white; background: rgba(74, 130, 224, 0.12); }
+
+  /* segment header */
+  .header-card { display: flex; align-items: center; gap: 18px; padding: 0 0 18px 0; margin-bottom: 18px; }
+  .seg-badge { width: 64px; height: 64px; border: 2px solid var(--dem-blue); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;
+    font-size: 18px; letter-spacing: 0.04em; }
+  .seg-name h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .seg-tags { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+  .tag-party { padding: 3px 8px; background: var(--dem-blue); border-radius: 3px;
+    color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+  .tag-share { padding: 3px 8px; background: var(--bg-elev); border-radius: 3px;
+    color: var(--text-secondary); font-size: 10px; font-weight: 500; }
+
+  /* tab strip */
+  .tabstrip { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab { padding: 12px 20px; color: var(--text-secondary); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase; border-bottom: 2px solid transparent; }
+  .tab.active { color: white; border-bottom-color: var(--accent-cyan); }
+
+  /* ───── COMPARISON TOGGLE ───── */
+  .compare-bar { display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+    background: rgba(74, 130, 224, 0.05); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 24px; }
+  .compare-label { font-size: 10px; letter-spacing: 0.20em; color: var(--text-muted);
+    text-transform: uppercase; font-weight: 600; }
+  .compare-toggle { display: inline-flex; background: var(--bg-deep);
+    border: 1px solid var(--border); border-radius: 4px; padding: 2px; }
+  .compare-btn { padding: 6px 14px; color: var(--text-secondary); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; border: none; background: transparent;
+    cursor: pointer; border-radius: 3px; font-family: 'Inter', sans-serif; position: relative;
+    display: flex; align-items: center; gap: 7px; }
+  .compare-btn.active { background: var(--accent-cyan); color: var(--bg-deep); }
+  .compare-btn .bench-glyph {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 8.5px; font-weight: 800; letter-spacing: 0;
+  }
+  .compare-btn .bench-glyph.R  { background: var(--gop-red); color: white; }
+  .compare-btn .bench-glyph.D  { background: var(--dem-blue); color: white; }
+  .compare-btn .bench-glyph.US { background: transparent; color: var(--text-primary);
+    border: 1.5px solid var(--us-white); font-size: 7px; }
+  .compare-note { margin-left: auto; font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+  /* ───── SECTION HEADER ───── */
+  .section-break { display: flex; align-items: baseline; gap: 14px;
+    margin: 8px 0 18px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border-soft); }
+  .section-break h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--text-primary); }
+  .section-break p { color: var(--text-muted); font-size: 12px;
+    margin-left: auto; max-width: 700px; text-align: right; }
+
+  /* ───── CARDS ───── */
+  .grid { display: grid; gap: 18px; }
+  .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .grid-1-1 { grid-template-columns: 1fr 1fr; }
+  .row + .row { margin-top: 28px; }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 8px; padding: 18px 20px; position: relative;
+    display: flex; flex-direction: column; }
+
+  .card-eyebrow-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .card-eyebrow { color: var(--accent-magenta); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; font-weight: 600; }
+  .info-icon { width: 14px; height: 14px; border: 1px solid var(--text-muted);
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 9px; font-weight: 700; font-style: italic; cursor: help; }
+  .card-title { font-size: 16px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+  .card-plain { color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 14px; }
+
+  /* card body holds the chart/glyph */
+  .card-body { flex: 1; }
+
+  /* ── Accordion drill-down ── */
+  .accordion {
+    margin-top: auto;
+    border-top: 1px dashed var(--border-soft);
+    padding-top: 10px;
+  }
+  .accordion-toggle {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+    padding: 0; font-family: 'Inter', sans-serif;
+  }
+  .accordion-toggle:hover { color: var(--accent-cyan); }
+  .accordion-toggle .chev { transition: transform 0.2s; display: inline-block; }
+  .accordion.open .chev { transform: rotate(180deg); }
+  .accordion-panel { display: none; margin-top: 10px; }
+  .accordion.open .accordion-panel { display: block; }
+  .acc-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 50px 50px 56px;
+    gap: 6px; align-items: center;
+    padding: 6px 0;
+    border-top: 1px solid var(--border-soft);
+    font-size: 10.5px;
+  }
+  .acc-row:first-child { border-top: 0; }
+  .acc-row .acc-code { color: var(--text-muted); font-weight: 700; letter-spacing: 0.06em; }
+  .acc-row .acc-stem { color: var(--text-secondary); line-height: 1.35; }
+  .acc-row .acc-seg { color: var(--text-primary); text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .acc-row .acc-bench { color: var(--text-muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .acc-row .acc-delta { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 10.5px; }
+  .acc-row .acc-delta.up   { color: var(--champ-green); }
+  .acc-row .acc-delta.down { color: var(--bad-red); }
+  .acc-head { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 700; padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-soft); margin-bottom: 4px;
+    display: grid; grid-template-columns: 40px 1fr 50px 50px 56px; gap: 6px; }
+  .acc-head .right { text-align: right; }
+
+  /* ────────── TILE 1: COMPASSION / SANCTITY ────────── */
+  .scf-tile { padding: 18px 20px 14px 20px; }
+  .scf-chart { display: flex; justify-content: center; padding: 8px 0; flex: 1; }
+  .scf-label-readout {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: rgba(111,160,232,0.08);
+    border-left: 2px solid var(--care);
+    border-radius: 0 4px 4px 0;
+    font-size: 11px; line-height: 1.5;
+    color: var(--text-secondary);
+  }
+  .scf-label-readout strong { color: var(--text-primary); font-weight: 600; }
+  .scf-num-readout {
+    font-size: 21px; font-weight: 800; color: var(--care); letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ────────── TILE 2: STIGMA PROFILE ────────── */
+  .stigma-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 56px;
+    gap: 8px; align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .stigma-row:first-of-type { border-top: 0; padding-top: 4px; }
+  .stigma-label {
+    font-size: 11.5px; font-weight: 700;
+  }
+  .stigma-label.blame { color: var(--blame); }
+  .stigma-label.avoid { color: var(--avoid); }
+  .stigma-label .sub {
+    display: block; color: var(--text-muted); font-size: 9px;
+    font-weight: 500; letter-spacing: 0.05em; margin-top: 1px; font-style: italic;
+  }
+  .stigma-glyphs {
+    display: flex; align-items: center; gap: 2px; position: relative;
+    padding-top: 16px; /* room for benchmark chevron */
+  }
+  .stigma-glyphs .g {
+    width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .stigma-glyphs .g.filled.blame svg path,
+  .stigma-glyphs .g.empty.blame  svg path { stroke: var(--blame); }
+  .stigma-glyphs .g.filled.avoid svg path,
+  .stigma-glyphs .g.empty.avoid  svg path { stroke: var(--avoid); }
+  .stigma-glyphs .g.empty svg path { opacity: 0.22; }
+  .stigma-glyphs .bench-chev {
+    position: absolute; top: 0; transform: translateX(-50%);
+    font-size: 9px; line-height: 1;
+  }
+  .stigma-val { text-align: right; }
+  .stigma-val .v { font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums; }
+  .stigma-val .v.blame { color: var(--blame); }
+  .stigma-val .v.avoid { color: var(--avoid); }
+
+  .seesaw {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .seesaw-eyebrow {
+    color: var(--text-muted); font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; font-weight: 600; margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .seesaw-bar {
+    height: 16px; border-radius: 8px; overflow: hidden;
+    display: flex; background: var(--bg-elev); position: relative;
+  }
+  .seesaw-bar .avoid-side { background: var(--avoid); height: 100%; }
+  .seesaw-bar .blame-side { background: var(--blame); height: 100%; }
+  .seesaw-bar .midline {
+    position: absolute; top: -2px; bottom: -2px;
+    width: 1.5px; background: var(--text-muted);
+    opacity: 0.7;
+  }
+  .seesaw-pct {
+    display: flex; justify-content: space-between;
+    margin-top: 4px;
+    font-size: 9.5px; color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .seesaw-pct .avoid { color: var(--avoid); font-weight: 700; }
+  .seesaw-pct .blame { color: var(--blame); font-weight: 700; }
+
+  /* ────────── TILE 3: KNOWLEDGE ────────── */
+  .knowledge-num-row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 14px 0 10px 0;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .knowledge-num {
+    font-size: 38px; font-weight: 800; letter-spacing: -0.02em;
+    color: white;
+  }
+  .knowledge-denom { color: var(--text-muted); font-size: 16px; }
+  .knowledge-rank {
+    margin-left: auto;
+    background: rgba(139, 92, 246, 0.18); color: var(--knowledge);
+    padding: 5px 11px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  }
+  .knowledge-bar-wrap {
+    margin-top: 12px;
+    position: relative;
+    height: 30px;
+  }
+  .knowledge-bar-track {
+    position: absolute; left: 0; right: 0; top: 12px; height: 6px;
+    background: var(--bg-elev); border-radius: 3px;
+  }
+  .knowledge-bar-fill {
+    position: absolute; left: 0; top: 12px; height: 6px;
+    background: var(--knowledge); border-radius: 3px;
+  }
+  .knowledge-bar-bench {
+    position: absolute; top: 6px;
+    transform: translateX(-50%);
+  }
+  .knowledge-bar-labels {
+    position: absolute; left: 0; right: 0; bottom: -3px;
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+
+  /* ────────── TILE 4: PERSONAL CONTACT ────────── */
+  .contact-pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border-top: 1px solid var(--border-soft); padding-top: 14px;
+  }
+  .contact-cell {
+    text-align: center; padding: 4px 6px;
+    border-right: 1px solid var(--border-soft);
+    position: relative;
+  }
+  .contact-cell:last-child { border-right: 0; }
+  .contact-num { font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+    color: white; line-height: 1; font-variant-numeric: tabular-nums; }
+  .contact-num.accent { color: var(--accent-cyan); }
+  .contact-num .pct { font-size: 16px; color: var(--text-muted); font-weight: 500; }
+  .contact-label {
+    margin-top: 6px;
+    font-size: 11px; color: var(--text-secondary);
+    line-height: 1.35; font-weight: 600;
+  }
+  .contact-bench {
+    margin-top: 6px;
+    font-size: 10px; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .contact-bench .bench-glyph { width: 14px; height: 14px; font-size: 7.5px; }
+  .contact-rank-pill {
+    display: inline-block;
+    background: rgba(47, 224, 121, 0.14);
+    color: var(--champ-green);
+    padding: 2px 7px; border-radius: 3px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.10em;
+    margin-top: 4px;
+  }
+
+  /* ────────── BENCHMARK GLYPHS (shared) ────────── */
+  .bench-glyph {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800;
+    color: white;
+    border: 1.5px solid transparent;
+  }
+  .bench-glyph.R  { background: var(--gop-red); }
+  .bench-glyph.D  { background: var(--dem-blue); }
+  .bench-glyph.US { background: var(--bg-deep); color: var(--text-primary);
+    border-color: var(--us-white); font-size: 8px; }
+  .bench-glyph.dim { opacity: 0.40; }
+
+  /* ───── Panels (scatter charts) ───── */
+  .panel-eyebrow-row { margin-bottom: 4px; }
+  .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .panel-plain { color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 14px; }
+  .quad-tag {
+    margin-top: 14px; padding: 10px 14px;
+    background: var(--bg-card-2); border-radius: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .quad-tag-eyebrow { color: var(--text-muted); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; }
+  .quad-tag-name { color: var(--champ-green); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; }
+  .quad-tag-strat { color: var(--text-secondary); font-size: 12px; margin-left: auto; }
+
+  /* ───── Trust list ───── */
+  .trust-grid {
+    display: grid; gap: 0;
+    margin-top: 4px;
+  }
+  .trust-head {
+    display: grid;
+    grid-template-columns: 30px 1fr 60px 60px 70px;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 700;
+  }
+  .trust-head .right { text-align: right; }
+  .trust-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 60px 60px 70px;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .trust-row:first-of-type { border-top: 0; }
+  .trust-rank {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--bg-elev);
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .trust-row.top-rank .trust-rank {
+    background: var(--accent-cyan); color: var(--bg-deep);
+  }
+  .trust-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .trust-num   { text-align: right; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+  .trust-bench { text-align: right; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .trust-delta { text-align: right; font-weight: 700; font-size: 13px;
+    font-variant-numeric: tabular-nums; color: var(--champ-green); }
+
+  /* footer */
+  .footer { color: var(--text-muted); font-size: 9.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; text-align: right;
+    margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border-soft); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="logo"><div class="logo-mark"></div>
+    <div class="logo-text">Reservoir Health<strong>PRISM</strong></div></div>
+  <div class="nav-platform">Audience Intelligence Platform</div>
+  <div class="nav-tabs">
+    <a>Audience Map</a><a>Audience ROI</a><a>Message Map</a>
+    <a class="active">Audience Profiles</a>
+  </div>
+  <div class="study-tag">HIV / GILEAD STUDY · WAVE 1</div>
+</div>
+
+<div class="page">
+
+  <div class="page-eyebrow">Reservoir Health PRISM</div>
+  <div class="page-title">PERSONA PROFILE</div>
+  <div class="page-sub">PRISM Audience Intelligence</div>
+
+  <div class="pills">
+    <span class="pills-label">Segment:</span>
+    <span class="pill gop">TSP</span><span class="pill gop">CEC</span><span class="pill gop">TC</span>
+    <span class="pill gop">HF</span><span class="pill gop">PP</span><span class="pill gop">WE</span>
+    <span class="pill gop">PFF</span><span class="pill gop">HHN</span><span class="pill gop">MFL</span>
+    <span class="pill gop">VS</span>
+    <span class="pill dem">UCP</span><span class="pill dem active">FJP</span>
+    <span class="pill dem">HCP</span><span class="pill dem">HAD</span>
+    <span class="pill dem">HCI</span><span class="pill dem">GHI</span>
+  </div>
+
+  <div class="header-card">
+    <div class="seg-badge">FJP</div>
+    <div class="seg-name">
+      <h2>FAITH &amp; JUSTICE PROGRESSIVES</h2>
+      <div class="seg-tags">
+        <span class="tag-party">DEM</span>
+        <span class="tag-share">9.8% of electorate</span>
+        <span class="tag-share">n=74</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabstrip">
+    <div class="tab">Demographics</div>
+    <div class="tab active">HIV</div>
+    <div class="tab">Beliefs</div>
+    <div class="tab">Values</div>
+    <div class="tab">Trust</div>
+    <div class="tab">Experience</div>
+    <div class="tab">Culture</div>
+    <div class="tab">Media</div>
+  </div>
+
+  <!-- COMPARISON TOGGLE -->
+  <div class="compare-bar">
+    <span class="compare-label">Compare FJP to:</span>
+    <div class="compare-toggle" id="toggle">
+      <button class="compare-btn" data-bench="All">
+        <span class="bench-glyph US">US</span>All Americans</button>
+      <button class="compare-btn" data-bench="Republicans">
+        <span class="bench-glyph R">R</span>Republicans</button>
+      <button class="compare-btn active" data-bench="Democrats">
+        <span class="bench-glyph D">D</span>Democrats</button>
+    </div>
+    <span class="compare-note">
+      Benchmarks, deltas, accordion item-level data, and the two scatter plots all reorient when you switch.
+    </span>
+  </div>
+
+  <!-- ─── SECTION 1: FOUR HEADLINE TILES ─── -->
+  <div class="section-break">
+    <h3>Four Headline Measures</h3>
+    <p>
+      <span class="bench-glyph R" style="display:inline-flex;width:14px;height:14px;font-size:7px">R</span>
+      <span class="bench-glyph D" style="display:inline-flex;width:14px;height:14px;font-size:7px">D</span>
+      <span class="bench-glyph US" style="display:inline-flex;width:14px;height:14px;font-size:6.5px">US</span>
+      &nbsp;benchmark glyphs appear throughout. Active toggle's glyph is solid; the other two dim.
+    </p>
+  </div>
+
+  <div class="row grid grid-4">
+
+    <!-- ═══ TILE 1 — COMPASSION / SANCTITY ═══ -->
+    <div class="card scf-tile">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Moral architecture</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="card-title">Compassion ↔ Sanctity</div>
+      <div class="card-plain">
+        Where this segment falls on the Care–Sanctity moral spectrum
+        (SCF = Purity − Care).
+      </div>
+
+      <div class="card-body">
+        <div class="scf-chart">
+          <svg width="180" height="280" viewBox="0 0 180 280" id="scf-svg"></svg>
+        </div>
+
+        <div class="scf-label-readout">
+          <span class="scf-num-readout" id="scf-readout-num">−0.77</span>
+          <span style="display:inline-block; margin-left:8px;">
+            <strong id="scf-readout-label">Care-leaning</strong>
+            <span style="color:var(--text-muted)" id="scf-readout-rank"></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-toggle" data-target="acc-scf">
+          <span>Item-level data</span><span class="chev">▾</span>
+        </button>
+        <div class="accordion-panel" id="acc-scf">
+          <div class="acc-head">
+            <span>Code</span><span>Item</span><span class="right">FJP</span><span class="right" id="acc-scf-bench">D</span><span class="right">Δ</span>
+          </div>
+          <div id="acc-scf-rows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TILE 2 — STIGMA PROFILE ═══ -->
+    <div class="card">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Stigma profile</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="card-title">Blame &amp; Avoidance</div>
+      <div class="card-plain">
+        Two parallel channels. Glyphs show absolute scale (0–5 of max).
+        Marker on each row is the active benchmark.
+      </div>
+
+      <div class="card-body">
+        <div class="stigma-row">
+          <div class="stigma-label blame">
+            BLAME
+            <span class="sub">cognitive</span>
+          </div>
+          <div class="stigma-glyphs" id="glyphs-blame"></div>
+          <div class="stigma-val">
+            <span class="v blame num" id="blame-val">3.86</span>
+          </div>
+        </div>
+        <div class="stigma-row">
+          <div class="stigma-label avoid">
+            AVOIDANCE
+            <span class="sub">affective</span>
+          </div>
+          <div class="stigma-glyphs" id="glyphs-avoid"></div>
+          <div class="stigma-val">
+            <span class="v avoid num" id="avoid-val">2.61</span>
+          </div>
+        </div>
+
+        <div class="seesaw">
+          <div class="seesaw-eyebrow">
+            <span>Dominant channel</span>
+            <span id="seesaw-readout">balanced</span>
+          </div>
+          <div class="seesaw-bar" id="seesaw-bar">
+            <div class="avoid-side" id="seesaw-avoid"></div>
+            <div class="blame-side" id="seesaw-blame"></div>
+            <div class="midline" style="left:50%"></div>
+          </div>
+          <div class="seesaw-pct">
+            <span class="avoid">AVOIDANCE-side <span id="ses-avoid-pct">50%</span></span>
+            <span class="blame">BLAME-side <span id="ses-blame-pct">50%</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-toggle" data-target="acc-stigma">
+          <span>Item-level data</span><span class="chev">▾</span>
+        </button>
+        <div class="accordion-panel" id="acc-stigma">
+          <div class="acc-head">
+            <span>Code</span><span>Item</span><span class="right">FJP</span><span class="right" id="acc-stigma-bench">D</span><span class="right">Δ</span>
+          </div>
+          <div id="acc-stigma-rows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TILE 3 — KNOWLEDGE ═══ -->
+    <div class="card">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Information</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="card-title">HIV knowledge</div>
+      <div class="card-plain">
+        Sum of correct answers across 10 factual questions
+        (transmission, treatment, prevention, U.S. epidemiology).
+      </div>
+
+      <div class="card-body">
+        <div class="knowledge-num-row">
+          <span class="knowledge-num num" id="hks-num">5.6</span>
+          <span class="knowledge-denom num">/ 10</span>
+          <span class="knowledge-rank num" id="hks-rank">3 OF 16</span>
+        </div>
+        <div class="knowledge-bar-wrap">
+          <div class="knowledge-bar-track"></div>
+          <div class="knowledge-bar-fill" id="hks-fill"></div>
+          <div class="knowledge-bar-bench" id="hks-bench"></div>
+          <div class="knowledge-bar-labels"><span>0</span><span>5</span><span>10</span></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-toggle" data-target="acc-know">
+          <span>Item-level data</span><span class="chev">▾</span>
+        </button>
+        <div class="accordion-panel" id="acc-know">
+          <div class="acc-head">
+            <span>Code</span><span>Item</span><span class="right">FJP</span><span class="right" id="acc-know-bench">D</span><span class="right">Δ</span>
+          </div>
+          <div id="acc-know-rows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TILE 4 — PERSONAL CONTACT ═══ -->
+    <div class="card">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Proximity</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="card-title">Personal contact</div>
+      <div class="card-plain">
+        Knowing affected people is the lever that bypasses the stigma architecture entirely.
+      </div>
+
+      <div class="card-body">
+        <div class="contact-pair">
+          <div class="contact-cell">
+            <div class="contact-num"><span id="lgb-num" class="num">87</span><span class="pct">%</span></div>
+            <div class="contact-label">know an LGBTQ person</div>
+            <div class="contact-bench">
+              <span class="bench-glyph D" id="lgb-bench-glyph">D</span>
+              <span id="lgb-bench-val">81%</span>
+            </div>
+            <div class="contact-rank-pill" id="lgb-rank">2 OF 16</div>
+          </div>
+          <div class="contact-cell">
+            <div class="contact-num accent"><span id="hiv-num" class="num">20</span><span class="pct">%</span></div>
+            <div class="contact-label">know someone with HIV</div>
+            <div class="contact-bench">
+              <span class="bench-glyph D" id="hiv-bench-glyph">D</span>
+              <span id="hiv-bench-val">19%</span>
+            </div>
+            <div class="contact-rank-pill" id="hiv-rank">3 OF 16</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-toggle" data-target="acc-contact">
+          <span>Item-level data</span><span class="chev">▾</span>
+        </button>
+        <div class="accordion-panel" id="acc-contact">
+          <div class="acc-head">
+            <span>Code</span><span>Item</span><span class="right">FJP</span><span class="right" id="acc-contact-bench">D</span><span class="right">Δ</span>
+          </div>
+          <div id="acc-contact-rows"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── SECTION 2: STRATEGIC POSITIONING ─── -->
+  <div class="section-break" style="margin-top: 32px">
+    <h3>Where They Sit Strategically</h3>
+    <p>Stigma topology and policy-stigma. All coordinates are deviations
+       from the active toggle benchmark.</p>
+  </div>
+
+  <div class="row grid grid-1-1">
+
+    <div class="card panel">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Stigma architecture</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="panel-title">The two-by-two of HIV stigma</div>
+      <div class="panel-plain">
+        Standardized deviation from the active benchmark on Blame (cognitive) and
+        Avoidance (affective).
+      </div>
+      <svg id="topology" width="640" height="380" viewBox="0 0 640 380"></svg>
+      <div class="quad-tag">
+        <span class="quad-tag-eyebrow">FJP is in:</span>
+        <span class="quad-tag-name" id="quad-name">ACCEPTED</span>
+        <span class="quad-tag-strat" id="quad-strat">Low blame, low avoidance · deploy, don't persuade</span>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Policy-stigma matrix</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="panel-title">Policy support × stigma</div>
+      <div class="panel-plain">
+        Stigma vs policy support, bubble size = electorate share, color = SCF
+        (Care-leaning blue → Sanctity-leaning red).
+      </div>
+      <svg id="stratmap" width="640" height="380" viewBox="0 0 640 380"></svg>
+      <div class="quad-tag">
+        <span class="quad-tag-eyebrow">Position:</span>
+        <span class="quad-tag-name" style="color:var(--accent-cyan)">DEPLOYABLE BLOC</span>
+        <span class="quad-tag-strat">UCP · FJP · HCP · GHI — combined ~39.7%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── SECTION 3: TRUST ─── -->
+  <div class="section-break" style="margin-top: 32px">
+    <h3>Who To Deploy</h3>
+    <p>Top 8 messengers FJP trusts <strong>disproportionately more</strong> than the active toggle benchmark.
+       Re-ranked by over-index when you switch toggles.</p>
+  </div>
+
+  <div class="row grid grid-1-1">
+    <div class="card panel">
+      <div class="card-eyebrow-row">
+        <span class="card-eyebrow">Top over-index messengers</span>
+        <span class="info-icon">i</span>
+      </div>
+      <div class="panel-title">Messengers FJP trusts more than <span id="trust-bench-label">Democrats</span></div>
+      <div class="panel-plain">
+        From the 22 deployable messengers tested (personal physician excluded).
+      </div>
+      <div class="trust-grid">
+        <div class="trust-head">
+          <span>#</span><span>Messenger</span><span class="right">FJP</span>
+          <span class="right" id="trust-bench-col">D</span><span class="right">Δ</span>
+        </div>
+        <div id="trust-rows"></div>
+      </div>
+    </div>
+    <div class="card panel" style="background:transparent; border:1px dashed var(--border-soft);">
+      <!-- intentionally empty per spec -->
+    </div>
+  </div>
+
+  <div class="footer">
+    PRISM HIV Wave 1 · Reservoir Communications Group / HAIG · Confidential — Internal · n=755 weighted
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   DATA — all values computed from the real n=755 weighted dataset
+   ═══════════════════════════════════════════════════════════════════ */
+const SEG_NAME = {1:'TSP',2:'CEC',3:'TC',4:'HF',5:'PP',6:'WE',7:'PFF',8:'HHN',9:'MFL',10:'VS',
+                  11:'UCP',12:'FJP',13:'HCP',14:'HAD',15:'HCI',16:'GHI'};
+const FJP = 12;
+const GOP_SEGS = [1,2,3,4,5,6,7,8,9,10];
+const DEM_SEGS = [11,12,13,14,15,16];
+
+/* Standardization constants (full sample, n=755 weighted) */
+const ZP = {
+  MBS:[4.650,1.509], SDS:[3.108,1.443], EDS:[4.301,1.877], SCS:[2.522,1.409],
+  CFS:[5.344,1.160], PFS:[4.787,1.314], SCF:[-0.558,1.529]
+};
+
+/* Per-segment data: raw means + z-scores + population share */
+const SEG_DATA = {
+  1:{MBS_raw:5.428,MBS_z:0.514,SDS_raw:3.634,SDS_z:0.365,SCF_raw:-0.593,SCF_z:-0.023,pop:0.0251},
+  2:{MBS_raw:5.453,MBS_z:0.532,SDS_raw:3.402,SDS_z:0.204,SCF_raw:-0.480,SCF_z:0.051,pop:0.0680},
+  3:{MBS_raw:5.412,MBS_z:0.505,SDS_raw:3.280,SDS_z:0.119,SCF_raw:-0.146,SCF_z:0.269,pop:0.0594},
+  4:{MBS_raw:5.486,MBS_z:0.554,SDS_raw:4.399,SDS_z:0.895,SCF_raw:0.147,SCF_z:0.461,pop:0.0238},
+  5:{MBS_raw:4.923,MBS_z:0.181,SDS_raw:3.357,SDS_z:0.172,SCF_raw:-0.042,SCF_z:0.337,pop:0.0257},
+  6:{MBS_raw:5.294,MBS_z:0.426,SDS_raw:3.376,SDS_z:0.186,SCF_raw:0.336,SCF_z:0.585,pop:0.0955},
+  7:{MBS_raw:5.507,MBS_z:0.568,SDS_raw:4.094,SDS_z:0.684,SCF_raw:0.676,SCF_z:0.806,pop:0.0446},
+  8:{MBS_raw:4.815,MBS_z:0.109,SDS_raw:3.603,SDS_z:0.343,SCF_raw:0.047,SCF_z:0.395,pop:0.0281},
+  9:{MBS_raw:5.140,MBS_z:0.325,SDS_raw:3.611,SDS_z:0.348,SCF_raw:0.075,SCF_z:0.414,pop:0.0528},
+  10:{MBS_raw:5.545,MBS_z:0.593,SDS_raw:3.470,SDS_z:0.251,SCF_raw:-0.319,SCF_z:0.156,pop:0.0523},
+  11:{MBS_raw:3.578,MBS_z:-0.711,SDS_raw:2.049,SDS_z:-0.734,SCF_raw:-1.767,SCF_z:-0.791,pop:0.1050},
+  12:{MBS_raw:3.862,MBS_z:-0.522,SDS_raw:2.613,SDS_z:-0.343,SCF_raw:-0.770,SCF_z:-0.139,pop:0.0982},
+  13:{MBS_raw:4.116,MBS_z:-0.354,SDS_raw:2.814,SDS_z:-0.204,SCF_raw:-1.569,SCF_z:-0.662,pop:0.0750},
+  14:{MBS_raw:4.744,MBS_z:0.062,SDS_raw:3.596,SDS_z:0.338,SCF_raw:-0.445,SCF_z:0.074,pop:0.0803},
+  15:{MBS_raw:4.454,MBS_z:-0.130,SDS_raw:3.448,SDS_z:0.235,SCF_raw:-0.399,SCF_z:0.104,pop:0.0677},
+  16:{MBS_raw:3.768,MBS_z:-0.585,SDS_raw:2.200,SDS_z:-0.629,SCF_raw:-1.146,SCF_z:-0.385,pop:0.0987}
+};
+
+/* FJP-specific extra constructs needed for tile 2 (EDS, SCS) */
+const FJP_FULL = {
+  MBS_raw:3.862, SDS_raw:2.613, EDS_raw:3.160, SCS_raw:1.728,
+  CFS_raw:5.828, PFS_raw:5.057, SCF_raw:-0.770,
+  MBS_z:-0.522, SDS_z:-0.343, EDS_z:-0.608, SCS_z:-0.564,
+  CFS_z:0.417, PFS_z:0.206, SCF_z:-0.139,
+  HKS:5.6, MBS_rank:14, SDS_rank:14, EDS_rank:14, SCS_rank:15,
+  CFS_rank:2, PFS_rank:6, SCF_rank:13, HKS_rank:3,
+  CON_HIV:0.197, CON_LGB:0.873, CON_HIV_rank:3, CON_LGB_rank:2
+};
+
+/* Benchmark group means (raw + z) */
+const BENCH = {
+  All: {
+    MBS:{raw:4.650,z:0.000}, SDS:{raw:3.108,z:0.000},
+    EDS:{raw:4.301,z:0.000}, SCS:{raw:2.522,z:0.000},
+    CFS:{raw:5.344,z:0.000}, PFS:{raw:4.787,z:0.000},
+    SCF:{raw:-0.558,z:0.000},
+    HKS:4.32, CON_HIV:0.149, CON_LGB:0.758
+  },
+  Republicans: {
+    MBS:{raw:5.330,z:0.451}, SDS:{raw:3.550,z:0.306},
+    EDS:{raw:5.475,z:0.625}, SCS:{raw:3.113,z:0.419},
+    CFS:{raw:5.118,z:-0.195}, PFS:{raw:5.112,z:0.248},
+    SCF:{raw:-0.006,z:0.361},
+    HKS:3.81, CON_HIV:0.108, CON_LGB:0.704
+  },
+  Democrats: {
+    MBS:{raw:4.034,z:-0.408}, SDS:{raw:2.709,z:-0.277},
+    EDS:{raw:3.239,z:-0.566}, SCS:{raw:1.988,z:-0.379},
+    CFS:{raw:5.548,z:0.176}, PFS:{raw:4.492,z:-0.224},
+    SCF:{raw:-1.057,z:-0.326},
+    HKS:4.84, CON_HIV:0.186, CON_LGB:0.806
+  }
+};
+
+/* Item-level data for the four accordions */
+const ITEMS = {
+  /* SCF — CFS items (Care) and PFS items (Sanctity); plus composite */
+  scf: [
+    {code:'MFQ_r1', stem:'Whether someone suffered emotionally', fjp:5.592, All:5.218, Republicans:5.051, Democrats:5.370},
+    {code:'MFQ_r2', stem:'Showed compassion for those worse off', fjp:6.063, All:5.470, Republicans:5.186, Democrats:5.727},
+    {code:'CFS',    stem:'Care Foundation composite',            fjp:5.828, All:5.344, Republicans:5.118, Democrats:5.548},
+    {code:'MFQ_r3', stem:'Morally disgusting / violated decency', fjp:5.444, All:5.012, Republicans:5.209, Democrats:4.833},
+    {code:'MFQ_r4', stem:'Against natural order',                fjp:4.670, All:4.561, Republicans:5.016, Democrats:4.150},
+    {code:'PFS',    stem:'Purity Foundation composite',          fjp:5.057, All:4.787, Republicans:5.112, Democrats:4.492},
+    {code:'SCF',    stem:'Sanctity − Care trade-off',            fjp:-0.770, All:-0.558, Republicans:-0.006, Democrats:-1.057},
+  ],
+  stigma: [
+    {code:'SB1', stem:'Sexual behavior choices led to it',   fjp:3.875, All:4.693, Republicans:5.417, Democrats:4.038},
+    {code:'SB2', stem:'More personal responsibility',        fjp:3.848, All:4.606, Republicans:5.243, Democrats:4.030},
+    {code:'MBS', stem:'Blame composite',                     fjp:3.862, All:4.650, Republicans:5.330, Democrats:4.034},
+    {code:'SD1', stem:'Comfortable working alongside (rev.)',fjp:2.803, All:3.158, Republicans:3.573, Democrats:2.783},
+    {code:'SD2', stem:'Comfortable close friendship (rev.)', fjp:2.423, All:3.059, Republicans:3.526, Democrats:2.635},
+    {code:'SDS', stem:'Avoidance composite',                 fjp:2.613, All:3.108, Republicans:3.550, Democrats:2.709},
+  ],
+  know: [
+    {code:'K1',  stem:'Immune system, progression to AIDS', fjp:0.832, All:0.793, Republicans:0.775, Democrats:0.809, binary:true},
+    {code:'K2',  stem:'Lifelong treatment, normal lifespan', fjp:0.841, All:0.715, Republicans:0.664, Democrats:0.761, binary:true},
+    {code:'K3',  stem:'Undetectable = untransmittable (U=U)', fjp:0.444, All:0.334, Republicans:0.230, Democrats:0.429, binary:true},
+    {code:'K4',  stem:'Prevention medication exists (PrEP)', fjp:0.637, All:0.524, Republicans:0.449, Democrats:0.592, binary:true},
+    {code:'K6',  stem:'>50% of new dx in South', fjp:0.106, All:0.121, Republicans:0.100, Democrats:0.140, binary:true},
+    {code:'K7',  stem:'1 in 3 receive prevention med', fjp:0.308, All:0.194, Republicans:0.161, Democrats:0.225, binary:true},
+    {code:'K8',  stem:'Prevention saves treatment costs', fjp:0.609, All:0.517, Republicans:0.437, Democrats:0.589, binary:true},
+    {code:'K9',  stem:'Ryan White serves most PLWH', fjp:0.264, All:0.263, Republicans:0.206, Democrats:0.315, binary:true},
+    {code:'K10', stem:'PEPFAR saved 25M lives', fjp:0.578, All:0.457, Republicans:0.424, Democrats:0.487, binary:true},
+    {code:'K11', stem:'Black Americans dispropor. affected', fjp:0.518, All:0.399, Republicans:0.380, Democrats:0.417, binary:true},
+  ],
+  contact: [
+    {code:'CON-HIV', stem:'Personally knows person with HIV', fjp:0.197, All:0.149, Republicans:0.108, Democrats:0.186, binary:true},
+    {code:'CON-LGB', stem:'Personally knows LGBTQ person',     fjp:0.873, All:0.758, Republicans:0.704, Democrats:0.806, binary:true},
+  ]
+};
+
+/* Trust battery — real data from n=755 weighted, with FJP and three benchmark means */
+const TRUST = [
+  {code:'QTRUSTr5A',label:'Academic medical centers',  fjp:6.014, All:5.292, Republicans:4.985, Democrats:5.609},
+  {code:'QTRUSTr8B',label:'Science journalists',       fjp:5.891, All:4.582, Republicans:3.864, Democrats:5.296},
+  {code:'QTRUSTr4B',label:'Nurses / NPs',              fjp:5.857, All:5.401, Republicans:5.149, Democrats:5.661},
+  {code:'QTRUSTr8C',label:'University HIV centers',    fjp:5.612, All:4.939, Republicans:4.504, Democrats:5.375},
+  {code:'QTRUSTr4A',label:'Infectious disease specialists', fjp:5.601, All:5.301, Republicans:5.022, Democrats:5.578},
+  {code:'QTRUSTr8A',label:'Medical journals',          fjp:5.484, All:4.793, Republicans:4.354, Democrats:5.236},
+  {code:'QTRUSTr5B',label:'FQHC / Ryan White',         fjp:5.078, All:4.183, Republicans:3.821, Democrats:4.415},
+  {code:'QTRUSTr4C',label:'Pharmacists',               fjp:5.075, All:4.954, Republicans:4.745, Democrats:5.163},
+  {code:'QTRUSTr7D',label:'LGBTQ media',               fjp:5.389, All:3.502, Republicans:2.204, Democrats:4.674},
+  {code:'QTRUSTr6A',label:'HRC',                       fjp:5.221, All:4.175, Republicans:2.931, Democrats:4.115},
+  {code:'QTRUSTr1', label:'FDA / CDC',                 fjp:4.730, All:4.001, Republicans:3.541, Democrats:4.467},
+  {code:'QTRUSTr6B',label:'GLAAD',                     fjp:4.663, All:3.717, Republicans:2.555, Democrats:4.217},
+  {code:'QTRUSTr6D',label:'LGBTQ community centers',   fjp:4.470, All:3.510, Republicans:2.326, Democrats:3.998},
+  {code:'QTRUSTr9C',label:'AIDS United',               fjp:4.510, All:4.038, Republicans:3.628, Democrats:4.446},
+  {code:'QTRUSTr9A',label:'amfAR',                     fjp:4.430, All:4.099, Republicans:3.731, Democrats:4.467},
+  {code:'QTRUSTr6C',label:'PFLAG',                     fjp:4.350, All:3.291, Republicans:2.247, Democrats:3.801},
+  {code:'QTRUSTr2', label:'Pharmaceutical co.',        fjp:4.156, All:4.050, Republicans:3.866, Democrats:4.232},
+  {code:'QTRUSTr9B',label:'NMAC',                      fjp:4.889, All:3.822, Republicans:3.101, Democrats:4.418},
+  {code:'QTRUSTr7B',label:'Black media',               fjp:4.939, All:3.865, Republicans:3.001, Democrats:4.535},
+  {code:'QTRUSTr5C',label:'Catholic health systems',   fjp:4.130, All:4.131, Republicans:4.282, Democrats:3.985},
+  {code:'QTRUSTr7C',label:'Religious media',           fjp:3.461, All:3.460, Republicans:4.011, Democrats:2.951},
+  {code:'QTRUSTr7A',label:'Health podcasters / YT',    fjp:2.794, All:2.789, Republicans:2.652, Democrats:2.918},
+];
+
+/* Policy support data for the policy-stigma matrix — keep prior values, flagged as illustrative */
+const STR = [
+  {seg:1, stigma:4.53, policy:4.11, pop:0.025, scf:-0.59},
+  {seg:2, stigma:4.43, policy:4.22, pop:0.068, scf:-0.48},
+  {seg:3, stigma:4.35, policy:4.21, pop:0.059, scf:-0.15},
+  {seg:4, stigma:4.94, policy:4.12, pop:0.024, scf:0.15},
+  {seg:5, stigma:4.14, policy:4.13, pop:0.026, scf:-0.04},
+  {seg:6, stigma:4.33, policy:4.11, pop:0.096, scf:0.34},
+  {seg:7, stigma:4.80, policy:3.98, pop:0.045, scf:0.68},
+  {seg:8, stigma:4.21, policy:4.19, pop:0.028, scf:0.05},
+  {seg:9, stigma:4.38, policy:4.48, pop:0.053, scf:0.07},
+  {seg:10,stigma:4.51, policy:3.90, pop:0.052, scf:-0.32},
+  {seg:11,stigma:2.81, policy:6.16, pop:0.105, scf:-1.77},
+  {seg:12,stigma:3.24, policy:5.80, pop:0.098, scf:-0.77},
+  {seg:13,stigma:3.46, policy:5.58, pop:0.075, scf:-1.57},
+  {seg:14,stigma:4.17, policy:4.25, pop:0.080, scf:-0.44},
+  {seg:15,stigma:3.95, policy:4.63, pop:0.068, scf:-0.40},
+  {seg:16,stigma:2.98, policy:5.88, pop:0.099, scf:-1.15}
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════════ */
+let bench = 'Democrats';
+const BENCH_GLYPH = {All:'US', Republicans:'R', Democrats:'D'};
+const BENCH_FULL  = {All:'All Americans', Republicans:'Republicans', Democrats:'Democrats'};
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════════════ */
+function el(svg, name, attrs, parent) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  (parent || svg).appendChild(e);
+  return e;
+}
+function scfColor(scf) {
+  const t = Math.max(0, Math.min(1, (scf + 2) / 3));
+  if (t < 0.5) { const k = t * 2; return `rgb(${Math.round(74+86*k)},${Math.round(130+50*k)},${Math.round(224-24*k)})`; }
+  else { const k = (t - 0.5) * 2; return `rgb(${Math.round(160+60*k)},${Math.round(180-100*k)},${Math.round(200-120*k)})`; }
+}
+function fmt(v, dec) { return Number(v).toFixed(dec); }
+function fmtPct(v) { return Math.round(v * 100) + '%'; }
+
+/* Benchmark glyph SVG renderer (for SVG charts) */
+function drawBenchGlyph(svg, cx, cy, type, opts) {
+  opts = opts || {};
+  const active = opts.active !== false;
+  const r = opts.r || 9;
+  const dim = active ? 1.0 : 0.40;
+  let fill = '#000', stroke = 'none', text = type, textColor = '#fff', fontSize = r-1;
+  if (type === 'R')  { fill = '#DC4040'; stroke = '#fff'; }
+  if (type === 'D')  { fill = '#4A82E0'; stroke = '#fff'; }
+  if (type === 'US') { fill = '#07090F'; stroke = '#E8EAED'; textColor = '#E8EAED'; fontSize = r-2; }
+  const g = el(svg, 'g', {opacity: dim});
+  el(svg, 'circle', {cx, cy, r, fill, stroke, 'stroke-width': 1.5}, g);
+  const t = el(svg, 'text', {x: cx, y: cy + (fontSize/2 - 1), 'text-anchor': 'middle',
+    'font-size': fontSize, 'font-weight': 800, fill: textColor, 'font-family': 'Inter'}, g);
+  t.textContent = text;
+  return g;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TILE 1 — COMPASSION / SANCTITY (vertical scale)
+   ═══════════════════════════════════════════════════════════════════ */
+function renderSCF() {
+  const svg = document.getElementById('scf-svg');
+  svg.innerHTML = '';
+  const W = 180, H = 280;
+  const cx = W/2;
+  const yTop = 30, yBot = H - 30;
+  /* SCF range: -3 to +3 covers all observed segments comfortably */
+  const yMin = -2.0, yMax = 1.0;  /* tight to observed range */
+  function yScale(v) { return yTop + (yMax - v) / (yMax - yMin) * (yBot - yTop); }
+
+  /* Gradient strip */
+  const defs = el(svg, 'defs');
+  const grad = el(svg, 'linearGradient', {id:'scfgrad', x1:0, y1:0, x2:0, y2:1}, defs);
+  el(svg, 'stop', {offset:'0%', 'stop-color':'#6FA0E8', 'stop-opacity':0.85}, grad);
+  el(svg, 'stop', {offset:'50%','stop-color':'#8B98A8', 'stop-opacity':0.45}, grad);
+  el(svg, 'stop', {offset:'100%','stop-color':'#DC4040','stop-opacity':0.85}, grad);
+  el(svg, 'rect', {x:cx-6, y:yTop, width:12, height:yBot-yTop, fill:'url(#scfgrad)', rx:6, ry:6});
+
+  /* End labels */
+  let lbl = el(svg, 'text', {x:cx, y:yTop-12, 'text-anchor':'middle',
+    'font-size':10, 'font-weight':700, fill:'#6FA0E8', 'letter-spacing':1.2,
+    'font-family':'Inter'});
+  lbl.textContent = 'COMPASSION';
+  lbl = el(svg, 'text', {x:cx, y:yBot+18, 'text-anchor':'middle',
+    'font-size':10, 'font-weight':700, fill:'#DC4040', 'letter-spacing':1.2,
+    'font-family':'Inter'});
+  lbl.textContent = 'SANCTITY';
+
+  /* Zero (population midline) reference */
+  const yZero = yScale(0);
+  el(svg, 'line', {x1:cx-22, x2:cx+22, y1:yZero, y2:yZero,
+    stroke:'#4A5466', 'stroke-width':1, 'stroke-dasharray':'2 2'});
+  const zlab = el(svg, 'text', {x:cx+28, y:yZero+3, 'font-size':9, fill:'#6A7488', 'font-family':'Inter'});
+  zlab.textContent = '0';
+
+  /* Three benchmark glyphs — all three rendered; active solid, others dim */
+  const benchValues = {
+    R:  BENCH.Republicans.SCF.raw,
+    D:  BENCH.Democrats.SCF.raw,
+    US: BENCH.All.SCF.raw
+  };
+  /* Place glyphs to the RIGHT of the strip */
+  Object.entries(benchValues).forEach(([type, v]) => {
+    const y = yScale(v);
+    const active = (BENCH_GLYPH[bench] === type);
+    drawBenchGlyph(svg, cx + 38, y, type, {active, r: 11});
+    /* small value label */
+    const vlbl = el(svg, 'text', {x:cx+58, y:y+3.5, 'font-size':9,
+      fill: active ? '#E8EAED' : '#6A7488', 'font-family':'Inter',
+      'font-variant-numeric':'tabular-nums'});
+    vlbl.textContent = v.toFixed(2);
+  });
+
+  /* FJP marker — to the LEFT of the strip */
+  const yFJP = yScale(FJP_FULL.SCF_raw);
+  el(svg, 'circle', {cx:cx-32, cy:yFJP, r:14, fill:'#2FE079', stroke:'#fff', 'stroke-width':2.5});
+  const flab = el(svg, 'text', {x:cx-32, y:yFJP+4.5, 'text-anchor':'middle',
+    'font-size':11, 'font-weight':800, fill:'#06241A', 'font-family':'Inter'});
+  flab.textContent = 'FJP';
+  const fval = el(svg, 'text', {x:cx-32, y:yFJP+30, 'text-anchor':'middle',
+    'font-size':9, fill:'#6A7488', 'font-family':'Inter',
+    'font-variant-numeric':'tabular-nums'});
+  fval.textContent = FJP_FULL.SCF_raw.toFixed(2);
+
+  /* Update readout — direction relative to active benchmark */
+  const benchSCF = BENCH[bench].SCF.raw;
+  const delta = FJP_FULL.SCF_raw - benchSCF;
+  document.getElementById('scf-readout-num').textContent = (FJP_FULL.SCF_raw >= 0 ? '+' : '') + FJP_FULL.SCF_raw.toFixed(2);
+  let lab = 'Care-leaning';
+  if (FJP_FULL.SCF_raw > 0.5) lab = 'Sanctity-leaning';
+  else if (FJP_FULL.SCF_raw > -0.5) lab = 'Balanced';
+  document.getElementById('scf-readout-label').textContent = lab;
+  const rankNote = ` · rank ${FJP_FULL.SCF_rank} of 16 · ` +
+    (delta > 0 ? '+' : '') + delta.toFixed(2) + ' vs ' + BENCH_GLYPH[bench];
+  document.getElementById('scf-readout-rank').textContent = rankNote;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TILE 2 — STIGMA: Blame + Avoidance glyph rows + seesaw
+   ═══════════════════════════════════════════════════════════════════ */
+function chevSVG(color) {
+  return `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M 5 1 L 9 8 L 1 8 Z" fill="${color}"/></svg>`;
+}
+function arrowSVG(color, filled) {
+  /* Chevron shape — pointing right — same glyph as architecture diagram */
+  if (filled) {
+    return `<svg width="16" height="16" viewBox="0 0 64 64">
+      <path d="M 14 12 L 50 32 L 14 52 Z" fill="${color}" stroke="${color}" stroke-width="3" stroke-linejoin="miter"/>
+    </svg>`;
+  } else {
+    return `<svg width="16" height="16" viewBox="0 0 64 64">
+      <path d="M 14 12 L 50 32 L 14 52 Z" fill="none" stroke="${color}" stroke-width="4" stroke-linejoin="miter" opacity="0.30"/>
+    </svg>`;
+  }
+}
+function crescentSVG(color, filled) {
+  if (filled) {
+    return `<svg width="16" height="16" viewBox="0 0 64 64">
+      <path d="M 24 12 Q 44 32 24 52" stroke="${color}" stroke-width="6" stroke-linecap="round" fill="none"/>
+    </svg>`;
+  } else {
+    return `<svg width="16" height="16" viewBox="0 0 64 64">
+      <path d="M 24 12 Q 44 32 24 52" stroke="${color}" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.30"/>
+    </svg>`;
+  }
+}
+function renderStigmaTile() {
+  /* Blame (MBS) and Avoidance (SDS) raw values for FJP */
+  const blameRaw = FJP_FULL.MBS_raw;
+  const avoidRaw = FJP_FULL.SDS_raw;
+  document.getElementById('blame-val').textContent = blameRaw.toFixed(2);
+  document.getElementById('avoid-val').textContent = avoidRaw.toFixed(2);
+
+  /* Map 1..7 to 0..5 glyphs filled (whole-glyph rounding) */
+  function nFilled(v) {
+    return Math.max(0, Math.min(5, Math.round(((v - 1) / 6) * 5)));
+  }
+  /* Benchmark chevron position — percent across 5 glyphs */
+  function benchPctPos(v) {
+    return Math.max(0, Math.min(1, (v - 1) / 6));
+  }
+
+  /* Render glyph rows */
+  function renderRow(rowId, n, color, glyphFn, benchV) {
+    const row = document.getElementById(rowId);
+    row.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const g = document.createElement('span');
+      g.className = 'g ' + (i < n ? 'filled' : 'empty') + ' ' + (color === 'blame' ? 'blame' : 'avoid');
+      g.innerHTML = glyphFn(color === 'blame' ? '#F0AC4A' : '#4FB8D6', i < n);
+      row.appendChild(g);
+    }
+    /* Benchmark chevron above the row */
+    const benchPct = benchPctPos(benchV);
+    const totalWidth = 5 * 16 + 4 * 2;  /* 5 glyphs of 16px with 2px gap */
+    const leftPx = benchPct * totalWidth;
+    const chev = document.createElement('span');
+    chev.className = 'bench-chev';
+    chev.style.left = leftPx + 'px';
+    chev.innerHTML = `<span style="display:inline-flex;align-items:center;gap:3px;color:${color==='blame'?'#F0AC4A':'#4FB8D6'};font-weight:700;">
+      <svg width="8" height="6" viewBox="0 0 8 6"><path d="M 4 0 L 8 6 L 0 6 Z" fill="${color==='blame'?'#F0AC4A':'#4FB8D6'}"/></svg>
+      <span style="font-size:8.5px;color:${color==='blame'?'#F0AC4A':'#4FB8D6'};opacity:0.85">${BENCH_GLYPH[bench]} ${benchV.toFixed(1)}</span>
+    </span>`;
+    row.appendChild(chev);
+  }
+
+  const benchBlame = BENCH[bench].MBS.raw;
+  const benchAvoid = BENCH[bench].SDS.raw;
+  renderRow('glyphs-blame', nFilled(blameRaw), 'blame', arrowSVG, benchBlame);
+  renderRow('glyphs-avoid', nFilled(avoidRaw), 'avoid', crescentSVG, benchAvoid);
+
+  /* Seesaw: deviation ratio relative to toggle benchmark */
+  /* Standardize: how far is FJP from benchmark on each channel? */
+  const benchBlameZ = BENCH[bench].MBS.z;
+  const benchAvoidZ = BENCH[bench].SDS.z;
+  const fjpBlameZ = FJP_FULL.MBS_z;
+  const fjpAvoidZ = FJP_FULL.SDS_z;
+  const blameDev = fjpBlameZ - benchBlameZ;  /* could be negative */
+  const avoidDev = fjpAvoidZ - benchAvoidZ;
+  /* For seesaw split, use absolute deviations (which side dominates) */
+  const absB = Math.abs(blameDev), absA = Math.abs(avoidDev);
+  const tot = absB + absA || 1;
+  const blameSide = absB / tot;
+  const avoidSide = absA / tot;
+  document.getElementById('seesaw-avoid').style.width = (avoidSide * 100) + '%';
+  document.getElementById('seesaw-blame').style.width = (blameSide * 100) + '%';
+  document.getElementById('ses-avoid-pct').textContent = Math.round(avoidSide * 100) + '%';
+  document.getElementById('ses-blame-pct').textContent = Math.round(blameSide * 100) + '%';
+
+  let dom = 'balanced';
+  if (Math.abs(blameSide - avoidSide) > 0.10) {
+    dom = (blameSide > avoidSide) ? 'BLAME-side deviation' : 'AVOIDANCE-side deviation';
+  }
+  document.getElementById('seesaw-readout').textContent = dom;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TILE 3 — KNOWLEDGE (horizontal bar)
+   ═══════════════════════════════════════════════════════════════════ */
+function renderKnowledge() {
+  const fjpHKS = FJP_FULL.HKS;
+  const benchHKS = BENCH[bench].HKS;
+  document.getElementById('hks-num').textContent = fjpHKS.toFixed(1);
+  document.getElementById('hks-rank').textContent = FJP_FULL.HKS_rank + ' OF 16';
+
+  /* Fill bar to fjpHKS / 10 */
+  document.getElementById('hks-fill').style.width = (fjpHKS / 10 * 100) + '%';
+
+  /* Benchmark marker */
+  const benchEl = document.getElementById('hks-bench');
+  const pct = benchHKS / 10 * 100;
+  benchEl.style.left = pct + '%';
+  benchEl.innerHTML = `<svg width="22" height="22" viewBox="-11 -11 22 22">
+    <circle cx="0" cy="0" r="9" fill="${bench==='Republicans'?'#DC4040':bench==='Democrats'?'#4A82E0':'#07090F'}"
+      stroke="${bench==='All'?'#E8EAED':'#fff'}" stroke-width="1.5"/>
+    <text x="0" y="3" text-anchor="middle" font-size="${bench==='All'?7:8}" font-weight="800"
+      fill="${bench==='All'?'#E8EAED':'#fff'}" font-family="Inter">${BENCH_GLYPH[bench]}</text>
+  </svg>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TILE 4 — PERSONAL CONTACT
+   ═══════════════════════════════════════════════════════════════════ */
+function renderContact() {
+  const fjpHIV = FJP_FULL.CON_HIV;
+  const fjpLGB = FJP_FULL.CON_LGB;
+  const benchHIV = BENCH[bench].CON_HIV;
+  const benchLGB = BENCH[bench].CON_LGB;
+  document.getElementById('hiv-num').textContent = Math.round(fjpHIV * 100);
+  document.getElementById('lgb-num').textContent = Math.round(fjpLGB * 100);
+  document.getElementById('hiv-bench-val').textContent = Math.round(benchHIV * 100) + '%';
+  document.getElementById('lgb-bench-val').textContent = Math.round(benchLGB * 100) + '%';
+
+  const g = BENCH_GLYPH[bench];
+  document.getElementById('hiv-bench-glyph').textContent = g;
+  document.getElementById('hiv-bench-glyph').className = 'bench-glyph ' + g;
+  document.getElementById('lgb-bench-glyph').textContent = g;
+  document.getElementById('lgb-bench-glyph').className = 'bench-glyph ' + g;
+
+  document.getElementById('hiv-rank').textContent = FJP_FULL.CON_HIV_rank + ' OF 16';
+  document.getElementById('lgb-rank').textContent = FJP_FULL.CON_LGB_rank + ' OF 16';
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCORDIONS — populate rows
+   ═══════════════════════════════════════════════════════════════════ */
+function renderAccordions() {
+  const benchKey = bench;
+  document.getElementById('acc-scf-bench').textContent = BENCH_GLYPH[benchKey];
+  document.getElementById('acc-stigma-bench').textContent = BENCH_GLYPH[benchKey];
+  document.getElementById('acc-know-bench').textContent = BENCH_GLYPH[benchKey];
+  document.getElementById('acc-contact-bench').textContent = BENCH_GLYPH[benchKey];
+
+  function fmtVal(v, binary) {
+    return binary ? (v*100).toFixed(0) + '%' : v.toFixed(2);
+  }
+  function fmtDelta(d, binary) {
+    const sign = d >= 0 ? '+' : '';
+    if (binary) return sign + (d * 100).toFixed(0) + 'pp';
+    return sign + d.toFixed(2);
+  }
+  function rowHTML(item) {
+    const fjp = item.fjp, bv = item[benchKey];
+    const delta = fjp - bv;
+    const dirClass = delta >= 0 ? 'up' : 'down';
+    return `
+      <div class="acc-row">
+        <span class="acc-code">${item.code}</span>
+        <span class="acc-stem">${item.stem}</span>
+        <span class="acc-seg">${fmtVal(fjp, item.binary)}</span>
+        <span class="acc-bench">${fmtVal(bv, item.binary)}</span>
+        <span class="acc-delta ${dirClass}">${fmtDelta(delta, item.binary)}</span>
+      </div>`;
+  }
+  document.getElementById('acc-scf-rows').innerHTML = ITEMS.scf.map(rowHTML).join('');
+  document.getElementById('acc-stigma-rows').innerHTML = ITEMS.stigma.map(rowHTML).join('');
+  document.getElementById('acc-know-rows').innerHTML = ITEMS.know.map(rowHTML).join('');
+  document.getElementById('acc-contact-rows').innerHTML = ITEMS.contact.map(rowHTML).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOPOLOGY — normalized to deviation from toggle benchmark
+   ═══════════════════════════════════════════════════════════════════ */
+function renderTopology() {
+  const svg = document.getElementById('topology');
+  svg.innerHTML = '';
+  const W = 640, H = 380, M = {t:32, r:38, b:60, l:78};
+  /* Origin at toggle benchmark; range ±1.5 z-deviation */
+  const benchMBSz = BENCH[bench].MBS.z;
+  const benchSDSz = BENCH[bench].SDS.z;
+  const range = 1.5;
+  function xs(z) { return M.l + (z + range) / (2*range) * (W - M.l - M.r); }
+  function ys(z) { return H - M.b - (z + range) / (2*range) * (H - M.t - M.b); }
+
+  /* Quadrant fills (relative to origin = benchmark) */
+  el(svg,'rect',{x:xs(0), y:ys(range), width:xs(range)-xs(0), height:ys(0)-ys(range),
+    fill:'rgba(231,72,72,0.10)'});  /* UR — OSTRACIZED */
+  el(svg,'rect',{x:xs(-range), y:ys(range), width:xs(0)-xs(-range), height:ys(0)-ys(range),
+    fill:'rgba(79,184,214,0.08)'});  /* UL — DISTANCED */
+  el(svg,'rect',{x:xs(0), y:ys(0), width:xs(range)-xs(0), height:ys(-range)-ys(0),
+    fill:'rgba(240,172,74,0.08)'});  /* LR — JUDGED */
+  el(svg,'rect',{x:xs(-range), y:ys(0), width:xs(0)-xs(-range), height:ys(-range)-ys(0),
+    fill:'rgba(47,224,121,0.10)'});  /* LL — ACCEPTED */
+
+  /* Axes through origin */
+  el(svg,'line',{x1:xs(0), y1:M.t, x2:xs(0), y2:H-M.b,
+    stroke:'#2A3550', 'stroke-dasharray':'3,3'});
+  el(svg,'line',{x1:M.l, y1:ys(0), x2:W-M.r, y2:ys(0),
+    stroke:'#2A3550', 'stroke-dasharray':'3,3'});
+
+  /* Quadrant labels */
+  function ql(x, y, t, color, sub) {
+    const e = el(svg,'text',{x, y, fill:color, 'font-size':10, 'font-weight':800,
+      'letter-spacing':'0.14em', 'text-anchor':'middle', 'font-family':'Inter'});
+    e.textContent = t;
+    if (sub) {
+      const e2 = el(svg,'text',{x, y:y+13, fill:color, 'font-size':9,
+        'font-weight':500, 'text-anchor':'middle', opacity:0.7, 'font-family':'Inter'});
+      e2.textContent = sub;
+    }
+  }
+  ql(xs(-range*0.55), M.t+18, 'DISTANCED', '#4FB8D6', 'avoidance, not blame');
+  ql(xs(range*0.55), M.t+18, 'OSTRACIZED', '#E74848', 'both channels active');
+  ql(xs(-range*0.55), H-M.b-22, 'ACCEPTED', '#2FE079', 'deploy as champions');
+  ql(xs(range*0.55), H-M.b-22, 'JUDGED', '#F0AC4A', 'blame, not avoidance');
+
+  /* Axis labels */
+  const xL = el(svg,'text',{x:W/2, y:H-16, fill:'#A8B5C5', 'font-size':11,
+    'letter-spacing':'0.16em', 'text-anchor':'middle', 'font-weight':600, 'font-family':'Inter'});
+  xL.textContent = `BLAME (z-deviation from ${BENCH_GLYPH[bench]}) →`;
+  const yL = el(svg,'text',{x:18, y:H/2, fill:'#A8B5C5', 'font-size':11,
+    'letter-spacing':'0.16em', 'text-anchor':'middle', 'font-weight':600,
+    transform:`rotate(-90 18 ${H/2})`, 'font-family':'Inter'});
+  yL.textContent = `AVOIDANCE (z-deviation from ${BENCH_GLYPH[bench]}) →`;
+
+  /* Plot each segment as deviation from benchmark */
+  Object.values(SEG_DATA).forEach((s, idx) => {
+    const seg = idx + 1;
+    if (seg === FJP) return;  /* draw FJP last */
+    const dx = s.MBS_z - benchMBSz;
+    const dy = s.SDS_z - benchSDSz;
+    if (Math.abs(dx) > range || Math.abs(dy) > range) return;  /* off-chart */
+    const r = 5 + Math.sqrt(s.pop) * 32;
+    const isGop = GOP_SEGS.includes(seg);
+    el(svg, 'circle', {cx: xs(dx), cy: ys(dy), r,
+      fill: isGop ? 'rgba(231,72,72,0.18)' : 'rgba(74,130,224,0.18)',
+      stroke: isGop ? 'rgba(231,72,72,0.40)' : 'rgba(74,130,224,0.40)',
+      'stroke-width': 1.2});
+    const lbl = el(svg, 'text', {x: xs(dx), y: ys(dy) + 3.5,
+      'text-anchor': 'middle', 'font-size': 9, fill:'#6A7488',
+      'font-weight': 500, 'font-family':'Inter'});
+    lbl.textContent = SEG_NAME[seg];
+  });
+
+  /* FJP highlighted */
+  const fjpData = SEG_DATA[FJP];
+  const fdx = fjpData.MBS_z - benchMBSz;
+  const fdy = fjpData.SDS_z - benchSDSz;
+  const fr = 12 + Math.sqrt(fjpData.pop) * 38;
+  el(svg, 'circle', {cx: xs(fdx), cy: ys(fdy), r: fr+6, fill:'none',
+    stroke:'#5AC8DC', 'stroke-width': 1.8, 'stroke-dasharray':'3,3', opacity:0.85});
+  el(svg, 'circle', {cx: xs(fdx), cy: ys(fdy), r: fr, fill:'#2FE079',
+    stroke:'#fff', 'stroke-width': 2.5});
+  const flbl = el(svg, 'text', {x: xs(fdx), y: ys(fdy) + 4.5,
+    'text-anchor':'middle', 'font-size': 12, fill:'#06241A', 'font-weight': 800,
+    'font-family':'Inter'});
+  flbl.textContent = 'FJP';
+
+  /* Benchmark glyphs — show all three, origin is active toggle */
+  const benchSeg = {
+    R:  {dx: BENCH.Republicans.MBS.z - benchMBSz, dy: BENCH.Republicans.SDS.z - benchSDSz},
+    D:  {dx: BENCH.Democrats.MBS.z - benchMBSz,   dy: BENCH.Democrats.SDS.z - benchSDSz},
+    US: {dx: BENCH.All.MBS.z - benchMBSz,         dy: BENCH.All.SDS.z - benchSDSz}
+  };
+  Object.entries(benchSeg).forEach(([type, p]) => {
+    if (Math.abs(p.dx) > range || Math.abs(p.dy) > range) return;
+    const active = BENCH_GLYPH[bench] === type;
+    drawBenchGlyph(svg, xs(p.dx), ys(p.dy), type, {active, r: 12});
+  });
+
+  /* Update quadrant tag */
+  const fjpQuad = (fdx < 0 && fdy < 0) ? 'ACCEPTED'
+                : (fdx < 0 && fdy >= 0) ? 'DISTANCED'
+                : (fdx >= 0 && fdy < 0) ? 'JUDGED'
+                : 'OSTRACIZED';
+  const quadStrat = {
+    'ACCEPTED':   'Lower blame, lower avoidance · deploy, don\'t persuade',
+    'DISTANCED':  'Lower blame, higher avoidance · exposure-based',
+    'JUDGED':     'Higher blame, lower avoidance · reframe-driven',
+    'OSTRACIZED': 'Higher blame, higher avoidance · full stigma reduction',
+  };
+  document.getElementById('quad-name').textContent = fjpQuad;
+  document.getElementById('quad-strat').textContent = quadStrat[fjpQuad];
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   POLICY-STIGMA MATRIX
+   ═══════════════════════════════════════════════════════════════════ */
+function renderStratMap() {
+  const svg = document.getElementById('stratmap');
+  svg.innerHTML = '';
+  const W = 640, H = 380, M = {t:32, r:38, b:60, l:78};
+  function xs(v) { return M.l + (v - 2) / 4 * (W - M.l - M.r); }
+  function ys(v) { return H - M.b - (v - 3.5) / 3 * (H - M.t - M.b); }
+
+  el(svg,'line',{x1:xs(4), y1:M.t, x2:xs(4), y2:H-M.b,
+    stroke:'#2A3550', 'stroke-dasharray':'3,3'});
+  el(svg,'line',{x1:M.l, y1:ys(4.6), x2:W-M.r, y2:ys(4.6),
+    stroke:'#2A3550', 'stroke-dasharray':'3,3'});
+
+  const xL = el(svg,'text',{x:W/2, y:H-16, fill:'#A8B5C5', 'font-size':10,
+    'letter-spacing':'0.16em', 'text-anchor':'middle', 'font-weight':600, 'font-family':'Inter'});
+  xL.textContent = 'HIV STIGMA →';
+  const yL = el(svg,'text',{x:18, y:H/2, fill:'#A8B5C5', 'font-size':10,
+    'letter-spacing':'0.16em', 'text-anchor':'middle', 'font-weight':600,
+    transform:`rotate(-90 18 ${H/2})`, 'font-family':'Inter'});
+  yL.textContent = 'HIV POLICY SUPPORT →';
+
+  STR.filter(d => d.seg !== FJP).forEach(d => {
+    const r = 4 + Math.sqrt(d.pop) * 32;
+    el(svg,'circle',{cx: xs(d.stigma), cy: ys(d.policy), r,
+      fill: scfColor(d.scf), 'fill-opacity': 0.55,
+      stroke: 'rgba(255,255,255,0.20)', 'stroke-width': 1});
+    el(svg,'text',{x: xs(d.stigma), y: ys(d.policy) + 3.5,
+      'text-anchor':'middle', 'font-size': 8.5, fill:'#0E1320', 'font-weight': 700,
+      'font-family':'Inter'}).textContent = SEG_NAME[d.seg];
+  });
+  const fjp = STR.find(d => d.seg === FJP);
+  const r = 9 + Math.sqrt(fjp.pop) * 42;
+  el(svg, 'circle', {cx: xs(fjp.stigma), cy: ys(fjp.policy), r: r+6,
+    fill:'none', stroke:'#5AC8DC', 'stroke-width': 2, 'stroke-dasharray':'4,3'});
+  el(svg, 'circle', {cx: xs(fjp.stigma), cy: ys(fjp.policy), r,
+    fill: scfColor(fjp.scf), 'fill-opacity': 0.95, stroke:'#fff', 'stroke-width': 2.5});
+  el(svg, 'text', {x: xs(fjp.stigma), y: ys(fjp.policy) + 4,
+    'text-anchor':'middle', 'font-size': 12, fill:'#fff', 'font-weight': 800,
+    'font-family':'Inter'}).textContent = 'FJP';
+
+  /* Benchmark glyphs — plot R, D, US in their roughly population-mean positions */
+  /* These are population means of stigma + policy; use rough estimates */
+  /* For the toggle benchmark, only the active one is shown prominent */
+  /* Approximate benchmark positions from segment means */
+  const benchPos = {
+    R:  {stigma: 5.1, policy: 4.1},  /* avg of GOP segments */
+    D:  {stigma: 3.6, policy: 5.4},  /* avg of DEM segments */
+    US: {stigma: 4.3, policy: 4.7},  /* full sample */
+  };
+  Object.entries(benchPos).forEach(([type, p]) => {
+    const active = BENCH_GLYPH[bench] === type;
+    drawBenchGlyph(svg, xs(p.stigma), ys(p.policy), type, {active, r: 11});
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TRUST LIST
+   ═══════════════════════════════════════════════════════════════════ */
+function renderTrust() {
+  const benchLabel = BENCH_FULL[bench];
+  const benchGlyph = BENCH_GLYPH[bench];
+  document.getElementById('trust-bench-label').textContent = benchLabel;
+  document.getElementById('trust-bench-col').textContent = benchGlyph;
+
+  /* Compute delta vs current benchmark and sort descending */
+  const rows = TRUST.map(t => ({
+    ...t,
+    benchVal: t[bench],
+    delta: t.fjp - t[bench]
+  })).sort((a, b) => b.delta - a.delta).slice(0, 8);
+
+  const html = rows.map((t, i) => {
+    const sign = t.delta >= 0 ? '+' : '';
+    return `
+      <div class="trust-row ${i < 3 ? 'top-rank' : ''}">
+        <span class="trust-rank">${i+1}</span>
+        <span class="trust-name">${t.label}</span>
+        <span class="trust-num">${t.fjp.toFixed(2)}</span>
+        <span class="trust-bench">${t.benchVal.toFixed(2)}</span>
+        <span class="trust-delta">${sign}${t.delta.toFixed(2)}</span>
+      </div>`;
+  }).join('');
+  document.getElementById('trust-rows').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCORDION TOGGLE BEHAVIOR
+   ═══════════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.accordion-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const acc = btn.closest('.accordion');
+    acc.classList.toggle('open');
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOGGLE LISTENER
+   ═══════════════════════════════════════════════════════════════════ */
+document.getElementById('toggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('.compare-btn');
+  if (!btn) return;
+  document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  bench = btn.dataset.bench;
+  renderAll();
+});
+
+function renderAll() {
+  renderSCF();
+  renderStigmaTile();
+  renderKnowledge();
+  renderContact();
+  renderAccordions();
+  renderTopology();
+  renderStratMap();
+  renderTrust();
+}
+renderAll();
+</script>
+</body>
+</html>
