@@ -187,47 +187,47 @@ const RELIGION_OVERINDEX = {
   none:  [10,12,14,15],// UCP, HCP, HCI, GHI
 };
 
-// ─── PRE/POST DATA ───
+// ─── PRE/POST DATA (HIV: 7 items per segment) ───
 const PREPOST = {
-  TSP:{rank:[43.0,40.0],att1:[67.0,63.0],att2:[55.0,53.0],fav:[49.0,60.0]},
-  CEC:{rank:[32.0,55.0],att1:[77.0,69.0],att2:[57.0,62.0],fav:[28.0,58.0]},
-  TC:{rank:[37.0,52.0],att1:[74.0,71.0],att2:[68.0,70.0],fav:[58.0,77.0]},
-  WE:{rank:[23.0,49.0],att1:[71.0,68.0],att2:[54.0,62.0],fav:[31.0,46.0]},
-  PP:{rank:[36.0,53.0],att1:[55.0,62.0],att2:[48.0,55.0],fav:[21.0,51.0]},
-  HF:{rank:[28.0,25.0],att1:[58.0,58.0],att2:[50.0,53.0],fav:[56.0,56.0]},
-  PFF:{rank:[24.0,32.0],att1:[49.0,60.0],att2:[42.0,44.0],fav:[29.0,32.0]},
-  HHN:{rank:[35.0,48.0],att1:[74.0,62.0],att2:[68.0,66.0],fav:[60.0,83.0]},
-  MFL:{rank:[25.0,51.0],att1:[74.0,72.0],att2:[57.0,63.0],fav:[43.0,61.0]},
-  VS:{rank:[24.0,36.0],att1:[56.0,54.0],att2:[44.0,46.0],fav:[4.0,13.0]},
-  UCP:{rank:[43.0,60.0],att1:[57.0,55.0],att2:[56.0,57.0],fav:[30.0,48.0]},
-  FJP:{rank:[54.0,74.0],att1:[62.0,62.0],att2:[53.0,51.0],fav:[31.0,52.0]},
-  HCP:{rank:[46.0,66.0],att1:[57.0,53.0],att2:[38.0,54.0],fav:[39.0,45.0]},
-  HAD:{rank:[49.0,54.0],att1:[54.0,59.0],att2:[52.0,53.0],fav:[51.0,60.0]},
-  HCI:{rank:[48.0,50.0],att1:[50.0,63.0],att2:[53.0,57.0],fav:[54.0,67.0]},
-  GHI:{rank:[53.0,66.0],att1:[53.0,55.0],att2:[47.0,52.0],fav:[31.0,48.0]},
+  TSP:{item1:[20.4, 27.7],item2:[47.3, 39.0],item3:[43.8, 38.9],item4:[33.9, 39.5],item5:[59.8, 63.2],item6:[28.2, 40.1],item7:[63.3, 51.6]},
+  CEC:{item1:[2.4, 7.9],item2:[14.5, 16.4],item3:[21.7, 24.3],item4:[14.1, 12.5],item5:[51.9, 57.0],item6:[25.3, 39.6],item7:[34.2, 41.5]},
+  TC:{item1:[3.8, 6.8],item2:[18.3, 16.5],item3:[29.9, 22.3],item4:[14.7, 10.2],item5:[53.9, 52.6],item6:[33.1, 30.9],item7:[35.6, 33.1]},
+  HF:{item1:[19.9, 34.3],item2:[41.1, 36.9],item3:[33.9, 35.8],item4:[26.0, 42.8],item5:[59.4, 68.2],item6:[24.7, 21.9],item7:[53.2, 52.3]},
+  PP:{item1:[8.0, 11.6],item2:[14.4, 15.8],item3:[19.7, 21.8],item4:[5.8, 12.5],item5:[50.3, 46.5],item6:[34.0, 31.4],item7:[31.5, 32.6]},
+  WE:{item1:[2.9, 4.6],item2:[22.9, 19.4],item3:[25.1, 20.7],item4:[11.6, 8.9],item5:[44.9, 40.0],item6:[22.0, 18.6],item7:[23.6, 27.3]},
+  PFF:{item1:[10.4, 11.4],item2:[20.4, 20.1],item3:[25.1, 29.7],item4:[12.5, 17.8],item5:[40.4, 50.3],item6:[27.9, 22.6],item7:[36.5, 41.3]},
+  HHN:{item1:[0.0, 26.4],item2:[32.4, 40.6],item3:[33.3, 36.9],item4:[32.8, 31.8],item5:[67.1, 51.1],item6:[24.9, 24.4],item7:[43.8, 40.0]},
+  MFL:{item1:[4.6, 12.7],item2:[21.3, 17.8],item3:[27.6, 23.2],item4:[15.4, 15.0],item5:[57.8, 62.1],item6:[32.7, 39.5],item7:[39.2, 40.1]},
+  VS:{item1:[4.3, 4.1],item2:[22.3, 21.2],item3:[30.9, 30.1],item4:[15.8, 15.0],item5:[51.4, 45.5],item6:[25.5, 38.1],item7:[22.2, 34.6]},
+  UCP:{item1:[13.7, 31.2],item2:[43.7, 70.0],item3:[74.1, 76.7],item4:[47.8, 74.3],item5:[98.0, 99.8],item6:[92.5, 95.1],item7:[70.6, 75.9]},
+  FJP:{item1:[13.8, 29.1],item2:[54.4, 66.0],item3:[77.2, 80.4],item4:[44.9, 53.8],item5:[96.9, 99.3],item6:[71.2, 77.4],item7:[65.2, 56.1]},
+  HCP:{item1:[2.9, 19.9],item2:[39.6, 44.4],item3:[73.5, 57.0],item4:[42.6, 36.5],item5:[79.9, 85.7],item6:[67.2, 69.5],item7:[80.3, 60.7]},
+  HAD:{item1:[13.4, 41.1],item2:[31.0, 31.6],item3:[37.3, 40.7],item4:[32.3, 32.5],item5:[69.6, 70.0],item6:[28.1, 31.7],item7:[56.4, 48.2]},
+  HCI:{item1:[20.9, 39.2],item2:[20.3, 31.7],item3:[45.7, 55.9],item4:[36.4, 34.3],item5:[64.3, 62.5],item6:[46.3, 42.5],item7:[40.2, 50.6]},
+  GHI:{item1:[6.9, 27.2],item2:[25.9, 30.0],item3:[56.3, 48.9],item4:[42.3, 43.1],item5:[83.8, 84.7],item6:[76.1, 76.8],item7:[77.0, 62.6]},
 };
 
 // ─── VECTOR DATA ───
-// ─── STUDY-SPECIFIC ROI DATA ───
-// American Leadership study metrics. Tier computed dynamically from ROI.
+// ─── STUDY-SPECIFIC ROI DATA (HIV) ───
+// HIV study metrics. Tier computed dynamically from ROI.
 function alTier(roi) { return roi >= 1.07 ? 1 : roi >= 1.00 ? 2 : 3; }
 const STUDY_ROI = {
-  "TSP":{ AL:{roi:0.90,highRoi:20,supporters:62,activation:23,influence:23} },
-  "CEC":{ AL:{roi:1.07,highRoi:28,supporters:60,activation:12,influence:7} },
-  "TC":{  AL:{roi:1.13,highRoi:35,supporters:70,activation:26,influence:18} },
-  "HF":{  AL:{roi:0.88,highRoi:17,supporters:56,activation:19,influence:29} },
-  "PP":{  AL:{roi:1.02,highRoi:27,supporters:45,activation:7,influence:5} },
-  "WE":{  AL:{roi:1.08,highRoi:24,supporters:51,activation:13,influence:11} },
-  "PFF":{ AL:{roi:0.95,highRoi:20,supporters:33,activation:14,influence:17} },
-  "HHN":{ AL:{roi:1.05,highRoi:25,supporters:63,activation:29,influence:24} },
-  "MFL":{ AL:{roi:1.07,highRoi:26,supporters:53,activation:8,influence:11} },
-  "VS":{  AL:{roi:0.75,highRoi:13,supporters:31,activation:14,influence:14} },
-  "UCP":{ AL:{roi:0.98,highRoi:23,supporters:47,activation:9,influence:10} },
-  "FJP":{ AL:{roi:1.05,highRoi:24,supporters:59,activation:8,influence:6} },
-  "HCP":{ AL:{roi:1.00,highRoi:27,supporters:53,activation:8,influence:6} },
-  "GHI":{ AL:{roi:1.09,highRoi:31,supporters:59,activation:6,influence:10} },
-  "HAD":{ AL:{roi:1.01,highRoi:24,supporters:60,activation:18,influence:9} },
-  "HCI":{ AL:{roi:0.95,highRoi:23,supporters:60,activation:7,influence:15} },
+  "TSP":{ HIV:{roi:1.0236,highRoi:30,supporters:32,activation:32,influence:31} },
+  "CEC":{ HIV:{roi:0.8524,highRoi:16,supporters:11,activation:16,influence:12} },
+  "TC":{  HIV:{roi:0.7189,highRoi:7,supporters:2,activation:16,influence:21} },
+  "HF":{  HIV:{roi:1.0796,highRoi:27,supporters:21,activation:32,influence:46} },
+  "PP":{  HIV:{roi:0.7353,highRoi:9,supporters:6,activation:18,influence:19} },
+  "WE":{  HIV:{roi:0.6176,highRoi:9,supporters:5,activation:16,influence:24} },
+  "PFF":{ HIV:{roi:0.7958,highRoi:13,supporters:13,activation:21,influence:36} },
+  "HHN":{ HIV:{roi:1.0430,highRoi:29,supporters:23,activation:29,influence:30} },
+  "MFL":{ HIV:{roi:0.8055,highRoi:14,supporters:8,activation:17,influence:21} },
+  "VS":{  HIV:{roi:0.7492,highRoi:12,supporters:7,activation:20,influence:25} },
+  "UCP":{ HIV:{roi:1.3316,highRoi:69,supporters:64,activation:34,influence:42} },
+  "FJP":{ HIV:{roi:1.2991,highRoi:56,supporters:57,activation:34,influence:35} },
+  "HCP":{ HIV:{roi:1.1387,highRoi:35,supporters:42,activation:31,influence:26} },
+  "HAD":{ HIV:{roi:1.0605,highRoi:31,supporters:23,activation:31,influence:30} },
+  "HCI":{ HIV:{roi:1.0669,highRoi:29,supporters:34,activation:22,influence:31} },
+  "GHI":{ HIV:{roi:1.0832,highRoi:48,supporters:43,activation:27,influence:29} },
 };
 
 const GOP_VECTORS = {
@@ -2054,14 +2054,14 @@ export default function SegmentProfile() {
           {/* ROI Card — AL Study */}
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {STUDY_ROI[seg.code] && (() => {
-              const d = STUDY_ROI[seg.code].AL;
+              const d = STUDY_ROI[seg.code].HIV;
               if (!d) return null;
               const studyTier = alTier(d.roi);
               const studyTc = TIER_ACCENT[studyTier];
               return (
                 <div style={{ background:"#111827", borderRadius:8, padding:"8px 10px", border:"1px solid #1e293b" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>AL STUDY ROI</div>
+                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>HIV STUDY ROI</div>
                     <span style={{ fontSize:7, fontWeight:700, padding:"1px 6px", borderRadius:3, background:TIER_BG[studyTier], color:TIER_TEXT[studyTier], fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{TIER_LABELS[studyTier]}</span>
                   </div>
                   <div style={{ textAlign:"center", padding:"4px 0", borderBottom:"1px solid #1e293b", marginBottom:5 }}>

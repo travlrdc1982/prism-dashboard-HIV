@@ -118,7 +118,7 @@ const DATA = {
       "pop": 6
     }
   ],
-  "ESI": {
+  "HIV": {
     "segments": [
       {
         "id": 1,
@@ -126,26 +126,46 @@ const DATA = {
         "name": "Trust the Science Pragmatists",
         "party": "GOP",
         "pop": 2,
-        "roi": 0.81,
-        "highRoi": 25,
+        "roi": 1.0236,
+        "highRoi": 30,
         "persuadability": [
-          14,
-          12,
-          12,
-          8,
-          56
+          27,
+          2,
+          29,
+          6,
+          36
         ],
-        "supporters": 73,
-        "activation": 23,
-        "influence": 5,
+        "supporters": 32,
+        "activation": 32,
+        "influence": 31,
         "prePost": {
-          "pol": [
-            67.3,
-            67.3
+          "item1": [
+            20.4,
+            27.7
           ],
-          "att": [
-            66.8,
-            66.6
+          "item2": [
+            47.3,
+            39.0
+          ],
+          "item3": [
+            43.8,
+            38.9
+          ],
+          "item4": [
+            33.9,
+            39.5
+          ],
+          "item5": [
+            59.8,
+            63.2
+          ],
+          "item6": [
+            28.2,
+            40.1
+          ],
+          "item7": [
+            63.3,
+            51.6
           ]
         }
       },
@@ -154,27 +174,47 @@ const DATA = {
         "code": "CEC",
         "name": "Consumer Empowerment Champions",
         "party": "GOP",
-        "pop": 7,
-        "roi": 1.01,
-        "highRoi": 36,
+        "pop": 6,
+        "roi": 0.8524,
+        "highRoi": 16,
         "persuadability": [
-          17,
-          19,
-          15,
-          13,
-          35
+          7,
+          9,
+          35,
+          8,
+          41
         ],
-        "supporters": 86,
-        "activation": 36,
-        "influence": 3,
+        "supporters": 11,
+        "activation": 16,
+        "influence": 12,
         "prePost": {
-          "pol": [
-            76.0,
-            80.0
+          "item1": [
+            2.4,
+            7.9
           ],
-          "att": [
-            69.8,
-            71.4
+          "item2": [
+            14.5,
+            16.4
+          ],
+          "item3": [
+            21.7,
+            24.3
+          ],
+          "item4": [
+            14.1,
+            12.5
+          ],
+          "item5": [
+            51.9,
+            57.0
+          ],
+          "item6": [
+            25.3,
+            39.6
+          ],
+          "item7": [
+            34.2,
+            41.5
           ]
         }
       },
@@ -184,26 +224,46 @@ const DATA = {
         "name": "Traditional Conservatives",
         "party": "GOP",
         "pop": 6,
-        "roi": 1.11,
-        "highRoi": 38,
+        "roi": 0.7189,
+        "highRoi": 7,
         "persuadability": [
-          17,
-          22,
-          14,
-          16,
-          31
+          0,
+          7,
+          37,
+          18,
+          38
         ],
-        "supporters": 91,
-        "activation": 43,
-        "influence": 3,
+        "supporters": 2,
+        "activation": 16,
+        "influence": 21,
         "prePost": {
-          "pol": [
-            80.4,
-            87.1
+          "item1": [
+            3.8,
+            6.8
           ],
-          "att": [
-            71.7,
-            73.7
+          "item2": [
+            18.3,
+            16.5
+          ],
+          "item3": [
+            29.9,
+            22.3
+          ],
+          "item4": [
+            14.7,
+            10.2
+          ],
+          "item5": [
+            53.9,
+            52.6
+          ],
+          "item6": [
+            33.1,
+            30.9
+          ],
+          "item7": [
+            35.6,
+            33.1
           ]
         }
       },
@@ -213,26 +273,46 @@ const DATA = {
         "name": "Health Futurists",
         "party": "GOP",
         "pop": 2,
-        "roi": 1.22,
-        "highRoi": 36,
+        "roi": 1.0796,
+        "highRoi": 27,
         "persuadability": [
-          22,
-          14,
-          20,
-          6,
-          38
+          19,
+          9,
+          38,
+          9,
+          26
         ],
-        "supporters": 82,
-        "activation": 27,
-        "influence": 23,
+        "supporters": 21,
+        "activation": 32,
+        "influence": 46,
         "prePost": {
-          "pol": [
-            48.0,
-            68.0
+          "item1": [
+            19.9,
+            34.3
           ],
-          "att": [
-            64.0,
-            66.3
+          "item2": [
+            41.1,
+            36.9
+          ],
+          "item3": [
+            33.9,
+            35.8
+          ],
+          "item4": [
+            26.0,
+            42.8
+          ],
+          "item5": [
+            59.4,
+            68.2
+          ],
+          "item6": [
+            24.7,
+            21.9
+          ],
+          "item7": [
+            53.2,
+            52.3
           ]
         }
       },
@@ -241,27 +321,47 @@ const DATA = {
         "code": "PP",
         "name": "Price Populists",
         "party": "GOP",
-        "pop": 3,
-        "roi": 1.02,
-        "highRoi": 36,
+        "pop": 2,
+        "roi": 0.7353,
+        "highRoi": 9,
         "persuadability": [
-          23,
-          13,
-          11,
-          15,
-          38
+          4,
+          5,
+          29,
+          9,
+          53
         ],
-        "supporters": 79,
-        "activation": 33,
-        "influence": 5,
+        "supporters": 6,
+        "activation": 18,
+        "influence": 19,
         "prePost": {
-          "pol": [
-            59.6,
-            65.9
+          "item1": [
+            8.0,
+            11.6
           ],
-          "att": [
-            64.9,
-            67.3
+          "item2": [
+            14.4,
+            15.8
+          ],
+          "item3": [
+            19.7,
+            21.8
+          ],
+          "item4": [
+            5.8,
+            12.5
+          ],
+          "item5": [
+            50.3,
+            46.5
+          ],
+          "item6": [
+            34.0,
+            31.4
+          ],
+          "item7": [
+            31.5,
+            32.6
           ]
         }
       },
@@ -271,26 +371,46 @@ const DATA = {
         "name": "Wellness Evangelists",
         "party": "GOP",
         "pop": 9,
-        "roi": 1.1,
-        "highRoi": 38,
+        "roi": 0.6176,
+        "highRoi": 9,
         "persuadability": [
-          15,
+          3,
+          6,
           23,
-          19,
           15,
-          28
+          53
         ],
-        "supporters": 87,
-        "activation": 34,
-        "influence": 3,
+        "supporters": 5,
+        "activation": 16,
+        "influence": 24,
         "prePost": {
-          "pol": [
-            73.3,
-            78.0
+          "item1": [
+            2.9,
+            4.6
           ],
-          "att": [
-            67.8,
-            69.3
+          "item2": [
+            22.9,
+            19.4
+          ],
+          "item3": [
+            25.1,
+            20.7
+          ],
+          "item4": [
+            11.6,
+            8.9
+          ],
+          "item5": [
+            44.9,
+            40.0
+          ],
+          "item6": [
+            22.0,
+            18.6
+          ],
+          "item7": [
+            23.6,
+            27.3
           ]
         }
       },
@@ -300,26 +420,46 @@ const DATA = {
         "name": "Paleo Freedom Fighters",
         "party": "GOP",
         "pop": 4,
-        "roi": 1.04,
-        "highRoi": 34,
+        "roi": 0.7958,
+        "highRoi": 13,
         "persuadability": [
-          16,
-          18,
-          20,
-          18,
-          28
+          6,
+          7,
+          28,
+          17,
+          42
         ],
-        "supporters": 84,
-        "activation": 27,
-        "influence": 12,
+        "supporters": 13,
+        "activation": 21,
+        "influence": 36,
         "prePost": {
-          "pol": [
-            70.0,
-            70.0
+          "item1": [
+            10.4,
+            11.4
           ],
-          "att": [
-            67.9,
-            70.3
+          "item2": [
+            20.4,
+            20.1
+          ],
+          "item3": [
+            25.1,
+            29.7
+          ],
+          "item4": [
+            12.5,
+            17.8
+          ],
+          "item5": [
+            40.4,
+            50.3
+          ],
+          "item6": [
+            27.9,
+            22.6
+          ],
+          "item7": [
+            36.5,
+            41.3
           ]
         }
       },
@@ -329,26 +469,46 @@ const DATA = {
         "name": "Holistic Health Naturalists",
         "party": "GOP",
         "pop": 3,
-        "roi": 1.04,
-        "highRoi": 37,
+        "roi": 1.043,
+        "highRoi": 29,
         "persuadability": [
-          23,
-          14,
-          12,
+          20,
           9,
-          43
+          24,
+          10,
+          37
         ],
-        "supporters": 75,
-        "activation": 25,
-        "influence": 20,
+        "supporters": 23,
+        "activation": 29,
+        "influence": 30,
         "prePost": {
-          "pol": [
-            56.6,
-            57.3
+          "item1": [
+            0.0,
+            26.4
           ],
-          "att": [
-            67.9,
-            68.5
+          "item2": [
+            32.4,
+            40.6
+          ],
+          "item3": [
+            33.3,
+            36.9
+          ],
+          "item4": [
+            32.8,
+            31.8
+          ],
+          "item5": [
+            67.1,
+            51.1
+          ],
+          "item6": [
+            24.9,
+            24.4
+          ],
+          "item7": [
+            43.8,
+            40.0
           ]
         }
       },
@@ -358,26 +518,46 @@ const DATA = {
         "name": "Medical Freedom Libertarians",
         "party": "GOP",
         "pop": 5,
-        "roi": 0.81,
-        "highRoi": 31,
+        "roi": 0.8055,
+        "highRoi": 14,
         "persuadability": [
           7,
-          24,
-          13,
-          24,
-          33
+          8,
+          33,
+          14,
+          38
         ],
-        "supporters": 82,
-        "activation": 28,
-        "influence": 5,
+        "supporters": 8,
+        "activation": 17,
+        "influence": 21,
         "prePost": {
-          "pol": [
-            76.4,
-            78.2
+          "item1": [
+            4.6,
+            12.7
           ],
-          "att": [
-            71.8,
-            69.4
+          "item2": [
+            21.3,
+            17.8
+          ],
+          "item3": [
+            27.6,
+            23.2
+          ],
+          "item4": [
+            15.4,
+            15.0
+          ],
+          "item5": [
+            57.8,
+            62.1
+          ],
+          "item6": [
+            32.7,
+            39.5
+          ],
+          "item7": [
+            39.2,
+            40.1
           ]
         }
       },
@@ -387,26 +567,46 @@ const DATA = {
         "name": "Vaccine Skeptics",
         "party": "GOP",
         "pop": 5,
-        "roi": 0.84,
-        "highRoi": 26,
+        "roi": 0.7492,
+        "highRoi": 12,
         "persuadability": [
-          11,
-          15,
-          15,
+          5,
+          6,
+          31,
           21,
-          38
+          37
         ],
-        "supporters": 74,
-        "activation": 23,
-        "influence": 4,
+        "supporters": 7,
+        "activation": 20,
+        "influence": 25,
         "prePost": {
-          "pol": [
-            62.2,
-            60.4
+          "item1": [
+            4.3,
+            4.1
           ],
-          "att": [
-            64.1,
-            65.4
+          "item2": [
+            22.3,
+            21.2
+          ],
+          "item3": [
+            30.9,
+            30.1
+          ],
+          "item4": [
+            15.8,
+            15.0
+          ],
+          "item5": [
+            51.4,
+            45.5
+          ],
+          "item6": [
+            25.5,
+            38.1
+          ],
+          "item7": [
+            22.2,
+            34.6
           ]
         }
       },
@@ -416,26 +616,46 @@ const DATA = {
         "name": "Universal Care Progressives",
         "party": "DEM",
         "pop": 11,
-        "roi": 0.89,
-        "highRoi": 37,
+        "roi": 1.3316,
+        "highRoi": 69,
         "persuadability": [
-          21,
-          16,
-          8,
-          17,
-          37
+          52,
+          18,
+          12,
+          1,
+          17
         ],
-        "supporters": 68,
-        "activation": 32,
-        "influence": 5,
+        "supporters": 64,
+        "activation": 34,
+        "influence": 42,
         "prePost": {
-          "pol": [
-            61.3,
-            60.0
+          "item1": [
+            13.7,
+            31.2
           ],
-          "att": [
-            48.0,
-            47.8
+          "item2": [
+            43.7,
+            70.0
+          ],
+          "item3": [
+            74.1,
+            76.7
+          ],
+          "item4": [
+            47.8,
+            74.3
+          ],
+          "item5": [
+            98.0,
+            99.8
+          ],
+          "item6": [
+            92.5,
+            95.1
+          ],
+          "item7": [
+            70.6,
+            75.9
           ]
         }
       },
@@ -445,26 +665,46 @@ const DATA = {
         "name": "Faith & Justice Progressives",
         "party": "DEM",
         "pop": 10,
-        "roi": 1.01,
-        "highRoi": 42,
+        "roi": 1.2991,
+        "highRoi": 56,
         "persuadability": [
-          24,
+          50,
+          6,
           18,
-          5,
-          11,
-          42
+          3,
+          24
         ],
-        "supporters": 75,
-        "activation": 33,
-        "influence": 5,
+        "supporters": 57,
+        "activation": 34,
+        "influence": 35,
         "prePost": {
-          "pol": [
-            54.7,
-            60.0
+          "item1": [
+            13.8,
+            29.1
           ],
-          "att": [
-            63.7,
-            65.3
+          "item2": [
+            54.4,
+            66.0
+          ],
+          "item3": [
+            77.2,
+            80.4
+          ],
+          "item4": [
+            44.9,
+            53.8
+          ],
+          "item5": [
+            96.9,
+            99.3
+          ],
+          "item6": [
+            71.2,
+            77.4
+          ],
+          "item7": [
+            65.2,
+            56.1
           ]
         }
       },
@@ -474,26 +714,46 @@ const DATA = {
         "name": "Health Care Protectionists",
         "party": "DEM",
         "pop": 8,
-        "roi": 0.85,
-        "highRoi": 33,
+        "roi": 1.1387,
+        "highRoi": 35,
         "persuadability": [
-          17,
-          16,
-          9,
-          19,
+          30,
+          6,
+          18,
+          7,
           39
         ],
-        "supporters": 77,
-        "activation": 22,
-        "influence": 4,
+        "supporters": 42,
+        "activation": 31,
+        "influence": 26,
         "prePost": {
-          "pol": [
-            57.9,
-            60.8
+          "item1": [
+            2.9,
+            19.9
           ],
-          "att": [
-            61.1,
-            61.2
+          "item2": [
+            39.6,
+            44.4
+          ],
+          "item3": [
+            73.5,
+            57.0
+          ],
+          "item4": [
+            42.6,
+            36.5
+          ],
+          "item5": [
+            79.9,
+            85.7
+          ],
+          "item6": [
+            67.2,
+            69.5
+          ],
+          "item7": [
+            80.3,
+            60.7
           ]
         }
       },
@@ -502,27 +762,47 @@ const DATA = {
         "code": "HAD",
         "name": "Health Abundance Democrats",
         "party": "DEM",
-        "pop": 10,
-        "roi": 1.1,
-        "highRoi": 40,
+        "pop": 8,
+        "roi": 1.0605,
+        "highRoi": 31,
         "persuadability": [
-          24,
-          16,
-          11,
-          12,
-          37
+          14,
+          17,
+          22,
+          4,
+          42
         ],
-        "supporters": 81,
-        "activation": 33,
-        "influence": 10,
+        "supporters": 23,
+        "activation": 31,
+        "influence": 30,
         "prePost": {
-          "pol": [
-            62.7,
-            65.3
+          "item1": [
+            13.4,
+            41.1
           ],
-          "att": [
-            65.8,
-            67.5
+          "item2": [
+            31.0,
+            31.6
+          ],
+          "item3": [
+            37.3,
+            40.7
+          ],
+          "item4": [
+            32.3,
+            32.5
+          ],
+          "item5": [
+            69.6,
+            70.0
+          ],
+          "item6": [
+            28.1,
+            31.7
+          ],
+          "item7": [
+            56.4,
+            48.2
           ]
         }
       },
@@ -531,27 +811,47 @@ const DATA = {
         "code": "HCI",
         "name": "Health Care Incrementalists",
         "party": "DEM",
-        "pop": 8,
-        "roi": 1.17,
-        "highRoi": 45,
+        "pop": 7,
+        "roi": 1.0669,
+        "highRoi": 29,
         "persuadability": [
-          21,
-          24,
-          12,
-          11,
-          32
+          25,
+          4,
+          29,
+          7,
+          35
         ],
-        "supporters": 87,
-        "activation": 29,
-        "influence": 4,
+        "supporters": 34,
+        "activation": 22,
+        "influence": 31,
         "prePost": {
-          "pol": [
-            65.0,
-            75.0
+          "item1": [
+            20.9,
+            39.2
           ],
-          "att": [
-            68.5,
-            69.8
+          "item2": [
+            20.3,
+            31.7
+          ],
+          "item3": [
+            45.7,
+            55.9
+          ],
+          "item4": [
+            36.4,
+            34.3
+          ],
+          "item5": [
+            64.3,
+            62.5
+          ],
+          "item6": [
+            46.3,
+            42.5
+          ],
+          "item7": [
+            40.2,
+            50.6
           ]
         }
       },
@@ -560,1309 +860,214 @@ const DATA = {
         "code": "GHI",
         "name": "Global Health Institutionalists",
         "party": "DEM",
-        "pop": 6,
-        "roi": 0.98,
-        "highRoi": 36,
-        "persuadability": [
-          12,
-          24,
-          13,
-          17,
-          33
-        ],
-        "supporters": 85,
-        "activation": 35,
-        "influence": 7,
-        "prePost": {
-          "pol": [
-            76.0,
-            80.0
-          ],
-          "att": [
-            61.7,
-            63.0
-          ]
-        }
-      }
-    ],
-    "messages": [
-      {
-        "id": 1,
-        "shortName": "Financial Security",
-        "text": "Employer health coverage shields families from rising medical costs\u2014covering about 80\u201390 percent of all claims and preventing unexpected bills from becoming financial crises.",
-        "sop": [
-          15.1,
-          9.8,
-          14.6,
-          16.3,
-          8.7,
-          13.4,
-          16.4,
-          17.2,
-          11.0,
-          14.5,
-          15.5,
-          16.7,
-          15.3,
-          17.0,
-          13.7,
-          14.5,
-          15.2,
-          19.6
-        ],
-        "theme": "Financial"
-      },
-      {
-        "id": 2,
-        "shortName": "Comprehensive Coverage",
-        "text": "Employer plans provide complete protection, covering medical, drug, maternity, and mental-health care together in one plan so nothing important is left out.",
-        "sop": [
-          8.7,
-          7.2,
-          9.4,
-          8.3,
-          7.9,
-          9.9,
-          7.6,
-          6.8,
-          7.5,
-          7.8,
-          8.5,
-          9.7,
-          9.7,
-          9.8,
-          7.9,
-          9.3,
-          9.4,
-          9.2
-        ],
-        "theme": "Coverage"
-      },
-      {
-        "id": 3,
-        "shortName": "Continuity-Life Changes",
-        "text": "Workers stay protected through life changes, with COBRA and retiree options that help them maintain coverage and keep their doctors when jobs or family circumstances change",
-        "sop": [
-          6.9,
-          6.5,
-          7.0,
-          5.8,
-          7.7,
-          8.1,
-          6.2,
-          4.4,
-          7.3,
-          6.5,
-          8.3,
-          7.1,
-          9.4,
-          7.6,
-          7.4,
-          5.6,
-          6.3,
-          4.6
-        ],
-        "theme": "Coverage"
-      },
-      {
-        "id": 4,
-        "shortName": "Access & Innovation",
-        "text": "Employer coverage connects employees and families to leading doctors, hospitals, and new treatments\u2014the cornerstone of America\u2019s private health-care system that drives innovation and access to advanced care.",
-        "sop": [
-          7.0,
-          6.9,
-          7.3,
-          7.8,
-          7.0,
-          8.1,
-          6.9,
-          7.6,
-          6.1,
-          6.4,
-          7.0,
-          6.6,
-          7.1,
-          6.4,
-          7.1,
-          5.9,
-          7.9,
-          7.8
-        ],
-        "theme": "Innovation"
-      },
-      {
-        "id": 5,
-        "shortName": "Freedom & Competition",
-        "text": "Employer coverage helps keep the health system competitive\u2014by letting businesses and employees select the plans and providers that best fit their needs.",
-        "sop": [
-          5.8,
-          6.2,
-          6.2,
-          6.3,
-          6.1,
-          5.1,
-          6.8,
-          6.6,
-          6.4,
-          6.1,
-          6.9,
-          4.9,
-          4.9,
-          6.1,
-          5.9,
-          6.3,
-          4.4,
-          5.8
-        ],
-        "theme": "Freedom"
-      },
-      {
-        "id": 6,
-        "shortName": "Digital Tools",
-        "text": "Digital tools put employees in control of their coverage\u2014to see costs in advance, track approvals, follow treatment plan and make confident, informed decisions",
-        "sop": [
-          3.6,
-          4.7,
-          3.6,
-          2.9,
-          6.0,
-          4.7,
-          3.6,
-          2.8,
-          4.6,
-          3.9,
-          4.4,
-          4.0,
-          3.1,
-          2.8,
-          4.3,
-          4.0,
-          2.6,
-          3.7
-        ],
-        "theme": "Innovation"
-      },
-      {
-        "id": 7,
-        "shortName": "Modern Convenience",
-        "text": "Employer plans expand convenience through telehealth, 24-hour nurse lines, and virtual mental-health services that meet people where they are",
-        "sop": [
-          5.8,
-          7.2,
-          6.4,
-          4.2,
-          6.3,
-          5.9,
-          5.6,
-          5.4,
-          6.8,
-          6.2,
-          4.9,
-          6.1,
-          7.0,
-          4.3,
-          5.6,
-          5.8,
-          5.7,
-          5.8
-        ],
-        "theme": "Coverage"
-      },
-      {
-        "id": 8,
-        "shortName": "Customized Benefits",
-        "text": "Employers tailor benefits to their own workforce, offering coverage options like obesity-treatment, fertility, and mental-health programs that reflect employee priorities and the company\u2019s values",
-        "sop": [
-          4.2,
-          5.3,
-          3.8,
-          3.4,
-          5.7,
-          4.8,
-          3.8,
-          4.3,
-          4.6,
-          4.2,
-          4.0,
-          4.7,
-          4.4,
-          4.4,
-          5.0,
-          3.8,
-          3.1,
-          4.2
-        ],
-        "theme": "Coverage"
-      },
-      {
-        "id": 9,
-        "shortName": "Earned Benefit",
-        "text": "Employer-sponsored insurance rewards work through a true partnership between employers and employees\u2014turning shared payroll contributions and tax-free benefits into dependable coverage that employees earned",
-        "sop": [
-          5.5,
-          6.3,
-          5.4,
-          6.0,
-          5.9,
-          5.0,
-          5.6,
-          6.2,
-          6.2,
-          6.3,
-          5.1,
-          4.9,
-          4.8,
-          5.3,
-          6.0,
-          5.9,
-          5.3,
-          4.2
-        ],
-        "theme": "Social Contract"
-      },
-      {
-        "id": 10,
-        "shortName": "Social Contract",
-        "text": "Employer health coverage has been a basic promise between employers and employees\u2014hard work earns security and peace of mind Taxing or weakening those benefits breaks that promise and erodes workplace trust between employers and employees",
-        "sop": [
-          10.4,
-          12.3,
-          10.3,
-          11.0,
-          8.6,
-          9.7,
-          10.1,
-          9.4,
-          8.6,
-          11.8,
-          9.4,
-          8.5,
-          8.2,
-          11.2,
-          9.8,
-          10.2,
-          15.5,
-          10.9
-        ],
-        "theme": "Social Contract"
-      },
-      {
-        "id": 11,
-        "shortName": "Tax Fairness",
-        "text": "Employer insurance channels tax-free private dollars into America\u2019s health-care system, keeping coverage affordable for families while reducing the burden on taxpayer-funded programs.",
-        "sop": [
-          6.6,
-          6.7,
-          6.6,
-          7.2,
-          6.7,
-          6.1,
-          7.3,
-          7.1,
-          6.6,
-          6.7,
-          6.9,
-          6.8,
-          5.8,
-          5.9,
-          6.1,
-          6.9,
-          6.4,
-          6.6
-        ],
-        "theme": "Financial"
-      },
-      {
-        "id": 12,
-        "shortName": "Competitive Purchasing Power",
-        "text": "Employers use their collective purchasing power to drive competition among hospitals, doctors, and drug companies\u2014helping improve the quality of care while controlling costs.",
-        "sop": [
-          5.4,
-          5.1,
-          4.9,
-          6.3,
-          5.5,
-          4.5,
-          5.6,
-          6.5,
-          6.3,
-          5.4,
-          4.6,
-          5.0,
-          4.6,
-          5.4,
-          6.0,
-          6.2,
-          4.9,
-          5.0
-        ],
-        "theme": "Financial"
-      },
-      {
-        "id": 13,
-        "shortName": "Innovation & Partnership",
-        "text": "Employer plans drive medical progress\u2014partnering with top health systems and innovators to expand access to advanced therapies while keeping care affordable for working families.",
-        "sop": [
-          4.9,
-          5.4,
-          5.0,
-          4.7,
-          5.9,
-          4.9,
-          4.8,
-          5.2,
-          5.5,
-          4.3,
-          4.7,
-          4.4,
-          5.1,
-          4.9,
-          5.7,
-          4.9,
-          4.2,
-          4.6
-        ],
-        "theme": "Innovation"
-      },
-      {
-        "id": 14,
-        "shortName": "Accountability & Transparency",
-        "text": "Employers hold plans accountable for quality and spending, tracking data and outcomes to ensure every premium dollar strengthens employee health, not administrative overhead.",
-        "sop": [
-          3.8,
-          4.1,
-          3.3,
-          3.5,
-          5.1,
-          3.6,
-          3.6,
-          5.1,
-          4.8,
-          3.2,
-          3.6,
-          4.1,
-          3.7,
-          3.8,
-          4.1,
-          4.7,
-          2.9,
-          2.7
-        ],
-        "theme": "Innovation"
-      },
-      {
-        "id": 15,
-        "shortName": "Health Productivity Investment",
-        "text": "Employers invest directly in work1ers\u2019 health through wellness programs, preventive-care incentives, and disease-management support that keep people healthy and productive.",
-        "sop": [
-          6.2,
-          6.2,
-          6.2,
-          6.3,
-          7.0,
-          6.1,
-          6.3,
-          5.4,
-          7.7,
-          6.6,
-          6.4,
-          6.4,
-          6.9,
-          5.2,
-          5.6,
-          6.0,
-          6.3,
-          5.4
-        ],
-        "theme": "Coverage"
-      }
-    ],
-    "prePostMetrics": [
-      {
-        "key": "pol",
-        "label": "ESI Tax Policy",
-        "question": "Under current law, health insurance provided by employers is excluded from income taxes. Should the tax break for employer-sponsored health insurance stay in place, or be changed so those benefits are taxed like income?",
-        "scale": "% saying tax break should stay in place"
-      },
-      {
-        "key": "att",
-        "label": "ESI Role",
-        "question": "How strongly you believe employer-sponsored insurance deserves to play a central role in the U.S. health care system (0\u2013100 scale)",
-        "scale": "Mean score (0 = no legitimate role, 100 = essential role)"
-      }
-    ]
-  },
-  "MA": {
-    "segments": [
-      {
-        "id": 1,
-        "code": "TSP",
-        "name": "Trust the Science Pragmatists",
-        "party": "GOP",
-        "pop": 2,
-        "roi": 0.91,
-        "highRoi": 34,
-        "persuadability": [
-          15,
-          19,
-          18,
-          7,
-          41
-        ],
-        "supporters": 51,
-        "activation": 27,
-        "influence": 5,
-        "prePost": {
-          "pol2": [
-            46.6,
-            52.1
-          ],
-          "pol1": [
-            32.9,
-            24.6
-          ]
-        }
-      },
-      {
-        "id": 2,
-        "code": "CEC",
-        "name": "Consumer Empowerment Champions",
-        "party": "GOP",
-        "pop": 7,
-        "roi": 1.24,
-        "highRoi": 46,
-        "persuadability": [
-          27,
-          19,
-          8,
-          12,
-          33
-        ],
-        "supporters": 80,
-        "activation": 27,
-        "influence": 3,
-        "prePost": {
-          "pol2": [
-            71.1,
-            75.2
-          ],
-          "pol1": [
-            43.0,
-            59.5
-          ]
-        }
-      },
-      {
-        "id": 3,
-        "code": "TC",
-        "name": "Traditional Conservatives",
-        "party": "GOP",
-        "pop": 6,
-        "roi": 0.81,
-        "highRoi": 27,
-        "persuadability": [
-          11,
-          16,
-          13,
-          13,
-          47
-        ],
-        "supporters": 61,
-        "activation": 15,
-        "influence": 3,
-        "prePost": {
-          "pol2": [
-            49.3,
-            54.7
-          ],
-          "pol1": [
-            37.3,
-            44.0
-          ]
-        }
-      },
-      {
-        "id": 4,
-        "code": "HF",
-        "name": "Health Futurists",
-        "party": "GOP",
-        "pop": 2,
-        "roi": 0.88,
-        "highRoi": 31,
-        "persuadability": [
-          18,
-          12,
-          16,
-          6,
-          47
-        ],
-        "supporters": 73,
-        "activation": 30,
-        "influence": 23,
-        "prePost": {
-          "pol2": [
-            40.9,
-            36.7
-          ],
-          "pol1": [
-            22.4,
-            24.5
-          ]
-        }
-      },
-      {
-        "id": 5,
-        "code": "PP",
-        "name": "Price Populists",
-        "party": "GOP",
-        "pop": 3,
-        "roi": 1.03,
-        "highRoi": 42,
-        "persuadability": [
-          24,
-          18,
-          10,
-          4,
-          44
-        ],
-        "supporters": 64,
-        "activation": 27,
-        "influence": 5,
-        "prePost": {
-          "pol2": [
-            52.0,
-            50.0
-          ],
-          "pol1": [
-            24.0,
-            24.0
-          ]
-        }
-      },
-      {
-        "id": 6,
-        "code": "WE",
-        "name": "Wellness Evangelists",
-        "party": "GOP",
-        "pop": 9,
-        "roi": 0.94,
-        "highRoi": 32,
-        "persuadability": [
-          16,
-          16,
-          19,
-          3,
-          45
-        ],
-        "supporters": 48,
-        "activation": 17,
-        "influence": 3,
-        "prePost": {
-          "pol2": [
-            44.4,
-            45.3
-          ],
-          "pol1": [
-            33.4,
-            33.3
-          ]
-        }
-      },
-      {
-        "id": 7,
-        "code": "PFF",
-        "name": "Paleo Freedom Fighters",
-        "party": "GOP",
-        "pop": 4,
-        "roi": 0.98,
-        "highRoi": 34,
-        "persuadability": [
-          11,
-          23,
-          26,
-          8,
-          32
-        ],
-        "supporters": 51,
-        "activation": 22,
-        "influence": 12,
-        "prePost": {
-          "pol2": [
-            36.1,
-            42.6
-          ],
-          "pol1": [
-            21.3,
-            25.6
-          ]
-        }
-      },
-      {
-        "id": 8,
-        "code": "HHN",
-        "name": "Holistic Health Naturalists",
-        "party": "GOP",
-        "pop": 3,
-        "roi": 1.05,
-        "highRoi": 43,
-        "persuadability": [
-          26,
-          17,
-          7,
-          7,
-          42
-        ],
-        "supporters": 69,
-        "activation": 35,
-        "influence": 20,
-        "prePost": {
-          "pol2": [
-            44.9,
-            44.3
-          ],
-          "pol1": [
-            28.5,
-            25.0
-          ]
-        }
-      },
-      {
-        "id": 9,
-        "code": "MFL",
-        "name": "Medical Freedom Libertarians",
-        "party": "GOP",
-        "pop": 5,
-        "roi": 0.99,
-        "highRoi": 38,
-        "persuadability": [
-          16,
-          22,
-          12,
-          14,
-          36
-        ],
-        "supporters": 74,
-        "activation": 34,
-        "influence": 5,
-        "prePost": {
-          "pol2": [
-            67.2,
-            64.5
-          ],
-          "pol1": [
-            42.1,
-            42.1
-          ]
-        }
-      },
-      {
-        "id": 10,
-        "code": "VS",
-        "name": "Vaccine Skeptics",
-        "party": "GOP",
-        "pop": 5,
-        "roi": 0.84,
-        "highRoi": 29,
-        "persuadability": [
-          13,
-          16,
-          20,
-          12,
-          39
-        ],
-        "supporters": 52,
-        "activation": 22,
-        "influence": 4,
-        "prePost": {
-          "pol2": [
-            46.7,
-            49.3
-          ],
-          "pol1": [
-            21.4,
-            32.0
-          ]
-        }
-      },
-      {
-        "id": 11,
-        "code": "UCP",
-        "name": "Universal Care Progressives",
-        "party": "DEM",
-        "pop": 11,
-        "roi": 1.19,
-        "highRoi": 49,
+        "pop": 10,
+        "roi": 1.0832,
+        "highRoi": 48,
         "persuadability": [
           32,
-          17,
-          8,
           15,
-          28
+          10,
+          19,
+          24
         ],
-        "supporters": 79,
-        "activation": 35,
-        "influence": 5,
+        "supporters": 43,
+        "activation": 27,
+        "influence": 29,
         "prePost": {
-          "pol2": [
-            77.3,
-            80.0
+          "item1": [
+            6.9,
+            27.2
           ],
-          "pol1": [
-            60.0,
+          "item2": [
+            25.9,
+            30.0
+          ],
+          "item3": [
+            56.3,
+            48.9
+          ],
+          "item4": [
+            42.3,
+            43.1
+          ],
+          "item5": [
+            83.8,
+            84.7
+          ],
+          "item6": [
+            76.1,
+            76.8
+          ],
+          "item7": [
+            77.0,
             62.6
           ]
         }
-      },
-      {
-        "id": 12,
-        "code": "FJP",
-        "name": "Faith & Justice Progressives",
-        "party": "DEM",
-        "pop": 10,
-        "roi": 1.04,
-        "highRoi": 43,
-        "persuadability": [
-          17,
-          26,
-          10,
-          10,
-          37
-        ],
-        "supporters": 69,
-        "activation": 35,
-        "influence": 5,
-        "prePost": {
-          "pol2": [
-            60.6,
-            63.4
-          ],
-          "pol1": [
-            34.2,
-            41.7
-          ]
-        }
-      },
-      {
-        "id": 13,
-        "code": "HCP",
-        "name": "Health Care Protectionists",
-        "party": "DEM",
-        "pop": 8,
-        "roi": 1.25,
-        "highRoi": 50,
-        "persuadability": [
-          22,
-          28,
-          11,
-          8,
-          30
-        ],
-        "supporters": 73,
-        "activation": 45,
-        "influence": 4,
-        "prePost": {
-          "pol2": [
-            73.6,
-            69.8
-          ],
-          "pol1": [
-            40.3,
-            45.1
-          ]
-        }
-      },
-      {
-        "id": 14,
-        "code": "HAD",
-        "name": "Health Abundance Democrats",
-        "party": "DEM",
-        "pop": 10,
-        "roi": 0.86,
-        "highRoi": 37,
-        "persuadability": [
-          16,
-          21,
-          8,
-          4,
-          51
-        ],
-        "supporters": 61,
-        "activation": 27,
-        "influence": 10,
-        "prePost": {
-          "pol2": [
-            53.3,
-            57.3
-          ],
-          "pol1": [
-            37.3,
-            34.7
-          ]
-        }
-      },
-      {
-        "id": 15,
-        "code": "HCI",
-        "name": "Health Care Incrementalists",
-        "party": "DEM",
-        "pop": 8,
-        "roi": 0.91,
-        "highRoi": 30,
-        "persuadability": [
-          15,
-          15,
-          19,
-          10,
-          40
-        ],
-        "supporters": 61,
-        "activation": 25,
-        "influence": 4,
-        "prePost": {
-          "pol2": [
-            47.9,
-            51.4
-          ],
-          "pol1": [
-            38.9,
-            43.8
-          ]
-        }
-      },
-      {
-        "id": 16,
-        "code": "GHI",
-        "name": "Global Health Institutionalists",
-        "party": "DEM",
-        "pop": 6,
-        "roi": 1.06,
-        "highRoi": 43,
-        "persuadability": [
-          20,
-          23,
-          8,
-          13,
-          36
-        ],
-        "supporters": 72,
-        "activation": 32,
-        "influence": 7,
-        "prePost": {
-          "pol2": [
-            62.7,
-            64.0
-          ],
-          "pol1": [
-            46.6,
-            56.0
-          ]
-        }
       }
     ],
     "messages": [
       {
         "id": 1,
-        "shortName": "Predictable Coverage",
-        "text": "Medicare Advantage offers one simple plan with stable premiums and coverage seniors can rely on\u2014unlike traditional Medicare\u2019s patchwork of providers and fees.",
-        "sop": [
-          6.9,
-          6.6,
-          7.3,
-          8.1,
-          7.6,
-          6.3,
-          6.9,
-          7.4,
-          6.8,
-          6.9,
-          7.2,
-          6.3,
-          5.7,
-          7.1,
-          7.5,
-          6.8,
-          6.8,
-          7.7
-        ],
-        "theme": "Coverage"
+        "shortName": "THE ONGOING EPIDEMIC",
+        "text": "HIV continues to generate new diagnoses and new deaths at a scale that warrants sustained public attention. The epidemic has not ended — public awareness of it has.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 2,
-        "shortName": "Capping Costs",
-        "text": "Medicare Advantage shields retirees from crushing medical debt by capping annual out-of-pocket costs\u2014financial protection traditional Medicare doesn\u2019t provide.",
-        "sop": [
-          9.8,
-          8.0,
-          11.1,
-          7.6,
-          7.4,
-          9.6,
-          10.5,
-          9.6,
-          7.2,
-          10.2,
-          9.3,
-          11.5,
-          10.3,
-          9.6,
-          8.4,
-          10.2,
-          9.7,
-          8.6
-        ],
-        "theme": "Financial"
+        "shortName": "PROGRESS PARADOX",
+        "text": "The United States turned HIV from a death sentence into a manageable condition by treating it as a serious public health crisis. It remains one, and the progress made is far more fragile than it appears.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 3,
-        "shortName": "Trust & Accountability",
-        "text": "Medicare Advantage earns the trust of its members through strict federal audits and quality-based payments that hold every plan accountable for results.",
-        "sop": [
-          3.0,
-          4.5,
-          2.6,
-          3.5,
-          5.5,
-          3.4,
-          3.1,
-          3.7,
-          5.0,
-          2.7,
-          2.9,
-          1.8,
-          3.1,
-          2.6,
-          3.8,
-          3.0,
-          2.4,
-          2.5
-        ],
-        "theme": "Trust"
+        "shortName": "THE PREVENTABLE DIAGNOSIS",
+        "text": "Effective tools to prevent HIV transmission already exist. People are still being infected because those tools are not reaching them — not because the science has fallen short.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 4,
-        "shortName": "Coordinated Care",
-        "text": "Medicare Advantage brings doctors, prescriptions, and benefits together in one coordinated plan so care is seamless, not fragmented like traditional Medicare.",
-        "sop": [
-          10.4,
-          9.2,
-          10.0,
-          10.1,
-          10.0,
-          10.1,
-          10.2,
-          7.6,
-          7.9,
-          9.6,
-          9.1,
-          12.3,
-          10.3,
-          11.5,
-          10.3,
-          10.8,
-          11.4,
-          12.6
-        ],
-        "theme": "Coverage"
+        "shortName": "COMPASSION",
+        "text": "People living with HIV deserve the same compassion as anyone living with a serious chronic illness. We don't ask how someone developed cancer, heart disease, or diabetes before deciding they deserve care.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 5,
-        "shortName": "Freedom To Choose",
-        "text": "Medicare Advantage empowers seniors to choose doctors and benefits that fit their lives instead of a one-size-fits-all government design.",
-        "sop": [
-          6.8,
-          8.1,
-          7.3,
-          8.5,
-          6.1,
-          7.7,
-          6.1,
-          6.5,
-          6.9,
-          6.4,
-          7.3,
-          6.7,
-          6.8,
-          6.8,
-          7.7,
-          6.1,
-          5.8,
-          7.0
-        ],
-        "theme": "Freedom"
+        "shortName": "VIGILANCE",
+        "text": "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted — because someone loses access, loses insurance, or simply cannot maintain a daily regimen — the virus can develop resistance, become harder to treat, and be passed to others. The progress made is real, but it requires constant vigilance to maintain.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 6,
-        "shortName": "Personalized Benefits",
-        "text": "Medicare Advantage covers the whole person\u2014with dental, vision, hearing, and fitness benefits that traditional Medicare leaves out.",
-        "sop": [
-          18.4,
-          15.2,
-          18.0,
-          18.3,
-          10.2,
-          16.1,
-          18.5,
-          15.7,
-          12.3,
-          22.1,
-          16.9,
-          21.2,
-          19.3,
-          18.1,
-          14.4,
-          22.7,
-          20.1,
-          18.9
-        ],
-        "theme": "Coverage"
+        "shortName": "ECONOMIC RETURN",
+        "text": "HIV prevention is among the highest-return investments in public health. The cost of a prevented infection is a fraction of the lifetime healthcare costs that follow an untreated or late diagnosis — costs carried by taxpayers, employers, insurers, Medicare, and Medicaid.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 7,
-        "shortName": "Digital Access",
-        "text": "Medicare Advantage modernizes care through telehealth and digital tools that keep members connected anywhere, unlike Medicare\u2019s paper-driven system.",
-        "sop": [
-          3.5,
-          4.4,
-          3.6,
-          3.5,
-          5.3,
-          4.0,
-          4.3,
-          4.1,
-          5.9,
-          3.7,
-          3.5,
-          2.2,
-          3.1,
-          3.2,
-          4.3,
-          2.9,
-          3.0,
-          2.3
-        ],
-        "theme": "Innovation"
+        "shortName": "SHARED COMMUNITIES",
+        "text": "The clinics, outreach workers, and treatment programs that support HIV prevention and care serve the same communities — and often the same individuals — affected by the opioid crisis and untreated mental illness. These are not competing priorities.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 8,
-        "shortName": "Earned Better Benefits",
-        "text": "Medicare Advantage rewards a lifetime of work by turning savings into lower premiums and better benefits for the people who earned them.",
-        "sop": [
-          4.2,
-          4.8,
-          4.1,
-          4.9,
-          5.3,
-          4.2,
-          4.4,
-          5.4,
-          5.3,
-          4.0,
-          5.5,
-          3.0,
-          3.9,
-          3.8,
-          4.8,
-          3.5,
-          3.8,
-          3.5
-        ],
-        "theme": "Social Contract"
+        "shortName": "WORKFORCE COST",
+        "text": "Untreated HIV takes people out of the workforce and out of their communities. The losses in productivity, in earnings, and in economic participation — combined with the long-term healthcare costs that follow — are carried not by the individual alone, but by employers, insurers, and public programs that everyone depends on.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 9,
-        "shortName": "Specialized Needs",
-        "text": "Medicare Advantage stands beside patients with complex or chronic conditions, coordinating specialists and care managers that traditional Medicare doesn\u2019t provide.",
-        "sop": [
-          7.1,
-          7.0,
-          6.9,
-          5.7,
-          6.4,
-          8.0,
-          6.4,
-          5.7,
-          7.7,
-          7.1,
-          8.3,
-          7.3,
-          8.0,
-          7.5,
-          5.9,
-          7.0,
-          6.9,
-          7.7
-        ],
-        "theme": "Coverage"
+        "shortName": "BARRIERS",
+        "text": "Effective HIV prevention medication exists. Millions of Americans who need it don't have it even if their doctor prescribes it — because of coverage restrictions, cost barriers, and gaps in the healthcare system that could be closed if we treated this as the public health priority it is.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 10,
-        "shortName": "Social Contract",
-        "text": "Seniors chose Medicare Advantage on a promise of dependable care. Cutting benefits breaks that promise and betrays the trust people placed in the program.",
-        "sop": [
-          6.1,
-          5.8,
-          6.1,
-          6.3,
-          6.7,
-          7.2,
-          5.2,
-          5.7,
-          5.8,
-          5.0,
-          6.3,
-          6.8,
-          5.7,
-          6.9,
-          7.1,
-          4.8,
-          6.0,
-          8.2
-        ],
-        "theme": "Social Contract"
+        "shortName": "THE FINISH LINE",
+        "text": "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV — the way previous generations ended polio and smallpox.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 11,
-        "shortName": "Rebates Deliver Value",
-        "text": "Medicare Advantage reinvests plan savings directly into seniors\u2019 benefits\u2014proof that efficiency can serve people, not profit.",
-        "sop": [
-          2.9,
-          3.3,
-          2.5,
-          2.7,
-          5.2,
-          3.2,
-          3.1,
-          4.1,
-          4.7,
-          2.5,
-          3.4,
-          2.0,
-          3.1,
-          2.5,
-          3.5,
-          2.7,
-          2.2,
-          2.4
-        ],
-        "theme": "Financial"
+        "shortName": "INNOVATION SPILLOVER",
+        "text": "American investment in HIV research produced scientific discoveries that now extend far beyond HIV — advances in how we understand the immune system, develop antiviral treatments, and fight cancer that benefit millions of Americans who have never been affected by HIV.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 12,
-        "shortName": "Better Outcomes",
-        "text": "Medicare Advantage delivers better outcomes at lower cost by paying for coordinated, effective care instead of rewarding volume like traditional Medicare.",
-        "sop": [
-          5.0,
-          5.9,
-          5.0,
-          5.1,
-          6.3,
-          4.7,
-          5.3,
-          5.9,
-          6.3,
-          4.5,
-          5.0,
-          4.5,
-          4.9,
-          5.0,
-          5.1,
-          4.7,
-          4.9,
-          4.8
-        ],
-        "theme": "Innovation"
+        "shortName": "TREATMENT AS PREVENTION",
+        "text": "People with HIV who are on effective treatment cannot transmit the virus to others. And for people at higher risk of contracting HIV, preventive medication makes infection nearly impossible. Many people who could benefit from knowing either of these things don't — and that gap is driving infections that don't need to happen.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 13,
-        "shortName": "Preventing Costly Care",
-        "text": "Medicare Advantage protects seniors\u2019 independence and saves money through preventive care and early detection that prevent costly illness and hospitalization.",
-        "sop": [
-          8.4,
-          8.4,
-          8.5,
-          7.8,
-          7.7,
-          7.6,
-          8.5,
-          7.8,
-          8.3,
-          7.9,
-          7.1,
-          8.5,
-          8.9,
-          8.2,
-          8.6,
-          8.2,
-          9.7,
-          7.0
-        ],
-        "theme": "Coverage"
+        "shortName": "SOUTHERN EPIDEMIC",
+        "text": "More than half of all new HIV diagnoses in the United States occur in the South. The epidemic most Americans associate with coastal cities is raging in rural communities, smaller cities, and states where it is least visible and least expected.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 14,
-        "shortName": "Accountability & Outcomes",
-        "text": "Medicare Advantage ensures every dollar goes to patient care by tying payments to performance and quality outcomes.",
-        "sop": [
-          3.0,
-          4.0,
-          2.5,
-          2.9,
-          4.5,
-          3.6,
-          3.1,
-          4.5,
-          4.6,
-          2.9,
-          3.3,
-          2.1,
-          2.9,
-          2.6,
-          3.7,
-          2.9,
-          2.3,
-          2.0
-        ],
-        "theme": "Trust"
+        "shortName": "GETTING YOUNGER",
+        "text": "One in five new HIV diagnoses occurs among people aged 13 to 24 — the group least likely to know their status, least likely to be on prevention medication, and least likely to be reached by current efforts. The epidemic is not aging out. It is getting younger.",
+        "theme": "",
+        "sop": []
       },
       {
         "id": 15,
-        "shortName": "Strengthening Medicare",
-        "text": "Medicare Advantage strengthens\u2014not replaces\u2014Medicare by combining public oversight with private innovation to meet today\u2019s medical realities.",
-        "sop": [
-          4.6,
-          4.8,
-          4.4,
-          5.1,
-          5.9,
-          4.3,
-          4.5,
-          6.2,
-          5.3,
-          4.5,
-          4.9,
-          3.8,
-          3.9,
-          4.6,
-          5.0,
-          3.7,
-          5.1,
-          4.6
-        ],
-        "theme": "Trust"
+        "shortName": "RURAL HEALTH",
+        "text": "In many rural communities, the federally-funded clinics that provide HIV prevention and care are also a primary healthcare resource available to local residents — serving patients well beyond those with HIV. Cutting HIV funding in these communities doesn't only affect people with HIV.",
+        "theme": "",
+        "sop": []
+      },
+      {
+        "id": 16,
+        "shortName": "RACIAL DISPARITY",
+        "text": "Black and Hispanic Americans are diagnosed with HIV at rates far exceeding their share of the population — and are significantly less likely to have access to prevention medication. The epidemic is most concentrated precisely where prevention is least available.",
+        "theme": "",
+        "sop": []
+      },
+      {
+        "id": 17,
+        "shortName": "ALL OF US AFFECTED",
+        "text": "HIV touches every state and every kind of community. Where the burden falls most heavily is determined not by identity or lifestyle, but by geography, the availability of healthcare infrastructure, and the reach of prevention programs.",
+        "theme": "",
+        "sop": []
       }
     ],
     "prePostMetrics": [
       {
-        "key": "pol2",
-        "label": "Prioritize MA",
-        "question": "Congress should prioritize keeping Medicare Advantage strong and affordable, protecting the benefits seniors rely on",
-        "scale": "% Agree"
+        "key": "item1",
+        "label": "QPRE_1r1",
+        "question": "People have different views about which health issues should be the top priority for elected officials. Please rank the following health issues from 1 (most important) to 7 (least important) based on how much you think elected officials should prioritize... HIV/AIDS  [% Ranked top, 2nd or 3rd]",
+        "scale": "1--7"
       },
       {
-        "key": "pol1",
-        "label": "Oppose MA Cuts",
-        "question": "Do you support or oppose reducing federal payments to Medicare Advantage plans in order to lower overall Medicare spending?",
-        "scale": "% Oppose"
+        "key": "item2",
+        "label": "QPRE_2",
+        "question": "How concerned are you about the impact of HIV/AIDS on your local community? [% Concerned (5-7)]",
+        "scale": "1--7"
+      },
+      {
+        "key": "item3",
+        "label": "QPRE_3",
+        "question": "How concerned are you about the impact that reduced access to HIV prevention and treatment would have on your community? [% Concerned (5-7)]",
+        "scale": "1--7"
+      },
+      {
+        "key": "item4",
+        "label": "QPRE_4",
+        "question": "How much does the issue of HIV/AIDS feel relevant to you personally or to your community? [% Relevant (5-7)]",
+        "scale": "1--7"
+      },
+      {
+        "key": "item5",
+        "label": "QPRE_5",
+        "question": "Do you support or oppose expanding access to HIV prevention medications like PrEP and HIV treatment programs? [% Support (5-7)]",
+        "scale": "1--7"
+      },
+      {
+        "key": "item6",
+        "label": "QPRE_6",
+        "question": " Some states are considering reducing eligibility for HIV treatment assistance programs in order to address budget shortfalls and reduce the burden on taxpayers. Do you support or oppose such reductions? [% Oppose (1-3)]",
+        "scale": "1--7"
+      },
+      {
+        "key": "item7",
+        "label": "QPRE_7",
+        "question": "Which statement comes closest to your view? [% agree with \"The next generation of HIV treatment and prevention will do what existing medicines cannot -- make adherence easier, reach more people, and move us closer to a cure. That innovation requires continued investment.\" (5-7)]",
+        "scale": "1--7"
       }
     ]
   }

@@ -67,7 +67,7 @@ export default function Shell() {
             padding: "4px 10px", borderRadius: 4,
             border: `1px solid ${C.cardBorder}`,
           }}>
-            AMERICAN LEADERSHIP STUDY
+            HIV STUDY
           </div>
           <button
             onClick={() => supabase.auth.signOut()}

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DATA from "../data/studyData";
-import { STUDY_METRICS, TIER_CONFIG, getTierNum } from "../data/study";
+import { STUDY_METRICS, PREPOST_METRICS, getTierNum } from "../data/study";
 
-// ─── Build AL segment data by merging shared segments with study.js metrics ───
-const AL_SEGMENTS = DATA.segments.map(seg => {
+// ─── Build segment data by merging shared 16-segment skeleton with study-specific metrics ───
+const HIV_SEGMENTS = DATA.segments.map(seg => {
   const m = STUDY_METRICS[seg.code];
   if (!m) return { ...seg, roi:0, highRoi:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{} };
   return {
@@ -19,15 +19,8 @@ const AL_SEGMENTS = DATA.segments.map(seg => {
   };
 });
 
-const AL_PRE_POST_METRICS = [
-  { key:"rank",  label:"Industry Rank", question:"On a scale from 1-100, how would you rank the pharmaceutical industry compared to other industries?", scale:"Mean score (0 = worst, 100 = best)" },
-  { key:"att1",  label:"Innovation Role", question:"How strongly do you agree that the U.S. pharmaceutical industry plays a critical role in global medical innovation?", scale:"% Agree" },
-  { key:"att2",  label:"Domestic Mfg", question:"How important is it that medicines are manufactured in the United States rather than overseas?", scale:"% Important" },
-  { key:"fav",   label:"Pharma Fav", question:"Overall, is your impression of the pharmaceutical industry favorable or unfavorable?", scale:"% Favorable" },
-];
-
-const SEGMENTS = AL_SEGMENTS;
-const PRE_POST_METRICS = AL_PRE_POST_METRICS;
+const SEGMENTS = HIV_SEGMENTS;
+const PRE_POST_METRICS = PREPOST_METRICS;
 
 // ─── FIXED ROW HEIGHTS ───
 const H = {
