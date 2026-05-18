@@ -434,7 +434,7 @@
 .topline-root .cell .delta-val { font-size: 13px; font-weight: 700; line-height: 1.1; }
 .topline-root .cell .detail { display: none; font-size: 9px; color: var(--ink-soft); margin-top: 2px; line-height: 1.2; }
 .topline-root .cell .detail .lbl { color: var(--ink-mute); }
-.topline-root body.expanded .cell .detail { display: block; }
+.topline-root.expanded .cell .detail { display: block; }
 
 .topline-root .cell .sig-marker { position: absolute; top: 2px; right: 3px; display: flex; gap: 2px; }
 .topline-root .cell .sig-marker .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink); opacity: 0.85; }
@@ -446,11 +446,11 @@
 .topline-root .cell .delta-val.neg { color: var(--delta-neg); }
 .topline-root .cell .delta-val.zero { color: var(--ink-mute); }
 
-.topline-root body.fullDist .banner-table td.cell { padding: 4px 3px; min-width: 64px; width: 64px; vertical-align: top; }
-.topline-root body.fullDist .cell .top3 { font-size: 11px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; display: block; }
-.topline-root body.fullDist .cell .delta-val { font-size: 10px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; display: block; }
+.topline-root.fullDist .banner-table td.cell { padding: 4px 3px; min-width: 64px; width: 64px; vertical-align: top; }
+.topline-root.fullDist .cell .top3 { font-size: 11px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; display: block; }
+.topline-root.fullDist .cell .delta-val { font-size: 10px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; display: block; }
 .topline-root .cell .dist7 { display: none; flex-direction: column; gap: 1px; }
-.topline-root body.fullDist .cell .dist7 { display: flex; }
+.topline-root.fullDist .cell .dist7 { display: flex; }
 .topline-root .cell .dist7 .d7-row { display: grid; grid-template-columns: 8px 1fr 22px; gap: 3px; align-items: center; font-size: 8.5px; line-height: 1; }
 .topline-root .cell .dist7 .d7-row .d7-k { color: var(--ink-mute); font-family: 'JetBrains Mono', monospace; text-align: right; font-size: 8px; }
 .topline-root .cell .dist7 .d7-row .d7-bar { height: 6px; background: var(--ink-mute); border-radius: 1px; opacity: 0.4; }
@@ -491,7 +491,7 @@
   @page { size: letter landscape; margin: 0.35in; }
    .topline-root { background: white; font-size: 9px; }
   .topline-root .topnav, .topline-root .toggle-bar, .topline-root .inspector { display: none !important; }
-  .topline-root body.expanded .cell .detail { display: block !important; }
+  .topline-root.expanded .cell .detail { display: block !important; }
   .topline-root .legend { padding: 6px 12px; }
   .topline-root .section-bar { padding: 6px 12px; font-size: 11px; page-break-after: avoid; }
   .topline-root .item-block { page-break-inside: avoid; padding: 8px; margin-bottom: 8px;

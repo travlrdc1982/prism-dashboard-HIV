@@ -66,6 +66,14 @@ def prefix_selector(sel):
         return sel
     if sel in ("html", "body", "html, body", "html,body"):
         return ".topline-root"
+    # `body.classname` / `html.classname` (no space) — collapse onto the root.
+    # The source uses body.expanded / body.fullDist as global state toggles; in
+    # the React port we toggle the class on .topline-root instead.
+    if sel.startswith("body."):
+        return ".topline-root" + sel[4:]
+    if sel.startswith("html."):
+        return ".topline-root" + sel[4:]
+    # `body <descendant>` / `html <descendant>` — drop the prefix, scope normally.
     if sel.startswith("html "):
         sel = sel[5:]
     if sel.startswith("body "):
