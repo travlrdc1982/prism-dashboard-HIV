@@ -1,434 +1,585 @@
 // Phase B — HIV Persona Profile Tab.
-// Parameterized by the focal segment (the segment whose profile is being
-// viewed). Reads from src/data/hiv/* and renders three sections:
-//   1. Four headline tiles (SCF · Stigma · Knowledge · Personal Contact)
-//      with item-level accordions
-//   2. Strategic positioning scatter (16 segments)
-//   3. Trust messengers (22 items)
-// Plus a compare bar (All / Republicans / Democrats) that drives every
-// benchmark glyph and delta on the tab.
+// Faithful port of HIV_Persona_Profile_Tab/hiv_tab_v5.html. Markup and SVG
+// rendering replicate the prototype; data is sourced from src/data/hiv/*
+// and parameterized by the focal segment (the segment whose profile is
+// being viewed).
 
 import { useState, useMemo } from "react";
+import "./HIVTab.css";
 import segData from "../data/hiv/seg_data.json";
 import items from "../data/hiv/items.json";
 import bench from "../data/hiv/bench.json";
 import trust from "../data/hiv/trust.json";
 import manifest from "../data/hiv/manifest.json";
 
-// ─── Helpers ────────────────────────────────────────────────────────────
-const BENCHES = ["All", "Republicans", "Democrats"];
-const BENCH_LABEL = { All: "US", Republicans: "R", Democrats: "D" };
-const BENCH_COLOR = { All: "#94a3b8", Republicans: "#ef4444", Democrats: "#3b82f6" };
+const SEG_NAME = {1:"TSP",2:"CEC",3:"TC",4:"HF",5:"PP",6:"WE",7:"PFF",8:"HHN",9:"MFL",10:"VS",11:"UCP",12:"FJP",13:"HCP",14:"HAD",15:"HCI",16:"GHI"};
+const GOP_SEGS = new Set([1,2,3,4,5,6,7,8,9,10]);
+const BENCH_GLYPH = { All: "US", Republicans: "R", Democrats: "D" };
+const BENCH_FULL = { All: "All Americans", Republicans: "Republicans", Democrats: "Democrats" };
 
-function fmt(v, digits = 2) {
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
-  return Number(v).toFixed(digits);
-}
-function fmtPct(v) {
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
-  return Math.round(v * 100) + "%";
-}
-function fmtDelta(v, digits = 2) {
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
-  const s = v > 0 ? "+" : "";
-  return s + Number(v).toFixed(digits);
-}
-function rank(n) {
-  if (!n) return "—";
-  return `#${n} of 16`;
-}
-
-// ─── Compare bar (All / Republicans / Democrats) ────────────────────────
-function CompareBar({ current, onChange }) {
+// ─── Bench glyph (SVG <g>) ──────────────────────────────────────────────
+function BenchGlyph({ cx, cy, type, active = true, r = 9 }) {
+  const dim = active ? 1.0 : 0.40;
+  let fill = "#000", stroke = "none", textColor = "#fff", fontSize = r - 1;
+  if (type === "R") { fill = "#DC4040"; stroke = "#fff"; }
+  if (type === "D") { fill = "#4A82E0"; stroke = "#fff"; }
+  if (type === "US") { fill = "#07090F"; stroke = "#E8EAED"; textColor = "#E8EAED"; fontSize = r - 2; }
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8, padding: "10px 14px",
-      background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
-      marginBottom: 14,
-    }}>
-      <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, letterSpacing: 1, marginRight: 6 }}>
-        COMPARE VS:
-      </span>
-      {BENCHES.map((b) => {
-        const active = current === b;
-        const c = BENCH_COLOR[b];
-        return (
+    <g opacity={dim}>
+      <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} strokeWidth="1.5" />
+      <text x={cx} y={cy + (fontSize/2 - 1)} textAnchor="middle"
+        fontSize={fontSize} fontWeight="800" fill={textColor} fontFamily="Inter">
+        {type}
+      </text>
+    </g>
+  );
+}
+
+// ─── Compare bar ────────────────────────────────────────────────────────
+function CompareBar({ current, onChange, focalCode }) {
+  return (
+    <div className="compare-bar">
+      <span className="compare-label">Compare {focalCode} to:</span>
+      <div className="compare-toggle">
+        {["All", "Republicans", "Democrats"].map((b) => (
           <button
             key={b}
+            className={"compare-btn" + (current === b ? " active" : "")}
             onClick={() => onChange(b)}
-            style={{
-              padding: "5px 12px", borderRadius: 4, fontSize: 11, fontWeight: 700,
-              cursor: "pointer", border: `1px solid ${active ? c : "#334155"}`,
-              background: active ? c + "33" : "transparent",
-              color: active ? c : "#94a3b8", fontFamily: "'JetBrains Mono', monospace",
-              transition: "all 0.15s",
-            }}
           >
-            {BENCH_LABEL[b]} · {b}
+            <span className={`bench-glyph ${BENCH_GLYPH[b]}`}>{BENCH_GLYPH[b]}</span>
+            {b === "All" ? "All Americans" : b}
           </button>
-        );
-      })}
-      <span style={{ marginLeft: "auto", fontSize: 9.5, color: "#475569", fontStyle: "italic" }}>
-        Toggle drives benchmark glyphs and deltas on every tile below
+        ))}
+      </div>
+      <span className="compare-note">
+        Benchmarks, deltas, accordion item-level data, and the two scatter plots all reorient when you switch.
       </span>
     </div>
   );
 }
 
-// ─── Generic tile wrapper ───────────────────────────────────────────────
-function Tile({ title, subtitle, accent, children }) {
-  return (
-    <div style={{
-      background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
-      padding: 14, display: "flex", flexDirection: "column", gap: 10,
-      minHeight: 320,
-    }}>
-      <div style={{ borderBottom: "1px solid #1e293b", paddingBottom: 8 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: accent, letterSpacing: 1.5, textTransform: "uppercase" }}>
-          {title}
-        </div>
-        {subtitle && (
-          <div style={{ fontSize: 10, color: "#64748b", marginTop: 3 }}>{subtitle}</div>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-// ─── BIG-VALUE row ──────────────────────────────────────────────────────
-function ValueWithDelta({ value, deltaValue, valueLabel, deltaLabel, color }) {
-  const isPos = deltaValue > 0;
-  const deltaColor = deltaValue == null ? "#64748b" : isPos ? "#34d399" : "#f87171";
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-      <div>
-        <div style={{ fontSize: 28, fontWeight: 800, color, fontFamily: "'Nunito',sans-serif", lineHeight: 1 }}>
-          {value}
-        </div>
-        <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-          {valueLabel}
-        </div>
-      </div>
-      {deltaValue != null && (
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: deltaColor, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>
-            {fmtDelta(deltaValue)}
-          </div>
-          <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-            {deltaLabel}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Item-level accordion ───────────────────────────────────────────────
-function ItemsAccordion({ items, segmentId, benchKey, formatValue = fmt }) {
+// ─── Accordion (collapsible) ────────────────────────────────────────────
+function Accordion({ target, items, benchKey, focalId, focalCode }) {
   const [open, setOpen] = useState(false);
+  const benchGlyph = BENCH_GLYPH[benchKey];
+  const fmtVal = (v, binary) => (binary ? `${Math.round(v * 100)}%` : Number(v).toFixed(2));
+  const fmtDelta = (d, binary) => {
+    const s = d >= 0 ? "+" : "";
+    return binary ? `${s}${(d * 100).toFixed(0)}pp` : `${s}${d.toFixed(2)}`;
+  };
   return (
-    <div style={{ marginTop: "auto" }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          width: "100%", padding: "6px 10px", background: "#1e293b", border: "none",
-          color: "#94a3b8", fontSize: 10, fontWeight: 700, textAlign: "left",
-          cursor: "pointer", borderRadius: 4, letterSpacing: 0.5,
-        }}
-      >
-        {open ? "▼" : "▶"} ITEMS ({items.length})
+    <div className={"accordion" + (open ? " open" : "")}>
+      <button className="accordion-toggle" onClick={() => setOpen(!open)}>
+        <span>Item-level data</span>
+        <span className="chev">▾</span>
       </button>
-      {open && (
-        <table style={{ width: "100%", marginTop: 6, fontSize: 10, borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #1e293b" }}>
-              <th style={{ textAlign: "left", padding: "4px 6px", color: "#64748b", fontWeight: 600 }}>Item</th>
-              <th style={{ textAlign: "right", padding: "4px 6px", color: "#cbd5e1", fontWeight: 700, width: 50 }}>Focal</th>
-              <th style={{ textAlign: "right", padding: "4px 6px", color: "#94a3b8", fontWeight: 600, width: 50 }}>{benchKey.slice(0,3)}</th>
-              <th style={{ textAlign: "right", padding: "4px 6px", color: "#94a3b8", fontWeight: 600, width: 50 }}>Δ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((it) => {
-              const focal = it.by_segment?.[String(segmentId)] ?? null;
-              const benchVal = it[benchKey] ?? null;
-              const delta = (focal != null && benchVal != null) ? focal - benchVal : null;
+      <div className="accordion-panel">
+        <div className="acc-head">
+          <span>Code</span>
+          <span>Item</span>
+          <span className="right">{focalCode}</span>
+          <span className="right">{benchGlyph}</span>
+          <span className="right">Δ</span>
+        </div>
+        <div>
+          {items.map((it) => {
+            const fjp = it.by_segment?.[String(focalId)] ?? null;
+            const bv = it[benchKey] ?? null;
+            const delta = fjp != null && bv != null ? fjp - bv : null;
+            const dirClass = delta >= 0 ? "up" : "down";
+            return (
+              <div className="acc-row" key={it.code}>
+                <span className="acc-code">{it.code}</span>
+                <span className="acc-stem">{it.stem}</span>
+                <span className="acc-seg">{fjp == null ? "—" : fmtVal(fjp, it.binary)}</span>
+                <span className="acc-bench">{bv == null ? "—" : fmtVal(bv, it.binary)}</span>
+                <span className={`acc-delta ${dirClass}`}>
+                  {delta == null ? "—" : fmtDelta(delta, it.binary)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TILE 1 — Compassion / Sanctity ─────────────────────────────────────
+function SCFTile({ focalData, focalCode, benchKey }) {
+  const W = 180, H = 280, cx = W / 2, yTop = 30, yBot = H - 30;
+  const yMin = -2.0, yMax = 1.0;
+  const yScale = (v) => yTop + (yMax - v) / (yMax - yMin) * (yBot - yTop);
+  const scf = focalData.SCF_raw;
+  const benchSCF = bench[benchKey].SCF.raw;
+  const delta = scf - benchSCF;
+  let lab = "Care-leaning";
+  if (scf > 0.5) lab = "Sanctity-leaning";
+  else if (scf > -0.5) lab = "Balanced";
+  const yZero = yScale(0);
+  const benchValues = {
+    R: bench.Republicans.SCF.raw,
+    D: bench.Democrats.SCF.raw,
+    US: bench.All.SCF.raw,
+  };
+  const yFocal = yScale(scf);
+  return (
+    <div className="card scf-tile">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Moral architecture</span>
+        <span className="info-icon">i</span>
+      </div>
+      <div className="card-title">Compassion ↔ Sanctity</div>
+      <div className="card-plain">
+        Where this segment falls on the Care–Sanctity moral spectrum (SCF = Purity − Care).
+      </div>
+      <div className="card-body">
+        <div className="scf-chart">
+          <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+            <defs>
+              <linearGradient id="scfgrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6FA0E8" stopOpacity="0.85" />
+                <stop offset="50%" stopColor="#8B98A8" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#DC4040" stopOpacity="0.85" />
+              </linearGradient>
+            </defs>
+            <rect x={cx - 6} y={yTop} width="12" height={yBot - yTop} fill="url(#scfgrad)" rx="6" ry="6" />
+            <text x={cx} y={yTop - 12} textAnchor="middle" fontSize="10" fontWeight="700" fill="#6FA0E8" letterSpacing="1.2" fontFamily="Inter">
+              COMPASSION
+            </text>
+            <text x={cx} y={yBot + 18} textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC4040" letterSpacing="1.2" fontFamily="Inter">
+              SANCTITY
+            </text>
+            <line x1={cx - 22} x2={cx + 22} y1={yZero} y2={yZero} stroke="#4A5466" strokeWidth="1" strokeDasharray="2 2" />
+            <text x={cx + 28} y={yZero + 3} fontSize="9" fill="#6A7488" fontFamily="Inter">0</text>
+            {Object.entries(benchValues).map(([type, v]) => {
+              const y = yScale(v);
+              const active = BENCH_GLYPH[benchKey] === type;
               return (
-                <tr key={it.code} style={{ borderBottom: "1px solid #1a2030" }}>
-                  <td style={{ padding: "4px 6px", color: "#cbd5e1" }}>
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#64748b", marginRight: 4 }}>
-                      {it.code}
-                    </span>
-                    {it.stem}
-                  </td>
-                  <td style={{ textAlign: "right", padding: "4px 6px", color: "#e2e8f0", fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>
-                    {focal == null ? "—" : formatValue(focal)}
-                  </td>
-                  <td style={{ textAlign: "right", padding: "4px 6px", color: "#94a3b8", fontFamily: "'JetBrains Mono',monospace" }}>
-                    {benchVal == null ? "—" : formatValue(benchVal)}
-                  </td>
-                  <td style={{ textAlign: "right", padding: "4px 6px", fontFamily: "'JetBrains Mono',monospace", color: delta > 0 ? "#34d399" : delta < 0 ? "#f87171" : "#64748b", fontWeight: 700 }}>
-                    {delta == null ? "—" : fmtDelta(delta)}
-                  </td>
-                </tr>
+                <g key={type}>
+                  <BenchGlyph cx={cx + 38} cy={y} type={type} active={active} r={11} />
+                  <text x={cx + 58} y={y + 3.5} fontSize="9" fill={active ? "#E8EAED" : "#6A7488"} fontFamily="Inter">
+                    {v.toFixed(2)}
+                  </text>
+                </g>
               );
             })}
-          </tbody>
-        </table>
-      )}
+            <circle cx={cx - 32} cy={yFocal} r="14" fill="#2FE079" stroke="#fff" strokeWidth="2.5" />
+            <text x={cx - 32} y={yFocal + 4.5} textAnchor="middle" fontSize="11" fontWeight="800" fill="#06241A" fontFamily="Inter">
+              {focalCode}
+            </text>
+            <text x={cx - 32} y={yFocal + 30} textAnchor="middle" fontSize="9" fill="#6A7488" fontFamily="Inter">
+              {scf.toFixed(2)}
+            </text>
+          </svg>
+        </div>
+        <div className="scf-label-readout">
+          <span className="scf-num-readout">{(scf >= 0 ? "+" : "") + scf.toFixed(2)}</span>
+          <span style={{ display: "inline-block", marginLeft: 8 }}>
+            <strong>{lab}</strong>
+            <span style={{ color: "var(--text-muted)" }}>
+              {` · rank ${focalData.SCF_raw_rank} of 16 · ${delta > 0 ? "+" : ""}${delta.toFixed(2)} vs ${BENCH_GLYPH[benchKey]}`}
+            </span>
+          </span>
+        </div>
+      </div>
+      <Accordion items={items.scf} benchKey={benchKey} focalId={focalData._id} focalCode={focalCode} />
     </div>
   );
 }
 
-// ─── Tile 1: SCF (Compassion ↔ Sanctity) ───────────────────────────────
-function SCFTile({ data, benchKey }) {
-  const focal = data?.SCF_raw;
-  const benchVal = bench[benchKey]?.SCF?.raw;
-  const delta = focal != null && benchVal != null ? focal - benchVal : null;
+// ─── TILE 2 — Stigma (Blame + Avoidance) ────────────────────────────────
+function GlyphRow({ count, color, kind, benchPct, benchLabel }) {
+  // kind: "arrow" (blame) or "crescent" (avoid). Render 5 glyphs.
+  const totalWidth = 5 * 16 + 4 * 2;
+  const leftPx = benchPct * totalWidth;
   return (
-    <Tile title="Compassion ↔ Sanctity" subtitle="Moral foundation balance (SCF = PFS − CFS)" accent="#a78bfa">
-      <ValueWithDelta
-        value={fmt(focal)}
-        deltaValue={delta}
-        valueLabel="SCF index"
-        deltaLabel={`vs ${benchKey}`}
-        color="#a78bfa"
-      />
-      <div style={{ fontSize: 10, color: "#94a3b8", lineHeight: 1.4 }}>
-        Rank: <strong>{rank(data?.SCF_raw_rank)}</strong> · Higher = sanctity/purity emphasis;
-        lower = care/compassion emphasis.
-      </div>
-      <ItemsAccordion items={items.scf} segmentId={data?._id} benchKey={benchKey} />
-    </Tile>
-  );
-}
-
-// ─── Tile 2: Stigma (Blame & Avoidance) ────────────────────────────────
-function StigmaTile({ data, benchKey }) {
-  const mbs = data?.MBS_raw, sds = data?.SDS_raw;
-  const bMbs = bench[benchKey]?.MBS?.raw, bSds = bench[benchKey]?.SDS?.raw;
-  return (
-    <Tile title="HIV Stigma Profile" subtitle="Moral Blame (MBS) and Social Distance (SDS)" accent="#f87171">
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-        <div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#f87171", fontFamily: "'Nunito',sans-serif", lineHeight: 1 }}>
-            {fmt(mbs)}
-          </div>
-          <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-            MBS · Blame (rank #{data?.MBS_raw_rank})
-          </div>
-          <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>
-            Δ vs {benchKey}: {fmtDelta(mbs - bMbs)}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#fbbf24", fontFamily: "'Nunito',sans-serif", lineHeight: 1 }}>
-            {fmt(sds)}
-          </div>
-          <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-            SDS · Avoidance (rank #{data?.SDS_raw_rank})
-          </div>
-          <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>
-            Δ vs {benchKey}: {fmtDelta(sds - bSds)}
-          </div>
-        </div>
-      </div>
-      <ItemsAccordion items={items.stigma} segmentId={data?._id} benchKey={benchKey} />
-    </Tile>
-  );
-}
-
-// ─── Tile 3: Knowledge (HKS) ───────────────────────────────────────────
-function KnowledgeTile({ data, benchKey }) {
-  const hks = data?.HKS;
-  const benchVal = bench[benchKey]?.HKS;
-  const pct = hks != null ? (hks / 10) * 100 : 0;
-  return (
-    <Tile title="HIV Knowledge (HKS)" subtitle="Sum of awareness items 0-10 (K5 foil excluded)" accent="#34d399">
-      <ValueWithDelta
-        value={fmt(hks, 1) + " / 10"}
-        deltaValue={hks != null && benchVal != null ? hks - benchVal : null}
-        valueLabel={`rank #${data?.HKS_rank ?? "—"}`}
-        deltaLabel={`vs ${benchKey}`}
-        color="#34d399"
-      />
-      <div style={{ height: 10, background: "#1e293b", borderRadius: 4, overflow: "hidden", position: "relative" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: "#34d399", transition: "width 0.4s" }} />
-        {benchVal != null && (
-          <div style={{
-            position: "absolute", left: `${(benchVal / 10) * 100}%`, top: -3,
-            width: 2, height: 16, background: BENCH_COLOR[benchKey],
-          }} title={`${benchKey} benchmark: ${fmt(benchVal, 1)}`} />
-        )}
-      </div>
-      <ItemsAccordion items={items.know} segmentId={data?._id} benchKey={benchKey} formatValue={(v) => fmtPct(v)} />
-    </Tile>
-  );
-}
-
-// ─── Tile 4: Personal Contact ─────────────────────────────────────────
-function ContactTile({ data, benchKey }) {
-  const conH = data?.CON_HIV, conL = data?.CON_LGB;
-  const bH = bench[benchKey]?.CON_HIV, bL = bench[benchKey]?.CON_LGB;
-  return (
-    <Tile title="Personal Contact" subtitle="Knows someone with HIV / knows someone LGB" accent="#60a5fa">
-      <div style={{ display: "flex", gap: 16 }}>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#60a5fa", fontFamily: "'Nunito',sans-serif", lineHeight: 1 }}>
-            {fmtPct(conH)}
-          </div>
-          <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-            CON-HIV · rank #{data?.CON_HIV_rank ?? "—"}
-          </div>
-          <div style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'JetBrains Mono',monospace", marginTop: 2 }}>
-            Δ {benchKey}: {fmtDelta((conH - bH) * 100, 1)}pp
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#a78bfa", fontFamily: "'Nunito',sans-serif", lineHeight: 1 }}>
-            {fmtPct(conL)}
-          </div>
-          <div style={{ fontSize: 8, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase", marginTop: 2 }}>
-            CON-LGB · rank #{data?.CON_LGB_rank ?? "—"}
-          </div>
-          <div style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'JetBrains Mono',monospace", marginTop: 2 }}>
-            Δ {benchKey}: {fmtDelta((conL - bL) * 100, 1)}pp
-          </div>
-        </div>
-      </div>
-      <ItemsAccordion items={items.contact} segmentId={data?._id} benchKey={benchKey} formatValue={(v) => fmtPct(v)} />
-    </Tile>
-  );
-}
-
-// ─── Section 2: Strategic positioning scatter ──────────────────────────
-function StrategicScatter({ focalId }) {
-  // X = MBS_raw (stigma), Y = SCF_raw (sanctity-care). Size = pop.
-  const segs = Object.entries(segData).map(([id, d]) => ({ id: +id, ...d }));
-  const xs = segs.map((s) => s.MBS_raw);
-  const ys = segs.map((s) => s.SCF_raw);
-  const xMin = Math.min(...xs), xMax = Math.max(...xs);
-  const yMin = Math.min(...ys), yMax = Math.max(...ys);
-
-  const W = 560, H = 320, PAD = 36;
-  const xScale = (x) => PAD + ((x - xMin) / (xMax - xMin)) * (W - 2 * PAD);
-  const yScale = (y) => H - PAD - ((y - yMin) / (yMax - yMin)) * (H - 2 * PAD);
-
-  return (
-    <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, padding: 14, marginTop: 14 }}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: "#a78bfa", letterSpacing: 1.5, marginBottom: 8 }}>
-        STRATEGIC POSITIONING · 16 segments
-      </div>
-      <svg width={W} height={H} style={{ background: "#0b0e13", borderRadius: 4 }}>
-        {/* Axes */}
-        <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="#334155" />
-        <line x1={PAD} y1={PAD} x2={PAD} y2={H - PAD} stroke="#334155" />
-        <text x={W / 2} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a3b8">
-          Stigma (MBS) →
-        </text>
-        <text x={10} y={H / 2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90, 10, ${H / 2})`}>
-          Sanctity emphasis (SCF) →
-        </text>
-        {/* Bubbles */}
-        {segs.map((s) => {
-          const cx = xScale(s.MBS_raw);
-          const cy = yScale(s.SCF_raw);
-          const r = Math.max(4, Math.sqrt(s.pop || 0) * 30);
-          const isFocal = s.id === focalId;
+    <div className="stigma-glyphs">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = i < count;
+        const isBlame = kind === "arrow";
+        if (isBlame) {
           return (
-            <g key={s.id}>
-              <circle
-                cx={cx} cy={cy} r={r}
-                fill={isFocal ? "#a78bfa" : "#475569"}
-                fillOpacity={isFocal ? 0.85 : 0.5}
-                stroke={isFocal ? "#c4b5fd" : "#334155"}
-                strokeWidth={isFocal ? 2 : 1}
+            <span key={i} className={`g ${filled ? "filled" : "empty"} blame`}>
+              <svg width="16" height="16" viewBox="0 0 64 64">
+                <path
+                  d="M 14 12 L 50 32 L 14 52 Z"
+                  fill={filled ? color : "none"}
+                  stroke={color}
+                  strokeWidth={filled ? 3 : 4}
+                  strokeLinejoin="miter"
+                  opacity={filled ? 1 : 0.30}
+                />
+              </svg>
+            </span>
+          );
+        }
+        return (
+          <span key={i} className={`g ${filled ? "filled" : "empty"} avoid`}>
+            <svg width="16" height="16" viewBox="0 0 64 64">
+              <path
+                d="M 24 12 Q 44 32 24 52"
+                stroke={color}
+                strokeWidth="6"
+                strokeLinecap="round"
+                fill="none"
+                opacity={filled ? 1 : 0.30}
               />
-              <text
-                x={cx} y={cy + 3} textAnchor="middle" fontSize="9"
-                fontWeight={isFocal ? 800 : 500}
-                fill={isFocal ? "#fff" : "#cbd5e1"}
-              >
-                {s.name}
+            </svg>
+          </span>
+        );
+      })}
+      <span className="bench-chev" style={{ left: leftPx + "px" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color, fontWeight: 700 }}>
+          <svg width="8" height="6" viewBox="0 0 8 6">
+            <path d="M 4 0 L 8 6 L 0 6 Z" fill={color} />
+          </svg>
+          <span style={{ fontSize: 8.5, color, opacity: 0.85 }}>{benchLabel}</span>
+        </span>
+      </span>
+    </div>
+  );
+}
+
+function StigmaTile({ focalData, focalCode, benchKey }) {
+  const blameRaw = focalData.MBS_raw;
+  const avoidRaw = focalData.SDS_raw;
+  const nFilled = (v) => Math.max(0, Math.min(5, Math.round(((v - 1) / 6) * 5)));
+  const benchPct = (v) => Math.max(0, Math.min(1, (v - 1) / 6));
+  const benchBlame = bench[benchKey].MBS.raw;
+  const benchAvoid = bench[benchKey].SDS.raw;
+  // Seesaw deviations
+  const benchBlameZ = bench[benchKey].MBS.z;
+  const benchAvoidZ = bench[benchKey].SDS.z;
+  const blameDev = focalData.MBS_z - benchBlameZ;
+  const avoidDev = focalData.SDS_z - benchAvoidZ;
+  const absB = Math.abs(blameDev), absA = Math.abs(avoidDev);
+  const tot = absB + absA || 1;
+  const blameSide = absB / tot;
+  const avoidSide = absA / tot;
+  let dom = "balanced";
+  if (Math.abs(blameSide - avoidSide) > 0.10) {
+    dom = blameSide > avoidSide ? "BLAME-side deviation" : "AVOIDANCE-side deviation";
+  }
+  return (
+    <div className="card">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Stigma profile</span>
+        <span className="info-icon">i</span>
+      </div>
+      <div className="card-title">Blame &amp; Avoidance</div>
+      <div className="card-plain">
+        Two parallel channels. Glyphs show absolute scale (0–5 of max).
+        Marker on each row is the active benchmark.
+      </div>
+      <div className="card-body">
+        <div className="stigma-row">
+          <div className="stigma-label blame">
+            BLAME<span className="sub">cognitive</span>
+          </div>
+          <GlyphRow
+            count={nFilled(blameRaw)}
+            color="#F0AC4A"
+            kind="arrow"
+            benchPct={benchPct(benchBlame)}
+            benchLabel={`${BENCH_GLYPH[benchKey]} ${benchBlame.toFixed(1)}`}
+          />
+          <div className="stigma-val">
+            <span className="v blame num">{blameRaw.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="stigma-row">
+          <div className="stigma-label avoid">
+            AVOIDANCE<span className="sub">affective</span>
+          </div>
+          <GlyphRow
+            count={nFilled(avoidRaw)}
+            color="#4FB8D6"
+            kind="crescent"
+            benchPct={benchPct(benchAvoid)}
+            benchLabel={`${BENCH_GLYPH[benchKey]} ${benchAvoid.toFixed(1)}`}
+          />
+          <div className="stigma-val">
+            <span className="v avoid num">{avoidRaw.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="seesaw">
+          <div className="seesaw-eyebrow">
+            <span>Dominant channel</span>
+            <span>{dom}</span>
+          </div>
+          <div className="seesaw-bar">
+            <div className="avoid-side" style={{ width: avoidSide * 100 + "%" }} />
+            <div className="blame-side" style={{ width: blameSide * 100 + "%" }} />
+            <div className="midline" style={{ left: "50%" }} />
+          </div>
+          <div className="seesaw-pct">
+            <span className="avoid">AVOIDANCE-side <span>{Math.round(avoidSide * 100)}%</span></span>
+            <span className="blame">BLAME-side <span>{Math.round(blameSide * 100)}%</span></span>
+          </div>
+        </div>
+      </div>
+      <Accordion items={items.stigma} benchKey={benchKey} focalId={focalData._id} focalCode={focalCode} />
+    </div>
+  );
+}
+
+// ─── TILE 3 — Knowledge ────────────────────────────────────────────────
+function KnowledgeTile({ focalData, focalCode, benchKey }) {
+  const hks = focalData.HKS;
+  const benchHKS = bench[benchKey].HKS;
+  const fillPct = (hks / 10) * 100;
+  const benchPct = (benchHKS / 10) * 100;
+  const benchFill = benchKey === "Republicans" ? "#DC4040" : benchKey === "Democrats" ? "#4A82E0" : "#07090F";
+  const benchStroke = benchKey === "All" ? "#E8EAED" : "#fff";
+  const benchTextFill = benchKey === "All" ? "#E8EAED" : "#fff";
+  const benchFontSize = benchKey === "All" ? 7 : 8;
+  return (
+    <div className="card">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Information</span>
+        <span className="info-icon">i</span>
+      </div>
+      <div className="card-title">HIV knowledge</div>
+      <div className="card-plain">
+        Sum of correct answers across 10 factual questions (transmission, treatment, prevention, U.S. epidemiology).
+      </div>
+      <div className="card-body">
+        <div className="knowledge-num-row">
+          <span className="knowledge-num num">{hks.toFixed(1)}</span>
+          <span className="knowledge-denom num">/ 10</span>
+          <span className="knowledge-rank num">{focalData.HKS_rank} OF 16</span>
+        </div>
+        <div className="knowledge-bar-wrap">
+          <div className="knowledge-bar-track" />
+          <div className="knowledge-bar-fill" style={{ width: fillPct + "%" }} />
+          <div className="knowledge-bar-bench" style={{ left: benchPct + "%" }}>
+            <svg width="22" height="22" viewBox="-11 -11 22 22">
+              <circle cx="0" cy="0" r="9" fill={benchFill} stroke={benchStroke} strokeWidth="1.5" />
+              <text x="0" y="3" textAnchor="middle" fontSize={benchFontSize} fontWeight="800" fill={benchTextFill} fontFamily="Inter">
+                {BENCH_GLYPH[benchKey]}
+              </text>
+            </svg>
+          </div>
+          <div className="knowledge-bar-labels">
+            <span>0</span><span>5</span><span>10</span>
+          </div>
+        </div>
+      </div>
+      <Accordion items={items.know} benchKey={benchKey} focalId={focalData._id} focalCode={focalCode} />
+    </div>
+  );
+}
+
+// ─── TILE 4 — Contact ──────────────────────────────────────────────────
+function ContactTile({ focalData, focalCode, benchKey }) {
+  const g = BENCH_GLYPH[benchKey];
+  return (
+    <div className="card">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Proximity</span>
+        <span className="info-icon">i</span>
+      </div>
+      <div className="card-title">Personal contact</div>
+      <div className="card-plain">
+        Knowing affected people is the lever that bypasses the stigma architecture entirely.
+      </div>
+      <div className="card-body">
+        <div className="contact-pair">
+          <div className="contact-cell">
+            <div className="contact-num">
+              <span className="num">{Math.round(focalData.CON_LGB * 100)}</span>
+              <span className="pct">%</span>
+            </div>
+            <div className="contact-label">know an LGBTQ person</div>
+            <div className="contact-bench">
+              <span className={`bench-glyph ${g}`}>{g}</span>
+              <span>{Math.round(bench[benchKey].CON_LGB * 100)}%</span>
+            </div>
+            <div className="contact-rank-pill">{focalData.CON_LGB_rank} OF 16</div>
+          </div>
+          <div className="contact-cell">
+            <div className="contact-num accent">
+              <span className="num">{Math.round(focalData.CON_HIV * 100)}</span>
+              <span className="pct">%</span>
+            </div>
+            <div className="contact-label">know someone with HIV</div>
+            <div className="contact-bench">
+              <span className={`bench-glyph ${g}`}>{g}</span>
+              <span>{Math.round(bench[benchKey].CON_HIV * 100)}%</span>
+            </div>
+            <div className="contact-rank-pill">{focalData.CON_HIV_rank} OF 16</div>
+          </div>
+        </div>
+      </div>
+      <Accordion items={items.contact} benchKey={benchKey} focalId={focalData._id} focalCode={focalCode} />
+    </div>
+  );
+}
+
+// ─── Topology (stigma 2x2) ─────────────────────────────────────────────
+function Topology({ focalId, focalCode, benchKey }) {
+  const W = 640, H = 380, M = { t: 32, r: 38, b: 60, l: 78 };
+  const benchMBSz = bench[benchKey].MBS.z;
+  const benchSDSz = bench[benchKey].SDS.z;
+  const range = 1.5;
+  const xs = (z) => M.l + (z + range) / (2 * range) * (W - M.l - M.r);
+  const ys = (z) => H - M.b - (z + range) / (2 * range) * (H - M.t - M.b);
+
+  const focal = segData[String(focalId)];
+  const fdx = focal.MBS_z - benchMBSz;
+  const fdy = focal.SDS_z - benchSDSz;
+  const fr = 12 + Math.sqrt(focal.pop) * 38;
+  const fjpQuad = (fdx < 0 && fdy < 0) ? "ACCEPTED"
+                : (fdx < 0 && fdy >= 0) ? "DISTANCED"
+                : (fdx >= 0 && fdy < 0) ? "JUDGED"
+                : "OSTRACIZED";
+  const quadStrat = {
+    "ACCEPTED": "Lower blame, lower avoidance · deploy, don't persuade",
+    "DISTANCED": "Lower blame, higher avoidance · exposure-based",
+    "JUDGED": "Higher blame, lower avoidance · reframe-driven",
+    "OSTRACIZED": "Higher blame, higher avoidance · full stigma reduction",
+  };
+
+  const benchSeg = {
+    R: { dx: bench.Republicans.MBS.z - benchMBSz, dy: bench.Republicans.SDS.z - benchSDSz },
+    D: { dx: bench.Democrats.MBS.z - benchMBSz, dy: bench.Democrats.SDS.z - benchSDSz },
+    US: { dx: bench.All.MBS.z - benchMBSz, dy: bench.All.SDS.z - benchSDSz },
+  };
+
+  return (
+    <div className="card panel">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Stigma architecture</span>
+        <span className="info-icon">i</span>
+      </div>
+      <div className="panel-title">The two-by-two of HIV stigma</div>
+      <div className="panel-plain">
+        Standardized deviation from the active benchmark on Blame (cognitive) and Avoidance (affective).
+      </div>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+        <rect x={xs(0)} y={ys(range)} width={xs(range) - xs(0)} height={ys(0) - ys(range)} fill="rgba(231,72,72,0.10)" />
+        <rect x={xs(-range)} y={ys(range)} width={xs(0) - xs(-range)} height={ys(0) - ys(range)} fill="rgba(79,184,214,0.08)" />
+        <rect x={xs(0)} y={ys(0)} width={xs(range) - xs(0)} height={ys(-range) - ys(0)} fill="rgba(240,172,74,0.08)" />
+        <rect x={xs(-range)} y={ys(0)} width={xs(0) - xs(-range)} height={ys(-range) - ys(0)} fill="rgba(47,224,121,0.10)" />
+        <line x1={xs(0)} y1={M.t} x2={xs(0)} y2={H - M.b} stroke="#2A3550" strokeDasharray="3,3" />
+        <line x1={M.l} y1={ys(0)} x2={W - M.r} y2={ys(0)} stroke="#2A3550" strokeDasharray="3,3" />
+        {[
+          ["DISTANCED", "#4FB8D6", "avoidance, not blame", xs(-range * 0.55), M.t + 18],
+          ["OSTRACIZED", "#E74848", "both channels active", xs(range * 0.55), M.t + 18],
+          ["ACCEPTED", "#2FE079", "deploy as champions", xs(-range * 0.55), H - M.b - 22],
+          ["JUDGED", "#F0AC4A", "blame, not avoidance", xs(range * 0.55), H - M.b - 22],
+        ].map(([txt, color, sub, x, y]) => (
+          <g key={txt}>
+            <text x={x} y={y} fill={color} fontSize="10" fontWeight="800" letterSpacing="0.14em" textAnchor="middle" fontFamily="Inter">
+              {txt}
+            </text>
+            <text x={x} y={y + 13} fill={color} fontSize="9" fontWeight="500" textAnchor="middle" opacity="0.7" fontFamily="Inter">
+              {sub}
+            </text>
+          </g>
+        ))}
+        <text x={W / 2} y={H - 16} fill="#A8B5C5" fontSize="11" letterSpacing="0.16em" textAnchor="middle" fontWeight="600" fontFamily="Inter">
+          {`BLAME (z-deviation from ${BENCH_GLYPH[benchKey]}) →`}
+        </text>
+        <text x="18" y={H / 2} fill="#A8B5C5" fontSize="11" letterSpacing="0.16em" textAnchor="middle" fontWeight="600" transform={`rotate(-90 18 ${H / 2})`} fontFamily="Inter">
+          {`AVOIDANCE (z-deviation from ${BENCH_GLYPH[benchKey]}) →`}
+        </text>
+        {Object.entries(segData).filter(([id]) => +id !== focalId).map(([id, s]) => {
+          const seg = +id;
+          const dx = s.MBS_z - benchMBSz;
+          const dy = s.SDS_z - benchSDSz;
+          if (Math.abs(dx) > range || Math.abs(dy) > range) return null;
+          const r = 5 + Math.sqrt(s.pop) * 32;
+          const isGop = GOP_SEGS.has(seg);
+          return (
+            <g key={id}>
+              <circle cx={xs(dx)} cy={ys(dy)} r={r}
+                fill={isGop ? "rgba(231,72,72,0.18)" : "rgba(74,130,224,0.18)"}
+                stroke={isGop ? "rgba(231,72,72,0.40)" : "rgba(74,130,224,0.40)"}
+                strokeWidth="1.2" />
+              <text x={xs(dx)} y={ys(dy) + 3.5} textAnchor="middle" fontSize="9" fill="#6A7488" fontWeight="500" fontFamily="Inter">
+                {SEG_NAME[seg]}
               </text>
             </g>
           );
         })}
+        {/* Focal */}
+        <circle cx={xs(fdx)} cy={ys(fdy)} r={fr + 6} fill="none" stroke="#5AC8DC" strokeWidth="1.8" strokeDasharray="3,3" opacity="0.85" />
+        <circle cx={xs(fdx)} cy={ys(fdy)} r={fr} fill="#2FE079" stroke="#fff" strokeWidth="2.5" />
+        <text x={xs(fdx)} y={ys(fdy) + 4.5} textAnchor="middle" fontSize="12" fill="#06241A" fontWeight="800" fontFamily="Inter">
+          {focalCode}
+        </text>
+        {Object.entries(benchSeg).map(([type, p]) => {
+          if (Math.abs(p.dx) > range || Math.abs(p.dy) > range) return null;
+          const active = BENCH_GLYPH[benchKey] === type;
+          return <BenchGlyph key={type} cx={xs(p.dx)} cy={ys(p.dy)} type={type} active={active} r={12} />;
+        })}
       </svg>
+      <div className="quad-tag">
+        <span className="quad-tag-eyebrow">{focalCode} is in:</span>
+        <span className="quad-tag-name">{fjpQuad}</span>
+        <span className="quad-tag-strat">{quadStrat[fjpQuad]}</span>
+      </div>
     </div>
   );
 }
 
-// ─── Section 3: Trust Messengers ──────────────────────────────────────
-function TrustMessengers({ focalId, benchKey }) {
-  const sorted = useMemo(() => {
-    return [...trust].sort((a, b) => {
-      const bv = b.by_segment?.[String(focalId)] ?? -Infinity;
-      const av = a.by_segment?.[String(focalId)] ?? -Infinity;
-      return bv - av;
-    });
-  }, [focalId]);
+// ─── Trust list (top 8 by delta) ───────────────────────────────────────
+function TrustList({ focalId, focalCode, benchKey }) {
+  const rows = useMemo(() => {
+    return trust
+      .map((t) => ({
+        ...t,
+        fjp: t.by_segment?.[String(focalId)] ?? null,
+        benchVal: t[benchKey] ?? null,
+      }))
+      .filter((t) => t.fjp != null && t.benchVal != null)
+      .map((t) => ({ ...t, delta: t.fjp - t.benchVal }))
+      .sort((a, b) => b.delta - a.delta)
+      .slice(0, 8);
+  }, [focalId, benchKey]);
   return (
-    <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, padding: 14, marginTop: 14 }}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: "#fbbf24", letterSpacing: 1.5, marginBottom: 8 }}>
-        TRUST MESSENGERS · sorted by focal segment ({sorted.length} items)
+    <div className="card panel">
+      <div className="card-eyebrow-row">
+        <span className="card-eyebrow">Top over-index messengers</span>
+        <span className="info-icon">i</span>
       </div>
-      <table style={{ width: "100%", fontSize: 10, borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ borderBottom: "1px solid #1e293b" }}>
-            <th style={{ textAlign: "left", padding: "5px 8px", color: "#64748b", fontWeight: 600 }}>Messenger</th>
-            <th style={{ textAlign: "right", padding: "5px 8px", color: "#cbd5e1", fontWeight: 700, width: 70 }}>Focal</th>
-            <th style={{ textAlign: "right", padding: "5px 8px", color: "#94a3b8", fontWeight: 600, width: 70 }}>{benchKey}</th>
-            <th style={{ textAlign: "right", padding: "5px 8px", color: "#94a3b8", fontWeight: 600, width: 60 }}>Δ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((t) => {
-            const focal = t.by_segment?.[String(focalId)] ?? null;
-            const benchVal = t[benchKey] ?? null;
-            const delta = focal != null && benchVal != null ? focal - benchVal : null;
+      <div className="panel-title">
+        Messengers {focalCode} trusts more than <span>{BENCH_FULL[benchKey]}</span>
+      </div>
+      <div className="panel-plain">
+        From the 22 deployable messengers tested (personal physician excluded).
+      </div>
+      <div className="trust-grid">
+        <div className="trust-head">
+          <span>#</span><span>Messenger</span>
+          <span className="right">{focalCode}</span>
+          <span className="right">{BENCH_GLYPH[benchKey]}</span>
+          <span className="right">Δ</span>
+        </div>
+        <div>
+          {rows.map((t, i) => {
+            const sign = t.delta >= 0 ? "+" : "";
             return (
-              <tr key={t.code} style={{ borderBottom: "1px solid #1a2030" }}>
-                <td style={{ padding: "5px 8px", color: "#e2e8f0" }}>
-                  <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#64748b", marginRight: 4 }}>
-                    {t.code}
-                  </span>
-                  {t.label}
-                </td>
-                <td style={{ textAlign: "right", padding: "5px 8px", color: "#e2e8f0", fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>
-                  {fmt(focal)}
-                </td>
-                <td style={{ textAlign: "right", padding: "5px 8px", color: "#94a3b8", fontFamily: "'JetBrains Mono',monospace" }}>
-                  {fmt(benchVal)}
-                </td>
-                <td style={{ textAlign: "right", padding: "5px 8px", fontFamily: "'JetBrains Mono',monospace", color: delta > 0 ? "#34d399" : delta < 0 ? "#f87171" : "#64748b", fontWeight: 700 }}>
-                  {fmtDelta(delta)}
-                </td>
-              </tr>
+              <div className={"trust-row" + (i < 3 ? " top-rank" : "")} key={t.code}>
+                <span className="trust-rank">{i + 1}</span>
+                <span className="trust-name">{t.label}</span>
+                <span className="trust-num">{t.fjp.toFixed(2)}</span>
+                <span className="trust-bench">{t.benchVal.toFixed(2)}</span>
+                <span className="trust-delta">{sign}{t.delta.toFixed(2)}</span>
+              </div>
             );
           })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-// ─── Manifest strip ────────────────────────────────────────────────────
-function ManifestStrip() {
-  return (
-    <div style={{ padding: "6px 12px", background: "#0a0e16", border: "1px solid #1e293b", borderRadius: 6, marginBottom: 14, fontSize: 9.5, color: "#64748b", display: "flex", gap: 14, flexWrap: "wrap" }}>
-      <span><strong style={{ color: "#94a3b8" }}>Study:</strong> {manifest.study}</span>
-      <span><strong style={{ color: "#94a3b8" }}>n_raw:</strong> {manifest.n_raw}</span>
-      <span><strong style={{ color: "#94a3b8" }}>effective n:</strong> {manifest.effective_n?.toFixed?.(1)}</span>
-      <span><strong style={{ color: "#94a3b8" }}>Deff:</strong> {manifest.design_effect?.toFixed?.(2)}</span>
-      <span><strong style={{ color: "#94a3b8" }}>weighted:</strong> IPF-raked</span>
+        </div>
+      </div>
     </div>
   );
 }
 
 // ─── Top-level HIV tab ────────────────────────────────────────────────
-export default function HIVTab({ segmentId }) {
+export default function HIVTab({ segmentId, segmentCode }) {
   const [benchKey, setBenchKey] = useState("Democrats");
   const focalData = useMemo(() => {
     const d = segData[String(segmentId)];
@@ -437,30 +588,48 @@ export default function HIVTab({ segmentId }) {
 
   if (!focalData) {
     return (
-      <div style={{ padding: 20, color: "#64748b", fontSize: 12 }}>
-        No HIV data for this segment (id={segmentId}).
+      <div className="hiv-tab-root" style={{ padding: 24, color: "#6A7488", fontSize: 12 }}>
+        No HIV data for segment id={segmentId}.
       </div>
     );
   }
 
-  return (
-    <div style={{ animation: "fadeIn 0.25s ease" }}>
-      <ManifestStrip />
-      <CompareBar current={benchKey} onChange={setBenchKey} />
+  const focalCode = segmentCode || SEG_NAME[segmentId] || `S${segmentId}`;
 
-      {/* Section 1: Four tiles */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
-        <SCFTile data={focalData} benchKey={benchKey} />
-        <StigmaTile data={focalData} benchKey={benchKey} />
-        <KnowledgeTile data={focalData} benchKey={benchKey} />
-        <ContactTile data={focalData} benchKey={benchKey} />
+  return (
+    <div className="hiv-tab-root">
+      <CompareBar current={benchKey} onChange={setBenchKey} focalCode={focalCode} />
+
+      <div className="section-break">
+        <h3>Four Headline Measures</h3>
+        <p>
+          <span className="bench-glyph R" style={{ display: "inline-flex", width: 14, height: 14, fontSize: 7 }}>R</span>
+          <span className="bench-glyph D" style={{ display: "inline-flex", width: 14, height: 14, fontSize: 7 }}>D</span>
+          <span className="bench-glyph US" style={{ display: "inline-flex", width: 14, height: 14, fontSize: 6.5 }}>US</span>
+          &nbsp;benchmark glyphs appear throughout. Active toggle's glyph is solid; the other two dim.
+        </p>
       </div>
 
-      {/* Section 2: Strategic scatter */}
-      <StrategicScatter focalId={segmentId} />
+      <div className="row grid grid-4">
+        <SCFTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
+        <StigmaTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
+        <KnowledgeTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
+        <ContactTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
+      </div>
 
-      {/* Section 3: Trust messengers */}
-      <TrustMessengers focalId={segmentId} benchKey={benchKey} />
+      <div className="section-break" style={{ marginTop: 32 }}>
+        <h3>Where They Sit Strategically</h3>
+        <p>Stigma topology — coordinates are deviations from the active toggle benchmark.</p>
+      </div>
+
+      <div className="row grid grid-1-1">
+        <Topology focalId={segmentId} focalCode={focalCode} benchKey={benchKey} />
+        <TrustList focalId={segmentId} focalCode={focalCode} benchKey={benchKey} />
+      </div>
+
+      <div className="footer">
+        {manifest.study} · Reservoir Communications Group / HAIG · Confidential · n={manifest.n_raw} (effective {Math.round(manifest.effective_n)})
+      </div>
     </div>
   );
 }
