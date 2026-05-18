@@ -1,0 +1,177 @@
+/* Topline addendum — hand-authored rules that aren't in
+ * dashboard_template.html's <style> block. Keep this file separate from
+ * Topline.css so the auto-generated source-of-truth alignment stays
+ * one-way (template → Topline.css).
+ *
+ * All rules scoped under .topline-root.
+ */
+
+/* K5 trap visual flag — pink-tinted row + inline FALSE badge */
+.topline-root .row-false {
+  background: #fdf2f8;
+}
+.topline-root .row-false .rlbl {
+  color: #9d174d;
+}
+.topline-root .sp-false-badge {
+  display: inline-block;
+  background: #db2777;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.topline-root .sp-false-badge.inline {
+  font-size: 8px;
+  padding: 1px 4px;
+}
+.topline-root .sp-false-item {
+  background: #fdf2f8;
+}
+
+/* Composites — survey-pane list (mock visual showing the eight composites) */
+.topline-root .composites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.topline-root .composite-row {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+.topline-root .composite-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: #1d4ed8;
+  margin-right: 6px;
+}
+.topline-root .composite-wording {
+  color: var(--ink);
+}
+.topline-root .composite-formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+
+/* Module section header (used between modules) */
+.topline-root .module-section {
+  border-top: 1px solid var(--border);
+}
+.topline-root .section-header {
+  padding: 24px 24px 12px;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+}
+.topline-root .section-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.topline-root .section-meta {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+}
+.topline-root .section-intro {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 900px;
+}
+
+/* Inline code/tier badges (referenced from JSX) */
+.topline-root .inf-item-code-inline {
+  display: inline-block;
+  background: #f1f5f9;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 4px;
+  color: var(--ink-soft);
+}
+.topline-root .inf-tier-inline {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+/* Demographics toggle bar */
+.topline-root .demos-toggle-bar {
+  padding: 10px 24px;
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topline-root .demos-toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+.topline-root .demos-toggle-btn {
+  background: white;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: inherit;
+}
+.topline-root .demos-toggle-btn.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.topline-root .demos-toggle-btn:hover:not(.active) {
+  background: #f8fafc;
+}
+.topline-root .demos-toggle-note {
+  margin-left: 10px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* Print stylesheet — hide nav, advisory, export bar; let everything else
+ * render. Keeps dashboard.json-driven layout intact for PDF export. */
+@media print {
+  .topline-root .topnav,
+  .topline-root .modnav,
+  .topline-root .roi-export-bar,
+  .topline-root .demos-toggle-bar {
+    display: none !important;
+  }
+  .topline-root .preliminary-notice {
+    background: white !important;
+    border: 1px solid #ddd !important;
+  }
+  .topline-root .item-block {
+    page-break-inside: avoid;
+  }
+}
