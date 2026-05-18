@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import IdeologyHeatmap from "./IdeologyHeatmap";
+import HIVTab from "./HIVTab";
 import { getAssignedTier, STUDY_META } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
@@ -1958,6 +1959,7 @@ function WellnessPanel({ segIdx }) {
 
 const PROFILE_TABS = [
   { id:"demo", label:"DEMOGRAPHICS" },
+  { id:"hiv", label:"HIV" },
   { id:"beliefs", label:"BELIEFS" },
   { id:"ideology", label:"VALUES" },
   { id:"trust", label:"TRUST" },
@@ -2107,6 +2109,7 @@ export default function SegmentProfile() {
 
         {/* Tab Content */}
         {profileTab === "demo" && <DemographicsPanel seg={seg} />}
+        {profileTab === "hiv" && <HIVTab segmentId={seg.id} segmentCode={seg.code} />}
         {profileTab === "beliefs" && <BeliefsPanel segIdx={segIdx} />}
         {profileTab === "ideology" && <IdeologyHeatmap />}
         {profileTab === "trust" && <TrustPanel segIdx={segIdx} />}
