@@ -158,7 +158,18 @@
   font-style: italic;
 }
 
-/* ROI scorecard — table view sourced from workbook STUDY_METRICS */
+/* ROI scorecard — React-rendered SVG sourced from workbook STUDY_METRICS */
+.topline-root .roi-svg-container {
+  background: white;
+  padding: 18px 24px 8px;
+}
+.topline-root .roi-svg-container svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* (Legacy table styles kept for any reuse — not currently rendered.) */
 .topline-root .roi-scorecard {
   padding: 16px 24px 28px;
   overflow-x: auto;
