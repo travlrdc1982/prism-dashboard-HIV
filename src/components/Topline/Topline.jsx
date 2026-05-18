@@ -1,46 +1,84 @@
 import dashboard from "../../data/topline/dashboard.json";
-import styles from "./Topline.module.css";
+import "./Topline.css";
+import TopNav from "./components/TopNav";
+import ModNav from "./components/ModNav";
+import { ModuleSection } from "./components/ItemBlock";
 
-// Phase C — Topline migration. This file scaffolds the /topline route and
-// loads dashboard.json as the immutable input. Each of the 8 modules will be
-// ported in subsequent commits as separate components under ./modules/.
+// Phase C scaffold — Stage 0. Renders the top nav, module chip nav, study
+// header, and a placeholder for every module section. Each module body will
+// be filled in by subsequent commits as individual components under ./modules/.
+//
+// The .topline-root wrapper scopes every CSS rule from Topline.css so it
+// cannot leak into the dashboard chrome. The negative margin undoes Shell's
+// 24/28px content padding so the topline owns its full canvas.
 
 export default function Topline() {
   const { study, modules } = dashboard;
 
   return (
-    <div className={styles.toplineRoot}>
-      <div className={styles.scaffoldBanner}>
-        <strong>Topline migration scaffold.</strong> Modules in progress — see
-        <code> AUDIT.md</code> / <code>BUILDME.md</code> Phase C for the port
-        plan.
+    <div className="topline-root" style={{ margin: "-24px -28px" }}>
+      <TopNav study={study} />
+      <ModNav modules={modules} />
+
+      {/* Stage-0 scaffold banner — visible until all 8 modules are ported. */}
+      <div
+        style={{
+          background: "#fef3c7",
+          borderBottom: "1px solid #f59e0b",
+          padding: "10px 24px",
+          fontSize: 12,
+          color: "#78350f",
+        }}
+      >
+        <strong>Topline migration · Stage 0 scaffold.</strong> CSS, layout
+        primitives, and module shells are in place. Each module body lands in
+        a subsequent commit.
       </div>
 
-      <header className={styles.titleHeader}>
-        <h1>{study.title}</h1>
-        <p>{study.subtitle}</p>
-        <div className={styles.titleMeta}>
-          <span>{study.field_dates}</span>
-          <span>·</span>
-          <span>{study.version}</span>
-          <span>·</span>
-          <span>Analyst: {study.analyst}</span>
+      {/* Title section (placeholder until TitlePage.jsx lands) */}
+      <div className="title-page">
+        <header className="title-page-header">
+          <h1 className="study-title">{study.title}</h1>
+          <p className="study-subtitle">{study.subtitle}</p>
+        </header>
+        <div className="title-page-meta" style={{ display: "flex", gap: 24, fontSize: 12, color: "#475569" }}>
+          <span>
+            <strong>Field:</strong> {study.field_dates}
+          </span>
+          <span>
+            <strong>Version:</strong> {study.version}
+          </span>
+          <span>
+            <strong>Analyst:</strong> {study.analyst}
+          </span>
         </div>
-      </header>
+      </div>
 
-      <section className={styles.moduleList}>
-        <h2>Modules</h2>
-        <ol>
-          {modules.map((m) => (
-            <li key={m.id} className={m.active ? "" : styles.disabled}>
-              <span className={styles.tileNum}>{m.tile_num}</span>{" "}
-              <strong>{m.tile_title}</strong>
-              {!m.active && <em> · deferred</em>}
-              <div className={styles.tileDesc}>{m.tile_desc}</div>
-            </li>
-          ))}
-        </ol>
-      </section>
+      {/* One placeholder section per module — keeps anchor links working
+          even before bodies are filled in. */}
+      {modules.map((m) => (
+        <ModuleSection
+          key={m.id}
+          id={m.id}
+          title={`${m.tile_num} · ${m.tile_title}`}
+          meta={m.section_meta}
+          intro={m.section_intro}
+        >
+          <div
+            className="module-placeholder"
+            style={{
+              padding: "16px 24px",
+              fontSize: 12,
+              color: "#94a3b8",
+              fontStyle: "italic",
+            }}
+          >
+            {m.active
+              ? "Module body in progress — to be ported in subsequent commits."
+              : "Module deferred to a later wave."}
+          </div>
+        </ModuleSection>
+      ))}
     </div>
   );
 }
