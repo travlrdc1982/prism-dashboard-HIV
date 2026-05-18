@@ -1,9 +1,11 @@
+import { useState } from "react";
 import dashboard from "../../data/topline/dashboard.json";
 import "./Topline.css";
 import "./Topline.addendum.css";
 import TopNav from "./components/TopNav";
 import ModNav from "./components/ModNav";
 import { ModuleSection } from "./components/ItemBlock";
+import TogglesBar from "./components/TogglesBar";
 import TitlePage from "./modules/TitlePage";
 import DemographicsModule from "./modules/DemographicsModule";
 import ItemsModule from "./modules/ItemsModule";
@@ -58,11 +60,32 @@ const MODULE_RENDERERS = {
   ),
 };
 
+// Modules that should display the cell-toggles bar (every ordinal/nominal
+// data-bearing block — everything except the SVG-only ROI and the deferred
+// 05/06 modules).
+const TOGGLE_MODULES = new Set([
+  "stigma",
+  "prepost",
+  "critics",
+  "demos",
+  "influencer",
+]);
+
 export default function Topline() {
   const { study, modules, segments } = dashboard;
+  const [expanded, setExpanded] = useState(false);
+  const [fullDist, setFullDist] = useState(false);
+
+  // .topline-root gets `expanded` / `fullDist` classes; the CSS uses them to
+  // reveal the .detail row (m / b3) and the .dist7 mini-histogram inside
+  // every .cell. Default state: both hidden — matches the source HTML.
+  const rootClass =
+    "topline-root" +
+    (expanded ? " expanded" : "") +
+    (fullDist ? " fullDist" : "");
 
   return (
-    <div className="topline-root" style={{ margin: "-24px -28px" }}>
+    <div className={rootClass} style={{ margin: "-24px -28px" }}>
       <TopNav study={study} />
       <ModNav modules={modules} />
 
@@ -70,6 +93,7 @@ export default function Topline() {
 
       {modules.map((m) => {
         const Renderer = MODULE_RENDERERS[m.id];
+        const showToggles = TOGGLE_MODULES.has(m.id) && m.active;
         return (
           <ModuleSection
             key={m.id}
@@ -78,6 +102,15 @@ export default function Topline() {
             meta={m.section_meta}
             intro={m.section_intro}
           >
+            {showToggles && (
+              <TogglesBar
+                expanded={expanded}
+                fullDist={fullDist}
+                onToggleExpanded={setExpanded}
+                onToggleFullDist={setFullDist}
+                info="Click any cell for popover · z-test vs. rest of sample"
+              />
+            )}
             {Renderer && m.active ? (
               <Renderer data={dashboard} module={m} />
             ) : (
