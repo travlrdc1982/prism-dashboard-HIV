@@ -158,6 +158,116 @@
   font-style: italic;
 }
 
+/* ROI scorecard — table view sourced from workbook STUDY_METRICS */
+.topline-root .roi-scorecard {
+  padding: 16px 24px 28px;
+  overflow-x: auto;
+}
+.topline-root .roi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.topline-root .roi-table thead th {
+  background: var(--bg-panel);
+  border-bottom: 2px solid var(--border-strong);
+  padding: 8px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.topline-root .roi-table thead th.sortable { cursor: pointer; user-select: none; }
+.topline-root .roi-table thead th.sortable:hover { background: #e2e8f0; color: var(--ink); }
+.topline-root .roi-table thead th.active { background: #dbeafe; color: var(--ink); }
+.topline-root .roi-table thead th .sort-arrow { font-size: 9px; color: var(--ink-mute); }
+.topline-root .roi-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.topline-root .roi-table tbody tr:last-child td { border-bottom: none; }
+.topline-root .roi-table tbody tr.gop { background: #fffafa; }
+.topline-root .roi-table tbody tr.dem { background: #fafcff; }
+.topline-root .roi-table tbody tr:hover { background: #f1f5f9; }
+.topline-root .roi-table .roi-rank { color: var(--ink-mute); font-family: 'JetBrains Mono', monospace; text-align: right; width: 36px; }
+.topline-root .roi-table .roi-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.topline-root .roi-table .roi-code.gop { color: var(--gop); }
+.topline-root .roi-table .roi-code.dem { color: var(--dem); }
+.topline-root .roi-table .roi-name { font-weight: 500; color: var(--ink); }
+.topline-root .roi-table .roi-party {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ink-mute);
+  letter-spacing: 0.5px;
+}
+.topline-root .roi-table .roi-num {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.topline-root .roi-table .roi-strong { font-weight: 700; color: var(--ink); }
+.topline-root .tier-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.topline-root .tier-badge.tier-na { background: #f1f5f9; color: var(--ink-mute); }
+
+.topline-root .roi-export-bar {
+  padding: 12px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.topline-root .roi-export-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.topline-root .roi-export-btn {
+  background: white;
+  border: 1px solid var(--border-strong);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: inherit;
+}
+.topline-root .roi-export-btn:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.topline-root .roi-source-note {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  font-style: italic;
+}
+
 /* Print stylesheet — hide nav, advisory, export bar; let everything else
  * render. Keeps dashboard.json-driven layout intact for PDF export. */
 @media print {
