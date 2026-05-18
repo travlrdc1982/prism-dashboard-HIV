@@ -3,6 +3,19 @@ import "./Topline.css";
 import TopNav from "./components/TopNav";
 import ModNav from "./components/ModNav";
 import { ModuleSection } from "./components/ItemBlock";
+import DemographicsModule from "./modules/DemographicsModule";
+
+// Map of module id → renderer. Filled in incrementally; missing entries
+// fall back to a placeholder block.
+const MODULE_RENDERERS = {
+  demographics: ({ data }) => (
+    <DemographicsModule
+      demographics={data.demographics}
+      segments={data.segments}
+      study={data.study}
+    />
+  ),
+};
 
 // Phase C scaffold — Stage 0. Renders the top nav, module chip nav, study
 // header, and a placeholder for every module section. Each module body will
@@ -54,31 +67,38 @@ export default function Topline() {
         </div>
       </div>
 
-      {/* One placeholder section per module — keeps anchor links working
-          even before bodies are filled in. */}
-      {modules.map((m) => (
-        <ModuleSection
-          key={m.id}
-          id={m.id}
-          title={`${m.tile_num} · ${m.tile_title}`}
-          meta={m.section_meta}
-          intro={m.section_intro}
-        >
-          <div
-            className="module-placeholder"
-            style={{
-              padding: "16px 24px",
-              fontSize: 12,
-              color: "#94a3b8",
-              fontStyle: "italic",
-            }}
+      {/* Render each module section. Modules with a ported renderer in
+          MODULE_RENDERERS get their full body; the rest show a placeholder. */}
+      {modules.map((m) => {
+        const Renderer = MODULE_RENDERERS[m.id];
+        return (
+          <ModuleSection
+            key={m.id}
+            id={m.id}
+            title={`${m.tile_num} · ${m.tile_title}`}
+            meta={m.section_meta}
+            intro={m.section_intro}
           >
-            {m.active
-              ? "Module body in progress — to be ported in subsequent commits."
-              : "Module deferred to a later wave."}
-          </div>
-        </ModuleSection>
-      ))}
+            {Renderer && m.active ? (
+              <Renderer data={dashboard} module={m} />
+            ) : (
+              <div
+                className="module-placeholder"
+                style={{
+                  padding: "16px 24px",
+                  fontSize: 12,
+                  color: "#94a3b8",
+                  fontStyle: "italic",
+                }}
+              >
+                {m.active
+                  ? "Module body in progress — to be ported in subsequent commits."
+                  : "Module deferred to a later wave."}
+              </div>
+            )}
+          </ModuleSection>
+        );
+      })}
     </div>
   );
 }
