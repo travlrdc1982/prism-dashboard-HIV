@@ -1,10 +1,22 @@
-// ROI module — renders the pre-computed SVG from dashboard.json verbatim
-// via dangerouslySetInnerHTML, plus an export bar with PNG/SVG downloads.
-// Ported from dashboard_template.html renderROIModule (759-).
+// ROI module — renders the pre-baked SVG from dashboard.json, but with
+// workbook-derived values substituted at render time so /topline ROI
+// matches /roi (both sourced from HIV_Study_Template.xlsx). The SVG's
+// visual design is unchanged; only the ROI / coalition / activation /
+// influence numbers are swapped per segment.
+//
+// Pipeline note: the pre-baked SVG was produced by compute_core.py from
+// the .sav file and carries that pipeline's formulaic tiers + a
+// different activation definition. Future pipeline runs should ingest
+// the workbook tier column directly so this client-side patch becomes a
+// no-op.
 
+import { useMemo } from "react";
 import { exportROIPng, exportROISvg } from "../utils/exportPng";
+import applyRoiOverrides from "../utils/applyRoiOverrides";
 
 export default function RoiModule({ roiSvg, roiData }) {
+  const patchedSvg = useMemo(() => applyRoiOverrides(roiSvg), [roiSvg]);
+
   if (!roiSvg) {
     return (
       <div className="module-placeholder" style={{ padding: "16px 24px", color: "#94a3b8", fontStyle: "italic" }}>
@@ -33,7 +45,7 @@ export default function RoiModule({ roiSvg, roiData }) {
       <div
         id="roi-svg-container"
         className="roi-svg-container"
-        dangerouslySetInnerHTML={{ __html: roiSvg }}
+        dangerouslySetInnerHTML={{ __html: patchedSvg }}
       />
       {roiData?.notes && (
         <div className="roi-notes" style={{ padding: "12px 24px", fontSize: 12, color: "#475569" }}>
