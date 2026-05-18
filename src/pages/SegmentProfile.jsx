@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import IdeologyHeatmap from "./IdeologyHeatmap";
-import { getAssignedTier } from "../data/study";
+import { getAssignedTier, STUDY_META } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
 const SEGMENTS = [
@@ -2051,7 +2051,7 @@ export default function SegmentProfile() {
             </div>
           </div>
 
-          {/* ROI Card — AL Study */}
+          {/* ROI Card — study-specific (sourced from STUDY_ROI / STUDY_META) */}
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {STUDY_ROI[seg.code] && (() => {
               const d = STUDY_ROI[seg.code].HIV;
@@ -2061,7 +2061,7 @@ export default function SegmentProfile() {
               return (
                 <div style={{ background:"#111827", borderRadius:8, padding:"8px 10px", border:"1px solid #1e293b" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>HIV STUDY ROI</div>
+                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>{STUDY_META.name} STUDY ROI</div>
                     <span style={{ fontSize:7, fontWeight:700, padding:"1px 6px", borderRadius:3, background:TIER_BG[studyTier], color:TIER_TEXT[studyTier], fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{TIER_LABELS[studyTier]}</span>
                   </div>
                   <div style={{ textAlign:"center", padding:"4px 0", borderBottom:"1px solid #1e293b", marginBottom:5 }}>

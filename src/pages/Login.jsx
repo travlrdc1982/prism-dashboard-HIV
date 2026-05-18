@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
+import { STUDY_META } from "../data/study";
 
 export default function Login({ onAuth }) {
   const [email, setEmail] = useState("");
@@ -77,7 +78,7 @@ export default function Login({ onAuth }) {
           <div style={{
             fontSize: 8, color: "#475569", marginTop: 4,
             letterSpacing: 1, textTransform: "uppercase"
-          }}>AMERICAN LEADERSHIP STUDY</div>
+          }}>{STUDY_META.name} STUDY</div>
         </div>
 
         {/* ── SIGN IN ── */}
