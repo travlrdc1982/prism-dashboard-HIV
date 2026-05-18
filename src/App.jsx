@@ -6,6 +6,7 @@ import SegmentMap from "./pages/SegmentMap";
 import AudienceROI from "./pages/AudienceROI";
 import MessageMap from "./pages/MessageMap";
 import SegmentProfile from "./pages/SegmentProfile";
+import Topline from "./components/Topline/Topline";
 import Login from "./pages/Login";
 
 // Auth gate paused per Bryan's request — flip to false to require login again.
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="roi" element={<AudienceROI />} />
           <Route path="messages" element={<MessageMap />} />
           <Route path="profile" element={<SegmentProfile />} />
+          <Route path="topline" element={<Topline />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

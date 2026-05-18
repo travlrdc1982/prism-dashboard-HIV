@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: "/roi",       label: "AUDIENCE ROI" },
   { to: "/messages",  label: "MESSAGE MAP" },
   { to: "/profile",   label: "AUDIENCE PROFILES" },
+  { to: "/topline",   label: "TOPLINE" },
 ];
 
 export default function Shell() {
