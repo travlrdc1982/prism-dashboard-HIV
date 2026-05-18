@@ -138,18 +138,24 @@ function SCFTile({ focalData, focalCode, benchKey }) {
         <div className="scf-chart">
           <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
             <defs>
+              {/* Gradient reversed so SANCTITY-red is at the top (matching the
+                  swapped label) and COMPASSION-blue is at the bottom. */}
               <linearGradient id="scfgrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6FA0E8" stopOpacity="0.85" />
+                <stop offset="0%" stopColor="#DC4040" stopOpacity="0.85" />
                 <stop offset="50%" stopColor="#8B98A8" stopOpacity="0.45" />
-                <stop offset="100%" stopColor="#DC4040" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#6FA0E8" stopOpacity="0.85" />
               </linearGradient>
             </defs>
             <rect x={cx - 6} y={yTop} width="12" height={yBot - yTop} fill="url(#scfgrad)" rx="6" ry="6" />
-            <text x={cx} y={yTop - 12} textAnchor="middle" fontSize="10" fontWeight="700" fill="#6FA0E8" letterSpacing="1.2" fontFamily="Inter">
-              COMPASSION
-            </text>
-            <text x={cx} y={yBot + 18} textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC4040" letterSpacing="1.2" fontFamily="Inter">
+            {/* Labels flipped per design: SANCTITY on top, COMPASSION on bottom.
+                Gradient stops swapped in <defs> above so the colors still match
+                the labels. yScale untouched — focal marker and bench glyphs
+                still position by SCF value. */}
+            <text x={cx} y={yTop - 12} textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC4040" letterSpacing="1.2" fontFamily="Inter">
               SANCTITY
+            </text>
+            <text x={cx} y={yBot + 18} textAnchor="middle" fontSize="10" fontWeight="700" fill="#6FA0E8" letterSpacing="1.2" fontFamily="Inter">
+              COMPASSION
             </text>
             <line x1={cx - 22} x2={cx + 22} y1={yZero} y2={yZero} stroke="#4A5466" strokeWidth="1" strokeDasharray="2 2" />
             <text x={cx + 28} y={yZero + 3} fontSize="9" fill="#6A7488" fontFamily="Inter">0</text>
@@ -430,7 +436,11 @@ function Topology({ focalId, focalCode, benchKey }) {
   const focal = segData[String(focalId)];
   const fdx = focal.MBS_z - benchMBSz;
   const fdy = focal.SDS_z - benchSDSz;
-  const fr = 12 + Math.sqrt(focal.pop) * 38;
+  // Bubble radius scales with population. Linear (not sqrt) gives more
+  // visible size differences across the 16 segments.
+  const focalR = (p) => 8 + (p || 0) * 220;
+  const otherR = (p) => 4 + (p || 0) * 200;
+  const fr = focalR(focal.pop);
   const fjpQuad = (fdx < 0 && fdy < 0) ? "ACCEPTED"
                 : (fdx < 0 && fdy >= 0) ? "DISTANCED"
                 : (fdx >= 0 && fdy < 0) ? "JUDGED"
@@ -491,7 +501,7 @@ function Topology({ focalId, focalCode, benchKey }) {
           const dx = s.MBS_z - benchMBSz;
           const dy = s.SDS_z - benchSDSz;
           if (Math.abs(dx) > range || Math.abs(dy) > range) return null;
-          const r = 5 + Math.sqrt(s.pop) * 32;
+          const r = otherR(s.pop);
           const isGop = GOP_SEGS.has(seg);
           return (
             <g key={id}>
@@ -578,8 +588,41 @@ function TrustList({ focalId, focalCode, benchKey }) {
   );
 }
 
+// ─── Segment selector (mirrors the pill row at top of SegmentProfile) ──
+// Stays on the HIV tab when a different segment is clicked (the
+// SegmentProfile version resets profileTab to "demo"; this one doesn't).
+function SegmentPills({ segments, currentIdx, onChange, tierAccent }) {
+  if (!segments?.length || !onChange) return null;
+  return (
+    <div style={{ display: "flex", gap: 3, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+      <span style={{ fontSize: 8, color: "#475569", fontFamily: "'Nunito',sans-serif", marginRight: 4 }}>SEGMENT:</span>
+      {segments.map((s, i) => {
+        const isSel = currentIdx === i;
+        const accent = tierAccent?.[s.tier] || "#5b93c7";
+        return (
+          <button
+            key={s.id}
+            onClick={() => onChange(i)}
+            style={{
+              fontSize: 8, padding: "3px 8px", borderRadius: 3, cursor: "pointer",
+              border: isSel ? `1px solid ${accent}` : "1px solid #1e293b",
+              background: isSel ? (s.party === "GOP" ? "#2a1015" : "#0f1a2e") : "transparent",
+              color: s.party === "GOP" ? "#fca5a5" : "#93c5fd",
+              fontFamily: "'Nunito',sans-serif",
+              fontWeight: isSel ? 700 : 400,
+              transition: "all 0.15s",
+            }}
+          >
+            {s.code}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Top-level HIV tab ────────────────────────────────────────────────
-export default function HIVTab({ segmentId, segmentCode }) {
+export default function HIVTab({ segmentId, segmentCode, segments, currentIdx, onChangeSegment, tierAccent }) {
   const [benchKey, setBenchKey] = useState("Democrats");
   const focalData = useMemo(() => {
     const d = segData[String(segmentId)];
@@ -598,6 +641,12 @@ export default function HIVTab({ segmentId, segmentCode }) {
 
   return (
     <div className="hiv-tab-root">
+      <SegmentPills
+        segments={segments}
+        currentIdx={currentIdx}
+        onChange={onChangeSegment}
+        tierAccent={tierAccent}
+      />
       <CompareBar current={benchKey} onChange={setBenchKey} focalCode={focalCode} />
 
       <div className="section-break">
