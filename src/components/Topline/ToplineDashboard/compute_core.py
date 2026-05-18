@@ -22,6 +22,70 @@ from collections import OrderedDict
 from math import sqrt
 from pathlib import Path
 
+
+# ═════════════════════════════════════════════════════════════════════
+# WORKBOOK ROI OVERRIDES
+# ─────────────────────────────────────────────────────────────────────
+# Reads HIV_Study_Template.xlsx (analyst-configured tier / coalition /
+# activation / influence per segment) and applies them to roi_data
+# before render_svg(). This makes /roi (workbook-sourced) and /topline
+# ROI (SVG-rendered) show identical numbers. Pure additive helper —
+# falls back silently if the workbook is missing.
+#
+# Mapping (workbook column → roi_data field):
+#   tier            → priority_tier
+#   supporters * 100 → coalition_support   (workbook stores fraction)
+#   activation * 100 → activation_prob
+#   influence  * 100 → influence_pct
+#
+# Workbook lookup uses the project root by default; override with the
+# PRISM_WORKBOOK env var if compute_core.py runs elsewhere.
+# ═════════════════════════════════════════════════════════════════════
+
+def _apply_workbook_roi_overrides(roi_data):
+    import os
+    wb_path = os.environ.get('PRISM_WORKBOOK', 'HIV_Study_Template.xlsx')
+    if not Path(wb_path).exists():
+        # Try repo root relative to this file's location
+        for candidate in [
+            Path(__file__).parent.parent.parent.parent.parent / 'HIV_Study_Template.xlsx',
+            Path('HIV_Study_Template.xlsx'),
+        ]:
+            if candidate.exists():
+                wb_path = str(candidate)
+                break
+        else:
+            raise FileNotFoundError(f"Workbook not found at {wb_path}")
+
+    import openpyxl
+    wb = openpyxl.load_workbook(wb_path, data_only=True)
+    ws = wb['SegmentMetrics']
+    headers = [str(c.value or '').strip().lower() for c in ws[1]]
+    col = lambda name: headers.index(name) if name in headers else None
+    c_code        = col('code')
+    c_tier        = col('tier')
+    c_supporters  = col('supporters')
+    c_activation  = col('activation')
+    c_influence   = col('influence')
+    overrides = 0
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if not row or row[c_code] is None:
+            continue
+        code = str(row[c_code]).strip()
+        if code not in roi_data:
+            continue
+        if c_tier is not None and row[c_tier] is not None:
+            roi_data[code]['priority_tier'] = int(row[c_tier])
+        if c_supporters is not None and row[c_supporters] is not None:
+            roi_data[code]['coalition_support'] = round(float(row[c_supporters]) * 100)
+        if c_activation is not None and row[c_activation] is not None:
+            roi_data[code]['activation_prob'] = round(float(row[c_activation]) * 100)
+        if c_influence is not None and row[c_influence] is not None:
+            roi_data[code]['influence_pct'] = round(float(row[c_influence]) * 100)
+        overrides += 1
+    print(f"Applied workbook ROI overrides: {overrides} segments from {wb_path}")
+
+
 # ═════════════════════════════════════════════════════════════════════
 # STUDY CONFIG — the only block that changes per study
 # ═════════════════════════════════════════════════════════════════════
@@ -1879,6 +1943,19 @@ def build_topline(df, out_dir='.', weight_var=None):
         try:
             from roi_infographic import compute_roi_data, render_svg
             roi_data = compute_roi_data(df, weight_var=weight_var)
+
+            # ── Apply workbook overrides (analyst-configured values) ──
+            # The HIV_Study_Template.xlsx workbook is the canonical source
+            # for per-segment tier / coalition_support / activation_prob /
+            # influence_pct. Pipeline-computed values are overridden here
+            # so both /roi and /topline ROI render identical numbers.
+            # If the workbook is missing or unreadable, fall back silently
+            # to the pipeline values.
+            try:
+                _apply_workbook_roi_overrides(roi_data)
+            except Exception as e:
+                print(f"NOTE: workbook ROI overrides not applied: {e}")
+
             roi_total_n = sum(r['n'] for r in roi_data.values())
             roi_svg = render_svg(roi_data, total_n=roi_total_n)
             print(f"Computed ROI module: {len(roi_data)} segments, SVG {len(roi_svg):,} chars")

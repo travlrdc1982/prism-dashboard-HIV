@@ -279,6 +279,13 @@
   font-style: italic;
 }
 
+/* Sticky-nav offsets — the topline lives inside Shell, whose own header
+ * is sticky at top:0 (≈48px tall). Push the topline's topnav and modnav
+ * down below it so they stay visible on scroll instead of being hidden
+ * behind the Shell header. */
+.topline-root .topnav { top: 48px; }
+.topline-root .modnav { top: 108px; }
+
 /* Print stylesheet — hide nav, advisory, export bar; let everything else
  * render. Keeps dashboard.json-driven layout intact for PDF export. */
 @media print {
