@@ -1,0 +1,38 @@
+{
+  "study": "PRISM HIV Wave 1",
+  "generated_at": "2026-05-16T15:04:33",
+  "input_file": "260433.sav",
+  "n_raw": 1044,
+  "effective_n": 831.0385460737552,
+  "design_effect": 1.2562594177278321,
+  "weight_min": 0.6215052711647627,
+  "weight_mean": 1.0,
+  "weight_max": 2.0873195899495807,
+  "ipf_iterations": 50,
+  "ipf_final_deviation": 0.0008697415026611144,
+  "weighted": true,
+  "has_knowledge": true,
+  "focal_segment": 12,
+  "focal_segment_name": "FJP",
+  "trust_messengers_included": 22,
+  "rake_dimensions": [
+    "Segment (16)",
+    "Sex \u00d7 Party",
+    "Age4 \u00d7 Party",
+    "Race \u00d7 Party (Asian folded into Other)",
+    "Education \u00d7 Party",
+    "Region \u00d7 Party"
+  ],
+  "rake_skipped": [
+    "Income \u2014 variable not present in raw .sav"
+  ],
+  "notes": [
+    "Effective n = 831.0 after raking (n_raw = 1044, Deff = 1.256).",
+    "All means weighted by IPF-raked WT.",
+    "z-scores standardized against full-sample weighted M, SD.",
+    "Personal physician (QTRUSTr3) excluded from deployable trust list.",
+    "QHIVSTIGMAr9..r13 are within-subject control items, not in composites.",
+    "QHIVr5 is the foil item (HIV epidemic 'over') \u2014 excluded from HKS.",
+    "Knowledge items measure prior awareness ('HEARD BEFORE' coded 1, 'NOT AWARE' coded 0), not factual accuracy."
+  ]
+}
