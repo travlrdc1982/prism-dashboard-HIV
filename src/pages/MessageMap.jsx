@@ -162,7 +162,7 @@ function Heatmap() {
       {/* Description */}
       <div style={{ marginBottom:12 }}>
         <div style={{ fontSize:11, color:"#94a3b8", maxWidth:1100, lineHeight:1.5 }}>
-          <strong style={{ color:"#cbd5e1" }}>Share of Preference</strong> heatmap <span style={{ color:"#64748b" }}>(a measure from a discrete choice model depicting how likely a message is chosen as the most compelling relative to other messages)</span> · 11-item MaxDiff · 16 PRISM segments.
+          <strong style={{ color:"#cbd5e1" }}>Share of Preference</strong> heatmap <span style={{ color:"#64748b" }}>(a measure from a discrete choice model depicting how likely a message is chosen as the most compelling relative to other messages)</span> · {STUDY_META?.nMessages || STUDY_MESSAGES.length}-item {STUDY_META?.methodology || "MaxDiff · 16 PRISM segments"}.
         </div>
       </div>
 

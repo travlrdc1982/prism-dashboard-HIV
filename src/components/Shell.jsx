@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { C, FONT } from "../data/theme";
+import { STUDY_META } from "../data/study";
 
 const NAV_ITEMS = [
   { to: "/",          label: "AUDIENCE MAP" },
@@ -67,7 +68,7 @@ export default function Shell() {
             padding: "4px 10px", borderRadius: 4,
             border: `1px solid ${C.cardBorder}`,
           }}>
-            HIV STUDY
+            {STUDY_META.name} STUDY
           </div>
           <button
             onClick={() => supabase.auth.signOut()}
