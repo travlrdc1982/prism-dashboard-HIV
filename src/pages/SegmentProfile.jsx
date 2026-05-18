@@ -2109,7 +2109,16 @@ export default function SegmentProfile() {
 
         {/* Tab Content */}
         {profileTab === "demo" && <DemographicsPanel seg={seg} />}
-        {profileTab === "hiv" && <HIVTab segmentId={seg.id} segmentCode={seg.code} />}
+        {profileTab === "hiv" && (
+          <HIVTab
+            segmentId={seg.id}
+            segmentCode={seg.code}
+            segments={SEGMENTS}
+            currentIdx={segIdx}
+            onChangeSegment={setSegIdx}
+            tierAccent={TIER_ACCENT}
+          />
+        )}
         {profileTab === "beliefs" && <BeliefsPanel segIdx={segIdx} />}
         {profileTab === "ideology" && <IdeologyHeatmap />}
         {profileTab === "trust" && <TrustPanel segIdx={segIdx} />}
