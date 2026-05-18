@@ -436,11 +436,11 @@ function Topology({ focalId, focalCode, benchKey }) {
   const focal = segData[String(focalId)];
   const fdx = focal.MBS_z - benchMBSz;
   const fdy = focal.SDS_z - benchSDSz;
-  // Bubble radius scales with population. Linear (not sqrt) gives more
-  // visible size differences across the 16 segments.
-  const focalR = (p) => 8 + (p || 0) * 220;
-  const otherR = (p) => 4 + (p || 0) * 200;
-  const fr = focalR(focal.pop);
+  // Bubble radius scales with population. Focal uses the same formula as
+  // every other segment — proportional size only; the focal's "highlight"
+  // is the green fill + dashed outer ring + code label, not a size boost.
+  const bubbleR = (p) => 4 + (p || 0) * 200;
+  const fr = bubbleR(focal.pop);
   const fjpQuad = (fdx < 0 && fdy < 0) ? "ACCEPTED"
                 : (fdx < 0 && fdy >= 0) ? "DISTANCED"
                 : (fdx >= 0 && fdy < 0) ? "JUDGED"
@@ -501,7 +501,7 @@ function Topology({ focalId, focalCode, benchKey }) {
           const dx = s.MBS_z - benchMBSz;
           const dy = s.SDS_z - benchSDSz;
           if (Math.abs(dx) > range || Math.abs(dy) > range) return null;
-          const r = otherR(s.pop);
+          const r = bubbleR(s.pop);
           const isGop = GOP_SEGS.has(seg);
           return (
             <g key={id}>
