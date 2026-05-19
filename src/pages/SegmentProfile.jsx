@@ -1975,7 +1975,6 @@ export default function SegmentProfile() {
   const [segIdx, setSegIdx] = useState(initIdx);
   const [profileTab, setProfileTab] = useState("demo");
   const seg = SEGMENTS[segIdx];
-  const t = seg.tier;
   const tc = seg.party === "GOP" ? "#ef4444" : "#3b82f6";
 
   return (
@@ -1998,7 +1997,10 @@ export default function SegmentProfile() {
           <span style={{ fontSize:8, color:"#475569", fontFamily:"'Nunito',sans-serif", marginRight:4 }}>SEGMENT:</span>
           {SEGMENTS.map((s,i) => {
             const isSel = segIdx === i;
-            const st = s.tier;
+            // Tier = analyst-configured value from the workbook (study.js).
+            // Never read s.tier — that field in the local SEGMENTS array is
+            // stale AL-era data and disagrees with the workbook on most rows.
+            const st = getAssignedTier(s.code);
             return (
               <button key={s.id} onClick={()=>{setSegIdx(i);setProfileTab("demo")}}
                 style={{

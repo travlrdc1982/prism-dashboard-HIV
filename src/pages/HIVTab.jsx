@@ -11,6 +11,7 @@ import items from "../data/hiv/items.json";
 import bench from "../data/hiv/bench.json";
 import trust from "../data/hiv/trust.json";
 import manifest from "../data/hiv/manifest.json";
+import { getAssignedTier } from "../data/study";
 
 const SEG_NAME = {1:"TSP",2:"CEC",3:"TC",4:"HF",5:"PP",6:"WE",7:"PFF",8:"HHN",9:"MFL",10:"VS",11:"UCP",12:"FJP",13:"HCP",14:"HAD",15:"HCI",16:"GHI"};
 const GOP_SEGS = new Set([1,2,3,4,5,6,7,8,9,10]);
@@ -622,7 +623,9 @@ function SegmentPills({ segments, currentIdx, onChange, tierAccent }) {
       <span style={{ fontSize: 8, color: "#475569", fontFamily: "'Nunito',sans-serif", marginRight: 4 }}>SEGMENT:</span>
       {segments.map((s, i) => {
         const isSel = currentIdx === i;
-        const accent = tierAccent?.[s.tier] || "#5b93c7";
+        // Tier from workbook (getAssignedTier), never the stale s.tier
+        // field in the local SegmentProfile.jsx SEGMENTS array.
+        const accent = tierAccent?.[getAssignedTier(s.code)] || "#5b93c7";
         return (
           <button
             key={s.id}
