@@ -536,20 +536,27 @@ function Topology({ focalId, focalCode, benchKey }) {
   );
 }
 
-// ─── Trust list (top 8 by delta) ───────────────────────────────────────
+// ─── Trust list (top 8 by chosen sort) ─────────────────────────────────
 function TrustList({ focalId, focalCode, benchKey }) {
+  const [sortBy, setSortBy] = useState("delta"); // "delta" | "focal"
   const rows = useMemo(() => {
-    return trust
+    const base = trust
       .map((t) => ({
         ...t,
         fjp: t.by_segment?.[String(focalId)] ?? null,
         benchVal: t[benchKey] ?? null,
       }))
       .filter((t) => t.fjp != null && t.benchVal != null)
-      .map((t) => ({ ...t, delta: t.fjp - t.benchVal }))
-      .sort((a, b) => b.delta - a.delta)
-      .slice(0, 8);
-  }, [focalId, benchKey]);
+      .map((t) => ({ ...t, delta: t.fjp - t.benchVal }));
+    base.sort((a, b) => sortBy === "focal" ? b.fjp - a.fjp : b.delta - a.delta);
+    return base.slice(0, 8);
+  }, [focalId, benchKey, sortBy]);
+  const arrow = (key) => sortBy === key ? <span style={{ fontSize: 9, marginLeft: 3 }}>▼</span> : null;
+  const headerStyle = (active) => ({
+    cursor: "pointer",
+    color: active ? "#e8eaed" : undefined,
+    fontWeight: active ? 700 : undefined,
+  });
   return (
     <div className="card panel">
       <div className="card-eyebrow-row">
@@ -557,17 +564,34 @@ function TrustList({ focalId, focalCode, benchKey }) {
         <span className="info-icon">i</span>
       </div>
       <div className="panel-title">
-        Messengers {focalCode} trusts more than <span>{BENCH_FULL[benchKey]}</span>
+        {sortBy === "focal"
+          ? <>Top messengers {focalCode} trusts most (raw mean)</>
+          : <>Messengers {focalCode} trusts more than <span>{BENCH_FULL[benchKey]}</span></>}
       </div>
       <div className="panel-plain">
         From the 22 deployable messengers tested (personal physician excluded).
+        Click the <strong>{focalCode}</strong> or <strong>Δ</strong> header to change sort.
       </div>
       <div className="trust-grid">
         <div className="trust-head">
           <span>#</span><span>Messenger</span>
-          <span className="right">{focalCode}</span>
+          <span
+            className="right"
+            style={headerStyle(sortBy === "focal")}
+            onClick={() => setSortBy("focal")}
+            title="Sort by this segment's mean trust score"
+          >
+            {focalCode}{arrow("focal")}
+          </span>
           <span className="right">{BENCH_GLYPH[benchKey]}</span>
-          <span className="right">Δ</span>
+          <span
+            className="right"
+            style={headerStyle(sortBy === "delta")}
+            onClick={() => setSortBy("delta")}
+            title={`Sort by Δ vs ${BENCH_FULL[benchKey]}`}
+          >
+            Δ{arrow("delta")}
+          </span>
         </div>
         <div>
           {rows.map((t, i) => {
