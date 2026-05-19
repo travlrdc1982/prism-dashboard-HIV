@@ -7,6 +7,7 @@ import ModNav from "./components/ModNav";
 import { ModuleSection } from "./components/ItemBlock";
 import TogglesBar from "./components/TogglesBar";
 import Legend from "./components/Legend";
+import DataInspector from "./components/DataInspector";
 import { useCellPopover } from "./utils/popover";
 import TitlePage from "./modules/TitlePage";
 import DemographicsModule from "./modules/DemographicsModule";
@@ -81,6 +82,7 @@ export default function Topline() {
   // width and the analyst can scroll the full 18-column table without
   // horizontal cropping. Persists across modules.
   const [bannerFull, setBannerFull] = useState(false);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
 
   const rootRef = useRef(null);
   const { popoverRef, visible: popVisible, html: popHtml, pos: popPos, hide: hidePopover } = useCellPopover(rootRef);
@@ -96,7 +98,7 @@ export default function Topline() {
 
   return (
     <div ref={rootRef} className={rootClass} style={{ margin: "-24px -28px" }}>
-      <TopNav study={study} />
+      <TopNav study={study} onOpenInspector={() => setInspectorOpen(true)} />
       <ModNav modules={modules} />
 
       {/* Banner-full toggle + always-visible legend */}
@@ -170,6 +172,12 @@ export default function Topline() {
         <strong>{study.id}</strong> · {study.version} · Rendered {study.rendered} ·
         Analyst: {study.analyst} · N={study.n_total}
       </div>
+
+      <DataInspector
+        open={inspectorOpen}
+        onClose={() => setInspectorOpen(false)}
+        data={dashboard}
+      />
 
       {/* Cell popover — driven by useCellPopover hook via event delegation */}
       {popVisible && (

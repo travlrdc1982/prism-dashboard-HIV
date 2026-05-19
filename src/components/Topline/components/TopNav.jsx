@@ -1,7 +1,7 @@
 // Top navigation bar — ported from dashboard_template.html renderTopNav().
 // PRISM brand + study label on the left, tools on the right.
 
-export default function TopNav({ study }) {
+export default function TopNav({ study, onOpenInspector }) {
   const brand = study?.nav_brand || "PRISM";
   const label = study?.title || study?.nav_study_label || "";
 
@@ -13,6 +13,11 @@ export default function TopNav({ study }) {
       </div>
       <div className="nav-spacer" />
       <div className="tools">
+        {onOpenInspector && (
+          <button type="button" onClick={onOpenInspector}>
+            📋 Data Inspector
+          </button>
+        )}
         <button type="button" onClick={() => window.print()}>
           🖨 PDF
         </button>
