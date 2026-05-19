@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import dashboard from "../../data/topline/dashboard.json";
 import "./Topline.css";
 import "./Topline.addendum.css";
@@ -6,6 +6,8 @@ import TopNav from "./components/TopNav";
 import ModNav from "./components/ModNav";
 import { ModuleSection } from "./components/ItemBlock";
 import TogglesBar from "./components/TogglesBar";
+import Legend from "./components/Legend";
+import { useCellPopover } from "./utils/popover";
 import TitlePage from "./modules/TitlePage";
 import DemographicsModule from "./modules/DemographicsModule";
 import ItemsModule from "./modules/ItemsModule";
@@ -75,19 +77,40 @@ export default function Topline() {
   const { study, modules, segments } = dashboard;
   const [expanded, setExpanded] = useState(false);
   const [fullDist, setFullDist] = useState(false);
+  // Collapse the survey + codebook side panes so the banner takes the full
+  // width and the analyst can scroll the full 18-column table without
+  // horizontal cropping. Persists across modules.
+  const [bannerFull, setBannerFull] = useState(false);
 
-  // .topline-root gets `expanded` / `fullDist` classes; the CSS uses them to
-  // reveal the .detail row (m / b3) and the .dist7 mini-histogram inside
-  // every .cell. Default state: both hidden — matches the source HTML.
+  const rootRef = useRef(null);
+  const { popoverRef, visible: popVisible, html: popHtml, pos: popPos, hide: hidePopover } = useCellPopover(rootRef);
+
+  // .topline-root gets `expanded` / `fullDist` / `banner-full` classes; the
+  // CSS uses them to reveal cell details, the freq dist, or to collapse the
+  // survey + codebook panes.
   const rootClass =
     "topline-root" +
     (expanded ? " expanded" : "") +
-    (fullDist ? " fullDist" : "");
+    (fullDist ? " fullDist" : "") +
+    (bannerFull ? " banner-full" : "");
 
   return (
-    <div className={rootClass} style={{ margin: "-24px -28px" }}>
+    <div ref={rootRef} className={rootClass} style={{ margin: "-24px -28px" }}>
       <TopNav study={study} />
       <ModNav modules={modules} />
+
+      {/* Banner-full toggle + always-visible legend */}
+      <div className="topline-controls">
+        <button
+          type="button"
+          className="banner-full-btn"
+          onClick={() => setBannerFull((v) => !v)}
+          aria-pressed={bannerFull}
+        >
+          {bannerFull ? "▼ Show survey + codebook panes" : "▶ Collapse survey + codebook (show full banner)"}
+        </button>
+        <Legend />
+      </div>
 
       <TitlePage study={study} segments={segments} />
 
@@ -147,6 +170,17 @@ export default function Topline() {
         <strong>{study.id}</strong> · {study.version} · Rendered {study.rendered} ·
         Analyst: {study.analyst} · N={study.n_total}
       </div>
+
+      {/* Cell popover — driven by useCellPopover hook via event delegation */}
+      {popVisible && (
+        <div
+          ref={popoverRef}
+          className="topline-popover"
+          style={{ left: popPos.left, top: popPos.top, position: "fixed" }}
+          onClick={hidePopover}
+          dangerouslySetInnerHTML={{ __html: popHtml }}
+        />
+      )}
     </div>
   );
 }
