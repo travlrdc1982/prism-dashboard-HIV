@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DATA from "../data/studyData";
 import { STUDY_METRICS, PREPOST_METRICS, getAssignedTier } from "../data/study";
+import { TOKENS, TYPOGRAPHY, SPACING, BORDER_RADIUS, getTheme } from "../data/designTokens";
+import { Button, Card, Badge } from "../components/ui";
+
 // Tier is always the analyst-configured value from the workbook; never derived from ROI.
 
 // ─── Build segment data by merging shared 16-segment skeleton with study-specific metrics ───
@@ -24,6 +27,11 @@ const HIV_SEGMENTS = DATA.segments.map(seg => {
 const SEGMENTS = HIV_SEGMENTS;
 const PRE_POST_METRICS = PREPOST_METRICS;
 
+// ─── THEME ───
+const isDark = true;
+const theme = getTheme(isDark);
+const C = theme.colors;
+
 // ─── FIXED ROW HEIGHTS ───
 const H = {
   header: 120,
@@ -37,45 +45,22 @@ const H = {
   influence: 60,
 };
 
-// ─── PALETTE ───
-const C = {
-  bg: "#0b0e13",
-  card: "#111620",
-  border: "#1c2433",
-  text1: "#dce4ed",
-  text2: "#7b8da3",
-  text3: "#3e4f63",
-  accent: "#5b93c7",
-  accentLight: "#7eb3e0",
-  accentMuted: "#3a6a94",
-  accentDim: "#2a4a6a",
-  gop: "#e57373",
-  dem: "#64b5f6",
-  tier1: "#34d399", tier1Bg: "#064e3b",
-  tier2: "#eab308", tier2Bg: "#854d0e",
-  tier3: "#ef4444", tier3Bg: "#991b1b",
-  activation: "#a78bfa",
-  influence: "#818cf8",
-  coalition: "#3b82f6",
-  persuasion: "#5b93c7",
-};
-
-function tierColor(t) { return t === 1 ? C.tier1 : t === 2 ? C.tier2 : C.tier3; }
-function tierBg(t) { return t === 1 ? C.tier1Bg : t === 2 ? C.tier2Bg : C.tier3Bg; }
+function tierColor(t) { return t === 1 ? C.tier.tier1 : t === 2 ? C.tier.tier2 : C.tier.tier3; }
+function tierBg(t) { return t === 1 ? C.tier.tier1Bg : t === 2 ? C.tier.tier2Bg : C.tier.tier3Bg; }
 function tierLabel(t) { return t === 1 ? "TIER 1" : t === 2 ? "TIER 2" : "TIER 3"; }
 
 // ─── MINI DONUT ───
-function MiniDonut({ value, size = 40, color = C.accent, strokeW = 4 }) {
+function MiniDonut({ value, size = 40, color = C.persuasion, strokeW = 4 }) {
   const r = (size - strokeW) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - value / 100);
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.border} strokeWidth={strokeW} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.border.default} strokeWidth={strokeW} />
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={strokeW}
         strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" />
-      <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central" fill={C.text1}
-        fontSize={size * 0.26} fontWeight={700} fontFamily="'JetBrains Mono',monospace"
+      <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central" fill={C.text.primary}
+        fontSize={size * 0.26} fontWeight={700} fontFamily={TYPOGRAPHY.fontFamily.mono}
         style={{ transform: "rotate(90deg)", transformOrigin: "center" }}>{value}%</text>
     </svg>
   );
@@ -83,16 +68,16 @@ function MiniDonut({ value, size = 40, color = C.accent, strokeW = 4 }) {
 
 // ─── PERSUADABILITY BAR ───
 function PBar({ data, h = 120 }) {
-  const colors = [C.persuasion, C.accentLight, "#4a5568", "#2d3748", "#1a202c"];
+  const colors = [C.persuasion, C.roi.attitudesLight, "#4a5568", "#2d3748", "#1a202c"];
   return (
-    <div style={{ width: 38, height: h, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", border: `1px solid ${C.border}` }}>
+    <div style={{ width: 38, height: h, borderRadius: BORDER_RADIUS.base, overflow: "hidden", display: "flex", flexDirection: "column", border: `1px solid ${C.border.default}` }}>
       {data.map((v, i) => (
         <div key={i} style={{
           height: `${v}%`, background: colors[i],
           display: "flex", alignItems: "center", justifyContent: "center",
           minHeight: v > 6 ? 12 : 0
         }}>
-          {v >= 8 && <span style={{ fontSize: 7, fontWeight: 700, color: "#fff", fontFamily: "'JetBrains Mono',monospace" }}>{v}%</span>}
+          {v >= 8 && <span style={{ fontSize: 7, fontWeight: 700, color: "#fff", fontFamily: TYPOGRAPHY.fontFamily.mono }}>{v}%</span>}
         </div>
       ))}
     </div>
@@ -105,29 +90,29 @@ function DeltaBar({ pre, post }) {
   const delta = +(post - pre).toFixed(1);
   const isPos = delta > 0;
   const isNeg = delta < 0;
-  const deltaColor = isPos ? "#34d399" : isNeg ? "#ef4444" : C.text3;
+  const deltaColor = isPos ? C.tier.tier1 : isNeg ? C.error : C.text.muted;
 
   const rowStyle = {
     display: "flex", justifyContent: "space-between", alignItems: "baseline",
-    width: "100%", padding: "0 4px", fontFamily: "'JetBrains Mono',monospace",
+    width: "100%", padding: "0 4px", fontFamily: TYPOGRAPHY.fontFamily.mono,
   };
 
   return (
     <div style={{
       display: "flex", flexDirection: "column", justifyContent: "center",
       gap: 1, height: H.prePostRow,
-      borderBottom: `1px dotted ${C.border}`, padding: "2px 0",
+      borderBottom: `1px dotted ${C.border.default}`, padding: "2px 0",
     }}>
       <div style={rowStyle}>
-        <span style={{ fontSize: 6, color: C.text3, letterSpacing: 0.5 }}>PRE</span>
-        <span style={{ fontSize: 8, color: C.text2, fontWeight: 600 }}>{pre.toFixed(1)}</span>
+        <span style={{ fontSize: 6, color: C.text.muted, letterSpacing: 0.5 }}>PRE</span>
+        <span style={{ fontSize: 8, color: C.text.secondary, fontWeight: 600 }}>{pre.toFixed(1)}</span>
       </div>
       <div style={rowStyle}>
-        <span style={{ fontSize: 6, color: C.accent, letterSpacing: 0.5 }}>POST</span>
-        <span style={{ fontSize: 8, color: C.text1, fontWeight: 700 }}>{post.toFixed(1)}</span>
+        <span style={{ fontSize: 6, color: C.roi.attitudes, letterSpacing: 0.5 }}>POST</span>
+        <span style={{ fontSize: 8, color: C.text.primary, fontWeight: 700 }}>{post.toFixed(1)}</span>
       </div>
       <div style={rowStyle}>
-        <span style={{ fontSize: 6, color: C.text3, letterSpacing: 0.5 }}>Δ</span>
+        <span style={{ fontSize: 6, color: C.text.muted, letterSpacing: 0.5 }}>Δ</span>
         <span style={{ fontSize: 8, color: deltaColor, fontWeight: 800 }}>
           {isPos ? "+" : ""}{delta}
         </span>
@@ -144,14 +129,14 @@ function MetricLabel({ metric }) {
     <div
       style={{
         height: H.prePostRow, display: "flex", alignItems: "center", position: "relative",
-        borderBottom: `1px dotted ${C.border}`, padding: "2px 0",
+        borderBottom: `1px dotted ${C.border.default}`, padding: "2px 0",
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <span style={{
-        fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
-        cursor: "help", borderBottom: `1px dotted ${C.text3}`, paddingBottom: 1
+        fontSize: 7, color: C.text.secondary, fontFamily: TYPOGRAPHY.fontFamily.mono,
+        cursor: "help", borderBottom: `1px dotted ${C.text.muted}`, paddingBottom: 1
       }}>
         {metric.label}
       </span>
@@ -159,22 +144,22 @@ function MetricLabel({ metric }) {
       {hover && (
         <div style={{
           position: "absolute", left: 0, top: "100%", zIndex: 50,
-          width: 220, padding: "8px 10px",
-          background: "#1a2030", border: `1px solid ${C.accent}`,
-          borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.5)"
+          width: 220, padding: SPACING[2],
+          background: C.bg.tertiary, border: `1px solid ${C.roi.attitudes}`,
+          borderRadius: BORDER_RADIUS.md, boxShadow: "0 4px 16px rgba(0,0,0,0.5)"
         }}>
           <div style={{
-            fontSize: 8, fontWeight: 700, color: C.accentLight,
-            fontFamily: "'JetBrains Mono',monospace", marginBottom: 4,
+            fontSize: 8, fontWeight: 700, color: C.roi.attitudesLight,
+            fontFamily: TYPOGRAPHY.fontFamily.mono, marginBottom: SPACING[1],
             textTransform: "uppercase", letterSpacing: 0.5
           }}>{metric.label}</div>
           <div style={{
-            fontSize: 7, color: C.text1, fontFamily: "'JetBrains Mono',monospace",
-            lineHeight: 1.5, marginBottom: 6
+            fontSize: 7, color: C.text.primary, fontFamily: TYPOGRAPHY.fontFamily.mono,
+            lineHeight: 1.5, marginBottom: SPACING[2]
           }}>{metric.question}</div>
           <div style={{
-            fontSize: 7, color: C.accent, fontFamily: "'JetBrains Mono',monospace",
-            lineHeight: 1.4, paddingTop: 4, borderTop: `1px solid ${C.border}`
+            fontSize: 7, color: C.roi.attitudes, fontFamily: TYPOGRAPHY.fontFamily.mono,
+            lineHeight: 1.4, paddingTop: SPACING[1], borderTop: `1px solid ${C.border.default}`
           }}>
             <span style={{ fontWeight: 700 }}>Showing:</span> {metric.scale}
           </div>
@@ -201,7 +186,7 @@ function SegmentColumn({ seg, expanded, onNav }) {
         onClick={onNav}
         style={{
         display: "flex", flexDirection: "column", alignItems: "center",
-        padding: "6px 2px 4px", borderBottom: `1px solid ${C.border}`,
+        padding: `${SPACING[1]} 2px ${SPACING[1]}`, borderBottom: `1px solid ${C.border.default}`,
         width: "100%", height: H.header,
         cursor: "pointer",
       }}>
@@ -209,56 +194,54 @@ function SegmentColumn({ seg, expanded, onNav }) {
           width: 32, height: 32, borderRadius: "50%", border: `2px solid ${partyColor}`,
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 8, fontWeight: 800, color: partyColor,
-          fontFamily: "'JetBrains Mono',monospace", flexShrink: 0
+          fontFamily: TYPOGRAPHY.fontFamily.mono, flexShrink: 0
         }}>{seg.code}</div>
         <div style={{
           fontSize: 6, fontWeight: 700, color: partyColor,
-          fontFamily: "'JetBrains Mono',monospace", textAlign: "center",
+          fontFamily: TYPOGRAPHY.fontFamily.mono, textAlign: "center",
           lineHeight: 1.2, flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
           padding: "2px 0"
         }}>{seg.name.toUpperCase()}</div>
         <div style={{
-          fontSize: 8, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
+          fontSize: 8, color: C.text.secondary, fontFamily: TYPOGRAPHY.fontFamily.mono,
           flexShrink: 0, marginBottom: 2
         }}>{seg.pop}%</div>
-        <span style={{
-          fontSize: 7, fontWeight: 700, padding: "1px 5px", borderRadius: 3,
-          background: tierBg(t), color: tc, fontFamily: "'JetBrains Mono',monospace",
-          flexShrink: 0
-        }}>{tierLabel(t)}</span>
+        <Badge variant={t === 1 ? 'tier1' : t === 2 ? 'tier2' : 'tier3'} size="sm">
+          {tierLabel(t)}
+        </Badge>
       </div>
 
       {/* ── ROI SCORE ── */}
       <div style={{
-        padding: "10px 2px", borderBottom: `1px solid ${C.border}`,
+        padding: `${SPACING[2]} 2px`, borderBottom: `1px solid ${C.border.default}`,
         width: "100%", display: "flex", flexDirection: "column", alignItems: "center",
         height: H.roi, justifyContent: "center"
       }}>
         <div style={{
           fontSize: 18, fontWeight: 800, color: tc,
-          fontFamily: "'JetBrains Mono',monospace", lineHeight: 1
+          fontFamily: TYPOGRAPHY.fontFamily.mono, lineHeight: 1
         }}>{seg.roi.toFixed(2)}</div>
-        <div style={{ fontSize: 6, color: C.text3, fontFamily: "'JetBrains Mono',monospace", marginTop: 2 }}>ROI</div>
+        <div style={{ fontSize: 6, color: C.text.muted, fontFamily: TYPOGRAPHY.fontFamily.mono, marginTop: 2 }}>ROI</div>
       </div>
 
       {/* ── PERSUASION ── */}
       <div style={{
-        padding: "8px 2px", borderBottom: `1px solid ${C.border}`,
+        padding: `${SPACING[2]} 2px`, borderBottom: `1px solid ${C.border.default}`,
         width: "100%", display: "flex", flexDirection: "column", alignItems: "center",
         gap: 6, height: H.persuasion, justifyContent: "center"
       }}>
         <MiniDonut value={seg.highRoi} size={38} color={C.persuasion} />
-        <div style={{ fontSize: 6, color: C.text3, fontFamily: "'JetBrains Mono',monospace" }}>% HIGH ROI</div>
+        <div style={{ fontSize: 6, color: C.text.muted, fontFamily: TYPOGRAPHY.fontFamily.mono }}>% HIGH ROI</div>
         <PBar data={seg.persuadability} h={120} />
       </div>
 
       {/* ── PRE/POST EXPANDED ── */}
       {expanded && (
         <div style={{
-          borderBottom: `1px solid ${C.border}`,
+          borderBottom: `1px solid ${C.border.default}`,
           width: "100%", display: "flex", flexDirection: "column",
-          background: "#0d1118", height: prePostH,
-          padding: "4px 3px", justifyContent: "center"
+          background: C.bg.secondary, height: prePostH,
+          padding: `${SPACING[1]} 3px`, justifyContent: "center"
         }}>
           <div style={{ height: H.prePostPad - 8 }} />
           {PRE_POST_METRICS.map((m) => {
@@ -329,42 +312,42 @@ export default function AudienceROI() {
   return (
     <div style={{ maxWidth: 1300, margin: "0 auto" }}>
         {/* Title */}
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: SPACING[4] }}>
           <h1 style={{
-            fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 700,
-            color: C.text1, margin: 0, letterSpacing: 2, textTransform: "uppercase"
+            fontFamily: TYPOGRAPHY.fontFamily.mono, fontSize: 14, fontWeight: 700,
+            color: C.text.primary, margin: 0, letterSpacing: 2, textTransform: "uppercase"
           }}>Audience ROI</h1>
-          <div style={{ fontSize: 9, color: C.text3, marginTop: 3, fontFamily: "'JetBrains Mono',monospace" }}>
+          <div style={{ fontSize: 9, color: C.text.muted, marginTop: SPACING[1], fontFamily: TYPOGRAPHY.fontFamily.mono }}>
             ROI = Population × (Persuasion + Coalition Value + Activation + Influence)
           </div>
         </div>
 
         {/* Grid */}
-        <div style={{ display: "flex", background: C.card, borderRadius: 8, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+        <div style={{ display: "flex", background: C.bg.secondary, borderRadius: BORDER_RADIUS.lg, border: `1px solid ${C.border.default}`, overflow: "hidden" }}>
 
           {/* ═══ LEFT LABELS COLUMN ═══ */}
           <div style={{
             display: "flex", flexDirection: "column", flexShrink: 0,
-            borderRight: `1px solid ${C.border}`, width: 140
+            borderRight: `1px solid ${C.border.default}`, width: 140
           }}>
             {/* Header */}
-            <div style={{ height: H.header, borderBottom: `1px solid ${C.border}` }} />
+            <div style={{ height: H.header, borderBottom: `1px solid ${C.border.default}` }} />
 
             {/* ROI label */}
             <div style={{
-              height: H.roi, borderBottom: `1px solid ${C.border}`,
+              height: H.roi, borderBottom: `1px solid ${C.border.default}`,
               display: "flex", alignItems: "center", padding: "0 10px"
             }}>
               <div style={{
-                fontSize: 10, fontWeight: 800, color: C.accentLight,
-                fontFamily: "'JetBrains Mono',monospace", letterSpacing: 2
+                fontSize: 10, fontWeight: 800, color: C.roi.attitudesLight,
+                fontFamily: TYPOGRAPHY.fontFamily.mono, letterSpacing: 2
               }}>ROI SCORE</div>
             </div>
 
             {/* Persuasion label + legend */}
             <div style={{
-              height: H.persuasion, borderBottom: `1px solid ${C.border}`,
-              padding: "8px 10px", display: "flex", flexDirection: "column", justifyContent: "center"
+              height: H.persuasion, borderBottom: `1px solid ${C.border.default}`,
+              padding: SPACING[2], display: "flex", flexDirection: "column", justifyContent: "center"
             }}>
               <div style={{
                 fontSize: 9, fontWeight: 700, color: C.accentLight,

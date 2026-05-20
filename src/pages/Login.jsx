@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { STUDY_META } from "../data/study";
+import { getTheme, TYPOGRAPHY, SPACING, BORDER_RADIUS } from "../data/designTokens";
+import { Button, Card } from "../components/ui";
+
+const isDark = true;
+const theme = getTheme(isDark);
+const C = theme.colors;
 
 export default function Login({ onAuth }) {
   const [email, setEmail] = useState("");
@@ -57,26 +63,23 @@ export default function Login({ onAuth }) {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#080c16",
+      minHeight: "100vh", background: C.bg.primary,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Nunito', sans-serif"
+      fontFamily: TYPOGRAPHY.fontFamily.default
     }}>
       <link
-        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
       />
-      <div style={{
-        width: 360, background: "#0f1520", borderRadius: 12,
-        border: "1px solid #1e293b", padding: "32px 28px"
-      }}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <img src="/prismlogo.png" alt="PRISM" style={{ height: 36, marginBottom: 12 }} />
+      <Card padding="lg" isDark={isDark} style={{ width: 360 }}>
+        <div style={{ textAlign: "center", marginBottom: SPACING[6] }}>
+          <img src="/prismlogo.png" alt="PRISM" style={{ height: 36, marginBottom: SPACING[3] }} />
           <div style={{
-            fontSize: 9, fontWeight: 600, color: "#64748b",
+            fontSize: 9, fontWeight: 600, color: C.text.secondary,
             letterSpacing: 2, textTransform: "uppercase"
           }}>AUDIENCE INTELLIGENCE PLATFORM</div>
           <div style={{
-            fontSize: 8, color: "#475569", marginTop: 4,
+            fontSize: 8, color: C.text.muted, marginTop: SPACING[1],
             letterSpacing: 1, textTransform: "uppercase"
           }}>{STUDY_META.name} STUDY</div>
         </div>
@@ -84,28 +87,28 @@ export default function Login({ onAuth }) {
         {/* ── SIGN IN ── */}
         {mode === "signin" && (
           <form onSubmit={handleSignIn}>
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>EMAIL</label>
+            <div style={{ marginBottom: SPACING[3] }}>
+              <label style={{ fontSize: 10, color: C.text.secondary, fontWeight: 600, display: "block", marginBottom: SPACING[1] }}>EMAIL</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #1e293b", background: "#111827", color: "#e2e8f0", fontSize: 13, fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: SPACING[2], borderRadius: BORDER_RADIUS.base, border: `1px solid ${C.border.default}`, background: C.bg.tertiary, color: C.text.primary, fontSize: 13, fontFamily: TYPOGRAPHY.fontFamily.default, outline: "none", boxSizing: "border-box" }}
                 placeholder="you@company.com" />
             </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>PASSWORD</label>
+            <div style={{ marginBottom: SPACING[4] }}>
+              <label style={{ fontSize: 10, color: C.text.secondary, fontWeight: 600, display: "block", marginBottom: SPACING[1] }}>PASSWORD</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #1e293b", background: "#111827", color: "#e2e8f0", fontSize: 13, fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: SPACING[2], borderRadius: BORDER_RADIUS.base, border: `1px solid ${C.border.default}`, background: C.bg.tertiary, color: C.text.primary, fontSize: 13, fontFamily: TYPOGRAPHY.fontFamily.default, outline: "none", boxSizing: "border-box" }}
                 placeholder="Enter password" />
             </div>
-            {error && <div style={{ fontSize: 11, color: "#ef4444", marginBottom: 12, padding: "6px 10px", background: "#1f1318", borderRadius: 4 }}>{error}</div>}
-            {message && <div style={{ fontSize: 11, color: "#34d399", marginBottom: 12, padding: "6px 10px", background: "#062e1e", borderRadius: 4 }}>{message}</div>}
-            <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px 0", borderRadius: 6, border: "none", background: loading ? "#334155" : "#3b82f6", color: "#fff", fontSize: 12, fontWeight: 700, cursor: loading ? "default" : "pointer", fontFamily: "'Nunito', sans-serif", letterSpacing: 0.5, transition: "background 0.15s" }}>
+            {error && <div style={{ fontSize: 11, color: C.error, marginBottom: SPACING[3], padding: SPACING[2], background: C.error + '15', borderRadius: BORDER_RADIUS.base }}>{error}</div>}
+            {message && <div style={{ fontSize: 11, color: C.success, marginBottom: SPACING[3], padding: SPACING[2], background: C.success + '15', borderRadius: BORDER_RADIUS.base }}>{message}</div>}
+            <Button type="submit" disabled={loading} variant="primary" isDark={isDark} style={{ width: "100%", opacity: loading ? 0.6 : 1 }}>
               {loading ? "..." : "SIGN IN"}
-            </button>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14 }}>
-              <button type="button" onClick={() => { setMode("setpw"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: "#60a5fa", fontSize: 10, cursor: "pointer", fontFamily: "'Nunito', sans-serif" }}>
+            </Button>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: SPACING[3] }}>
+              <button type="button" onClick={() => { setMode("setpw"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: C.interactive.focus, fontSize: 10, cursor: "pointer", fontFamily: TYPOGRAPHY.fontFamily.default }}>
                 First time? Set password
               </button>
-              <button type="button" onClick={() => { setMode("forgot"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: "#64748b", fontSize: 10, cursor: "pointer", fontFamily: "'Nunito', sans-serif" }}>
+              <button type="button" onClick={() => { setMode("forgot"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: C.text.muted, fontSize: 10, cursor: "pointer", fontFamily: TYPOGRAPHY.fontFamily.default }}>
                 Forgot password?
               </button>
             </div>
@@ -115,28 +118,28 @@ export default function Login({ onAuth }) {
         {/* ── SET PASSWORD (first time) ── */}
         {mode === "setpw" && (
           <form onSubmit={handleSetPassword}>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 11, color: C.text.secondary, marginBottom: SPACING[3], lineHeight: 1.5 }}>
               Enter the email your administrator invited you with, and choose a password.
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>EMAIL</label>
+            <div style={{ marginBottom: SPACING[3] }}>
+              <label style={{ fontSize: 10, color: C.text.secondary, fontWeight: 600, display: "block", marginBottom: SPACING[1] }}>EMAIL</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #1e293b", background: "#111827", color: "#e2e8f0", fontSize: 13, fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: SPACING[2], borderRadius: BORDER_RADIUS.base, border: `1px solid ${C.border.default}`, background: C.bg.tertiary, color: C.text.primary, fontSize: 13, fontFamily: TYPOGRAPHY.fontFamily.default, outline: "none", boxSizing: "border-box" }}
                 placeholder="you@company.com" />
             </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>CHOOSE PASSWORD</label>
+            <div style={{ marginBottom: SPACING[4] }}>
+              <label style={{ fontSize: 10, color: C.text.secondary, fontWeight: 600, display: "block", marginBottom: SPACING[1] }}>CHOOSE PASSWORD</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #1e293b", background: "#111827", color: "#e2e8f0", fontSize: 13, fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: SPACING[2], borderRadius: BORDER_RADIUS.base, border: `1px solid ${C.border.default}`, background: C.bg.tertiary, color: C.text.primary, fontSize: 13, fontFamily: TYPOGRAPHY.fontFamily.default, outline: "none", boxSizing: "border-box" }}
                 placeholder="Create a password (6+ chars)" />
             </div>
-            {error && <div style={{ fontSize: 11, color: "#ef4444", marginBottom: 12, padding: "6px 10px", background: "#1f1318", borderRadius: 4 }}>{error}</div>}
-            {message && <div style={{ fontSize: 11, color: "#34d399", marginBottom: 12, padding: "6px 10px", background: "#062e1e", borderRadius: 4 }}>{message}</div>}
-            <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px 0", borderRadius: 6, border: "none", background: loading ? "#334155" : "#34d399", color: "#fff", fontSize: 12, fontWeight: 700, cursor: loading ? "default" : "pointer", fontFamily: "'Nunito', sans-serif", letterSpacing: 0.5, transition: "background 0.15s" }}>
+            {error && <div style={{ fontSize: 11, color: C.error, marginBottom: SPACING[3], padding: SPACING[2], background: C.error + '15', borderRadius: BORDER_RADIUS.base }}>{error}</div>}
+            {message && <div style={{ fontSize: 11, color: C.success, marginBottom: SPACING[3], padding: SPACING[2], background: C.success + '15', borderRadius: BORDER_RADIUS.base }}>{message}</div>}
+            <Button type="submit" disabled={loading} variant="primary" isDark={isDark} style={{ width: "100%", opacity: loading ? 0.6 : 1 }}>
               {loading ? "..." : "SET PASSWORD"}
-            </button>
-            <div style={{ textAlign: "center", marginTop: 14 }}>
-              <button type="button" onClick={() => { setMode("signin"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: "#64748b", fontSize: 10, cursor: "pointer", fontFamily: "'Nunito', sans-serif" }}>
+            </Button>
+            <div style={{ textAlign: "center", marginTop: SPACING[3] }}>
+              <button type="button" onClick={() => { setMode("signin"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: C.text.muted, fontSize: 10, cursor: "pointer", fontFamily: TYPOGRAPHY.fontFamily.default }}>
                 Back to sign in
               </button>
             </div>
@@ -146,28 +149,29 @@ export default function Login({ onAuth }) {
         {/* ── FORGOT PASSWORD ── */}
         {mode === "forgot" && (
           <form onSubmit={handleForgot}>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 11, color: C.text.secondary, marginBottom: SPACING[3], lineHeight: 1.5 }}>
               Enter your email and we'll send a password reset link.
             </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>EMAIL</label>
+            <div style={{ marginBottom: SPACING[4] }}>
+              <label style={{ fontSize: 10, color: C.text.secondary, fontWeight: 600, display: "block", marginBottom: SPACING[1] }}>EMAIL</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #1e293b", background: "#111827", color: "#e2e8f0", fontSize: 13, fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: SPACING[2], borderRadius: BORDER_RADIUS.base, border: `1px solid ${C.border.default}`,
+                  background: C.bg.tertiary, color: C.text.primary, fontSize: 13, fontFamily: TYPOGRAPHY.fontFamily.default, outline: "none", boxSizing: "border-box" }}
                 placeholder="you@company.com" />
             </div>
-            {error && <div style={{ fontSize: 11, color: "#ef4444", marginBottom: 12, padding: "6px 10px", background: "#1f1318", borderRadius: 4 }}>{error}</div>}
-            {message && <div style={{ fontSize: 11, color: "#34d399", marginBottom: 12, padding: "6px 10px", background: "#062e1e", borderRadius: 4 }}>{message}</div>}
-            <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px 0", borderRadius: 6, border: "none", background: loading ? "#334155" : "#f59e0b", color: "#fff", fontSize: 12, fontWeight: 700, cursor: loading ? "default" : "pointer", fontFamily: "'Nunito', sans-serif", letterSpacing: 0.5, transition: "background 0.15s" }}>
+            {error && <div style={{ fontSize: 11, color: C.error, marginBottom: SPACING[3], padding: SPACING[2], background: C.error + '15', borderRadius: BORDER_RADIUS.base }}>{error}</div>}
+            {message && <div style={{ fontSize: 11, color: C.success, marginBottom: SPACING[3], padding: SPACING[2], background: C.success + '15', borderRadius: BORDER_RADIUS.base }}>{message}</div>}
+            <Button type="submit" disabled={loading} variant="primary" isDark={isDark} style={{ width: "100%", opacity: loading ? 0.6 : 1 }}>
               {loading ? "..." : "SEND RESET LINK"}
-            </button>
-            <div style={{ textAlign: "center", marginTop: 14 }}>
-              <button type="button" onClick={() => { setMode("signin"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: "#64748b", fontSize: 10, cursor: "pointer", fontFamily: "'Nunito', sans-serif" }}>
+            </Button>
+            <div style={{ textAlign: "center", marginTop: SPACING[3] }}>
+              <button type="button" onClick={() => { setMode("signin"); setError(null); setMessage(null); }} style={{ background: "none", border: "none", color: C.text.muted, fontSize: 10, cursor: "pointer", fontFamily: TYPOGRAPHY.fontFamily.default }}>
                 Back to sign in
               </button>
             </div>
           </form>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
