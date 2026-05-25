@@ -66,3 +66,23 @@ export function useMessagePerformance(studyId = STUDY_ID) {
 export function useStudy(studyId = STUDY_ID) {
   return useFetch(`${API_BASE}/studies/${studyId}`);
 }
+
+export function useBenchmarks(studyId = STUDY_ID) {
+  return useFetch(`${API_BASE}/studies/${studyId}/benchmarks`);
+}
+
+export function useItemsFull(studyId = STUDY_ID) {
+  return useFetch(`${API_BASE}/studies/${studyId}/items-full`);
+}
+
+export function useTrustFull(studyId = STUDY_ID) {
+  return useFetch(`${API_BASE}/studies/${studyId}/trust-full`);
+}
+
+export function useSegData(studyId = STUDY_ID) {
+  return useFetch(`${API_BASE}/studies/${studyId}/seg-data`);
+}
+
+export function useManifest(studyId = STUDY_ID) {
+  return useFetch(`${API_BASE}/studies/${studyId}/manifest`);
+}

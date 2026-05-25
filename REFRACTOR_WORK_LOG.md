@@ -71,9 +71,13 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 ## Integration + Regression Testing (6–8 hrs)
 | Date       | Task Description                                      | Hours |
 |------------|-------------------------------------------------------|-------|
-|            |                                                       |       |
-|            |                                                       |       |
-| **Phase Total** |                                               | 0.00  |
+| 2026-05-25 | Wired HIVTab.jsx to use API hooks (useSegData, useItemsFull, useBenchmarks, useTrustFull, useManifest) instead of static JSON imports; added loading/error states; passed data as props through component tree. | 1.25  |
+| 2026-05-25 | Verified API server starts, database populated (16 segments, study hiv-wave1); diagnosed and resolved route ordering issue causing 404 on benchmark/manifest/trust-full endpoints. | 0.75  |
+| 2026-05-25 | Built FastAPI server (api/main.py): 14 endpoints covering studies, segments, messages, survey items, composites, trust ratings, and message performance; CORS configured for React dev server. | 2.00  |
+| 2026-05-25 | Created src/hooks/useStudyData.js: 12 React hooks (useSegments, useSegmentProfile, useMessages, useSurveyItems, useComposites, useTrustRatings, useBenchmarks, useItemsFull, useTrustFull, useSegData, useManifest, useStudy) wrapping fetch with loading/error state. | 0.50  |
+| 2026-05-25 | Added 5 bridge endpoints to API (benchmarks, items-full, trust-full, seg-data, manifest) serving JSON source files alongside DB data; required to cover composite z-scores and benchmark trust means not yet migrated to DB. | 0.75  |
+| 2026-05-25 | Regression tests: npm install, full vite build (0 errors, 121 modules), API smoke test (all 6 HIVTab endpoints returning HTTP 200), dev server responding on port 5173. | 0.75  |
+| **Phase Total** |                                               | 6.00  |
 
 ---
 
@@ -96,7 +100,7 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 ---
 
 ## Cumulative Total
-| **All Phases** |                                           | 30.75  |
+| **All Phases** |                                           | 36.75  |
 
 ---
 

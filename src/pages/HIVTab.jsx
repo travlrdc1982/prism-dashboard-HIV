@@ -1,16 +1,6 @@
-// Phase B — HIV Persona Profile Tab.
-// Faithful port of HIV_Persona_Profile_Tab/hiv_tab_v5.html. Markup and SVG
-// rendering replicate the prototype; data is sourced from src/data/hiv/*
-// and parameterized by the focal segment (the segment whose profile is
-// being viewed).
-
 import { useState, useMemo } from "react";
 import "./HIVTab.css";
-import segData from "../data/hiv/seg_data.json";
-import items from "../data/hiv/items.json";
-import bench from "../data/hiv/bench.json";
-import trust from "../data/hiv/trust.json";
-import manifest from "../data/hiv/manifest.json";
+import { useSegData, useItemsFull, useBenchmarks, useTrustFull, useManifest } from "../hooks/useStudyData";
 
 const SEG_NAME = {1:"TSP",2:"CEC",3:"TC",4:"HF",5:"PP",6:"WE",7:"PFF",8:"HHN",9:"MFL",10:"VS",11:"UCP",12:"FJP",13:"HCP",14:"HAD",15:"HCI",16:"GHI"};
 const GOP_SEGS = new Set([1,2,3,4,5,6,7,8,9,10]);
@@ -107,7 +97,7 @@ function Accordion({ target, items, benchKey, focalId, focalCode }) {
 }
 
 // ─── TILE 1 — Compassion / Sanctity ─────────────────────────────────────
-function SCFTile({ focalData, focalCode, benchKey }) {
+function SCFTile({ focalData, focalCode, benchKey, bench, items }) {
   const W = 180, H = 280, cx = W / 2, yTop = 30, yBot = H - 30;
   const yMin = -2.0, yMax = 1.0;
   const yScale = (v) => yTop + (yMax - v) / (yMax - yMin) * (yBot - yTop);
@@ -248,7 +238,7 @@ function GlyphRow({ count, color, kind, benchPct, benchLabel }) {
   );
 }
 
-function StigmaTile({ focalData, focalCode, benchKey }) {
+function StigmaTile({ focalData, focalCode, benchKey, bench, items }) {
   const blameRaw = focalData.MBS_raw;
   const avoidRaw = focalData.SDS_raw;
   const nFilled = (v) => Math.max(0, Math.min(5, Math.round(((v - 1) / 6) * 5)));
@@ -332,7 +322,7 @@ function StigmaTile({ focalData, focalCode, benchKey }) {
 }
 
 // ─── TILE 3 — Knowledge ────────────────────────────────────────────────
-function KnowledgeTile({ focalData, focalCode, benchKey }) {
+function KnowledgeTile({ focalData, focalCode, benchKey, bench, items }) {
   const hks = focalData.HKS;
   const benchHKS = bench[benchKey].HKS;
   const fillPct = (hks / 10) * 100;
@@ -379,7 +369,7 @@ function KnowledgeTile({ focalData, focalCode, benchKey }) {
 }
 
 // ─── TILE 4 — Contact ──────────────────────────────────────────────────
-function ContactTile({ focalData, focalCode, benchKey }) {
+function ContactTile({ focalData, focalCode, benchKey, bench, items }) {
   const g = BENCH_GLYPH[benchKey];
   return (
     <div className="card">
@@ -425,7 +415,7 @@ function ContactTile({ focalData, focalCode, benchKey }) {
 }
 
 // ─── Topology (stigma 2x2) ─────────────────────────────────────────────
-function Topology({ focalId, focalCode, benchKey }) {
+function Topology({ focalId, focalCode, benchKey, segData, bench }) {
   const W = 640, H = 380, M = { t: 32, r: 38, b: 60, l: 78 };
   const benchMBSz = bench[benchKey].MBS.z;
   const benchSDSz = bench[benchKey].SDS.z;
@@ -537,7 +527,7 @@ function Topology({ focalId, focalCode, benchKey }) {
 }
 
 // ─── Trust list (top 8 by delta) ───────────────────────────────────────
-function TrustList({ focalId, focalCode, benchKey }) {
+function TrustList({ focalId, focalCode, benchKey, trust }) {
   const rows = useMemo(() => {
     return trust
       .map((t) => ({
@@ -624,10 +614,37 @@ function SegmentPills({ segments, currentIdx, onChange, tierAccent }) {
 // ─── Top-level HIV tab ────────────────────────────────────────────────
 export default function HIVTab({ segmentId, segmentCode, segments, currentIdx, onChangeSegment, tierAccent }) {
   const [benchKey, setBenchKey] = useState("Democrats");
+
+  const { data: segData, loading: segLoading, error: segError } = useSegData();
+  const { data: items, loading: itemsLoading, error: itemsError } = useItemsFull();
+  const { data: bench, loading: benchLoading, error: benchError } = useBenchmarks();
+  const { data: trust, loading: trustLoading, error: trustError } = useTrustFull();
+  const { data: manifest, loading: manifestLoading, error: manifestError } = useManifest();
+
+  const loading = segLoading || itemsLoading || benchLoading || trustLoading || manifestLoading;
+  const error = segError || itemsError || benchError || trustError || manifestError;
+
   const focalData = useMemo(() => {
+    if (!segData) return null;
     const d = segData[String(segmentId)];
     return d ? { ...d, _id: segmentId } : null;
-  }, [segmentId]);
+  }, [segData, segmentId]);
+
+  if (loading) {
+    return (
+      <div className="hiv-tab-root" style={{ padding: 24, color: "#6A7488", fontSize: 12 }}>
+        Loading HIV data…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="hiv-tab-root" style={{ padding: 24, color: "#E74848", fontSize: 12 }}>
+        Error loading HIV data: {error}
+      </div>
+    );
+  }
 
   if (!focalData) {
     return (
@@ -660,10 +677,10 @@ export default function HIVTab({ segmentId, segmentCode, segments, currentIdx, o
       </div>
 
       <div className="row grid grid-4">
-        <SCFTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
-        <StigmaTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
-        <KnowledgeTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
-        <ContactTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} />
+        <SCFTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} bench={bench} items={items} />
+        <StigmaTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} bench={bench} items={items} />
+        <KnowledgeTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} bench={bench} items={items} />
+        <ContactTile focalData={focalData} focalCode={focalCode} benchKey={benchKey} bench={bench} items={items} />
       </div>
 
       <div className="section-break" style={{ marginTop: 32 }}>
@@ -672,8 +689,8 @@ export default function HIVTab({ segmentId, segmentCode, segments, currentIdx, o
       </div>
 
       <div className="row grid grid-1-1">
-        <Topology focalId={segmentId} focalCode={focalCode} benchKey={benchKey} />
-        <TrustList focalId={segmentId} focalCode={focalCode} benchKey={benchKey} />
+        <Topology focalId={segmentId} focalCode={focalCode} benchKey={benchKey} segData={segData} bench={bench} />
+        <TrustList focalId={segmentId} focalCode={focalCode} benchKey={benchKey} trust={trust} />
       </div>
 
       <div className="footer">

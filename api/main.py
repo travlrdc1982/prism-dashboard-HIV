@@ -1,10 +1,18 @@
 import os
+import json
 import sqlite3
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "prism_dashboard.db")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "src", "data", "hiv")
+
+
+def _load_json(filename):
+    path = os.path.join(DATA_DIR, filename)
+    with open(path) as f:
+        return json.load(f)
 
 app = FastAPI(title="PRISM HIV Dashboard API", version="1.0.0")
 
@@ -291,6 +299,46 @@ def get_all_message_performance(study_id: str):
     ).fetchall()
     conn.close()
     return rows_to_list(rows)
+
+
+# ── Benchmark data (served from JSON source files) ───────────────────────────
+# The database stores per-segment data. Benchmark group means (All / Republicans /
+# Democrats) for composites, trust, and items are served from the original JSON
+# source files until a future migration pass stores them in the DB.
+
+@app.get("/api/studies/{study_id}/benchmarks")
+def get_benchmarks(study_id: str):
+    """Return composite benchmark stats (raw + z) for All, Republicans, Democrats."""
+    bench = _load_json("bench.json")
+    return bench
+
+
+@app.get("/api/studies/{study_id}/items-full")
+def get_items_full(study_id: str):
+    """Return survey items with per-segment means and benchmark means."""
+    items = _load_json("items.json")
+    return items
+
+
+@app.get("/api/studies/{study_id}/trust-full")
+def get_trust_full(study_id: str):
+    """Return trust entities with per-segment scores and benchmark means."""
+    trust = _load_json("trust.json")
+    return trust
+
+
+@app.get("/api/studies/{study_id}/seg-data")
+def get_seg_data(study_id: str):
+    """Return per-segment composite scores and ranks (all 16 segments)."""
+    seg_data = _load_json("seg_data.json")
+    return seg_data
+
+
+@app.get("/api/studies/{study_id}/manifest")
+def get_manifest(study_id: str):
+    """Return study manifest / metadata."""
+    manifest = _load_json("manifest.json")
+    return manifest
 
 
 if __name__ == "__main__":
