@@ -133,29 +133,30 @@ export default function IdeologyHeatmap() {
     <div style={{
       fontFamily: "'Quicksand',-apple-system,sans-serif",
       color: "#e2e8f0",
+      padding: "0 12px",
     }}>
 
-      <div style={{ maxWidth: 1500, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1500, margin: "0 auto", width: "100%" }}>
         {/* Header */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 9, letterSpacing: 3, color: "#475569", marginBottom: 3, fontWeight: 600 }}>
+          <div style={{ fontFamily: "'Quicksand',sans-serif", fontSize: "clamp(8px, 2.5vw, 9px)", letterSpacing: 3, color: "#475569", marginBottom: 3, fontWeight: 600 }}>
             RESERVOIR HEALTH PRISM PULSE
           </div>
-          <h1 style={{ fontFamily: "'Poppins',sans-serif", fontSize: 22, fontWeight: 800, color: "#f1f5f9", margin: 0 }}>
+          <h1 style={{ fontFamily: "'Poppins',sans-serif", fontSize: "clamp(18px, 6vw, 22px)", fontWeight: 800, color: "#f1f5f9", margin: 0 }}>
             IDEOLOGY HEATMAP
           </h1>
-          <div style={{ fontFamily: "'Poppins',sans-serif", fontSize: 13, fontWeight: 600, color: "#a78bfa", marginTop: 2 }}>
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontSize: "clamp(11px, 3vw, 13px)", fontWeight: 600, color: "#a78bfa", marginTop: 2 }}>
             15 IDEOLOGICAL DIMENSIONS × 16 PRISM SEGMENTS
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", maxWidth: 900, lineHeight: 1.6, marginTop: 6 }}>
+          <div style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "#94a3b8", maxWidth: 900, lineHeight: 1.6, marginTop: 6 }}>
             Segment means on 1–7 bipolar scales grouped by factor domain. Deviation from the 16-segment 
             mean shown below each score. Click any segment header to sort within groups.
           </div>
         </div>
 
         {/* Legend */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 0, borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14, flexWrap: "wrap", overflowX: "auto", paddingBottom: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 0, borderRadius: 4, overflow: "hidden", flexShrink: 0 }}>
             {[2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0].map(v => (
               <div key={v} style={{
                 width: 22, height: 14, background: getColor(v),
@@ -167,13 +168,13 @@ export default function IdeologyHeatmap() {
               </div>
             ))}
           </div>
-          <span style={{ fontSize: 8, color: "#60a5fa", fontWeight: 600 }}>← progressive</span>
-          <span style={{ fontSize: 8, color: "#f87171", fontWeight: 600 }}>conservative →</span>
-          <div style={{ marginLeft: 12, display: "flex", gap: 10 }}>
+          <span style={{ fontSize: 8, color: "#60a5fa", fontWeight: 600, whiteSpace: "nowrap" }}>← progressive</span>
+          <span style={{ fontSize: 8, color: "#f87171", fontWeight: 600, whiteSpace: "nowrap" }}>conservative →</span>
+          <div style={{ marginLeft: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
             {GROUPS.map(g => (
               <div key={g.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
                 <div style={{ width: 3, height: 10, borderRadius: 1, background: g.color }} />
-                <span style={{ fontSize: 7, color: g.color, fontWeight: 700, letterSpacing: 0.5 }}>{g.label}</span>
+                <span style={{ fontSize: 7, color: g.color, fontWeight: 700, letterSpacing: 0.5, whiteSpace: "nowrap" }}>{g.label}</span>
               </div>
             ))}
           </div>

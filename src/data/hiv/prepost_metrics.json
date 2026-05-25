@@ -1,0 +1,37 @@
+[
+  {
+    "question": "Pre/Post metric 1",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 2",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 3",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 4",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 5",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 6",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  },
+  {
+    "question": "Pre/Post metric 7",
+    "scale_type": "1-7 likert",
+    "measurement_type": "top-3-box"
+  }
+]
