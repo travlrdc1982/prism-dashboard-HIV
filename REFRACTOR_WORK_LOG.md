@@ -93,14 +93,13 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 ## Final Buffer / Polish (4–6 hrs)
 | Date       | Task Description                                      | Hours |
 |------------|-------------------------------------------------------|-------|
-|            |                                                       |       |
-|            |                                                       |       |
-| **Phase Total** |                                               | 0.00  |
+| 2026-05-26 | Bundle size optimization: converted all route imports in App.jsx to React.lazy() + Suspense; added manualChunks to vite.config.js (vendor-react, vendor-supabase). Initial JS payload reduced from 1,125 kB → 202 kB (−82%); SegmentProfile (158 kB), Topline (490 kB), and other pages now lazy-loaded. Build: 0 errors, 0 warnings. | 0.75  |
+| **Phase Total** |                                               | 0.75  |
 
 ---
 
 ## Cumulative Total
-| **All Phases** |                                           | 38.50  |
+| **All Phases** |                                           | 39.25  |
 
 ---
 
