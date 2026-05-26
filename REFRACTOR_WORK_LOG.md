@@ -84,9 +84,9 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 ## Documentation + Handoff (4–6 hrs)
 | Date       | Task Description                                      | Hours |
 |------------|-------------------------------------------------------|-------|
-|            |                                                       |       |
-|            |                                                       |       |
-| **Phase Total** |                                               | 0.00  |
+| 2026-05-25 | Fixed 2 failing tests (test_convert_messages, test_convert_prepost) — wrong data key "zparams" corrected to "messages" / "prepost_metrics". All 40 tests now passing. | 0.25  |
+| 2026-05-25 | Rewrote README.md: architecture diagram (JSON → SQLite → FastAPI → React), full API endpoint table, local-dev setup for both servers, test instructions, database rebuild commands, route table, known gaps / future work section. | 1.50  |
+| **Phase Total** |                                               | 1.75  |
 
 ---
 
@@ -100,7 +100,7 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 ---
 
 ## Cumulative Total
-| **All Phases** |                                           | 36.75  |
+| **All Phases** |                                           | 38.50  |
 
 ---
 
