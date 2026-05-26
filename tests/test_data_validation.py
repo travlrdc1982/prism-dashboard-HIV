@@ -207,7 +207,7 @@ class TestDataConverter:
         """Test message conversion."""
         converter = DataConverter()
         converter._convert_study(raw_data.get("manifest", {}))
-        converter._convert_messages(raw_data.get("zparams", {}))
+        converter._convert_messages(raw_data.get("messages", []))
 
         # Should have 17 messages
         assert len(converter.messages) == 17
@@ -225,7 +225,7 @@ class TestDataConverter:
         """Test pre/post metric conversion."""
         converter = DataConverter()
         converter._convert_study(raw_data.get("manifest", {}))
-        converter._convert_prepost(raw_data.get("zparams", {}))
+        converter._convert_prepost(raw_data.get("prepost_metrics", []))
 
         assert len(converter.prepost_metrics) == 7
 
