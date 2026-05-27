@@ -257,6 +257,22 @@ def main():
         contact_row("CON-LGB", "Personally knows LGBTQ person", "CON_LGB"),
     ]
 
+    # ── trust.json — only if dashboard.json carries a trust block ──
+    # The topline pipeline (compute_core.py) now emits a `trust` array using
+    # the same WGT weighting as everything else, but ONLY when the .sav has
+    # the QTRUST* variables and the pipeline has been re-run. If present we
+    # regenerate trust.json from it (single source); otherwise we leave the
+    # existing persona-pipeline trust.json untouched and warn.
+    dash_trust = dash.get("trust")
+    if dash_trust:
+        with open("src/data/hiv/trust.json", "w") as f:
+            json.dump(dash_trust, f, indent=2)
+        trust_status = f"REGENERATED from dashboard.json ({len(dash_trust)} messengers)"
+    else:
+        trust_status = ("UNCHANGED — dashboard.json has no `trust` block yet. "
+                        "Re-run compute_core.py against the .sav (it now emits trust) "
+                        "to make trust single-source.")
+
     # ── Write files ──
     with open("src/data/hiv/seg_data.json", "w") as f:
         json.dump(seg_data, f, indent=2)
@@ -272,7 +288,7 @@ def main():
     print(f"  bench.json: All/Republicans/Democrats")
     print(f"  items.json: scf={len(items['scf'])} stigma={len(items['stigma'])} know={len(items['know'])} contact={len(items['contact'])}")
     print(f"  zparams.json: {len(zparams)} composites")
-    print("  trust.json: UNCHANGED (topline has no trust module)")
+    print(f"  trust.json: {trust_status}")
     # Spot check
     print(f"\nSpot check FJP (12): MBS={seg_data['12']['MBS_raw']} SDS={seg_data['12']['SDS_raw']} "
           f"SCF={seg_data['12']['SCF_raw']} HKS={seg_data['12']['HKS']} "
