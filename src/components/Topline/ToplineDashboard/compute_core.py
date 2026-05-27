@@ -175,6 +175,36 @@ LABELS = {
     'legend_p01':           'p<.01',
 }
 
+# Trust battery messenger labels. The display module (06 Trusted Sources)
+# stays disabled, but the data is still computed into dashboard.json['trust']
+# so the HIV persona tab can derive trust.json from the same single source
+# (same WGT weighting as every other topline composite). Personal physician
+# (QTRUSTr3) is excluded from the deployable list.
+TRUST_LBL = {
+    'QTRUSTr1':  'FDA / CDC',
+    'QTRUSTr2':  'Pharmaceutical companies',
+    'QTRUSTr4A': 'Infectious disease specialists',
+    'QTRUSTr4B': 'Nurses / NPs',
+    'QTRUSTr4C': 'Pharmacists',
+    'QTRUSTr5A': 'Academic medical centers',
+    'QTRUSTr5B': 'FQHC / Ryan White',
+    'QTRUSTr5C': 'Catholic health systems',
+    'QTRUSTr6A': 'Human Rights Campaign (HRC)',
+    'QTRUSTr6B': 'GLAAD',
+    'QTRUSTr6C': 'PFLAG',
+    'QTRUSTr6D': 'LGBTQ community centers',
+    'QTRUSTr7A': 'Health podcasters / YT',
+    'QTRUSTr7B': 'Black media',
+    'QTRUSTr7C': 'Religious media',
+    'QTRUSTr7D': 'LGBTQ media',
+    'QTRUSTr8A': 'Medical journals',
+    'QTRUSTr8B': 'Science journalists',
+    'QTRUSTr8C': 'University HIV centers',
+    'QTRUSTr9A': 'amfAR',
+    'QTRUSTr9B': 'NMAC',
+    'QTRUSTr9C': 'AIDS United',
+}
+
 # Modules — top nav, landing tiles, section bars. See build guide.
 MODULES = [
     # ── Module 01: HIV Stigma ──────────────────────────────────────
@@ -2126,6 +2156,39 @@ def build_topline(df, out_dir='.', weight_var=None):
     print(f"Wrote {csv_path}: {len(rows)} rows · " + ' '.join(f'{k}={v}' for k, v in by_source.items()))
 
     # ── Write JSON snapshot ────────────────────────────────────────
+    # ── Trust battery → dashboard.json['trust'] ───────────────────
+    # Computed with the same WGT weighting as every other composite so the
+    # HIV persona tab can derive trust.json from this single source. The
+    # display module (06) stays disabled; this only emits the data.
+    trust_out = []
+    gop_codes = {s['code'] for s in sample if s['party'] == 'GOP'}
+    dem_codes = {s['code'] for s in sample if s['party'] == 'DEM'}
+
+    def _wmean(mask):
+        sub_v = pd.to_numeric(col, errors='coerce')[mask]
+        sub_w = df['WGT'][mask]
+        valid = sub_v.notna()
+        v, w = sub_v[valid], sub_w[valid]
+        return round(float((v * w).sum() / w.sum()), 4) if w.sum() else None
+
+    for var, label in TRUST_LBL.items():
+        if var not in df.columns:
+            continue
+        col = df[var]
+        by_segment = {}
+        for s in sample:
+            by_segment[str(s['id'])] = _wmean(df['SEG'] == s['code'])
+        trust_out.append({
+            'code': var,
+            'label': label,
+            'by_segment': by_segment,
+            'All':         _wmean(pd.Series([True] * len(df), index=df.index)),
+            'Republicans': _wmean(df['SEG'].isin(gop_codes)),
+            'Democrats':   _wmean(df['SEG'].isin(dem_codes)),
+        })
+    if trust_out:
+        print(f"Computed trust battery: {len(trust_out)} messengers")
+
     out = {
         'study': {**STUDY,
                   'n_total': STUDY_TOTAL_N,
@@ -2140,6 +2203,7 @@ def build_topline(df, out_dir='.', weight_var=None):
         'demographics': demographics_data,
         'influencer': influencer_data,
         'stigma_extras': stigma_extras,
+        'trust': trust_out,
         'roi_svg': roi_svg,
         'roi_data': roi_data,
     }
