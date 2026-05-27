@@ -15,6 +15,7 @@ import ItemsModule from "./modules/ItemsModule";
 import PrePostModule from "./modules/PrePostModule";
 import RoiModule from "./modules/RoiModule";
 import InfluencerModule from "./modules/InfluencerModule";
+import TrustModule from "./modules/TrustModule";
 
 // Map of module id → renderer. Disabled modules fall through to a
 // "deferred" placeholder.
@@ -57,6 +58,13 @@ const MODULE_RENDERERS = {
   influencer: ({ data }) => (
     <InfluencerModule
       influencer={data.influencer}
+      segments={data.segments}
+      study={data.study}
+    />
+  ),
+  sources: ({ data }) => (
+    <TrustModule
+      trust={data.trust}
       segments={data.segments}
       study={data.study}
     />
@@ -118,7 +126,11 @@ export default function Topline() {
 
       {modules.map((m) => {
         const Renderer = MODULE_RENDERERS[m.id];
-        const showToggles = TOGGLE_MODULES.has(m.id) && m.active;
+        // Module 06 (Trusted Sources) is active:false in dashboard.json per
+        // the brief, but we light it up once the pipeline has emitted trust
+        // data (i.e., the user opted in by computing it).
+        const isActive = m.active || (m.id === "sources" && dashboard.trust?.length > 0);
+        const showToggles = TOGGLE_MODULES.has(m.id) && isActive;
         return (
           <ModuleSection
             key={m.id}
@@ -136,7 +148,7 @@ export default function Topline() {
                 info="Click any cell for popover · z-test vs. rest of sample"
               />
             )}
-            {Renderer && m.active ? (
+            {Renderer && isActive ? (
               <Renderer data={dashboard} module={m} />
             ) : (
               <div

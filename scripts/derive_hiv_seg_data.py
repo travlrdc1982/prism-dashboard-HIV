@@ -265,9 +265,31 @@ def main():
     # existing persona-pipeline trust.json untouched and warn.
     dash_trust = dash.get("trust")
     if dash_trust:
+        # dashboard.json trust is banner-shape (cuts: TOTAL + segment codes,
+        # each with val/n/sig). The HIV tab needs {code, label, by_segment,
+        # All, Republicans, Democrats}. Transform: by_segment[id]=cuts[code].val,
+        # All=cuts.TOTAL.val, R/D = population-weighted party means.
+        trust_hiv = []
+        for t in dash_trust:
+            cuts = t.get("cuts", {})
+            by_segment = {}
+            for sid, name in SEG_NAME.items():
+                cell = cuts.get(name)
+                by_segment[str(sid)] = cell["val"] if cell and cell.get("val") is not None else None
+            bs_num = {int(k): v for k, v in by_segment.items()}
+            total = cuts.get("TOTAL", {}).get("val")
+            rep = pop_weighted_mean(bs_num, pops, list(GOP))
+            dem = pop_weighted_mean(bs_num, pops, list(DEM))
+            trust_hiv.append({
+                "code": t["code"], "label": t.get("label", t["code"]),
+                "by_segment": by_segment,
+                "All": round(total, 4) if total is not None else None,
+                "Republicans": round(rep, 4) if rep is not None else None,
+                "Democrats": round(dem, 4) if dem is not None else None,
+            })
         with open("src/data/hiv/trust.json", "w") as f:
-            json.dump(dash_trust, f, indent=2)
-        trust_status = f"REGENERATED from dashboard.json ({len(dash_trust)} messengers)"
+            json.dump(trust_hiv, f, indent=2)
+        trust_status = f"REGENERATED from dashboard.json ({len(trust_hiv)} messengers)"
     else:
         trust_status = ("UNCHANGED — dashboard.json has no `trust` block yet. "
                         "Re-run compute_core.py against the .sav (it now emits trust) "
