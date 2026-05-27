@@ -94,12 +94,14 @@ This document tracks all completed tasks, grouped by sprint/phase, with a brief 
 | Date       | Task Description                                      | Hours |
 |------------|-------------------------------------------------------|-------|
 | 2026-05-26 | Bundle size optimization: converted all route imports in App.jsx to React.lazy() + Suspense; added manualChunks to vite.config.js (vendor-react, vendor-supabase). Initial JS payload reduced from 1,125 kB → 202 kB (−82%); SegmentProfile (158 kB), Topline (490 kB), and other pages now lazy-loaded. Build: 0 errors, 0 warnings. | 0.75  |
-| **Phase Total** |                                               | 0.75  |
+| 2026-05-26 | Visual QA pass (Playwright, headless Chromium): captured all 4 routes × 4 widths (1280/1024/768/480px). Identified 2 layout defects: (1) AudienceROI table clipped at narrow widths — fixed with overflowX:auto on outer container + position:sticky on left label column; (2) SegmentProfile 3-column grid (320px/1fr/220px) not stacking — fixed via CSS media query at ≤900px. Demographics row2 (200px/200px/1fr) also fixed for ≤600px. | 1.50  |
+| 2026-05-26 | Supabase prod environment check: discovered .env.local was git-tracked (values blank, no live credential exposure); untracked file and added .env*.local to .gitignore. Documented that VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY must be set in Vercel dashboard for prod. Confirmed supabaseClient.js no-op stub handles missing credentials safely. | 0.50  |
+| **Phase Total** |                                               | 2.75  |
 
 ---
 
 ## Cumulative Total
-| **All Phases** |                                           | 39.25  |
+| **All Phases** |                                           | 41.50  |
 
 ---
 

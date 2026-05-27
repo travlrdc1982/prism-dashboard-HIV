@@ -323,12 +323,13 @@ export default function AudienceROI() {
         </div>
 
         {/* Grid */}
-        <div style={{ display: "flex", background: C.bg.secondary, borderRadius: BORDER_RADIUS.lg, border: `1px solid ${C.border.default}`, overflow: "hidden" }}>
+        <div style={{ display: "flex", background: C.bg.secondary, borderRadius: BORDER_RADIUS.lg, border: `1px solid ${C.border.default}`, overflowX: "auto" }}>
 
           {/* ═══ LEFT LABELS COLUMN ═══ */}
           <div style={{
             display: "flex", flexDirection: "column", flexShrink: 0,
-            borderRight: `1px solid ${C.border.default}`, width: 140
+            borderRight: `1px solid ${C.border.default}`, width: 140,
+            position: "sticky", left: 0, zIndex: 1, background: C.bg.secondary
           }}>
             {/* Header */}
             <div style={{ height: H.header, borderBottom: `1px solid ${C.border.default}` }} />
@@ -454,7 +455,7 @@ export default function AudienceROI() {
           </div>
 
           {/* ═══ SCROLLABLE SEGMENT COLUMNS ═══ */}
-          <div style={{ display: "flex", overflowX: "auto", flex: 1 }}>
+          <div style={{ display: "flex" }}>
             {/* GOP */}
             <div style={{ display: "flex", borderRight: `2px solid ${C.border}` }}>
               {gopSegs.map(s => (

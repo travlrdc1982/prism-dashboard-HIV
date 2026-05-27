@@ -808,7 +808,7 @@ function DemographicsPanel({ seg }) {
       </div>
 
       {/* Row 2: Military / Union / Religion */}
-      <div style={{ display:"grid", gridTemplateColumns:"200px 200px 1fr", gap:12, marginBottom:12 }}>
+      <div className="sp-demo-row2">
         {/* Military */}
         <div style={{ background:C.card, borderRadius:8, padding:16, border:`1px solid ${C.border}` }}>
           <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>MILITARY</div>
@@ -1983,6 +1983,15 @@ export default function SegmentProfile() {
       <style>{`
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
         * { font-variant-numeric: tabular-nums; }
+        .sp-main-grid { display:grid; grid-template-columns:320px 1fr 220px; gap:14px; margin-bottom:20px; }
+        .sp-demo-row2 { display:grid; grid-template-columns:200px 200px 1fr; gap:12px; margin-bottom:12px; }
+        @media (max-width: 900px) {
+          .sp-main-grid { grid-template-columns:1fr !important; }
+          .sp-demo-row2 { grid-template-columns:1fr 1fr !important; }
+        }
+        @media (max-width: 600px) {
+          .sp-demo-row2 { grid-template-columns:1fr !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth:1400, margin:"0 auto" }}>
@@ -2033,7 +2042,7 @@ export default function SegmentProfile() {
         </div>
 
         {/* ═══ MAIN LAYOUT: Vector Radar + Persona + ROI ═══ */}
-        <div style={{ display:"grid", gridTemplateColumns:"320px 1fr 220px", gap:14, marginBottom:20 }}>
+        <div className="sp-main-grid">
           {/* Vector Radar Column */}
           <div style={{ background:"#0a0e1a", borderRadius:10, border:`1px solid ${C.border}`, padding:"14px 10px 10px", display:"flex", flexDirection:"column", alignItems:"center" }}>
             <div style={{ fontSize:9, fontWeight:700, color:"#a78bfa", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>VECTOR FINGERPRINT</div>
