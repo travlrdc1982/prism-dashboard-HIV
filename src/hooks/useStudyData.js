@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-const API_BASE = "http://localhost:8000/api";
-const STUDY_ID = "hiv-wave1";
+const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000/api";
+const STUDY_ID = import.meta.env.VITE_STUDY_ID ?? "hiv-wave1";
 
 function useFetch(url) {
   const [data, setData] = useState(null);
