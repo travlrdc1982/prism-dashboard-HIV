@@ -80,6 +80,7 @@ const TOGGLE_MODULES = new Set([
   "critics",
   "demos",
   "influencer",
+  "sources",  // Trust battery — 7-pt cells, supports both toggles like items
 ]);
 
 export default function Topline() {

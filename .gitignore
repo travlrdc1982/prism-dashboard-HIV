@@ -1,2 +1,12 @@
 node_modules/
 dist/
+
+# Local data — never committed
+data/
+*.sav
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
