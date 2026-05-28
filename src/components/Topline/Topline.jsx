@@ -38,7 +38,7 @@ const MODULE_RENDERERS = {
       ppResults={data.pp_results}
     />
   ),
-  roi: ({ data }) => <RoiModule roiSvg={data.roi_svg} roiData={data.roi_data} />,
+  roi: ({ data }) => <RoiModule roiData={data.roi_data} />,
   critics: ({ data }) => (
     <ItemsModule
       items={data.items}

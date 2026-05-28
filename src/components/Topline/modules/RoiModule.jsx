@@ -1,30 +1,15 @@
-// ROI module — renders the pre-baked SVG from dashboard.json, but with
-// workbook-derived values substituted at render time so /topline ROI
-// matches /roi (both sourced from HIV_Study_Template.xlsx). The SVG's
-// visual design is unchanged; only the ROI / coalition / activation /
-// influence numbers are swapped per segment.
-//
-// Pipeline note: the pre-baked SVG was produced by compute_core.py from
-// the .sav file and carries that pipeline's formulaic tiers + a
-// different activation definition. Future pipeline runs should ingest
-// the workbook tier column directly so this client-side patch becomes a
-// no-op.
+// ROI module — renders a static pre-baked SVG template with workbook-derived
+// values substituted at render time so /topline ROI matches /roi. The SVG
+// template lives as a checked-in static file (not in dashboard.json) so
+// pipeline refreshes don't blow it away.
 
 import { useMemo } from "react";
 import { exportROIPng, exportROISvg } from "../utils/exportPng";
 import applyRoiOverrides from "../utils/applyRoiOverrides";
+import roiTemplate from "../utils/roi-template.svg?raw";
 
-export default function RoiModule({ roiSvg, roiData }) {
-  const patchedSvg = useMemo(() => applyRoiOverrides(roiSvg), [roiSvg]);
-
-  if (!roiSvg) {
-    return (
-      <div className="module-placeholder" style={{ padding: "16px 24px", color: "#94a3b8", fontStyle: "italic" }}>
-        ROI scorecard not yet computed. Re-run the topline build with ROI
-        scoring enabled, then refresh `dashboard.json`.
-      </div>
-    );
-  }
+export default function RoiModule({ roiData }) {
+  const patchedSvg = useMemo(() => applyRoiOverrides(roiTemplate), []);
   return (
     <>
       <div className="roi-export-bar">
