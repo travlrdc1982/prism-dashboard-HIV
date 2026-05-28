@@ -6,14 +6,21 @@
 // Slack, secure portal, etc.).
 //
 // Auth: caller must be signed in to this Supabase project AND their email
-// must be in the ADMIN_EMAILS env var (comma-separated). Set via:
-//   supabase secrets set ADMIN_EMAILS="a@x.com,b@x.com"
+// must be in ADMIN_EMAILS below. Keep this list in sync with the client-side
+// allowlist in src/data/admins.js.
 //
 // Link expiry is controlled by the project's auth config
 // (Authentication → Email Templates → "Invite expiry" — bump to 604800
 // seconds = 7 days).
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const ADMIN_EMAILS = [
+  "bdumont@reservoircg.com",
+  "jholdsworth@reservoircg.com",
+  "vudani@reservoircg.com",
+  "bryangeorgedumont@gmail.com",
+];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,10 +30,7 @@ const corsHeaders = {
 
 const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
 
-function adminEmails(): string[] {
-  const raw = Deno.env.get("ADMIN_EMAILS") ?? "";
-  return raw.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-}
+const ADMIN_SET = new Set(ADMIN_EMAILS.map(s => s.trim().toLowerCase()));
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -55,9 +59,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401, headers: jsonHeaders });
     }
 
-    const allowed = adminEmails();
-    if (!allowed.includes(user.email.toLowerCase())) {
-      return new Response(JSON.stringify({ error: "Not authorized" }), { status: 403, headers: jsonHeaders });
+    if (!ADMIN_SET.has(user.email.toLowerCase())) {
+      return new Response(JSON.stringify({ error: "Not authorized: " + user.email }), { status: 403, headers: jsonHeaders });
     }
 
     const body = await req.json().catch(() => ({}));
