@@ -1968,10 +1968,10 @@ def build_topline(df, out_dir='.', weight_var=None):
     # ── ROI module ─────────────────────────────────────────────────
     # The /roi page renders its scorecard from the workbook (analyst-edited
     # values in HIV_Study_Template.xlsx) — not from this pipeline. The
-    # legacy roi_infographic compute path was retired with the workbook
-    # cutover, so we just emit empty roi_svg / roi_data here; the topline's
-    # ROI section is functionally deferred to /roi for this study.
-    roi_svg = ''
+    # topline ROI section uses a static SVG template
+    # (src/components/Topline/utils/roi-template.svg) with workbook values
+    # patched in at render time via applyRoiOverrides.js, so the pipeline
+    # no longer needs to emit anything for ROI.
     roi_data = {}
 
     # ── Compute field_dates from SPSS 'date' variable (Completion timestamp) ──
@@ -2194,7 +2194,6 @@ def build_topline(df, out_dir='.', weight_var=None):
         'influencer': influencer_data,
         'stigma_extras': stigma_extras,
         'trust': trust_out,
-        'roi_svg': roi_svg,
         'roi_data': roi_data,
     }
     json_path = out_dir / 'dashboard.json'
