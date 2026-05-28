@@ -17,18 +17,18 @@ import Admin from "./pages/Admin";
 // scoped to the project configured in src/supabaseClient.js.
 const BYPASS_AUTH = false;
 
-// Detect a fresh invite/recovery redirect BEFORE supabase-js consumes the
-// URL hash. If type=invite or type=recovery is present, we'll route the
-// user through the "Set your password" screen after their session lands.
-function detectInviteFlow() {
-  if (typeof window === "undefined") return false;
-  const hash = window.location.hash || "";
-  return hash.includes("type=invite") || hash.includes("type=recovery");
-}
+// Capture the URL hash at module-load time (synchronously, before
+// supabase-js has a chance to consume it). React render is async in
+// React 18 concurrent mode, so reading window.location.hash from inside
+// the component body is too late.
+const INITIAL_URL_HASH = (typeof window !== "undefined") ? (window.location.hash || "") : "";
+const INITIAL_INVITE_FLOW =
+  INITIAL_URL_HASH.includes("type=invite") ||
+  INITIAL_URL_HASH.includes("type=recovery");
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
-  const [needsPasswordSet, setNeedsPasswordSet] = useState(detectInviteFlow());
+  const [needsPasswordSet, setNeedsPasswordSet] = useState(INITIAL_INVITE_FLOW);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
