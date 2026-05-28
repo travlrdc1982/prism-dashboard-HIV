@@ -439,3 +439,41 @@ html:has(.topline-root)::-webkit-scrollbar-thumb:hover { background: #475569; }
     page-break-inside: avoid;
   }
 }
+
+/* ── Trust module · sortable column headers ──────────────────────────
+ * Off by default; enabled via the "Enable column sort" checkbox in the
+ * module header. When on, segment + TOTAL headers become click targets. */
+.topline-root .trust-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+}
+.topline-root .trust-sort-toggle input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+.topline-root .trust-sort-hint {
+  margin-left: 12px;
+  color: #64748b;
+  font-style: italic;
+}
+.topline-root .trust-sort-hint strong {
+  color: #0f172a;
+}
+.topline-root .banner-table th.seg-head.sortable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.topline-root .banner-table th.seg-head.sortable:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+.topline-root .banner-table th.seg-head.sort-active {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1e40af;
+  font-weight: 700;
+}

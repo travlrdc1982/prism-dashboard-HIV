@@ -173,9 +173,24 @@ export function MeanCell({ cell, isTotal = false, cut = "", code = "" }) {
 }
 
 // ─── Banner-table head: party bands + segment column headers ───────────
-export function BannerTableHead({ segments, totalN, partyA = "GOP COALITION", partyB = "DEM COALITION", showTotalLabel = "Total" }) {
+export function BannerTableHead({
+  segments,
+  totalN,
+  partyA = "GOP COALITION",
+  partyB = "DEM COALITION",
+  showTotalLabel = "Total",
+  // Sortable header support (opt-in; ignored if onSort not passed):
+  sortable = false,
+  sortCol = null,
+  sortDir = "desc",
+  onSort = null,
+}) {
   const gop = segments.filter((s) => s.party === "GOP");
   const dem = segments.filter((s) => s.party === "DEM");
+  const isSortable = sortable && typeof onSort === "function";
+  const arrow = (code) => (sortCol === code ? (sortDir === "asc" ? " ▲" : " ▼") : "");
+  const sortableCls = isSortable ? " sortable" : "";
+  const activeCls = (code) => (isSortable && sortCol === code ? " sort-active" : "");
   return (
     <thead>
       <tr className="party-band">
@@ -186,12 +201,24 @@ export function BannerTableHead({ segments, totalN, partyA = "GOP COALITION", pa
       </tr>
       <tr>
         <th></th>
-        <th className="total-head seg-head">
-          {showTotalLabel}<span className="seg-n">n={totalN ?? "—"}</span>
+        <th
+          className={"total-head seg-head" + sortableCls + activeCls("TOTAL")}
+          onClick={isSortable ? () => onSort("TOTAL") : undefined}
+          role={isSortable ? "button" : undefined}
+          tabIndex={isSortable ? 0 : undefined}
+        >
+          {showTotalLabel}{arrow("TOTAL")}<span className="seg-n">n={totalN ?? "—"}</span>
         </th>
         {segments.map((s) => (
-          <th key={s.code} className="seg-head" title={s.name}>
-            {s.code}<span className="seg-n">n={s.n}</span>
+          <th
+            key={s.code}
+            className={"seg-head" + sortableCls + activeCls(s.code)}
+            title={s.name}
+            onClick={isSortable ? () => onSort(s.code) : undefined}
+            role={isSortable ? "button" : undefined}
+            tabIndex={isSortable ? 0 : undefined}
+          >
+            {s.code}{arrow(s.code)}<span className="seg-n">n={s.n}</span>
           </th>
         ))}
       </tr>
