@@ -2211,8 +2211,8 @@ def build_topline(df, out_dir='.', weight_var=None):
         'roi_data': roi_data,
     }
     json_path = out_dir / 'dashboard.json'
-    with open(json_path, 'w') as f:
-        json.dump(out, f, indent=2)
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
     print(f"Wrote {json_path}")
 
     # ── Inject into template (if found alongside) ─────────────────
