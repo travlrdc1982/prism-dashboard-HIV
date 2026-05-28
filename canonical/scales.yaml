@@ -1,0 +1,86 @@
+# Scales Library (shared across all studies)
+#
+# Catalogs the response-scale shapes a PRISM study can use. Per-study
+# YAML references scales by id; generators look up anchors, min/max,
+# direction, and SPSS value-label conventions from here.
+
+schema_version: 1
+registry: prism_scales
+
+scales:
+  likert7_agreement:
+    min: 1
+    max: 7
+    direction: agree
+    anchor_left: Strongly DISAGREE
+    anchor_center: Neither / Neutral
+    anchor_right: Strongly AGREE
+    spss_value_labels:
+      1: Strongly disagree
+      2: Disagree
+      3: Somewhat disagree
+      4: Neither agree nor disagree
+      5: Somewhat agree
+      6: Agree
+      7: Strongly agree
+    topline_metric: top3              # 5-6-7 % is the headline figure
+    notes: Standard PRISM agree-disagree battery scale.
+
+  likert7_relevance:
+    min: 1
+    max: 7
+    direction: relevance
+    anchor_left: Not at all RELEVANT
+    anchor_center: Neither / Neutral
+    anchor_right: Extremely RELEVANT
+    spss_value_labels:
+      1: Not at all relevant
+      2: Slightly relevant
+      3: Somewhat relevant
+      4: Moderately relevant
+      5: Relevant
+      6: Very relevant
+      7: Extremely relevant
+    topline_metric: top3
+    notes: Used for Moral Foundations Questionnaire.
+
+  likert7_trust:
+    min: 1
+    max: 7
+    direction: trust
+    anchor_left: No trust at all
+    anchor_center: Neutral
+    anchor_right: Complete trust
+    spss_value_labels:
+      1: No trust at all
+      2: Very little trust
+      3: A little trust
+      4: Moderate trust
+      5: Some trust
+      6: A lot of trust
+      7: Complete trust
+    topline_metric: top3
+    notes: Trusted Sources battery scale.
+
+  binary_aware:
+    min: 0
+    max: 1
+    direction: knowledge
+    spss_value_labels:
+      1: Heard / aware
+      0: Not heard / not aware
+    topline_metric: pct1              # % of respondents coded 1
+    notes: HIV Knowledge battery. K5 ("epidemic effectively over") is the
+           false-belief trap item; scored opposite in HKS composite.
+
+  prepost_top3:
+    min: 1
+    max: 7
+    direction: agree
+    anchor_left: Strongly DISAGREE
+    anchor_center: Neutral
+    anchor_right: Strongly AGREE
+    topline_metric: top3
+    sig_test: mcnemar_paired
+    notes: Pre/post message-test items. Each appears twice in the
+           instrument; topline shows PRE, POST, and paired delta.

@@ -1,0 +1,84 @@
+# Rake-weighting targets — Registered Voters, 2026
+#
+# Population: U.S. registered voters (Census CPS, Nov 2024 supplement;
+# 2024 voter file refreshes).
+#
+# Per-study YAML references this file by population_id. Generators emit
+# the corresponding SPSS RAKE syntax. Targets are POPULATION SHARES
+# (sum to 100% within each variable). Update annually as benchmarks
+# refresh.
+#
+# TODO(analyst): values below are TEMPLATE PLACEHOLDERS — populate
+# from current CPS / voter-file extracts before production use.
+
+schema_version: 1
+population_id: registered_voters_2026
+benchmark_source: U.S. Census CPS Nov-2024 supplement + L2 voter file refresh
+last_updated: 2026-01-15
+rake_method: iterative_proportional_fitting   # SPSS RAKING command
+convergence_tolerance: 0.0001
+max_iterations: 50
+
+# ── Demographic margins ───────────────────────────────────────────────
+demographics:
+  gender:
+    spss_var: gender
+    targets:
+      male:    48.0
+      female:  52.0
+
+  age_band:
+    spss_var: age_band
+    targets:
+      "18-29": 18.0
+      "30-44": 26.0
+      "45-64": 33.0
+      "65+":   23.0
+
+  region:
+    spss_var: region4
+    targets:
+      Northeast: 17.0
+      Midwest:   21.0
+      South:     38.0
+      West:      24.0
+
+  education:
+    spss_var: educ
+    targets:
+      "HS or less":      35.0
+      "Some college":    27.0
+      "BA":              22.0
+      "Postgrad":        16.0
+
+  race_ethnicity:
+    spss_var: race4
+    targets:
+      "White, non-Hispanic":  68.0
+      "Black, non-Hispanic":  12.0
+      "Hispanic":             14.0
+      "Other / multi":         6.0
+
+# ── PRISM 16-segment population shares ────────────────────────────────
+# Targets are PRISM-canonical population shares within registered
+# voters. Sum to 100%. The pipeline rakes XSEG_ASSIGNED to these so
+# segment-level cells reflect the true population mix.
+segments:
+  spss_var: XSEG_ASSIGNED
+  targets:
+    TSP:  6.5
+    CEC:  5.0
+    TC:   8.5
+    HF:   3.5
+    PP:   5.5
+    WE:   4.0
+    PFF:  3.0
+    HHN:  3.5
+    MFL:  3.0
+    VS:   2.5
+    UCP:  9.0
+    FJP:  6.5
+    HCP:  8.0
+    HAD:  7.0
+    HCI: 12.0
+    GHI: 12.5
