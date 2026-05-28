@@ -5,10 +5,45 @@
 // toggle), mean + bot-3 in the detail row. Sig markers = z-test on top-3
 // proportion vs. rest of sample. Data comes from dashboard.json['trust']
 // (emitted by compute_core's _stats helper, same as every other 7-pt item).
+//
+// Optional "Enable column sort" toggle (off by default) makes the column
+// headers click-to-sort by that column's top-3 %. First click → desc, second
+// → asc, third → clear.
 
+import { useMemo, useState } from "react";
 import { DataCell, BannerTableHead } from "../components/Cell";
 
 export default function TrustModule({ trust, segments, study }) {
+  const [sortEnabled, setSortEnabled] = useState(false);
+  const [sortCol, setSortCol] = useState(null);
+  const [sortDir, setSortDir] = useState("desc");
+
+  function handleSort(code) {
+    if (sortCol !== code) {
+      setSortCol(code);
+      setSortDir("desc");
+    } else if (sortDir === "desc") {
+      setSortDir("asc");
+    } else {
+      setSortCol(null);
+      setSortDir("desc");
+    }
+  }
+
+  const sortedTrust = useMemo(() => {
+    if (!sortEnabled || !sortCol || !trust?.length) return trust;
+    const dir = sortDir === "asc" ? 1 : -1;
+    return [...trust].sort((a, b) => {
+      const av = a.cuts?.[sortCol]?.top3;
+      const bv = b.cuts?.[sortCol]?.top3;
+      // Push null/missing values to the bottom regardless of sort direction.
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return (av - bv) * dir;
+    });
+  }, [trust, sortEnabled, sortCol, sortDir]);
+
   if (!trust?.length) {
     return (
       <div
@@ -65,6 +100,22 @@ export default function TrustModule({ trust, segments, study }) {
             on top-3 proportion vs the rest of the sample. Mean and 1-7
             frequency distribution available via the cell toggles.
           </div>
+          <label className="trust-sort-toggle">
+            <input
+              type="checkbox"
+              checked={sortEnabled}
+              onChange={(e) => {
+                setSortEnabled(e.target.checked);
+                if (!e.target.checked) setSortCol(null);
+              }}
+            />
+            <span>Enable column sort</span>
+            {sortEnabled && sortCol && (
+              <span className="trust-sort-hint">
+                sorted by <strong>{sortCol}</strong> {sortDir === "asc" ? "▲" : "▼"} · click header again to {sortDir === "desc" ? "flip" : "clear"}
+              </span>
+            )}
+          </label>
         </div>
         <table className="banner-table">
           <BannerTableHead
@@ -72,9 +123,13 @@ export default function TrustModule({ trust, segments, study }) {
             totalN={totalN}
             partyA={study?.party_band_a_label}
             partyB={study?.party_band_b_label}
+            sortable={sortEnabled}
+            sortCol={sortCol}
+            sortDir={sortDir}
+            onSort={handleSort}
           />
           <tbody>
-            {trust.map((t) => {
+            {sortedTrust.map((t) => {
               const totalTop3 = t.cuts?.TOTAL?.top3 ?? null;
               return (
                 <tr key={t.code}>
