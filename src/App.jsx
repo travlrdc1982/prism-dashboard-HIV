@@ -9,8 +9,11 @@ import SegmentProfile from "./pages/SegmentProfile";
 import Topline from "./components/Topline/Topline";
 import Login from "./pages/Login";
 
-// Auth gate paused per Bryan's request — flip to false to require login again.
-const BYPASS_AUTH = true;
+// Auth gate. Set BYPASS_AUTH = true to skip the login screen entirely (used
+// for early-stage review when the dashboard wasn't yet locked down).
+// Production: false — the dashboard requires a valid Supabase session,
+// scoped to the project configured in src/supabaseClient.js.
+const BYPASS_AUTH = false;
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
