@@ -30,7 +30,7 @@ HEADER = """/* PRISM Topline — ported from dashboard_template.html (style bloc
 
 
 def extract_style_block(path):
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         html = f.read()
     start = html.find("<style>")
     end = html.find("</style>", start)
@@ -141,7 +141,7 @@ def main():
         sys.exit(f"Source template not found: {SRC}")
     raw = extract_style_block(SRC)
     scoped = scope(raw)
-    with open(OUT, "w") as f:
+    with open(OUT, "w", encoding="utf-8") as f:
         f.write(HEADER + scoped)
     print(f"Wrote {OUT} ({os.path.getsize(OUT)} bytes)")
 

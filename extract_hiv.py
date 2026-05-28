@@ -229,14 +229,14 @@ def write_study_js(meta, messages, sm, prepost_labels, K):
     L.append("")
 
     out = "\n".join(L)
-    with open("src/data/study.js", "w") as f:
+    with open("src/data/study.js", "w", encoding="utf-8") as f:
         f.write(out)
     print(f"Wrote src/data/study.js ({len(out)} bytes, K={K})")
 
 
 def write_study_data_js(messages, sm, prepost_labels):
     """Replace the HIV block in studyData.js. Keeps the DATA.segments skeleton intact."""
-    with open("src/data/studyData.js") as f:
+    with open("src/data/studyData.js", encoding="utf-8") as f:
         existing = f.read()
     marker = '  "HIV": {'
     idx = existing.find(marker)
@@ -279,7 +279,7 @@ def write_study_data_js(messages, sm, prepost_labels):
     hiv_indented = "\n".join("  " + line for line in hiv_json.split("\n"))
 
     new_content = header + "  \"HIV\": " + hiv_indented.lstrip() + "\n};\n\nexport default DATA;\n"
-    with open("src/data/studyData.js", "w") as f:
+    with open("src/data/studyData.js", "w", encoding="utf-8") as f:
         f.write(new_content)
     print(f"Wrote src/data/studyData.js ({len(new_content)} bytes)")
 

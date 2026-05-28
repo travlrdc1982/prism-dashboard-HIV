@@ -48,7 +48,7 @@ def pop_weighted_sd(values_by_seg, pops, seg_ids, mean):
 
 
 def main():
-    dash = json.load(open(DASH))
+    dash = json.load(open(DASH, encoding="utf-8"))
 
     # Segment population shares (use pct_wgt fraction)
     pops = {}
@@ -293,8 +293,8 @@ def main():
                 "Republicans": round(rep, 4) if rep is not None else None,
                 "Democrats": round(dem, 4) if dem is not None else None,
             })
-        with open("src/data/hiv/trust.json", "w") as f:
-            json.dump(trust_hiv, f, indent=2)
+        with open("src/data/hiv/trust.json", "w", encoding="utf-8") as f:
+            json.dump(trust_hiv, f, indent=2, ensure_ascii=False)
         trust_status = f"REGENERATED from dashboard.json ({len(trust_hiv)} messengers)"
     else:
         trust_status = ("UNCHANGED — dashboard.json has no `trust` block yet. "
@@ -302,14 +302,14 @@ def main():
                         "to make trust single-source.")
 
     # ── Write files ──
-    with open("src/data/hiv/seg_data.json", "w") as f:
-        json.dump(seg_data, f, indent=2)
-    with open("src/data/hiv/bench.json", "w") as f:
-        json.dump(bench, f, indent=2)
-    with open("src/data/hiv/items.json", "w") as f:
-        json.dump(items, f, indent=2)
-    with open("src/data/hiv/zparams.json", "w") as f:
-        json.dump(zparams, f, indent=2)
+    with open("src/data/hiv/seg_data.json", "w", encoding="utf-8") as f:
+        json.dump(seg_data, f, indent=2, ensure_ascii=False)
+    with open("src/data/hiv/bench.json", "w", encoding="utf-8") as f:
+        json.dump(bench, f, indent=2, ensure_ascii=False)
+    with open("src/data/hiv/items.json", "w", encoding="utf-8") as f:
+        json.dump(items, f, indent=2, ensure_ascii=False)
+    with open("src/data/hiv/zparams.json", "w", encoding="utf-8") as f:
+        json.dump(zparams, f, indent=2, ensure_ascii=False)
 
     print("Derived HIV-tab data from dashboard.json:")
     print(f"  seg_data.json: {len(seg_data)} segments")
