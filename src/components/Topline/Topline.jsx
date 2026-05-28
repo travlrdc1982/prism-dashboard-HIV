@@ -105,10 +105,19 @@ export default function Topline() {
     (fullDist ? " fullDist" : "") +
     (bannerFull ? " banner-full" : "");
 
+  // Effective module list: keep dashboard.json's module config as-is, but
+  // light up module 06 ("sources") once the pipeline has emitted trust data.
+  // Shared between the in-page section gating below and the top ModNav chip.
+  const effectiveModules = modules.map((m) =>
+    m.id === "sources" && !m.active && dashboard.trust?.length > 0
+      ? { ...m, active: true }
+      : m
+  );
+
   return (
     <div ref={rootRef} className={rootClass} style={{ margin: "-24px -28px" }}>
       <TopNav study={study} onOpenInspector={() => setInspectorOpen(true)} />
-      <ModNav modules={modules} />
+      <ModNav modules={effectiveModules} />
 
       {/* Banner-full toggle + always-visible legend */}
       <div className="topline-controls">
@@ -125,12 +134,9 @@ export default function Topline() {
 
       <TitlePage study={study} segments={segments} />
 
-      {modules.map((m) => {
+      {effectiveModules.map((m) => {
         const Renderer = MODULE_RENDERERS[m.id];
-        // Module 06 (Trusted Sources) is active:false in dashboard.json per
-        // the brief, but we light it up once the pipeline has emitted trust
-        // data (i.e., the user opted in by computing it).
-        const isActive = m.active || (m.id === "sources" && dashboard.trust?.length > 0);
+        const isActive = m.active;
         const showToggles = TOGGLE_MODULES.has(m.id) && isActive;
         return (
           <ModuleSection
