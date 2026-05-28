@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { C, FONT } from "../data/theme";
 import { STUDY_META } from "../data/study";
+import { isAdminEmail } from "../data/admins";
 
 const NAV_ITEMS = [
   { to: "/",          label: "AUDIENCE MAP" },
@@ -12,6 +14,13 @@ const NAV_ITEMS = [
 ];
 
 export default function Shell() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAdmin(isAdminEmail(data?.user?.email));
+    });
+  }, []);
+
   return (
     <div style={{ background: C.bg, minHeight: "100vh", fontFamily: FONT, color: C.text }}>
       <link
@@ -61,8 +70,22 @@ export default function Shell() {
           ))}
         </nav>
 
-        {/* Study badge + Sign out */}
+        {/* Admin link + Study badge + Sign out */}
         <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              style={({ isActive }) => ({
+                fontSize: 9, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase",
+                padding: "4px 10px", borderRadius: 4,
+                border: `1px solid ${isActive ? "#3b82f6" : C.cardBorder}`,
+                color: isActive ? "#60a5fa" : C.textDim,
+                textDecoration: "none", fontFamily: "'Nunito',sans-serif",
+              })}
+            >
+              ADMIN
+            </NavLink>
+          )}
           <div style={{
             fontSize: 9, fontWeight: 600, color: C.textDim,
             letterSpacing: 1, textTransform: "uppercase",
