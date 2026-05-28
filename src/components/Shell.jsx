@@ -16,9 +16,14 @@ const NAV_ITEMS = [
 export default function Shell() {
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
+    let active = true;
     supabase.auth.getUser().then(({ data }) => {
-      setIsAdmin(isAdminEmail(data?.user?.email));
+      if (active) setIsAdmin(isAdminEmail(data?.user?.email));
     });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdmin(isAdminEmail(session?.user?.email));
+    });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
   return (
