@@ -265,19 +265,25 @@ def main():
     # existing persona-pipeline trust.json untouched and warn.
     dash_trust = dash.get("trust")
     if dash_trust:
-        # dashboard.json trust is banner-shape (cuts: TOTAL + segment codes,
-        # each with val/n/sig). The HIV tab needs {code, label, by_segment,
-        # All, Republicans, Democrats}. Transform: by_segment[id]=cuts[code].val,
-        # All=cuts.TOTAL.val, R/D = population-weighted party means.
+        # dashboard.json trust is full 7-pt banner shape (cuts have
+        # n/mean/freq[7]/top3/bot3 + z-test on top-3 vs rest). The HIV tab
+        # needs raw means in {code, label, by_segment, All, Republicans,
+        # Democrats}. We pull cell.mean for each cut; R/D = population-
+        # weighted party means.
+        def cell_mean(c):
+            if not c:
+                return None
+            # New shape uses 'mean'; legacy/composite shape uses 'val'
+            return c.get("mean") if c.get("mean") is not None else c.get("val")
+
         trust_hiv = []
         for t in dash_trust:
             cuts = t.get("cuts", {})
             by_segment = {}
             for sid, name in SEG_NAME.items():
-                cell = cuts.get(name)
-                by_segment[str(sid)] = cell["val"] if cell and cell.get("val") is not None else None
+                by_segment[str(sid)] = cell_mean(cuts.get(name))
             bs_num = {int(k): v for k, v in by_segment.items()}
-            total = cuts.get("TOTAL", {}).get("val")
+            total = cell_mean(cuts.get("TOTAL"))
             rep = pop_weighted_mean(bs_num, pops, list(GOP))
             dem = pop_weighted_mean(bs_num, pops, list(DEM))
             trust_hiv.append({

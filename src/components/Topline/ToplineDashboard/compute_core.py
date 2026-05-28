@@ -2157,51 +2157,40 @@ def build_topline(df, out_dir='.', weight_var=None):
 
     # ── Write JSON snapshot ────────────────────────────────────────
     # ── Trust battery → dashboard.json['trust'] ───────────────────
-    # Banner-level data: per-segment weighted mean + n + Welch t-test sig
-    # vs. rest of sample — same structure and WGT weighting as the
-    # composites block, so it renders in the topline banner and the HIV
-    # persona tab can derive trust.json from the same single source.
-    # The display module (06) stays active:False per the brief; this emits
-    # the data, the React side decides whether to show it.
+    # Banner-level data: per-segment full 7-point stats (mean + 1-7 freq
+    # distribution + top-3 / bot-3) + z-test on top-3 proportion vs rest of
+    # sample — same structure as every other 7-point item in the topline
+    # (HIV Stigma, Critics). Uses df['WGT'], so the HIV persona tab can
+    # derive trust.json from the same single source. The display module (06)
+    # stays active:False per the brief; this emits the data, the React side
+    # decides whether to show it.
     trust_out = []
-    w_trust = pd.to_numeric(df['WGT'], errors='coerce').fillna(1.0)
-
-    def _trust_mean_cell(series, mask):
-        v = series[mask]
-        wt = w_trust[mask]
-        n = int(mask.sum())
-        n_wgt = float(wt.sum())
-        val = float((v * wt).sum() / n_wgt) if n_wgt > 0 else 0.0
-        return {'n': n, 'n_wgt': round(n_wgt, 1), 'val': round(val, 3), 'metric': 'mean'}
-
     for var, label in TRUST_LBL.items():
         if var not in df.columns:
             continue
         col = pd.to_numeric(df[var], errors='coerce')
-        notna = col.notna()
-        entry = {'code': var, 'label': label, 'metric': 'mean', 'cuts': {}}
-        entry['cuts']['TOTAL'] = _trust_mean_cell(col, notna)
-        for s in sample:
-            seg_mask = segment_masks.get(s['code'])
-            if seg_mask is None:
+        cuts = OrderedDict()
+        s_total = _stats(col, df['WGT'])
+        if s_total:
+            cuts['TOTAL'] = s_total
+        for sid, code, name, party in SEGMENTS:
+            mask = df['SEG'] == code
+            s = _stats(col[mask], df['WGT'][mask])
+            if not s:
                 continue
-            mask = seg_mask & notna
-            cell = _trust_mean_cell(col, mask)
-            # Welch t-test: segment vs rest of sample
-            seg_vals = col[mask].tolist()
-            rest_vals = col[(~seg_mask) & notna].tolist()
-            if len(seg_vals) >= 2 and len(rest_vals) >= 2:
-                t, p = welch_t_two_sample(seg_vals, rest_vals)
-                cell['t'] = round(t, 2)
-                cell['p'] = round(p, 4)
-                cell['sig'] = 2 if p < 0.01 else (1 if p < 0.05 else 0)
-            else:
-                cell['t'] = 0.0
-                cell['sig'] = 0
-            entry['cuts'][s['code']] = cell
-        trust_out.append(entry)
+            if s_total:
+                z = ztest_prop_vs_rest(s['top3_count'], s['n'], s_total['top3_count'], s_total['n'])
+                s['z_top3'] = round(z, 2)
+                s['sig_top3'] = sig_level(z)
+                s['sig_dir'] = (1 if z > 0 else -1) if s['sig_top3'] > 0 else 0
+            cuts[code] = s
+        if cuts:
+            trust_out.append({
+                'code': var, 'label': label, 'metric': 'top3', 'scale': 7,
+                'cuts': cuts,
+            })
     if trust_out:
-        print(f"Computed trust battery: {len(trust_out)} messengers (banner cells + sig)")
+        print(f"Computed trust battery: {len(trust_out)} messengers (full 7-pt stats + sig)")
 
     out = {
         'study': {**STUDY,
