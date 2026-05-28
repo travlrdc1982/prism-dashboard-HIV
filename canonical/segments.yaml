@@ -1,0 +1,79 @@
+# PRISM 16-Segment Registry (shared across all studies)
+#
+# Canonical definition of the 16-segment frame produced by the PRISM
+# Typing Tool. Studies reference segments by `code`; never by ordinal
+# `id` (id is preserved only for stable join keys).
+#
+# DO NOT EDIT per-study. Changes here propagate to every study.
+
+schema_version: 1
+registry: prism_segments
+
+segments:
+  # GOP Coalition (10 segments) ──────────────────────────────────────
+  - id: 1
+    code: TSP
+    name: Trust-the-Science Pragmatists
+    coalition: GOP
+  - id: 2
+    code: CEC
+    name: Consumer Empowerment Champions
+    coalition: GOP
+  - id: 3
+    code: TC
+    name: Traditional Conservatives
+    coalition: GOP
+  - id: 4
+    code: HF
+    name: Health Futurist
+    coalition: GOP
+  - id: 5
+    code: PP
+    name: Price Populists
+    coalition: GOP
+  - id: 6
+    code: WE
+    name: Wellness Evangelists
+    coalition: GOP
+  - id: 7
+    code: PFF
+    name: Paleo Freedom Fighters
+    coalition: GOP
+  - id: 8
+    code: HHN
+    name: Holistic Health Naturalists
+    coalition: GOP
+  - id: 9
+    code: MFL
+    name: Medical Freedom Libertarians
+    coalition: GOP
+  - id: 10
+    code: VS
+    name: Vaccine Skeptics
+    coalition: GOP
+
+  # DEM Coalition (6 segments) ───────────────────────────────────────
+  - id: 11
+    code: UCP
+    name: Universal Care Progressives
+    coalition: DEM
+  - id: 12
+    code: FJP
+    name: Faith & Justice Progressives
+    coalition: DEM
+  - id: 13
+    code: HCP
+    name: Health Care Protectionists
+    coalition: DEM
+  - id: 14
+    code: HAD
+    name: Health Abundance Democrats
+    coalition: DEM
+  - id: 15
+    code: HCI
+    name: Health Care Incrementalists
+    coalition: DEM
+  - id: 16
+    code: GHI
+    name: Global Health Institutionalists
+    coalition: DEM

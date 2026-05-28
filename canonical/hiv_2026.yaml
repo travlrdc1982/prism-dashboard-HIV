@@ -1,0 +1,400 @@
+# PRISM HIV Treatment & Prevention — 2026 Study Definition
+#
+# This file is the canonical source for everything study-specific:
+# items, batteries, composites, modules, demographics, weighting
+# targets, study metadata. Generators read this and emit SPSS syntax,
+# Decipher XML, compute_core registries, dashboard schema, etc.
+#
+# Analyst note: you don't edit this directly. The Excel workbook
+# `HIV_Study_Template.xlsx` round-trips to this YAML via the sync
+# script. Edit Excel; the YAML regenerates on save.
+
+schema_version: 1
+study:
+  id: PRISM_HIV_2026
+  title: PRISM HIV Treatment & Prevention
+  subtitle: PRISM Voter Study — RCG / Dynata
+  client: RCG / HAIG
+  topic: HIV treatment & prevention
+  wave: 1
+  field_dates: TBD                      # computed from .sav `date` var
+  analyst: Bryan Dumont
+  version: v1.0
+  spss_file: data/260433.sav
+  weight_var: WGT
+  weight_note: Production rake weights applied (WGT). Weighted n equals sample n.
+
+# ── Library selections ─────────────────────────────────────────────
+# Which versioned canonical artifacts this study locks against.
+library_refs:
+  segments: prism_segments              # canonical/segments.yaml
+  scales: prism_scales                  # canonical/scales.yaml
+  rake_targets: registered_voters_2026  # canonical/rake_targets/registered_voters_2026.yaml
+  roi_model: v2.1                       # canonical/roi_model/v2.1.yaml (future)
+  battery_templates: v1                 # (future) hivstigma-style, mfq-style, ...
+
+# ── Coalition / party labels (UI strings) ──────────────────────────
+ui:
+  nav_brand: PRISM
+  nav_study_label: HIV Treatment & Prevention
+  coalition_a_label: GOP Coalition
+  coalition_b_label: DEM Coalition
+  party_band_a_label: GOP COALITION
+  party_band_b_label: DEM COALITION
+
+# ─────────────────────────────────────────────────────────────────────
+# BATTERIES — shared defaults for multi-item batteries. Each item that
+# references a battery via `battery:` inherits these fields, with
+# auto-generated survey.text / survey.progress / codebook.var.
+# ─────────────────────────────────────────────────────────────────────
+batteries:
+  hivstigma:
+    section: stigma
+    scale: likert7_agreement
+    total: 13
+    survey:
+      style: CARDSHUFFLE
+      intro: >-
+        People hold many different views on the following issues. Please
+        tell us how much you agree or disagree with each statement. There
+        are no right or wrong answers.
+      stem: For each statement, indicate how much you agree or disagree…
+    codebook:
+      filter: Designed split sample · n=833 valid of 1,044 total
+      block: HIV Stigma battery (randomized order, k=13 items)
+      recode: None
+      design_note: >-
+        Battery on a designed split sample (LOI-reduction allocation):
+        ~80% of respondents received these items. Sig markers compare
+        each segment against the rest of the valid sample within this
+        battery.
+    metric_label_scale: Top-3 Box (5-7) of 7-pt agree-disagree scale
+
+  mfq:
+    section: stigma
+    scale: likert7_relevance
+    total: 8
+    survey:
+      style: CARDSHUFFLE
+      intro: >-
+        Now consider a different set of moral concerns. For each item
+        below, please indicate how relevant it is to how you make moral
+        judgments, from 1 ('Not at all relevant') to 7 ('Extremely
+        relevant').
+      stem: How relevant is this consideration to how you make moral judgments?
+    codebook:
+      filter: Designed split sample · n=829 valid of 1,044 total
+      block: Moral Foundations Questionnaire (randomized order, k=8 items)
+      recode: None
+      citation: >-
+        Graham J, Haidt J, Nosek BA (2009). Liberals and conservatives
+        rely on different sets of moral foundations. J Pers Soc Psychol,
+        96(5), 1029–46.
+      design_note: >-
+        Abbreviated MFQ on a designed split sample. Care (r1, r2),
+        Purity (r3, r4), Fairness (r5), Liberty (r6), Loyalty (r7),
+        Authority (r8). Care/Purity items feed CFS, PFS, SCF composites.
+    metric_label_scale: Top-3 Box (5-7) of 7-pt relevance scale
+
+  critics:
+    section: critics
+    scale: likert7_agreement
+    total: 11
+    survey:
+      style: CARDSHUFFLE
+      intro: >-
+        You'll now see a handful of statements drawn from people who see
+        this issue from a variety of perspectives. We're interested in
+        your honest reaction to how these arguments land with you.
+      stem: For each statement, indicate how much you agree or disagree…
+    codebook:
+      filter: All respondents (n=957 valid)
+      block: Critics Messages (randomized order, k=11 items)
+      recode: None
+      design_note: Order of critic messages rotated before and after outcome pre-test measures.
+    metric_label_scale: Top-3 Box (5-7) of 7-pt agree-disagree scale
+
+  trust:
+    section: sources
+    scale: likert7_trust
+    total: 22
+    codebook:
+      filter: Split sample · n varies
+      block: Trusted Sources battery
+      recode: None
+      design_note: >-
+        QTRUSTr3 (personal physician) excluded from the deployable list
+        for messaging purposes; kept in dataset for reference.
+    metric_label_scale: Top-3 Box (5-7) of 7-pt trust scale
+
+# ─────────────────────────────────────────────────────────────────────
+# ITEMS — every fielded question. SPSS var name = `code`. Items inherit
+# battery defaults; only fields that differ from the battery need to be
+# set per item.
+#
+# `construct` tags map items to composites (see composites: below).
+# `item_bank_id` is the stable cross-study ID (populated on QC publish).
+# ─────────────────────────────────────────────────────────────────────
+items:
+  # ── HIV Stigma battery (QHIVSTIGMAr1 – QHIVSTIGMAr13) ──────────────
+  - code: QHIVSTIGMAr1
+    battery: hivstigma
+    construct: SB           # → MBS (Moral Blame Score)
+    item_bank_id: hivstigma_sb_1
+    wording: >-
+      HIV transmission today is largely the result of personal choices
+      people make about sex.
+    metric_label: '% AGREE — HIV: Sexual Behavior is a Choice [SB1 → MBS]'
+
+  - code: QHIVSTIGMAr2
+    battery: hivstigma
+    construct: SB
+    item_bank_id: hivstigma_sb_2
+    wording: People who contract HIV should take more personal responsibility for their behavior.
+    metric_label: '% AGREE — HIV: Personal Responsibility for Behavior [SB2 → MBS]'
+
+  - code: QHIVSTIGMAr3
+    battery: hivstigma
+    construct: SD           # → SDS (Social Distance / Comfort)
+    item_bank_id: hivstigma_sd_1
+    wording: I would feel comfortable working alongside a colleague who is HIV-positive.
+    metric_label: '% AGREE — Comfort: Working with HIV+ Colleague [SD1 → SDS]'
+
+  - code: QHIVSTIGMAr4
+    battery: hivstigma
+    construct: SD
+    item_bank_id: hivstigma_sd_2
+    wording: I could see myself developing a close friendship with someone who is HIV-positive.
+    metric_label: '% AGREE — Comfort: Close Friendship with HIV+ Person [SD2 → SDS]'
+
+  - code: QHIVSTIGMAr5
+    battery: hivstigma
+    construct: EQ           # → EDS (Excessive Demands)
+    item_bank_id: hivstigma_eq_1
+    wording: LGBTQ activists have pushed their agenda too hard in recent years.
+    metric_label: '% AGREE — Anti-LGBTQ: Pushed Too Hard [EQ1 → EDS]'
+
+  - code: QHIVSTIGMAr6
+    battery: hivstigma
+    construct: EQ
+    item_bank_id: hivstigma_eq_2
+    wording: LGBTQ issues get more attention than they deserve.
+    metric_label: '% AGREE — Anti-LGBTQ: Excessive Attention [EQ2 → EDS]'
+
+  - code: QHIVSTIGMAr7
+    battery: hivstigma
+    construct: SC           # → SCS (Social Comfort, LGBTQ)
+    item_bank_id: hivstigma_sc_1
+    wording: I would be comfortable having LGBTQ neighbors.
+    metric_label: '% AGREE — Comfort: LGBTQ Neighbors [SC1 → SCS]'
+
+  - code: QHIVSTIGMAr8
+    battery: hivstigma
+    construct: SC
+    item_bank_id: hivstigma_sc_2
+    wording: I feel comfortable being around LGBTQ persons.
+    metric_label: '% AGREE — Comfort: Around LGBTQ Persons [SC2 → SCS]'
+
+  # NOTE: QHIVSTIGMAr9 – r13 (5 more items) to be filled from compute_core.py
+  # — included here as stubs so the schema validates. Backfill before round-trip.
+  - { code: QHIVSTIGMAr9,  battery: hivstigma, construct: STIGMA_OTHER, wording: TODO, metric_label: TODO }
+  - { code: QHIVSTIGMAr10, battery: hivstigma, construct: STIGMA_OTHER, wording: TODO, metric_label: TODO }
+  - { code: QHIVSTIGMAr11, battery: hivstigma, construct: STIGMA_OTHER, wording: TODO, metric_label: TODO }
+  - { code: QHIVSTIGMAr12, battery: hivstigma, construct: STIGMA_OTHER, wording: TODO, metric_label: TODO }
+  - { code: QHIVSTIGMAr13, battery: hivstigma, construct: STIGMA_OTHER, wording: TODO, metric_label: TODO }
+
+  # ── MFQ battery (QMFQr1 – QMFQr8) ──────────────────────────────────
+  - code: QMFQr1
+    battery: mfq
+    construct: CARE         # → CFS
+    item_bank_id: mfq_care_1
+    wording: Whether or not someone suffered emotionally.
+    metric_label: '% RELEVANT — Care: Suffering / Emotional Harm [Care1 → CFS]'
+
+  - code: QMFQr2
+    battery: mfq
+    construct: CARE
+    item_bank_id: mfq_care_2
+    wording: Whether or not someone cared for someone weak or vulnerable.
+    metric_label: '% RELEVANT — Care: Compassion for Worse Off [Care2 → CFS]'
+
+  - code: QMFQr3
+    battery: mfq
+    construct: PURITY       # → PFS
+    item_bank_id: mfq_purity_1
+    wording: Whether or not someone violated standards of purity or decency.
+    metric_label: '% RELEVANT — Purity: Moral Disgust / Decency [Purity1 → PFS]'
+
+  - code: QMFQr4
+    battery: mfq
+    construct: PURITY
+    item_bank_id: mfq_purity_2
+    wording: Whether or not someone did something disgusting.
+    metric_label: '% RELEVANT — Purity: Disgust [Purity2 → PFS]'
+
+  # Remaining MFQ items (r5-r8) — included for completeness; not in composites.
+  - { code: QMFQr5, battery: mfq, construct: FAIRNESS,  wording: TODO, metric_label: '% RELEVANT — Fairness' }
+  - { code: QMFQr6, battery: mfq, construct: LIBERTY,   wording: TODO, metric_label: '% RELEVANT — Liberty' }
+  - { code: QMFQr7, battery: mfq, construct: LOYALTY,   wording: TODO, metric_label: '% RELEVANT — Loyalty' }
+  - { code: QMFQr8, battery: mfq, construct: AUTHORITY, wording: TODO, metric_label: '% RELEVANT — Authority' }
+
+  # ── HIV Knowledge battery (QHIVr1 – QHIVr11) ───────────────────────
+  # Binary aware/not-aware; K5 is the false-belief trap.
+  - { code: QHIVr1,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K1' }
+  - { code: QHIVr2,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K2' }
+  - { code: QHIVr3,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K3' }
+  - { code: QHIVr4,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K4' }
+  - { code: QHIVr5,  scale: binary_aware, construct: KNOW_FALSE, wording: "HIV/AIDS epidemic is effectively over.",
+      metric_label: '% AWARE — K5 (FALSE STATEMENT — trap item)', trap: true, excluded_from_composite: HKS }
+  - { code: QHIVr6,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K6' }
+  - { code: QHIVr7,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K7' }
+  - { code: QHIVr8,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K8' }
+  - { code: QHIVr9,  scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K9' }
+  - { code: QHIVr10, scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K10' }
+  - { code: QHIVr11, scale: binary_aware, construct: KNOW, wording: TODO, metric_label: '% AWARE — K11' }
+
+  # NOTE: Critics, trust, prepost, demographics, influencer items omitted
+  # from first cut. Will be added in next pass once this section's schema
+  # is reviewed.
+
+# ─────────────────────────────────────────────────────────────────────
+# COMPOSITES — study-specific indices computed from items above.
+# Per the v0.2 PRD, composites are PER-STUDY, not canonical.
+#
+# `formula` is a small expression DSL: mean(), sum_aware(), and basic
+# arithmetic. Generators emit SPSS COMPUTE / COUNT syntax from this.
+# ─────────────────────────────────────────────────────────────────────
+composites:
+  - code: MBS
+    label: Moral Blame Score
+    construct_source: hivstigma.SB
+    spss_var: XMBS
+    formula: mean(QHIVSTIGMAr1, QHIVSTIGMAr2)
+    metric: mean
+    scale: 1-7
+    direction: high_blame
+    narrative: Higher = more moral blame attributed to HIV+ individuals.
+
+  - code: SDS
+    label: Social Distance / Comfort (HIV+)
+    construct_source: hivstigma.SD
+    spss_var: XSDS
+    formula: mean(QHIVSTIGMAr3, QHIVSTIGMAr4)
+    metric: mean
+    scale: 1-7
+    direction: high_comfort
+    narrative: Higher = more comfort around HIV+ persons. Reverse-coded
+               (`8 - val`) for "avoidance" framing on the HIV persona tab.
+
+  - code: EDS
+    label: Excessive Demands Score (anti-LGBTQ)
+    construct_source: hivstigma.EQ
+    spss_var: XEDS
+    formula: mean(QHIVSTIGMAr5, QHIVSTIGMAr6)
+    metric: mean
+    scale: 1-7
+    direction: high_resentment
+
+  - code: SCS
+    label: Social Comfort (LGBTQ)
+    construct_source: hivstigma.SC
+    spss_var: XSCS
+    formula: mean(QHIVSTIGMAr7, QHIVSTIGMAr8)
+    metric: mean
+    scale: 1-7
+    direction: high_comfort
+
+  - code: CFS
+    label: Care Foundations Score
+    construct_source: mfq.CARE
+    spss_var: XCFS
+    formula: mean(QMFQr1, QMFQr2)
+    metric: mean
+    scale: 1-7
+    direction: high_care
+
+  - code: PFS
+    label: Purity Foundations Score
+    construct_source: mfq.PURITY
+    spss_var: XPFS
+    formula: mean(QMFQr3, QMFQr4)
+    metric: mean
+    scale: 1-7
+    direction: high_purity
+
+  - code: SCF
+    label: Sanctity-Care Differential
+    construct_source: mfq.PURITY - mfq.CARE
+    spss_var: XSCF
+    formula: PFS - CFS
+    metric: mean_diff
+    scale: '-6 to +6'
+    direction: positive_is_purity_leaning
+    narrative: Positive = purity-leaning, negative = care-leaning.
+
+  - code: HKS
+    label: HIV Knowledge Score (0-10)
+    construct_source: items.KNOW
+    spss_var: XHKS
+    formula: sum_aware(QHIVr1, QHIVr2, QHIVr3, QHIVr4, QHIVr6, QHIVr7, QHIVr8, QHIVr9, QHIVr10, QHIVr11)
+    metric: sum
+    scale: 0-10
+    direction: high_knowledge
+    notes: Excludes QHIVr5 (false-belief trap).
+
+# ─────────────────────────────────────────────────────────────────────
+# MODULES — top-nav + dashboard sections. Order = display order.
+# `active: false` modules are deferred (placeholder shown).
+# ─────────────────────────────────────────────────────────────────────
+modules:
+  - id: stigma
+    active: true
+    tile_num: '01'
+    tile_title: HIV Stigma
+    tile_desc: HIV stigma · MFQ · knowledge · composites
+    section_meta: HIV stigma items, Moral Foundations, HIV knowledge, and composites (MBS, SDS, EDS, SCS, CFS, PFS, SCF, HKS)
+    batteries: [hivstigma, mfq]
+    composites: [MBS, SDS, EDS, SCS, CFS, PFS, SCF, HKS]
+
+  - id: prepost
+    active: true
+    tile_num: '02'
+    tile_title: Pre/Post Message Test
+    tile_desc: K pre/post item pairs · paired McNemar
+    batteries: [prepost]
+
+  - id: roi
+    active: true
+    tile_num: '03'
+    tile_title: Audience ROI Scorecard
+    source: workbook                  # rendered from HIV_Study_Template.xlsx, not pipeline
+
+  - id: critics
+    active: true
+    tile_num: '04'
+    tile_title: Critics & Counter-Messages
+    batteries: [critics]
+
+  - id: maxdiff
+    active: false
+    tile_num: '05'
+    tile_title: MaxDiff Message Test
+    note: Deferred — wave 2 feature.
+
+  - id: sources
+    active: false                     # lit up at render when dashboard.trust has data
+    tile_num: '06'
+    tile_title: Trusted Sources
+    batteries: [trust]
+
+  - id: demos
+    active: true
+    tile_num: '07'
+    tile_title: Demographics
+    batteries: [demographics]
+
+  - id: influencer
+    active: true
+    tile_num: '08'
+    tile_title: Influencer360
+    batteries: [influencer]
