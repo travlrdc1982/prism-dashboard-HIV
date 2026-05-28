@@ -1965,44 +1965,31 @@ def build_topline(df, out_dir='.', weight_var=None):
         stigma_extras['composites'] = composites_block
         print(f"Computed HIV Stigma extras: Knowledge {len(knowledge_block['items'])} items, Composites {len(composites_block['items'])} items")
 
-    # ── Compute ROI module (if active) ─────────────────────────────
+    # ── ROI module ─────────────────────────────────────────────────
+    # The /roi page renders its scorecard from the workbook (analyst-edited
+    # values in HIV_Study_Template.xlsx) — not from this pipeline. The
+    # legacy roi_infographic compute path was retired with the workbook
+    # cutover, so we just emit empty roi_svg / roi_data here; the topline's
+    # ROI section is functionally deferred to /roi for this study.
     roi_svg = ''
     roi_data = {}
-    roi_active = any(m.get('id') == 'roi' and m.get('active') for m in MODULES)
-    if roi_active:
-        try:
-            from roi_infographic import compute_roi_data, render_svg
-            roi_data = compute_roi_data(df, weight_var=weight_var)
-
-            # ── Apply workbook overrides (analyst-configured values) ──
-            # The HIV_Study_Template.xlsx workbook is the canonical source
-            # for per-segment tier / coalition_support / activation_prob /
-            # influence_pct. Pipeline-computed values are overridden here
-            # so both /roi and /topline ROI render identical numbers.
-            # If the workbook is missing or unreadable, fall back silently
-            # to the pipeline values.
-            try:
-                _apply_workbook_roi_overrides(roi_data)
-            except Exception as e:
-                print(f"NOTE: workbook ROI overrides not applied: {e}")
-
-            roi_total_n = sum(r['n'] for r in roi_data.values())
-            roi_svg = render_svg(roi_data, total_n=roi_total_n)
-            print(f"Computed ROI module: {len(roi_data)} segments, SVG {len(roi_svg):,} chars")
-        except Exception as e:
-            print(f"WARNING: ROI module compute failed: {e}")
-            roi_svg = ''
-            roi_data = {}
 
     # ── Compute field_dates from SPSS 'date' variable (Completion timestamp) ──
-    # SPSS internal date format = seconds since 1582-10-14.
+    # SPSS internal date format = seconds since 1582-10-14. Some exports
+    # (newer SPSS versions / certain field vendors) store the value in
+    # microseconds instead, which overflows pd.to_timedelta(unit='s').
+    # Detect by magnitude and convert accordingly.
     field_dates_str = STUDY.get('field_dates', 'TBD')
     if 'date' in df.columns:
         try:
-            d = pd.to_numeric(df['date'], errors='coerce')
-            base = pd.Timestamp('1582-10-14')
-            dates = base + pd.to_timedelta(d.dropna(), unit='s')
-            if len(dates) > 0:
+            d = pd.to_numeric(df['date'], errors='coerce').dropna()
+            if len(d) > 0:
+                # ~3.2e10 seconds covers years 1582-2600. Anything larger is
+                # almost certainly microseconds (or smaller time unit) since
+                # the same epoch.
+                unit = 's' if d.max() < 3.2e10 else 'us'
+                base = pd.Timestamp('1582-10-14')
+                dates = base + pd.to_timedelta(d, unit=unit)
                 first = dates.min().strftime('%b %d, %Y')
                 last  = dates.max().strftime('%b %d, %Y')
                 field_dates_str = f"{first} – {last}" if first != last else first
