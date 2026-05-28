@@ -1,8 +1,8 @@
 node_modules/
 dist/
 
-# Local data — never committed
-data/
+# Local data — never committed (top-level data/ only, not src/data)
+/data/
 *.sav
 
 # Python
