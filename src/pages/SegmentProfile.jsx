@@ -1985,60 +1985,105 @@ export default function SegmentProfile() {
       `}</style>
 
       <div style={{ maxWidth:1400, margin:"0 auto" }}>
-        {/* Header */}
-        <div style={{ marginBottom:14 }}>
-          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:9, letterSpacing:3, color:"#475569", marginBottom:3 }}>RESERVOIR HEALTH PRISM</div>
-          <h1 style={{ fontFamily:"'Roboto',sans-serif", fontSize:22, fontWeight:800, color:"#f1f5f9", margin:0 }}>PERSONA PROFILE</h1>
-          <div style={{ fontFamily:"'Roboto',sans-serif", fontSize:13, fontWeight:600, color:"#a78bfa", marginTop:2 }}>PRISM AUDIENCE INTELLIGENCE</div>
-        </div>
+        {/* Page header */}
+        <div style={{
+          display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+          marginBottom:18, paddingBottom:16, borderBottom:"1px solid #1e293b",
+        }}>
+          <div>
+            <h1 style={{
+              fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700,
+              color:"#f1f5f9", letterSpacing:2.5, textTransform:"uppercase", margin:0,
+            }}>AUDIENCE PROFILES</h1>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:"#64748b", marginTop:4, letterSpacing:0.5 }}>
+              16 PRISM segments · persona intelligence · {STUDY_META.name} study
+            </div>
+          </div>
 
-        {/* Segment selector */}
-        <div style={{ display:"flex", gap:3, marginBottom:14, flexWrap:"wrap", alignItems:"center" }}>
-          <span style={{ fontSize:8, color:"#475569", fontFamily:"'Nunito',sans-serif", marginRight:4 }}>SEGMENT:</span>
-          {SEGMENTS.map((s,i) => {
-            const isSel = segIdx === i;
-            // Tier = analyst-configured value from the workbook (study.js).
-            // Never read s.tier — that field in the local SEGMENTS array is
-            // stale AL-era data and disagrees with the workbook on most rows.
-            const st = getAssignedTier(s.code);
-            return (
-              <button key={s.id} onClick={()=>{setSegIdx(i);setProfileTab("demo")}}
-                style={{
-                  fontSize:8, padding:"3px 8px", borderRadius:3, cursor:"pointer",
-                  border:isSel?`1px solid ${TIER_ACCENT[st]}`:"1px solid #1e293b",
-                  background:isSel?(s.party==="GOP"?"#2a1015":"#0f1a2e"):"transparent",
-                  color:s.party==="GOP"?"#fca5a5":"#93c5fd",
-                  fontFamily:"'Nunito',sans-serif",
-                  fontWeight:isSel?700:400, transition:"all 0.15s",
-                }}>
-                {s.code}
-              </button>
-            );
-          })}
+          {/* Segment selector — horizontal pill strip */}
+          <div style={{ display:"flex", gap:3, flexWrap:"wrap", alignItems:"center", justifyContent:"flex-end", maxWidth:720 }}>
+            {SEGMENTS.map((s,i) => {
+              const isSel = segIdx === i;
+              // Tier = analyst-configured value from the workbook (study.js).
+              // Never read s.tier — stale AL-era data disagrees with workbook.
+              const st = getAssignedTier(s.code);
+              const pc = s.party === "GOP" ? "#fca5a5" : "#93c5fd";
+              return (
+                <button key={s.id} onClick={()=>{setSegIdx(i);setProfileTab("demo")}}
+                  style={{
+                    fontSize:9, padding:"4px 10px", borderRadius:4, cursor:"pointer",
+                    border:isSel?`1px solid ${TIER_ACCENT[st]}`:"1px solid #1e293b",
+                    background:isSel?(s.party==="GOP"?"#2a1015":"#0f1a2e"):"transparent",
+                    color:isSel?pc:(s.party==="GOP"?"#7f5055":"#3b6080"),
+                    fontFamily:"'JetBrains Mono',monospace",
+                    fontWeight:isSel?700:400, transition:"all 0.15s",
+                    letterSpacing:0.5,
+                  }}>
+                  {s.code}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ═══ PROFILE HEADER ═══ */}
-        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
-          <div style={{ width:56, height:56, borderRadius:"50%", background:"#1e293b", border:`3px solid ${tc}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700, color:tc, fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{seg.code}</div>
+        <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:14 }}>
+          <div style={{
+            width:64, height:64, borderRadius:"50%",
+            background: seg.party === "GOP" ? "rgba(239,68,68,0.1)" : "rgba(59,130,246,0.1)",
+            border:`2px solid ${tc}`,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:13, fontWeight:700, color:tc,
+            fontFamily:"'JetBrains Mono',monospace", letterSpacing:1,
+            flexShrink:0,
+          }}>{seg.code}</div>
           <div>
+            <h2 style={{
+              fontFamily:"'JetBrains Mono',monospace", fontSize:17, color:"#f1f5f9",
+              fontWeight:700, margin:"0 0 6px", textTransform:"uppercase", letterSpacing:1,
+            }}>{seg.name}</h2>
             <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
-              <h3 style={{ fontFamily:"'Roboto',sans-serif", fontSize:18, color:"#f1f5f9", fontWeight:700, margin:0, textTransform:"uppercase" }}>{seg.name}</h3>
-              <span style={{ fontSize:8, padding:"2px 6px", borderRadius:3, background:seg.party==="GOP"?"#7f1d1d":"#1e3a5f", color:seg.party==="GOP"?"#fca5a5":"#93c5fd", fontFamily:"'Nunito',sans-serif", fontWeight:600 }}>{seg.party}</span>
-              <span style={{ fontSize:8, padding:"2px 6px", borderRadius:3, background:"#1e293b", color:"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.pop}% of electorate</span>
+              <span style={{
+                fontSize:8, padding:"3px 8px", borderRadius:4,
+                background:seg.party==="GOP"?"#7f1d1d":"#1e3a5f",
+                color:seg.party==="GOP"?"#fca5a5":"#93c5fd",
+                fontFamily:"'JetBrains Mono',monospace", fontWeight:700, letterSpacing:1,
+              }}>{seg.party}</span>
+              <span style={{
+                fontSize:8, padding:"3px 8px", borderRadius:4,
+                background:"#1e293b", color:"#94a3b8",
+                fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5,
+              }}>{seg.pop}% OF ELECTORATE</span>
+              {STUDY_ROI[seg.code]?.HIV && (() => {
+                const t = getAssignedTier(seg.code);
+                return (
+                  <span style={{
+                    fontSize:8, padding:"3px 8px", borderRadius:4,
+                    background:TIER_BG[t], color:TIER_TEXT[t],
+                    fontFamily:"'JetBrains Mono',monospace", fontWeight:700, letterSpacing:1,
+                  }}>{TIER_LABELS[t]}</span>
+                );
+              })()}
             </div>
           </div>
         </div>
 
         {/* Quote */}
-        <div style={{ background:"#111827", borderRadius:6, padding:"10px 14px", borderLeft:`3px solid ${tc}`, marginBottom:14 }}>
-          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"#e2e8f0", fontStyle:"italic", lineHeight:1.55 }}>"{seg.persona.quote}"</div>
+        <div style={{
+          background:"#0d1219", borderRadius:8, padding:"12px 16px",
+          borderLeft:`3px solid ${tc}`, marginBottom:16,
+          boxShadow:"0 2px 8px rgba(0,0,0,0.3)",
+        }}>
+          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"#e2e8f0", fontStyle:"italic", lineHeight:1.6 }}>
+            "{seg.persona.quote}"
+          </div>
         </div>
 
         {/* ═══ MAIN LAYOUT: Vector Radar + Persona + ROI ═══ */}
         <div style={{ display:"grid", gridTemplateColumns:"320px 1fr 220px", gap:14, marginBottom:20 }}>
           {/* Vector Radar Column */}
-          <div style={{ background:"#0a0e1a", borderRadius:10, border:`1px solid ${C.border}`, padding:"14px 10px 10px", display:"flex", flexDirection:"column", alignItems:"center" }}>
-            <div style={{ fontSize:9, fontWeight:700, color:"#a78bfa", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>VECTOR FINGERPRINT</div>
+          <div style={{ background:"#0a0e1a", borderRadius:10, border:`1px solid ${C.border}`, padding:"14px 10px 10px", display:"flex", flexDirection:"column", alignItems:"center", boxShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>
+            <div style={{ fontSize:8, fontWeight:700, color:"#a78bfa", fontFamily:"'JetBrains Mono',monospace", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>VECTOR FINGERPRINT</div>
             <ProfileVectorRadar seg={seg} />
             <div style={{ width:"100%", marginTop:8, paddingTop:8, borderTop:`1px solid ${C.border}` }}>
               <VectorBars seg={seg} />
@@ -2046,8 +2091,11 @@ export default function SegmentProfile() {
           </div>
 
           {/* Persona Narrative */}
-          <div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
+          <div style={{
+            background:"#0d1219", borderRadius:10, padding:"14px 16px",
+            border:"1px solid #1e293b", boxShadow:"0 2px 12px rgba(0,0,0,0.4)",
+          }}>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px 20px" }}>
               <SchemaBlock label="What They Believe" text={seg.persona.believe} color="#60a5fa" />
               <SchemaBlock label="What They Want" text={seg.persona.want} color="#34d399" />
               <SchemaBlock label="What They Do" text={seg.persona.doWhat} color="#fbbf24" />
@@ -2063,32 +2111,46 @@ export default function SegmentProfile() {
               const studyTier = getAssignedTier(seg.code);
               const studyTc = TIER_ACCENT[studyTier];
               return (
-                <div style={{ background:"#111827", borderRadius:8, padding:"8px 10px", border:"1px solid #1e293b" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>{STUDY_META.name} STUDY ROI</div>
-                    <span style={{ fontSize:7, fontWeight:700, padding:"1px 6px", borderRadius:3, background:TIER_BG[studyTier], color:TIER_TEXT[studyTier], fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{TIER_LABELS[studyTier]}</span>
+                <div style={{
+                  background:"#0d1219", borderRadius:10, padding:"14px 14px",
+                  border:"1px solid #1e293b", boxShadow:"0 2px 12px rgba(0,0,0,0.4)",
+                }}>
+                  {/* Card label */}
+                  <div style={{
+                    fontSize:8, fontWeight:700, color:"#64748b",
+                    fontFamily:"'JetBrains Mono',monospace", textTransform:"uppercase",
+                    letterSpacing:1.5, marginBottom:10,
+                  }}>{STUDY_META.name} ROI</div>
+
+                  {/* ROI score */}
+                  <div style={{
+                    textAlign:"center", padding:"8px 0 10px",
+                    borderBottom:"1px solid #1e293b", marginBottom:12,
+                  }}>
+                    <div style={{
+                      fontSize:32, fontWeight:800, color:studyTc,
+                      fontFamily:"'JetBrains Mono',monospace", lineHeight:1,
+                    }}>{d.roi.toFixed(2)}</div>
+                    <div style={{ fontSize:8, color:"#64748b", fontFamily:"'JetBrains Mono',monospace", marginTop:4, letterSpacing:1 }}>ROI SCORE</div>
                   </div>
-                  <div style={{ textAlign:"center", padding:"4px 0", borderBottom:"1px solid #1e293b", marginBottom:5 }}>
-                    <div style={{ fontSize:24, fontWeight:800, color:studyTc, fontFamily:"'Nunito',sans-serif" }}>{d.roi.toFixed(2)}</div>
-                  </div>
-                  <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.highRoi} size={30} color={studyTc} />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% High ROI</div></div>
+
+                  {/* KPI rows */}
+                  {[
+                    { label:"% High ROI",    val:d.highRoi,    color:studyTc },
+                    { label:"Supporters",    val:d.supporters, color:"#3b82f6" },
+                    { label:"Activation",    val:d.activation, color:"#34d399" },
+                    { label:"Influence",     val:d.influence,  color:"#fbbf24" },
+                  ].map(({ label, val, color }) => (
+                    <div key={label} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:7 }}>
+                      <span style={{ fontSize:9, color:"#94a3b8", fontFamily:"'JetBrains Mono',monospace" }}>{label}</span>
+                      <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                        <div style={{ width:60, height:4, background:"#1e293b", borderRadius:2, overflow:"hidden" }}>
+                          <div style={{ width:`${val}%`, height:"100%", background:color, borderRadius:2, transition:"width 0.5s" }} />
+                        </div>
+                        <span style={{ fontSize:10, fontWeight:700, color, fontFamily:"'JetBrains Mono',monospace", minWidth:32, textAlign:"right" }}>{val}%</span>
+                      </div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.supporters} size={30} color="#3b82f6" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Supporters</div></div>
-                    </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.activation} size={30} color="#34d399" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Activation</div></div>
-                    </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, paddingTop:3, borderTop:"1px solid #1e293b" }}>
-                      <div style={{ width:30, textAlign:"center" }}><div style={{ fontSize:12, fontWeight:800, color:d.influence>=10?"#fbbf24":"#64748b", fontFamily:"'Nunito',sans-serif" }}>{d.influence}%</div></div>
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5 }}>360</sup></div></div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               );
             })()}
@@ -2096,15 +2158,17 @@ export default function SegmentProfile() {
         </div>
 
         {/* ═══ TABBED SECTION ═══ */}
-        <div style={{ display:"flex", gap:2, marginBottom:14, borderBottom:`1px solid ${C.border}`, paddingBottom:0 }}>
+        <div style={{ display:"flex", gap:0, marginBottom:16, borderBottom:`1px solid ${C.border}` }}>
           {PROFILE_TABS.map(tab => (
             <button key={tab.id} onClick={()=>setProfileTab(tab.id)} style={{
-              padding:"8px 18px", borderRadius:"6px 6px 0 0", border:"none", cursor:"pointer",
-              fontSize:11, fontWeight:profileTab===tab.id?500:300, fontFamily:"'Nunito',sans-serif",
-              background:profileTab===tab.id?C.card:"transparent",
-              color:profileTab===tab.id?"#fff":"#7b8da3",
+              padding:"9px 18px", border:"none", cursor:"pointer",
+              fontSize:10, fontWeight:profileTab===tab.id?700:400,
+              fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5,
+              background:"transparent",
+              color:profileTab===tab.id?"#f1f5f9":"#475569",
               borderBottom:profileTab===tab.id?`2px solid ${C.accent}`:"2px solid transparent",
-              transition:"all .15s",
+              transition:"color 0.15s, border-color 0.15s",
+              whiteSpace:"nowrap",
             }}>{tab.label}</button>
           ))}
         </div>
