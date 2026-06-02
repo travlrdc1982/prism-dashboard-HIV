@@ -567,7 +567,7 @@ function TrustList({ focalId, focalCode, benchKey }) {
       <div className="panel-title">
         {sortBy === "focal"
           ? <>Top messengers {focalCode} trusts most (raw mean)</>
-          : <>Messengers {focalCode} trusts more than <span>{BENCH_FULL[benchKey]}</span></>}
+          : <>Messengers {focalCode} trusts relative to <span>{BENCH_FULL[benchKey]}</span></>}
       </div>
       <div className="panel-plain">
         From the 22 deployable messengers tested (personal physician excluded).
