@@ -477,3 +477,78 @@ html:has(.topline-root)::-webkit-scrollbar-thumb:hover { background: #475569; }
   color: #1e40af;
   font-weight: 700;
 }
+
+/* ── Trust survey-pane · multi-item Likert grid ──────────────────────
+ * Each messenger gets its own 7-pt scale row, the way the respondent
+ * actually saw it (label on the left, scale dots on the right). One
+ * set of anchor labels at the bottom under the scale column. */
+.topline-root .trust-likert-grid {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+}
+.topline-root .trust-likert-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 10px;
+  align-items: center;
+}
+.topline-root .trust-likert-label {
+  color: #475569;
+  font-size: 10.5px;
+  line-height: 1.25;
+  text-align: right;
+}
+.topline-root .trust-likert-scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topline-root .trust-likert-scale .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #94a3b8;
+  background: #fff;
+  flex: 0 0 auto;
+}
+.topline-root .trust-likert-scale .conn {
+  flex: 1;
+  height: 1px;
+  background: #cbd5e1;
+}
+.topline-root .trust-likert-anchors {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 10px;
+  margin-top: 6px;
+}
+.topline-root .trust-likert-anchors .sp-anchors {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #64748b;
+}
+.topline-root .trust-likert-anchors .sp-anchors div {
+  text-align: center;
+  line-height: 1.15;
+  width: 40px;
+}
+.topline-root .trust-likert-anchors .sp-anchors div:first-child { text-align: left; }
+.topline-root .trust-likert-anchors .sp-anchors div:last-child { text-align: right; }
+
+/* ── Trust grid · inherit the per-position color palette ─────────────
+ * The pos-1 to pos-7 colors are defined as CSS variables and applied
+ * inside .survey-pane .sp-scale. Re-apply the same variables to the
+ * Trust Likert grid's filled dots so the universal mean-shading
+ * behavior (cool → warm gradient by integer-rounded mean) works there
+ * too. */
+.topline-root .trust-likert-scale .dot.filled.pos-1 { background: var(--dot-1); border-color: var(--dot-1); }
+.topline-root .trust-likert-scale .dot.filled.pos-2 { background: var(--dot-2); border-color: var(--dot-2); }
+.topline-root .trust-likert-scale .dot.filled.pos-3 { background: var(--dot-3); border-color: var(--dot-3); }
+.topline-root .trust-likert-scale .dot.filled.pos-4 { background: var(--dot-4); border-color: var(--dot-4); }
+.topline-root .trust-likert-scale .dot.filled.pos-5 { background: var(--dot-5); border-color: var(--dot-5); }
+.topline-root .trust-likert-scale .dot.filled.pos-6 { background: var(--dot-6); border-color: var(--dot-6); }
+.topline-root .trust-likert-scale .dot.filled.pos-7 { background: var(--dot-7); border-color: var(--dot-7); }
