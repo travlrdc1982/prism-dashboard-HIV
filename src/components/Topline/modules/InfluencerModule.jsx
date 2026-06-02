@@ -174,19 +174,28 @@ function InfBannerArea({ blk, segments, study }) {
     .replace(/^Influencer360\s*[—–-]\s*/i, "")
     .toUpperCase();
   let metricHeader;
-  if (blk.kind === "binary_set") metricHeader = `% ENDORSING — ${metricTitle}`;
+  // binary_set: header carries just "% {TITLE}" — the kind itself
+  // (independent yes/no items) is documented in the codebook pane and
+  // doesn't need to be restated above the table.
+  if (blk.kind === "binary_set") metricHeader = `% ${metricTitle}`;
   else if (blk.kind === "categorical") metricHeader = `% IN EACH BRACKET — ${metricTitle}`;
   else if (blk.kind === "frequency") metricHeader = `% ANY ACTIVITY — ${metricTitle}`;
   else if (blk.kind === "composites") metricHeader = `BEHAVIORAL INFLUENCE — ${metricTitle}`;
   else metricHeader = metricTitle;
 
   const totalN = blk.kind === "categorical" ? blk.n_total ?? "—" : 975;
+  // Suppress the metric-scale-note for binary_set: the existing subtitles
+  // are boilerplate ("Independent yes/no items… cells show %…") that
+  // restate the metric without adding information.
+  const showSubtitle = blk.kind !== "binary_set" && !!blk.pane_subtitle;
 
   return (
     <div className="item-data">
       <div className="metric-header">
         <div className="metric-label">{metricHeader}</div>
-        <div className="metric-scale-note">{blk.pane_subtitle || ""}</div>
+        {showSubtitle && (
+          <div className="metric-scale-note">{blk.pane_subtitle}</div>
+        )}
       </div>
       <table className="banner-table demo-banner-table">
         <PartyBandHead

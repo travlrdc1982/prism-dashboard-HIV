@@ -708,7 +708,7 @@ INFLUENCER_BLOCKS = [
         'wording': 'How have you made your voice heard? (select all that apply)',
         'kind': 'binary_set',
         'pane_style': 'checklist',
-        'pane_subtitle': 'Independent yes/no items; respondents may endorse multiple. Cells show % indicating each behavior.',
+        'pane_subtitle': '',
         'metric': 'pct_yes',
         'yes_value': 1,
         'items': [
@@ -736,7 +736,7 @@ INFLUENCER_BLOCKS = [
         'wording': 'In the past 12 months, have you taken any of the following actions related to a public policy issue? (select all that apply)',
         'kind': 'binary_set',
         'pane_style': 'checklist',
-        'pane_subtitle': 'Independent yes/no items. Cells show % indicating each action.',
+        'pane_subtitle': '',
         'metric': 'pct_yes',
         'yes_value': 1,
         'items': [
