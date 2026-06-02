@@ -329,13 +329,34 @@ export default function AudienceROI() {
   return (
     <div style={{ maxWidth: 1300, margin: "0 auto" }}>
         {/* Title */}
-        <div style={{ marginBottom: 16 }}>
-          <h1 style={{
-            fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 700,
-            color: C.text1, margin: 0, letterSpacing: 2, textTransform: "uppercase"
-          }}>Audience ROI</h1>
-          <div style={{ fontSize: 9, color: C.text3, marginTop: 3, fontFamily: "'JetBrains Mono',monospace" }}>
-            ROI = Population × (Persuasion + Coalition Value + Activation + Influence)
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "flex-end",
+          marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${C.border}`,
+        }}>
+          <div>
+            <h1 style={{
+              fontFamily: "'JetBrains Mono',monospace", fontSize: 13, fontWeight: 700,
+              color: C.text1, margin: 0, letterSpacing: 2.5, textTransform: "uppercase",
+            }}>AUDIENCE ROI</h1>
+            <div style={{ fontSize: 9, color: C.text3, marginTop: 4, fontFamily: "'JetBrains Mono',monospace", letterSpacing: 0.5 }}>
+              ROI = Population × (Persuasion + Coalition + Activation + Influence)
+            </div>
+          </div>
+          {/* Tier legend */}
+          <div style={{ display: "flex", gap: 10 }}>
+            {[1,2,3].map(t => (
+              <div key={t} style={{
+                display: "flex", alignItems: "center", gap: 5,
+                padding: "4px 10px", borderRadius: 4,
+                background: tierBg(t), border: `1px solid ${tierColor(t)}40`,
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: tierColor(t) }} />
+                <span style={{
+                  fontSize: 8, fontWeight: 700, color: tierColor(t),
+                  fontFamily: "'JetBrains Mono',monospace", letterSpacing: 1,
+                }}>{tierLabel(t)}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -353,26 +374,26 @@ export default function AudienceROI() {
             {/* ROI label */}
             <div style={{
               height: H.roi, borderBottom: `1px solid ${C.border}`,
-              display: "flex", alignItems: "center", padding: "0 10px"
+              display: "flex", alignItems: "center", padding: "0 12px"
             }}>
               <div style={{
-                fontSize: 10, fontWeight: 800, color: C.accentLight,
-                fontFamily: "'JetBrains Mono',monospace", letterSpacing: 2
+                fontSize: 11, fontWeight: 700, color: C.accentLight,
+                fontFamily: "'JetBrains Mono',monospace", letterSpacing: 1.5
               }}>ROI SCORE</div>
             </div>
 
             {/* Persuasion label + legend */}
             <div style={{
               height: H.persuasion, borderBottom: `1px solid ${C.border}`,
-              padding: "8px 10px", display: "flex", flexDirection: "column", justifyContent: "center"
+              padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center"
             }}>
               <div style={{
-                fontSize: 9, fontWeight: 700, color: C.accentLight,
+                fontSize: 11, fontWeight: 700, color: C.accentLight,
                 fontFamily: "'JetBrains Mono',monospace", textTransform: "uppercase",
                 letterSpacing: 1, marginBottom: 6
               }}>Persuasion</div>
               <div style={{
-                fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 8, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
                 lineHeight: 1.4, background: C.accentDim, borderRadius: 4, padding: "5px 7px",
                 borderLeft: `2px solid ${C.accentMuted}`, marginBottom: 8
               }}>Did exposure move the audience toward our position?</div>
@@ -428,42 +449,42 @@ export default function AudienceROI() {
             </div>
 
             {/* Coalition */}
-            <div style={{ height: H.coalition, borderBottom: `1px solid ${C.border}`, padding: "8px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ height: H.coalition, borderBottom: `1px solid ${C.border}`, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={{
-                fontSize: 9, fontWeight: 700, color: C.accentLight,
+                fontSize: 11, fontWeight: 700, color: C.accentLight,
                 fontFamily: "'JetBrains Mono',monospace", textTransform: "uppercase",
                 letterSpacing: 1, marginBottom: 4
               }}>Coalition</div>
               <div style={{
-                fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 8, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
                 lineHeight: 1.4, background: C.accentDim, borderRadius: 4, padding: "5px 7px",
                 borderLeft: `2px solid ${C.coalition}`
               }}>How many supporters can we predict will join our coalition?</div>
             </div>
 
             {/* Activation */}
-            <div style={{ height: H.activation, borderBottom: `1px solid ${C.border}`, padding: "8px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ height: H.activation, borderBottom: `1px solid ${C.border}`, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={{
-                fontSize: 9, fontWeight: 700, color: C.accentLight,
+                fontSize: 11, fontWeight: 700, color: C.accentLight,
                 fontFamily: "'JetBrains Mono',monospace", textTransform: "uppercase",
                 letterSpacing: 1, marginBottom: 4
               }}>Activation</div>
               <div style={{
-                fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 8, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
                 lineHeight: 1.4, background: C.accentDim, borderRadius: 4, padding: "5px 7px",
                 borderLeft: `2px solid ${C.activation}`
               }}>What is the probability of responding to a CTA and being mobilized?</div>
             </div>
 
             {/* Influence */}
-            <div style={{ height: H.influence, padding: "8px 10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ height: H.influence, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={{
-                fontSize: 9, fontWeight: 700, color: C.accentLight,
+                fontSize: 11, fontWeight: 700, color: C.accentLight,
                 fontFamily: "'JetBrains Mono',monospace", textTransform: "uppercase",
                 letterSpacing: 1, marginBottom: 4
               }}>Influence</div>
               <div style={{
-                fontSize: 7, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 8, color: C.text2, fontFamily: "'JetBrains Mono',monospace",
                 lineHeight: 1.4, background: C.accentDim, borderRadius: 4, padding: "5px 7px",
                 borderLeft: `2px solid ${C.influence}`
               }}>How likely is this audience to affect outcomes or influence others?</div>
