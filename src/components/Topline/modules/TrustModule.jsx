@@ -60,7 +60,8 @@ export default function TrustModule({ trust, segments, study }) {
 
   return (
     <div className="item-block">
-      {/* Survey-pane: messenger checklist mock */}
+      {/* Survey pane — the question as the respondent saw it: stem + 1-7
+          trust scale with anchors + the 22 messengers they rated. */}
       <div className="survey-pane">
         <div className="sp-header">
           <div className="sp-logo">PRISM</div>
@@ -73,10 +74,30 @@ export default function TrustModule({ trust, segments, study }) {
             How much would you trust each of the following as a source of
             information about HIV?
           </div>
-          <div className="sp-stem-secondary">
-            22 deployable messengers · 1-7 trust scale (personal physician
-            excluded). Cells show <strong>Top-3 (5-7) %</strong>; toggle the
-            controls bar to reveal the full 1-7 distribution and mean / bot-3.
+
+          {/* 7-point scale visualization + anchor labels */}
+          <div className="sp-scale">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <span key={i}>
+                <div className="dot" />
+                {i < 6 && <div className="conn" />}
+              </span>
+            ))}
+          </div>
+          <div className="sp-anchors">
+            <div>No trust<br />at all</div>
+            <div>Neutral</div>
+            <div>Complete<br />trust</div>
+          </div>
+
+          {/* Roster of messengers shown to the respondent */}
+          <div className="inf-checklist">
+            {trust.map((t) => (
+              <div key={t.code} className="inf-checklist-item">
+                <span className="inf-checkbox" />
+                {t.label}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -84,11 +105,14 @@ export default function TrustModule({ trust, segments, study }) {
       {/* Codebook */}
       <div className="codebook-pane">
         <div className="cb-title">Codebook</div>
-        <div className="cb-row"><span className="cb-key">Block</span><span className="cb-val">Trusted Sources battery</span></div>
-        <div className="cb-row"><span className="cb-key">Scale</span><span className="cb-val">1-7 (1 = no trust, 7 = complete trust)</span></div>
-        <div className="cb-row"><span className="cb-key">Metric</span><span className="cb-val">Top-3 box (5-7), with mean + bot-3 + full 1-7 distribution</span></div>
+        <div className="cb-row"><span className="cb-key">Block</span><span className="cb-val">Trusted Sources battery (k={trust.length} messengers)</span></div>
+        <div className="cb-row"><span className="cb-key">Scale</span><span className="cb-val">1-7 (1 = no trust at all, 7 = complete trust)</span></div>
+        <div className="cb-row"><span className="cb-key">Metric</span><span className="cb-val">Top-3 box (5-7), with mean + bot-3 + full 1-7 distribution on toggle</span></div>
         <div className="cb-row"><span className="cb-key">Filter</span><span className="cb-val">Split sample · n={totalN}</span></div>
         <div className="cb-row"><span className="cb-key">Sig</span><span className="cb-val">z-test on top-3 proportion vs rest of sample (p&lt;.05 / p&lt;.01)</span></div>
+        <div className="cb-note" style={{ marginTop: 8 }}>
+          Personal physician (QTRUSTr3) excluded from the deployable list.
+        </div>
       </div>
 
       {/* Banner */}
