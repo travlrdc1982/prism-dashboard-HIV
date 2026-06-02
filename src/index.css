@@ -1,12 +1,131 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'DM Sans', -apple-system, sans-serif;
-  background: #080c16;
-  color: #cbd5e1;
-  -webkit-font-smoothing: antialiased;
+/* ─── PRISM design tokens ─────────────────────────────── */
+:root {
+  --bg:           #080c16;
+  --card:         #0f1520;
+  --card-border:  #1e293b;
+  --text:         #cbd5e1;
+  --text-muted:   #94a3b8;
+  --text-dim:     #475569;
+  --steel:        #64748b;
+  --white:        #f1f5f9;
+  --cyan:         #22d3ee;
+  --accent:       #5b93c7;
+  --accent-light: #7eb3e0;
+
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    14px;
+
+  --shadow-card:  0 2px 12px rgba(0,0,0,0.45), 0 0 0 1px var(--card-border);
+
+  --font-sans:    'Nunito', -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  --transition:   0.15s ease;
 }
-a { color: inherit; }
-button { font-family: inherit; }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0f1520; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* ─── Reset ───────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ─── Focus rings ─────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbars ──────────────────────────────────────── */
+::-webkit-scrollbar          { width: 6px; height: 6px; }
+::-webkit-scrollbar-track    { background: #0a0e18; }
+::-webkit-scrollbar-thumb    { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+/* ─── Utility: page section header ───────────────────── */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.page-header__title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+.page-header__sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--steel);
+  letter-spacing: 0.5px;
+}
+
+/* ─── Utility: data card ──────────────────────────────── */
+.data-card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+/* ─── Smooth transitions on interactive elements ──────── */
+a, button, [role="button"] {
+  transition: color var(--transition), background var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+/* ─── Responsive helpers ──────────────────────────────── */
+@media (max-width: 768px) {
+  /* Prevent tiny text on narrow screens */
+  html { font-size: 13px; }
+
+  /* Give content more horizontal breathing room */
+  main {
+    padding: 16px 16px !important;
+  }
+
+  /* Heatmap / ROI tables: allow horizontal scroll cleanly */
+  .overflow-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 12px; }
+}
