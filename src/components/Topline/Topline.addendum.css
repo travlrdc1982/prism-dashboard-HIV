@@ -486,58 +486,71 @@ html:has(.topline-root)::-webkit-scrollbar-thumb:hover { background: #475569; }
   margin-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
+  gap: 10px;
 }
 .topline-root .trust-likert-row {
-  display: grid;
-  grid-template-columns: 1fr 140px;
-  gap: 10px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
 }
+/* Messenger name styled like the survey statement card (sp-statement),
+ * but smaller — single line, ellipsis on overflow for the few long ones. */
 .topline-root .trust-likert-label {
-  color: #475569;
-  font-size: 10.5px;
-  line-height: 1.25;
-  text-align: right;
+  background: var(--survey-bg, #f5efe5);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--survey-stem, #2a2a2a);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .topline-root .trust-likert-scale {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 4px;
 }
 .topline-root .trust-likert-scale .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: 1px solid #94a3b8;
+  border: 1.5px solid #cbd5e1;
   background: #fff;
   flex: 0 0 auto;
 }
 .topline-root .trust-likert-scale .conn {
   flex: 1;
   height: 1px;
-  background: #cbd5e1;
+  background: #e2e8f0;
 }
-.topline-root .trust-likert-anchors {
-  display: grid;
-  grid-template-columns: 1fr 140px;
-  gap: 10px;
-  margin-top: 6px;
-}
-.topline-root .trust-likert-anchors .sp-anchors {
+/* Anchor labels below the last messenger row */
+.topline-root .sp-anchors.trust-likert-anchors {
   display: flex;
   justify-content: space-between;
   font-size: 9px;
-  color: #64748b;
+  color: var(--survey-anchor-neg, #64748b);
+  margin-top: 4px;
+  padding: 0 4px;
 }
-.topline-root .trust-likert-anchors .sp-anchors div {
+.topline-root .sp-anchors.trust-likert-anchors div {
   text-align: center;
   line-height: 1.15;
-  width: 40px;
+  width: 60px;
+  white-space: pre-line;
 }
-.topline-root .trust-likert-anchors .sp-anchors div:first-child { text-align: left; }
-.topline-root .trust-likert-anchors .sp-anchors div:last-child { text-align: right; }
+.topline-root .sp-anchors.trust-likert-anchors div:first-child {
+  text-align: left;
+  color: var(--survey-anchor-neg, #b85c2e);
+}
+.topline-root .sp-anchors.trust-likert-anchors div:last-child {
+  text-align: right;
+  color: var(--survey-anchor-pos, #2d5f3f);
+}
 
 /* ── Trust grid · inherit the per-position color palette ─────────────
  * The pos-1 to pos-7 colors are defined as CSS variables and applied

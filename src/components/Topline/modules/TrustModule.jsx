@@ -76,18 +76,18 @@ export default function TrustModule({ trust, segments, study }) {
           </div>
 
           {/* Grid: each messenger rated on its own 7-pt scale, the way the
-              respondent actually saw it. The dot at this messenger's TOTAL
-              weighted mean (rounded) is filled with the same heat-color
-              palette as the rest of the topline (pos-1 = cool, pos-7 = warm),
-              giving a quick visual ranking by overall trust. Anchor labels
-              appear once below. */}
+              respondent actually saw it. Label sits in a shaded card above
+              its scale (single line, small font). The dot at this messenger's
+              TOTAL weighted mean (rounded) is filled with the same heat-color
+              palette as the rest of the topline (pos-1 = cool, pos-7 = warm).
+              Anchor labels appear once below the last row. */}
           <div className="trust-likert-grid">
             {trust.map((t) => {
               const mean = t.cuts?.TOTAL?.mean;
               const selected = mean != null ? Math.max(1, Math.min(7, Math.round(mean))) : null;
               return (
                 <div key={t.code} className="trust-likert-row">
-                  <div className="trust-likert-label">{t.label}</div>
+                  <div className="trust-likert-label" title={t.label}>{t.label}</div>
                   <div className="trust-likert-scale">
                     {Array.from({ length: 7 }).map((_, i) => {
                       const idx = i + 1;
@@ -103,13 +103,10 @@ export default function TrustModule({ trust, segments, study }) {
                 </div>
               );
             })}
-            <div className="trust-likert-anchors">
-              <div className="trust-likert-label-spacer" />
-              <div className="sp-anchors">
-                <div>No trust<br />at all</div>
-                <div>Neutral</div>
-                <div>Complete<br />trust</div>
-              </div>
+            <div className="sp-anchors trust-likert-anchors">
+              <div>No trust<br />at all</div>
+              <div>Neutral</div>
+              <div>Complete<br />trust</div>
             </div>
           </div>
         </div>
