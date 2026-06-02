@@ -14,10 +14,15 @@ outputs/dashboard_verify.json with everything needed to diff against
 the shipped outputs/dashboard.json on the numerics and structure that
 matter for regression testing.
 
-DELETABLE once Phase B step 8 reconciles the parser and orchestrator.
-At that point the unchanged orchestrator should produce the full
-dashboard.json including the messages metadata section, and this
-harness becomes redundant.
+LIFECYCLE: delete this harness (and outputs/dashboard_verify.json)
+once BOTH of the following are true:
+  (1) Phase B step 8 has reconciled the parser and orchestrator, AND
+  (2) an integration test runs the unchanged-orchestrator path against
+      the refactored pipeline and passes (i.e. confirms the orchestrator
+      produces a full dashboard.json including the messages section,
+      identical to the shipped artifact within locked tolerances).
+Until both land, this harness is the only way to run the cell+scalar
+verify cleanly, so it stays.
 
 Run from repo root:
     cd messagemap
