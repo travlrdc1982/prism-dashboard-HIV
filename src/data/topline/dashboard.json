@@ -30033,7 +30033,7 @@
       "id": "highengagement",
       "block_label": "Influencer360 — High-Engagement Behaviors (lifetime)",
       "wording": "How have you made your voice heard? (select all that apply)",
-      "pane_subtitle": "Independent yes/no items; respondents may endorse multiple. Cells show % indicating each behavior.",
+      "pane_subtitle": "",
       "kind": "binary_set",
       "pane_style": "checklist",
       "items": [
@@ -32061,7 +32061,7 @@
       "id": "lowengagement",
       "block_label": "Influencer360 — Low-Engagement Actions (past 12 months)",
       "wording": "In the past 12 months, have you taken any of the following actions related to a public policy issue? (select all that apply)",
-      "pane_subtitle": "Independent yes/no items. Cells show % indicating each action.",
+      "pane_subtitle": "",
       "kind": "binary_set",
       "pane_style": "checklist",
       "items": [
