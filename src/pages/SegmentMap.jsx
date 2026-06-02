@@ -177,12 +177,43 @@ export default function BubbleMap() {
   const sorted = [...BUBBLES].sort((a, b) => a.z - b.z);
 
   return (
+    <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      {/* Page header */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "flex-end",
+        marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #1e293b",
+      }}>
+        <div>
+          <h1 style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700,
+            color: "#f1f5f9", letterSpacing: 2.5, textTransform: "uppercase", margin: 0,
+          }}>AUDIENCE MAP</h1>
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#64748b",
+            letterSpacing: 0.5, marginTop: 4,
+          }}>
+            16 PRISM segments · click a bubble to preview · click again to open profile
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 14, borderRadius: "50%", background: DEM_FILL, opacity: 0.6, border: `2px solid ${DEM_STROKE}` }} />
+            <span style={{ fontSize: 9, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>Democratic</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 14, borderRadius: "50%", background: GOP_FILL, opacity: 0.6, border: `2px solid ${GOP_STROKE}` }} />
+            <span style={{ fontSize: 9, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>Republican</span>
+          </div>
+          <div style={{ fontSize: 9, color: "#475569", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>
+            Bubble size = population %
+          </div>
+        </div>
+      </div>
+
     <div
         ref={wrapperRef}
         style={{
           width: "100%",
-          maxWidth: 1400,
-          margin: "0 auto",
           position: "relative",
         }}
       >
@@ -244,52 +275,36 @@ export default function BubbleMap() {
             style={{
               position: "absolute",
               top: "50%",
-              [isGOP ? "left" : "right"]: 40,
+              [isGOP ? "left" : "right"]: 20,
               transform: "translateY(-50%)",
               cursor: "pointer",
               zIndex: 200,
-              opacity: 0.85,
-              filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.7))",
-              transition: "opacity 0.3s ease, left 0.3s ease, right 0.3s ease",
-             }}
+              filter: "drop-shadow(0 12px 40px rgba(0,0,0,0.8))",
+              transition: "left 0.3s ease, right 0.3s ease",
+            }}
           >
-          <img
-            src={CARD_IMAGES[active]}
-            alt={active}
-            style={{
-              width: 320,
-              borderRadius: 16,
-              opacity: 0.88,
-          }}
-        />
-        <div style={{
-          textAlign: "center", marginTop: 8,
-          fontSize: 10, color: "#64748b",
-          fontFamily: "'JetBrains Mono',monospace",
-        }}>
-          Click card to view full profile →
+            <img
+              src={CARD_IMAGES[active]}
+              alt={active}
+              style={{
+                width: 300,
+                borderRadius: 14,
+                display: "block",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            />
+            <div style={{
+              textAlign: "center", marginTop: 10,
+              fontSize: 9, color: "#64748b", letterSpacing: 1,
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: "uppercase",
+            }}>
+              Click to open full profile →
+            </div>
+          </div>
+        );
+      })()}
       </div>
     </div>
-  );
-})()}
-
-      
-        {/* Legend */}
-        <div style={{
-          display: "flex", justifyContent: "center", gap: 24, marginTop: 12, padding: "8px 0"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 12, height: 12, borderRadius: "50%", background: DEM_FILL, opacity: 0.5, border: `2px solid ${DEM_STROKE}` }} />
-            <span style={{ fontSize: 10, color: "#64748b", fontFamily: "'JetBrains Mono',monospace" }}>Democratic</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 12, height: 12, borderRadius: "50%", background: GOP_FILL, opacity: 0.5, border: `2px solid ${GOP_STROKE}` }} />
-            <span style={{ fontSize: 10, color: "#64748b", fontFamily: "'JetBrains Mono',monospace" }}>Republican</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 10, color: "#475569", fontFamily: "'JetBrains Mono',monospace" }}>Bubble size = population weight</span>
-          </div>
-        </div>
-      </div>
   );
 }
