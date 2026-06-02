@@ -85,13 +85,24 @@ function Tooltip({ msg, x, y, segIdx, isVariant }) {
 function WavePlaceholder() {
   return (
     <div style={{ maxWidth:1100, margin:"0 auto", color:"#e2e8f0" }}>
-      <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:11, color:"#94a3b8", lineHeight:1.5 }}>
-          <strong style={{ color:"#cbd5e1" }}>Message testing results available in Wave 2.</strong>{" "}
-          Messages and stimulus text shown below for reference.
+      <div style={{
+        display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+        marginBottom:20, paddingBottom:16, borderBottom:"1px solid #1e293b",
+      }}>
+        <div>
+          <h1 style={{
+            fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700,
+            color:"#f1f5f9", letterSpacing:2.5, textTransform:"uppercase", margin:0,
+          }}>MESSAGE MAP</h1>
+          <div style={{ fontSize:9, color:"#64748b", marginTop:4, fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5 }}>
+            Message testing results available in Wave 2 · {STUDY_META?.nMessages || STUDY_MESSAGES.length} messages shown for reference
+          </div>
         </div>
-        <div style={{ fontSize:10, color:"#64748b", marginTop:6, fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5 }}>
-          {STUDY_META?.nMessages || STUDY_MESSAGES.length} MESSAGES · {STUDY_META?.methodology || ""}
+        <div style={{
+          fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:"#475569",
+          letterSpacing:1, textTransform:"uppercase",
+        }}>
+          {STUDY_META?.methodology || ""}
         </div>
       </div>
 
@@ -159,31 +170,44 @@ function Heatmap() {
 
   return (
     <div style={{ maxWidth:1650, margin:"0 auto", color:"#e2e8f0" }}>
-      {/* Description */}
-      <div style={{ marginBottom:12 }}>
-        <div style={{ fontSize:11, color:"#94a3b8", maxWidth:1100, lineHeight:1.5 }}>
-          <strong style={{ color:"#cbd5e1" }}>Share of Preference</strong> heatmap <span style={{ color:"#64748b" }}>(a measure from a discrete choice model depicting how likely a message is chosen as the most compelling relative to other messages)</span> · {STUDY_META?.nMessages || STUDY_MESSAGES.length}-item {STUDY_META?.methodology || "MaxDiff · 16 PRISM segments"}.
+      {/* Page header */}
+      <div style={{
+        display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+        marginBottom:16, paddingBottom:16, borderBottom:"1px solid #1e293b",
+      }}>
+        <div>
+          <h1 style={{
+            fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700,
+            color:"#f1f5f9", letterSpacing:2.5, textTransform:"uppercase", margin:0,
+          }}>MESSAGE MAP</h1>
+          <div style={{ fontSize:9, color:"#64748b", marginTop:4, fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5 }}>
+            Share of Preference — discrete choice model · {STUDY_META?.nMessages || STUDY_MESSAGES.length} messages · {STUDY_META?.methodology || "MaxDiff · 16 PRISM segments"}
+          </div>
+        </div>
+
+        {/* Mode toggle — prominent in header */}
+        <div style={{ display:"flex", gap:0, background:"#0d1118", borderRadius:6, border:"1px solid #1e293b", overflow:"hidden" }}>
+          {[{ k:"control", l:"CONTROL" }, { k:"persona", l:"PERSONA VARIANTS" }].map((v, i) => (
+            <button key={v.k} onClick={() => { setVariantMode(v.k); setSortCol(null); }} style={{
+              fontFamily:"'JetBrains Mono',monospace", fontSize:9, letterSpacing:1,
+              padding:"7px 16px",
+              border:"none",
+              borderRight: i === 0 ? "1px solid #1e293b" : "none",
+              cursor:"pointer",
+              background: variantMode === v.k ? "#2d1b69" : "transparent",
+              color: variantMode === v.k ? "#c4b5fd" : "#475569",
+              fontWeight: variantMode === v.k ? 700 : 400,
+              transition:"all 0.15s",
+            }}>{v.l}</button>
+          ))}
         </div>
       </div>
 
-      {/* Persona variant toggle */}
-      <div style={{ display:"flex", gap:4, marginBottom:10, alignItems:"center" }}>
-        {[{ k:"control", l:"CONTROL" }, { k:"persona", l:"PERSONA VARIANTS" }].map(v => (
-          <button key={v.k} onClick={() => { setVariantMode(v.k); setSortCol(null); }} style={{
-            fontFamily:"'JetBrains Mono',monospace", fontSize:9, letterSpacing:0.5,
-            padding:"5px 14px", border:"1px solid", borderRadius:4, cursor:"pointer",
-            borderColor: variantMode === v.k ? "#a78bfa" : "#1e293b",
-            background: variantMode === v.k ? "#2d1b69" : "#111827",
-            color: variantMode === v.k ? "#c4b5fd" : "#64748b",
-            transition:"all 0.15s"
-          }}>{v.l}</button>
-        ))}
-        {isVariant && (
-          <span style={{ fontSize:8, color:"#a78bfa", fontFamily:"'JetBrains Mono',monospace", marginLeft:8 }}>
-            Hover a segment column to see its tailored variant text
-          </span>
-        )}
-      </div>
+      {isVariant && (
+        <div style={{ fontSize:8, color:"#a78bfa", fontFamily:"'JetBrains Mono',monospace", marginBottom:8, letterSpacing:0.5 }}>
+          Hover a segment column to see its tailored variant text
+        </div>
+      )}
 
       {/* Legend */}
       <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:6, flexWrap:"wrap" }}>
