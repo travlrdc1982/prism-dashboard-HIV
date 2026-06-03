@@ -1912,10 +1912,21 @@ def build_topline(df, out_dir='.', weight_var=None):
                 care   = df[var_list[2:4]].apply(pd.to_numeric, errors='coerce').mean(axis=1)
                 comp_series = purity - care
             elif metric_type == 'sum_aware':
-                # Count of items where response == 1 (= "heard before / aware")
-                comp_series = pd.DataFrame(
-                    {v: (pd.to_numeric(df[v], errors='coerce') == 1).astype(float) for v in var_list}
-                ).sum(axis=1)
+                # Count of items where response == 1 (= "heard before / aware").
+                # Build the 0/1 frame preserving NaN, so respondents who didn't
+                # take the battery (NaN on every item) are excluded by the
+                # downstream mask_total = comp_series.notna() rather than being
+                # counted as 'aware of nothing.' min_count=1 makes .sum return
+                # NaN for all-NaN rows; partial-NaN rows still sum (NaNs treated
+                # as not-aware on the items the respondent didn't see).
+                #
+                # Previously this used (NaN == 1).astype(float) which yields 0.0,
+                # not NaN, biasing per-segment HKS downward in proportion to the
+                # split-sample non-response rate per segment.
+                raw_frame = pd.DataFrame({v: pd.to_numeric(df[v], errors='coerce') for v in var_list})
+                aware_frame = (raw_frame == 1).astype(float)
+                aware_frame[raw_frame.isna()] = pd.NA
+                comp_series = aware_frame.sum(axis=1, min_count=1)
             else:
                 continue
 
