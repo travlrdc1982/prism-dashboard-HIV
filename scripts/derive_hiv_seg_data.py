@@ -47,13 +47,36 @@ def pop_weighted_sd(values_by_seg, pops, seg_ids, mean):
     return math.sqrt(num / den) if den else 1.0
 
 
+# ── Canonical PRISM 16-segment population shares ─────────────────────
+# These are platform-canonical population shares (NOT sample-derived).
+# Source of truth: src/data/segments.js (canonical PRISM content; do not
+# modify per study). Hardcoded here so the Python derive script doesn't
+# have to parse JS at runtime; keep in sync if segments.js pops change.
+# Sum = 1.00 exactly.
+#
+# Why not pct_wgt from the sample: the sample-weighted segment shares
+# reflect the demographic-rake-weighted sample distribution, which can
+# differ from the canonical population structure if the rake doesn't
+# target segment shares. The visual bubble sizes and the population
+# aggregates should reflect the population, not the sample's
+# representation of it. Sample-derived inputs would double-weight
+# (rake + post-rake segment share) and bias the aggregates.
+CANONICAL_POP_BY_CODE = {
+    "TSP": 0.02, "CEC": 0.07, "TC":  0.06, "HF":  0.02, "PP":  0.03,
+    "WE":  0.09, "PFF": 0.04, "HHN": 0.03, "MFL": 0.05, "VS":  0.05,
+    "UCP": 0.11, "FJP": 0.10, "HCP": 0.08, "HAD": 0.08, "HCI": 0.07,
+    "GHI": 0.10,
+}
+
+
 def main():
     dash = json.load(open(DASH, encoding="utf-8"))
 
-    # Segment population shares (use pct_wgt fraction)
+    # Segment population shares: canonical PRISM (NOT sample pct_wgt).
+    # See CANONICAL_POP_BY_CODE above for rationale.
     pops = {}
     for s in dash["segments"]:
-        pops[s["id"]] = (s.get("pct_wgt") or s.get("pct") or 0) / 100.0
+        pops[s["id"]] = CANONICAL_POP_BY_CODE[s["code"]]
 
     # ── Composite raw values per segment (reverse-code SDS/SCS) ──
     comp_cuts = {c["code"]: c["cuts"] for c in dash["stigma_extras"]["composites"]["items"]}
