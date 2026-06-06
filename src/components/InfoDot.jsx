@@ -76,13 +76,12 @@ export default function InfoDot({
               fontSize: 10, fontWeight: 700, color: "#a78bfa",
               fontFamily: "'Nunito',sans-serif",
               marginBottom: 4, lineHeight: 1.3,
-              letterSpacing: 0.5, textTransform: "uppercase",
             }}>{title}</span>
           )}
           <span style={{
             display: "block",
-            fontSize: 9, color: "#cbd5e1",
-            fontFamily: "'Nunito',sans-serif", lineHeight: 1.5,
+            fontSize: 10, color: "#cbd5e1",
+            fontFamily: "'Nunito',sans-serif", lineHeight: 1.55,
           }}>{children}</span>
         </span>
       )}

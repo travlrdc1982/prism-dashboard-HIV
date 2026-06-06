@@ -63,144 +63,166 @@ const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
 // ═══════════════════════════════════════════════════════════════
 // CELL-ARCHITECTURE INTERACTIVE WIDGET
 // ═══════════════════════════════════════════════════════════════
-// Small, decodes the cell grammar through action rather than diagram:
-//   • Click [CORE] → a PERSONA card folds out beside it.
-//   • Click ▸ PROOF TOKENS → three labeled token rows cascade open,
-//     each showing the CORE half + PERSONA half (if persona is open).
+// One cohesive square that unfolds:
+//   • Click "+ persona" — the right half slides out from the CORE left
+//     half (transformOrigin: left, scaleX 0→1). The whole shape stays
+//     a single bordered square the entire time.
+//   • Click "▸ proof tokens" — horizontal dashed cuts slide into the
+//     same square, creating base/proof-1/proof-2/proof-3 stripes.
+// All labels (CORE, PERSONA, base/proof-N) sit OUTSIDE the square.
 function CellArchitectureWidget() {
   const [personaOpen, setPersonaOpen] = useState(false);
   const [proofsOpen,  setProofsOpen]  = useState(false);
 
-  const coreBox = {
-    width: 50, height: 22, borderRadius: 3,
-    background: "#334155", color: "#cbd5e1",
-    border: "1px solid #475569",
-    fontFamily: MONO, fontSize: 8, fontWeight: 700,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", outline: "none", letterSpacing: 0.5,
-  };
-  const personaBox = {
-    width: 60, height: 22, borderRadius: 3,
-    background: "rgba(96,165,250,0.18)", color: "#60a5fa",
-    border: "1.5px solid #60a5fa",
-    fontFamily: MONO, fontSize: 8, fontWeight: 700,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    letterSpacing: 0.5,
-  };
+  const HALF_W   = 60;        // each half-cell width
+  const LABEL_W  = 54;        // gutter for left-side row labels
+  const H_ROW    = 20;        // every row inside the square
+  const PROOFS   = ["Proof 1", "Proof 2", "Proof 3"];
+
+  const tokenCut    = "1.5px dashed #64748b";
+  const personaCut  = "1.5px dashed #60a5fa";
+  const borderColor = "#94a3b8";
 
   return (
     <div style={{
       flexShrink: 0,
-      padding: "8px 12px",
+      padding: "10px 12px 12px",
       background: C.card,
       border: `1px solid ${C.cardBorder}`,
       borderRadius: 6,
-      width: 220,
+      width: 240,
     }}>
+      {/* Title */}
       <div style={{
         fontFamily: MONO, fontSize: 7, color: C.textDim,
         letterSpacing: 1.5, textTransform: "uppercase",
-        marginBottom: 6, display: "flex", alignItems: "center",
+        marginBottom: 10, display: "flex", alignItems: "center",
       }}>
         Cell Architecture
-        <InfoDot title="CELL ARCHITECTURE">
-          Each cell = (message × segment × persona framing × proof token).
-          Click the boxes below to see how a row's cells unfold.
+        <InfoDot title="Cell architecture">
+          Each cell is one (message × segment × persona × proof token)
+          combination. Click below to unfold the persona half and the
+          proof-token rows.
         </InfoDot>
       </div>
 
-      {/* Base row: CORE [+ persona] */}
+      {/* ─── Diagram ─── */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 6,
-        perspective: 600,
+        display: "grid",
+        gridTemplateColumns: `${LABEL_W}px auto`,
+        rowGap: 0, columnGap: 0, marginBottom: 12,
       }}>
+        {/* Top-left empty corner */}
+        <div />
+        {/* Top labels: CORE | PERSONA (outside the square) */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `${HALF_W}px ${personaOpen ? HALF_W : 0}px`,
+          transition: "grid-template-columns 0.28s ease",
+          paddingBottom: 4,
+        }}>
+          <div style={{
+            textAlign: "center",
+            fontFamily: MONO, fontSize: 8, fontWeight: 700,
+            color: "#cbd5e1", letterSpacing: 1, textTransform: "uppercase",
+          }}>Core</div>
+          <div style={{
+            textAlign: "center", overflow: "hidden",
+            fontFamily: MONO, fontSize: 8, fontWeight: 700,
+            color: "#60a5fa", letterSpacing: 1, textTransform: "uppercase",
+            opacity: personaOpen ? 1 : 0,
+            transition: "opacity 0.2s 0.1s",
+          }}>Persona</div>
+        </div>
+
+        {/* Left labels column — base + (optional) proof rows */}
+        <div style={{ display: "flex", flexDirection: "column", paddingRight: 6 }}>
+          <div style={{
+            height: H_ROW, display: "flex", alignItems: "center", justifyContent: "flex-end",
+            fontFamily: FONT, fontSize: 9, fontWeight: 600,
+            color: proofsOpen ? C.textMuted : "transparent",
+            fontStyle: "italic", transition: "color 0.2s",
+          }}>base</div>
+          {proofsOpen && PROOFS.map(label => (
+            <div key={label} style={{
+              height: H_ROW, display: "flex", alignItems: "center", justifyContent: "flex-end",
+              fontFamily: FONT, fontSize: 9, fontWeight: 600, color: C.text,
+            }}>{label}</div>
+          ))}
+        </div>
+
+        {/* The unified square — single border, internal dashed cuts */}
+        <div style={{
+          border: `1.5px solid ${borderColor}`,
+          borderRadius: 3,
+          overflow: "hidden",
+          display: "grid",
+          gridTemplateColumns: `${HALF_W}px ${personaOpen ? HALF_W : 0}px`,
+          transition: "grid-template-columns 0.28s ease",
+        }}>
+          {/* CORE column */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ height: H_ROW, background: "#334155" }} />
+            {proofsOpen && PROOFS.map((_, i) => (
+              <div key={i} style={{
+                height: H_ROW, background: "#1e293b",
+                borderTop: tokenCut,
+              }} />
+            ))}
+          </div>
+          {/* PERSONA column — unfolds from left edge */}
+          <div style={{
+            display: "flex", flexDirection: "column",
+            borderLeft: personaOpen ? personaCut : "none",
+            transformOrigin: "left center",
+            transform: personaOpen ? "scaleX(1)" : "scaleX(0)",
+            transition: "transform 0.28s ease",
+            overflow: "hidden",
+          }}>
+            <div style={{ height: H_ROW, background: "rgba(96,165,250,0.22)" }} />
+            {proofsOpen && PROOFS.map((_, i) => (
+              <div key={i} style={{
+                height: H_ROW, background: "rgba(96,165,250,0.12)",
+                borderTop: tokenCut,
+              }} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Controls below the diagram */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <button
           type="button"
           onClick={() => setPersonaOpen(s => !s)}
-          style={coreBox}
-          aria-label="CORE message"
-        >CORE</button>
-
-        {/* PERSONA folds out from the right edge of CORE */}
-        <div style={{
-          width: personaOpen ? 66 : 0,
-          overflow: "hidden",
-          transition: "width 0.28s ease",
-        }}>
-          <div style={{
-            ...personaBox,
-            transformOrigin: "left center",
-            transform: personaOpen ? "rotateY(0deg)" : "rotateY(-90deg)",
-            transition: "transform 0.28s ease",
-          }}>PERSONA</div>
-        </div>
-
-        {!personaOpen && (
-          <button
-            type="button"
-            onClick={() => setPersonaOpen(true)}
-            style={{
-              border: "none", background: "transparent", color: "#60a5fa",
-              cursor: "pointer", fontFamily: MONO, fontSize: 9, fontWeight: 700,
-              padding: "0 2px",
-            }}
-          >+ persona</button>
-        )}
+          style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
+            background: "transparent", border: "none", cursor: "pointer",
+            fontFamily: MONO, fontSize: 9, color: "#60a5fa", fontWeight: 700,
+            letterSpacing: 0.5, outline: "none",
+          }}
+        >
+          <span style={{ width: 10, color: "#60a5fa" }}>{personaOpen ? "−" : "+"}</span>
+          {personaOpen ? "fold persona" : "unfold persona half"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setProofsOpen(s => !s)}
+          style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
+            background: "transparent", border: "none", cursor: "pointer",
+            fontFamily: MONO, fontSize: 9, color: C.violet, fontWeight: 700,
+            letterSpacing: 0.5, outline: "none",
+          }}
+        >
+          <span style={{
+            transform: proofsOpen ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 0.18s", display: "inline-block",
+            width: 10,
+          }}>▸</span>
+          {proofsOpen ? "hide proof tokens" : "cut into proof tokens"}
+        </button>
       </div>
-
-      {/* Chevron → proof tokens drill */}
-      <button
-        type="button"
-        onClick={() => setProofsOpen(s => !s)}
-        style={{
-          marginTop: 8,
-          display: "flex", alignItems: "center", gap: 4, padding: 0,
-          background: "transparent", border: "none", cursor: "pointer",
-          fontFamily: MONO, fontSize: 8, color: C.textMuted, fontWeight: 700,
-          letterSpacing: 1, textTransform: "uppercase",
-          outline: "none",
-        }}
-      >
-        <span style={{
-          transform: proofsOpen ? "rotate(90deg)" : "rotate(0deg)",
-          transition: "transform 0.18s", display: "inline-block",
-          width: 8, color: C.violet,
-        }}>▸</span>
-        Proof Tokens
-      </button>
-
-      {proofsOpen && (
-        <div style={{
-          marginTop: 4, paddingLeft: 14,
-          display: "flex", flexDirection: "column", gap: 3,
-        }}>
-          {[
-            { label: "{no proof}", dim: true },
-            { label: "Proof 1",    dim: false },
-            { label: "Proof 2",    dim: false },
-          ].map((row, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{
-                fontSize: 8, color: row.dim ? C.textDim : C.text,
-                fontFamily: FONT, fontStyle: row.dim ? "italic" : "normal",
-                width: 56,
-              }}>{row.label}</span>
-              <div style={{
-                width: 36, height: 12, borderRadius: 2,
-                background: row.dim ? "#334155" : "#0f172a",
-                border: "1px solid #475569",
-              }} />
-              {personaOpen && (
-                <div style={{
-                  width: 42, height: 12, borderRadius: 2,
-                  background: "rgba(96,165,250,0.18)",
-                  border: "1px solid #60a5fa",
-                }} />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -473,7 +495,7 @@ export default function MessageMap() {
       }}>
         <ControlSelect
           label="Outcome"
-          infoTitle="OUTCOME"
+          infoTitle="Outcome"
           value={metric}
           onChange={setMetric}
           options={METRICS.map(m => ({ value: m.name, label: m.label }))}
@@ -481,7 +503,7 @@ export default function MessageMap() {
         />
         <ControlSelect
           label="Filter (Basket)"
-          infoTitle="FILTER (BASKET)"
+          infoTitle="Filter (basket)"
           value={basket}
           onChange={setBasket}
           options={BASKETS.map(b => ({ value: b.id, label: b.name }))}
@@ -495,7 +517,7 @@ export default function MessageMap() {
             display: "flex", alignItems: "center",
           }}>
             Lift Scale (0–100)
-            <InfoDot title="LIFT SCALE">{COLOR_INFO}</InfoDot>
+            <InfoDot title="Lift scale">{COLOR_INFO}</InfoDot>
           </span>
           <LiftRamp />
         </div>
@@ -520,7 +542,7 @@ export default function MessageMap() {
           fontFamily: MONO, fontSize: 9, color: C.violet,
           fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase",
         }}>Proof Points</span>
-        <InfoDot title="PROOF POINTS">{PROOF_INFO}</InfoDot>
+        <InfoDot title="Proof points">{PROOF_INFO}</InfoDot>
         <span>
           Each row drills into its proof-token grid via the ▸ chevron.{" "}
           <em style={{ color: C.textDim }}>Themes are listed in the order they appeared
@@ -549,26 +571,27 @@ export default function MessageMap() {
         }}>
           <div /> {/* chevron gutter */}
 
-          {/* MESSAGE column header */}
+          {/* MESSAGE column header (big) + Proof points sub-header (small) */}
           <div style={{
             display: "flex", flexDirection: "column", justifyContent: "flex-end",
             paddingRight: 10, paddingBottom: 4,
           }}>
             <span style={{
-              fontFamily: MONO, fontSize: 8, color: C.textDim,
-              letterSpacing: 1.5, textTransform: "uppercase",
+              fontFamily: MONO, fontSize: 12, color: C.text,
+              fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase",
               display: "flex", alignItems: "center",
             }}>
               Message
-              <InfoDot title="MESSAGE" placement="below">{MESSAGE_INFO}</InfoDot>
+              <InfoDot title="Message" placement="below">{MESSAGE_INFO}</InfoDot>
             </span>
             <span style={{
               fontFamily: MONO, fontSize: 8, color: C.textDim,
-              marginTop: 6, letterSpacing: 1.5, textTransform: "uppercase",
+              marginTop: 4, letterSpacing: 1.5, textTransform: "uppercase",
+              fontWeight: 600,
               display: "flex", alignItems: "center",
             }}>
-              Segment
-              <InfoDot title="SEGMENT" placement="below">{SEGMENT_INFO}</InfoDot>
+              Proof points
+              <InfoDot title="Proof points" placement="below">{PROOF_INFO}</InfoDot>
             </span>
           </div>
 
@@ -584,7 +607,7 @@ export default function MessageMap() {
               display: "flex", alignItems: "center",
             }}>
               Variant Universe
-              <InfoDot title="VARIANT UNIVERSE" placement="right">{VARIANT_UNIVERSE_INFO}</InfoDot>
+              <InfoDot title="Variant universe" placement="right">{VARIANT_UNIVERSE_INFO}</InfoDot>
             </span>
             <VariantUniverseLegend />
             <div style={{
@@ -598,12 +621,32 @@ export default function MessageMap() {
             </div>
           </div>
 
-          {/* Segment-circle column headers */}
-          {orderedSegments.map(seg => (
-            <div key={seg.id} style={{ display: "flex", justifyContent: "center" }}>
-              <SegmentCircle seg={seg} />
+          {/* 16 PRISM SEGMENTS — group label spans all segment columns,
+              circle row sits underneath. Label + InfoDot sit OUTSIDE
+              the message column. */}
+          <div style={{
+            gridColumn: `4 / span ${orderedSegments.length}`,
+            display: "grid",
+            gridTemplateColumns: `repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
+            gridTemplateRows: "auto auto",
+            columnGap: 0, rowGap: 4,
+          }}>
+            <div style={{
+              gridColumn: `1 / -1`,
+              textAlign: "center",
+              fontFamily: MONO, fontSize: 8, fontWeight: 700,
+              color: C.text, letterSpacing: 1.5, textTransform: "uppercase",
+              display: "flex", justifyContent: "center", alignItems: "center",
+            }}>
+              {N_SEGMENTS} PRISM Segments
+              <InfoDot title="Segments" placement="below">{SEGMENT_INFO}</InfoDot>
             </div>
-          ))}
+            {orderedSegments.map(seg => (
+              <div key={seg.id} style={{ display: "flex", justifyContent: "center" }}>
+                <SegmentCircle seg={seg} />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Body — placeholder rows (live cells land in B2) */}
