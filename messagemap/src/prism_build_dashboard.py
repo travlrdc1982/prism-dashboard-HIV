@@ -390,17 +390,33 @@ def main():
         })
 
     # ── Compose messages metadata ─────────────────────────────────────
+    # Translate the parser's canonical schema (msg_id="MSG_001", tokens=[...
+    # {token, is_base, proof_short_label, proof_full_text}]) into the
+    # dashboard.json messages schema (id=int, proofs=[{proof_id, short_label,
+    # full_label}]). Base tokens get the conventional 'base' / 'base (no
+    # proof)' labels; proof tokens use the workbook-derived labels verbatim.
+    def _msg_id_to_int(msg_id_str):
+        # 'MSG_001' -> 1; falls back to None on malformed input
+        try:
+            return int(str(msg_id_str).rsplit('_', 1)[-1])
+        except (ValueError, AttributeError):
+            return None
+
     messages_out = []
     for m in variants_data['messages']:
+        proofs = []
+        for t in m.get('tokens', []):
+            is_base = bool(t.get('is_base'))
+            proofs.append({
+                'proof_id': int(t['token']),
+                'short_label': 'base' if is_base else (t.get('proof_short_label') or ''),
+                'full_label':  'base (no proof)' if is_base else (t.get('proof_full_text') or ''),
+            })
         messages_out.append({
-            'id': m['id'],
-            'theme_label': m['theme_label'],
-            'n_proofs': m['n_proofs'],
-            'proofs': [{
-                'proof_id': p['proof_id'],
-                'short_label': p['short_label'],
-                'full_label': p['full_label'],
-            } for p in m['proofs']],
+            'id': _msg_id_to_int(m['msg_id']),
+            'theme_label': m.get('theme_label', ''),
+            'n_proofs': m.get('n_tokens', len(proofs)),   # inclusive count (base + proofs)
+            'proofs': proofs,
         })
 
     # ── Assemble ──────────────────────────────────────────────────────
