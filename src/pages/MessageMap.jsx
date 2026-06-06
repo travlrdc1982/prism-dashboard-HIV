@@ -9,18 +9,21 @@
 //   - variants{}            per-message text by persona token
 //   - lift_variants[]       metric metadata (sigma, scale)
 //
-// COMMIT B1.5 — frame + chrome:
-//   • Standardized PageHeader (RESERVOIR HEALTH PRISM · MESSAGE MAP)
-//   • Updated description copy (persuasion vs base framing)
-//   • Cell-architecture legend graphic on the right
-//   • InfoDot popovers on every control + column header
-//   • PROOF POINTS sub-orientation note
-//   • VARIANT UNIVERSE STRIP column placeholder w/ tooltip
-//   • Methodology footnote at bottom
-//   • Theme color key removed (per "eliminate message categories")
+// COMMIT B1.6 — chrome polish per analyst feedback:
+//   • InfoDot switched to "?" + radar-style tooltip palette
+//   • Variant Universe column moved to LEFT, beside Message header
+//   • Variant Universe icon legend now lives IN the column header
+//     (band / ○ CORE / ● OPTIMAL / dashed-zero / live tick)
+//   • Cell-architecture graphic replaced by a compact interactive
+//     widget — click to fold the PERSONA card open from CORE, click
+//     ▸ to drill into proof tokens.
+//   • Sub-header counts strip is now data-driven:
+//       N PRISM SEGMENTS · N MESSAGES · N PROOF POINT TOKENS · NNNN
+//       TOTAL MESSAGE VARIANTS
 //
-// Live cell rendering, hover-variant text, drill-down, priority basket
-// reorganization, and the variant-universe data still land in B2–B6.
+// Live cell rendering, hover-variant text, row drill-down, priority
+// basket reorganization, and the variant-universe data still land
+// in B2–B6.
 // ═══════════════════════════════════════════════════════════════
 import { useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
@@ -30,13 +33,26 @@ import PageHeader from "../components/PageHeader";
 import InfoDot from "../components/InfoDot";
 
 // ─── Data wiring (frame only — cells render in B2) ───
-const SEGMENTS = dashboard.segments;          // 16 segments, ordered TSP…GHI
-const MESSAGES = dashboard.messages || [];    // 17 message-theme records
-const BASKETS  = dashboard.baskets  || [];    // 5 basket definitions
-const METRICS  = dashboard.lift_variants || []; // [persuasion_messaging, base_messaging]
+const SEGMENTS = dashboard.segments;             // 16 segments
+const MESSAGES = dashboard.messages || [];       // 17 message-theme records
+const BASKETS  = dashboard.baskets  || [];       // 5 baskets
+const METRICS  = dashboard.lift_variants || [];  // persuasion / base
 
-// Priority basket → segment IDs ordered by ROI desc (from STUDY_METRICS).
-// Used by B5 to cluster priority segments left-to-right.
+// ─── Derived study counts ───
+// PROOF POINT TOKENS = count of tokens with proof_id > 0 across messages
+// TOTAL MESSAGE VARIANTS = sum over messages of n_tokens × (CORE + 16 persona)
+const N_SEGMENTS = SEGMENTS.length;
+const N_MESSAGES = MESSAGES.length;
+const N_PROOF_TOKENS = MESSAGES.reduce(
+  (sum, m) => sum + (m.proofs?.filter(p => p.proof_id > 0).length || 0),
+  0
+);
+const N_TOTAL_VARIANTS = MESSAGES.reduce(
+  (sum, m) => sum + (m.proofs?.length || 0) * (1 + N_SEGMENTS),
+  0
+);
+
+// Priority basket → segment IDs ordered by ROI desc.
 const PRIORITY_BASKET = (BASKETS.find(b => b.id === "priority_all") || { segments: [] }).segments;
 const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
   const ca = SEGMENTS.find(s => s.id === a)?.code;
@@ -45,114 +61,146 @@ const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// CELL-ARCHITECTURE LEGEND (top-right of header)
+// CELL-ARCHITECTURE INTERACTIVE WIDGET
 // ═══════════════════════════════════════════════════════════════
-// SVG diagram explaining how each row's cell space decomposes:
-//   - CORE message vs PERSONA-tuned message variant (vertical split)
-//   - Base row + proof-token rows (horizontal stack)
-function ArchitectureLegend() {
-  const W = 320;
-  const H = 230;
-  const colCoreX = 90;
-  const colPersonaX = 198;
-  const cellW = 96;
-  const divX = 174;            // vertical dashed divider
-  const labelY = 32;
-  const headerTop = 50;
-  const headerH = 56;
-  const sepY = headerTop + headerH + 14;
-  const tokenStartY = sepY + 12;
-  const tokenH = 28;
-  const tokenGap = 4;
+// Small, decodes the cell grammar through action rather than diagram:
+//   • Click [CORE] → a PERSONA card folds out beside it.
+//   • Click ▸ PROOF TOKENS → three labeled token rows cascade open,
+//     each showing the CORE half + PERSONA half (if persona is open).
+function CellArchitectureWidget() {
+  const [personaOpen, setPersonaOpen] = useState(false);
+  const [proofsOpen,  setProofsOpen]  = useState(false);
 
-  const coreFill = "#1f2937";
-  const coreFillDark = "#0f172a";
-  const personaFill = "rgba(96,165,250,0.18)";
-  const personaStroke = "#60a5fa";
-  const coreStroke = "#94a3b8";
-  const accent = "#60a5fa";
+  const coreBox = {
+    width: 50, height: 22, borderRadius: 3,
+    background: "#334155", color: "#cbd5e1",
+    border: "1px solid #475569",
+    fontFamily: MONO, fontSize: 8, fontWeight: 700,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    cursor: "pointer", outline: "none", letterSpacing: 0.5,
+  };
+  const personaBox = {
+    width: 60, height: 22, borderRadius: 3,
+    background: "rgba(96,165,250,0.18)", color: "#60a5fa",
+    border: "1.5px solid #60a5fa",
+    fontFamily: MONO, fontSize: 8, fontWeight: 700,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    letterSpacing: 0.5,
+  };
 
   return (
     <div style={{
       flexShrink: 0,
+      padding: "8px 12px",
       background: C.card,
       border: `1px solid ${C.cardBorder}`,
-      borderRadius: 8,
-      padding: "10px 12px",
-      width: W + 24,
+      borderRadius: 6,
+      width: 220,
     }}>
       <div style={{
-        fontFamily: MONO, fontSize: 8, color: C.textDim,
-        letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4,
-      }}>Cell Architecture</div>
-      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
-        {/* Column labels */}
-        <text x={colCoreX} y={labelY - 4} textAnchor="middle"
-              fontFamily="'Nunito',sans-serif" fontSize="10" fontWeight="800"
-              fill="#94a3b8" letterSpacing="0.5">CORE</text>
-        <text x={colCoreX} y={labelY + 8} textAnchor="middle"
-              fontFamily="'Nunito',sans-serif" fontSize="10" fontWeight="800"
-              fill="#94a3b8" letterSpacing="0.5">MESSAGE</text>
-
-        {/* Persona avatar */}
-        <circle cx={colPersonaX} cy={labelY - 8} r="9" fill="rgba(96,165,250,0.18)" stroke={accent} strokeWidth="1.5" />
-        <circle cx={colPersonaX} cy={labelY - 11} r="3" fill={accent} />
-        <path d={`M${colPersonaX - 5} ${labelY - 3} Q${colPersonaX} ${labelY - 7} ${colPersonaX + 5} ${labelY - 3}`}
-              fill={accent} />
-
-        <text x={colPersonaX} y={labelY + 10} textAnchor="middle"
-              fontFamily="'Nunito',sans-serif" fontSize="10" fontWeight="800"
-              fill={accent} letterSpacing="0.5">PERSONA-TUNED</text>
-        <text x={colPersonaX} y={labelY + 22} textAnchor="middle"
-              fontFamily="'Nunito',sans-serif" fontSize="10" fontWeight="800"
-              fill={accent} letterSpacing="0.5">MESSAGE VARIANT</text>
-
-        {/* Header (base) row — two boxes */}
-        <rect x={colCoreX - cellW / 2} y={headerTop} width={cellW} height={headerH}
-              fill={coreFill} stroke={coreStroke} strokeWidth="1.5" rx="2" />
-        <rect x={colPersonaX - cellW / 2} y={headerTop} width={cellW} height={headerH}
-              fill={personaFill} stroke={personaStroke} strokeWidth="2" rx="2" />
-
-        {/* Dashed vertical divider down the middle */}
-        <line x1={divX} y1={headerTop - 2} x2={divX} y2={H - 8}
-              stroke={personaStroke} strokeWidth="1.5" strokeDasharray="4,3" />
-
-        {/* Dashed horizontal divider between header and tokens */}
-        <line x1="8" y1={sepY} x2={W - 8} y2={sepY}
-              stroke="#475569" strokeWidth="1.5" strokeDasharray="5,3" />
-
-        {/* Three token rows */}
-        {[
-          { label: "{no proof point}", coreColor: coreFill },
-          { label: "Proof Point 1",    coreColor: coreFillDark },
-          { label: "Proof Point 2",    coreColor: coreFillDark },
-        ].map((row, i) => {
-          const y = tokenStartY + i * (tokenH + tokenGap);
-          return (
-            <g key={i}>
-              {/* Row label on far left */}
-              <text x="4" y={y + tokenH / 2 + 3} textAnchor="start"
-                    fontFamily="'Nunito',sans-serif" fontSize="9"
-                    fill={i === 0 ? "#64748b" : "#cbd5e1"}>
-                {row.label}
-              </text>
-              <rect x={colCoreX - cellW / 2 + 14} y={y} width={cellW - 14} height={tokenH}
-                    fill={row.coreColor} stroke={coreStroke} strokeWidth="1" rx="2" />
-              <rect x={colPersonaX - cellW / 2} y={y} width={cellW} height={tokenH}
-                    fill={personaFill} stroke={personaStroke} strokeWidth="1.2" rx="2" />
-            </g>
-          );
-        })}
-      </svg>
-      <div style={{
-        fontFamily: "'Nunito',sans-serif", fontSize: 10, color: C.textMuted,
-        marginTop: 4, lineHeight: 1.4,
+        fontFamily: MONO, fontSize: 7, color: C.textDim,
+        letterSpacing: 1.5, textTransform: "uppercase",
+        marginBottom: 6, display: "flex", alignItems: "center",
       }}>
-        Each row in the table is a message theme; each segment column splits
-        into a <strong style={{ color: C.text }}>CORE</strong> half and a{" "}
-        <strong style={{ color: accent }}>PERSONA-tuned</strong> half. Expand a
-        row to see its proof-token grid.
+        Cell Architecture
+        <InfoDot title="CELL ARCHITECTURE">
+          Each cell = (message × segment × persona framing × proof token).
+          Click the boxes below to see how a row's cells unfold.
+        </InfoDot>
       </div>
+
+      {/* Base row: CORE [+ persona] */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 6,
+        perspective: 600,
+      }}>
+        <button
+          type="button"
+          onClick={() => setPersonaOpen(s => !s)}
+          style={coreBox}
+          aria-label="CORE message"
+        >CORE</button>
+
+        {/* PERSONA folds out from the right edge of CORE */}
+        <div style={{
+          width: personaOpen ? 66 : 0,
+          overflow: "hidden",
+          transition: "width 0.28s ease",
+        }}>
+          <div style={{
+            ...personaBox,
+            transformOrigin: "left center",
+            transform: personaOpen ? "rotateY(0deg)" : "rotateY(-90deg)",
+            transition: "transform 0.28s ease",
+          }}>PERSONA</div>
+        </div>
+
+        {!personaOpen && (
+          <button
+            type="button"
+            onClick={() => setPersonaOpen(true)}
+            style={{
+              border: "none", background: "transparent", color: "#60a5fa",
+              cursor: "pointer", fontFamily: MONO, fontSize: 9, fontWeight: 700,
+              padding: "0 2px",
+            }}
+          >+ persona</button>
+        )}
+      </div>
+
+      {/* Chevron → proof tokens drill */}
+      <button
+        type="button"
+        onClick={() => setProofsOpen(s => !s)}
+        style={{
+          marginTop: 8,
+          display: "flex", alignItems: "center", gap: 4, padding: 0,
+          background: "transparent", border: "none", cursor: "pointer",
+          fontFamily: MONO, fontSize: 8, color: C.textMuted, fontWeight: 700,
+          letterSpacing: 1, textTransform: "uppercase",
+          outline: "none",
+        }}
+      >
+        <span style={{
+          transform: proofsOpen ? "rotate(90deg)" : "rotate(0deg)",
+          transition: "transform 0.18s", display: "inline-block",
+          width: 8, color: C.violet,
+        }}>▸</span>
+        Proof Tokens
+      </button>
+
+      {proofsOpen && (
+        <div style={{
+          marginTop: 4, paddingLeft: 14,
+          display: "flex", flexDirection: "column", gap: 3,
+        }}>
+          {[
+            { label: "{no proof}", dim: true },
+            { label: "Proof 1",    dim: false },
+            { label: "Proof 2",    dim: false },
+          ].map((row, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{
+                fontSize: 8, color: row.dim ? C.textDim : C.text,
+                fontFamily: FONT, fontStyle: row.dim ? "italic" : "normal",
+                width: 56,
+              }}>{row.label}</span>
+              <div style={{
+                width: 36, height: 12, borderRadius: 2,
+                background: row.dim ? "#334155" : "#0f172a",
+                border: "1px solid #475569",
+              }} />
+              {personaOpen && (
+                <div style={{
+                  width: 42, height: 12, borderRadius: 2,
+                  background: "rgba(96,165,250,0.18)",
+                  border: "1px solid #60a5fa",
+                }} />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -182,7 +230,7 @@ function SegmentCircle({ seg, dim = false }) {
   );
 }
 
-function ControlSelect({ label, value, options, onChange, info }) {
+function ControlSelect({ label, value, options, onChange, info, infoTitle }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <span style={{
@@ -191,7 +239,7 @@ function ControlSelect({ label, value, options, onChange, info }) {
         display: "flex", alignItems: "center",
       }}>
         {label}
-        {info && <InfoDot label={`${label} info`} placement="below">{info}</InfoDot>}
+        {info && <InfoDot title={infoTitle} placement="below">{info}</InfoDot>}
       </span>
       <select
         value={value}
@@ -259,6 +307,31 @@ function LiftRamp() {
   );
 }
 
+// Variant-Universe column header — visual legend lives HERE, not in popup.
+// Mini SVG demo: band + open circle (CORE) + filled dot (optimal) +
+// dashed zero line + live green tick.
+function VariantUniverseLegend() {
+  const W = 130, H = 22;
+  const cx = W / 2;
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      {/* Band */}
+      <rect x="14" y="8" width={W - 28} height="6"
+            fill="rgba(52,211,153,0.25)" stroke="#34d399" strokeWidth="0.8" rx="2" />
+      {/* Dashed zero */}
+      <line x1={cx} y1="2" x2={cx} y2={H - 2}
+            stroke="#64748b" strokeWidth="1" strokeDasharray="2,2" />
+      {/* Open circle = CORE */}
+      <circle cx="34" cy="11" r="3.2" fill="none" stroke="#34d399" strokeWidth="1.5" />
+      {/* Filled dot = OPTIMAL */}
+      <circle cx={W - 30} cy="11" r="3.2" fill="#34d399" />
+      {/* Live tick */}
+      <line x1={W - 50} y1="3" x2={W - 50} y2={H - 3}
+            stroke="#34d399" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
@@ -290,15 +363,12 @@ export default function MessageMap() {
 
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
-
-  // Segment ordering — B5 reorders priority basket by ROI desc and fades
-  // non-priority. For B1.5 we render the canonical 16 in default order.
   const orderedSegments = SEGMENTS;
 
-  // ─── tooltip copy (kept inline so reviewers can edit in one place) ───
+  // ─── Tooltip copy (title + body, radar-style) ───
   const OUTCOME_INFO = (
     <>
-      <strong>Two views of the same cells.</strong>{" "}
+      Two views of the same cells.{" "}
       <strong style={{ color: "#34d399" }}>PERSUASION</strong> = messages that
       predict opinion movement for the audiences (persuasion messaging to
       strengthen and grow coalition).{" "}
@@ -307,118 +377,66 @@ export default function MessageMap() {
       galvanizing support and activating base). Toggle to compare.
     </>
   );
-
   const FILTER_INFO = (
     <>
-      Filter a specific group. <strong>Baskets</strong> are study-specific
-      groupings of segments that reflect this study's priorities (typically:
-      priority audiences for persuasion, primary or secondary audiences by
-      partisanship or some other strategic frame).{" "}
-      <strong>TOTAL</strong> shows the full sample without basket restriction.
+      Filter a specific group. Baskets are study-specific groupings of segments
+      that reflect this study's priorities (typically: priority audiences for
+      persuasion, primary or secondary audiences by partisanship or some other
+      strategic frame). TOTAL shows the full sample without basket restriction.
     </>
   );
-
   const COLOR_INFO = (
     <>
-      <strong>Greener</strong> cells indicate stronger positive lift;{" "}
-      <strong>redder</strong> cells indicate the message backfires (leads to
-      negative shifts in opinion); <strong>white</strong> cells indicate
-      negligible effect.{" "}
-      <em>Note: cell values depict how much each message variant moves
-      attitudinal alignment above baseline, on a 0–100 scale.</em>
+      Greener cells indicate stronger positive lift; redder cells indicate the
+      message backfires (leads to negative shifts in opinion); white cells
+      indicate negligible effect. Cell values depict how much each message
+      variant moves attitudinal alignment above baseline, on a 0–100 scale.
     </>
   );
-
   const SEGMENT_INFO = (
     <>
       The 16 PRISM segments derived from cultural-ideological clustering of
-      the US public. <em>Click a segment label to see its full profile in the
-      Persona Profile view.</em>
+      the US public. Click a segment label to see its full profile in the
+      Persona Profile view.
     </>
   );
-
   const MESSAGE_INFO = (
     <>
       The substantive message themes using PRISM's "message grammar"
-      methodology, tested using a discrete choice methodology (MaxDiff
-      exercise). <em>Click any message label to see the "core message" — the
-      precise wording a subset of respondents are exposed to.</em>
+      methodology tested using a discrete choice methodology (MaxDiff
+      exercise). Click any message label to see the "core message" — the
+      precise wording a subset of respondents are exposed to.
     </>
   );
-
   const PROOF_INFO = (
     <>
-      <strong>Proof points</strong> for the messages were tested with subsets
-      of respondents to assess the marginal impact in overall message impact.
-      Expand a row's proof-token grid via the ▸ chevron.
+      Proof points for the messages were tested with subsets of respondents
+      to assess the marginal impact in overall message impact.
     </>
   );
-
   const VARIANT_UNIVERSE_INFO = (
     <>
-      <strong>A one-dimensional projection of a four-dimensional cell
-      space</strong> (message × segment × persona tuning × proof token),
-      reduced to the most operationally useful summary of a single message's
-      performance. Each row's strip summarizes the range of message impact
-      scores across every combination of persona framing × proof token,
-      evaluated against every PRISM segment.
-      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed #334155", fontSize: 10 }}>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{
-            display: "inline-block", width: 14, height: 6, background: "rgba(52,211,153,0.4)",
-            border: "1px solid #34d399", borderRadius: 2, marginRight: 6, verticalAlign: "middle",
-          }} />
-          <strong>Green band:</strong> range from worst- to best-performing variant.
-        </div>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{
-            display: "inline-block", width: 10, height: 10, borderRadius: "50%",
-            border: "1.5px solid #34d399", background: "transparent",
-            marginRight: 6, verticalAlign: "middle",
-          }} />
-          <strong>Open circle:</strong> CORE (untuned baseline), basket-weighted.
-        </div>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{
-            display: "inline-block", width: 10, height: 10, borderRadius: "50%",
-            background: "#34d399", marginRight: 6, verticalAlign: "middle",
-          }} />
-          <strong>Filled dot:</strong> Optimal variant for the selected basket.
-        </div>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{
-            display: "inline-block", width: 14, height: 0, borderTop: "1.5px dashed #64748b",
-            marginRight: 6, verticalAlign: "middle",
-          }} />
-          <strong>Dashed line:</strong> zero reference (no lift vs. control).
-        </div>
-        <div>
-          <span style={{
-            display: "inline-block", width: 2, height: 10, background: "#34d399",
-            marginRight: 8, verticalAlign: "middle",
-          }} />
-          <strong>Green tick:</strong> tracks whichever variant you're focused
-          on (hover/click any cell).
-        </div>
-      </div>
-      <div style={{ marginTop: 8, fontSize: 10, color: C.textMuted }}>
-        The gap between <strong>○</strong> and <strong>●</strong> is the
-        persuasion <em>headroom</em>: how much lift is unlocked by persona
-        tuning + best proof selection, above the untuned baseline.
-      </div>
+      A one-dimensional projection of a four-dimensional cell space (message
+      × segment × persona tuning × proof token), reduced to the most
+      operationally useful summary of a single message's performance. Each
+      row's strip summarizes the range of message impact scores across every
+      combination of persona framing × proof token, evaluated against every
+      PRISM segment. The gap between ○ and ● is the persuasion{" "}
+      <em>headroom</em>: how much lift is unlocked by persona tuning + best
+      proof selection, above the untuned baseline.
     </>
   );
 
   return (
     <div style={{ color: C.text, fontFamily: FONT, maxWidth: 1800, margin: "0 auto" }}>
 
-      {/* ─── HEADER + DESCRIPTION + ARCHITECTURE LEGEND ─── */}
+      {/* ─── HEADER + DESCRIPTION + INTERACTIVE CELL WIDGET ─── */}
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 14 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <PageHeader title="Message Map" />
           <div style={{
             fontSize: 12, color: C.textMuted, maxWidth: 980, lineHeight: 1.6,
-            marginBottom: 6,
+            marginBottom: 8,
           }}>
             <strong style={{ color: C.text }}>Message Map shows which message moves which audiences.</strong>{" "}
             Each cell estimates how much a specific message, in a specific
@@ -430,15 +448,20 @@ export default function MessageMap() {
             or how well it explains existing support{" "}
             <strong style={{ color: "#60a5fa" }}>(Base Messaging)</strong>.
           </div>
+
+          {/* Configurable counts strip */}
           <div style={{
             fontSize: 9, color: C.textDim, fontFamily: MONO,
-            letterSpacing: 1, textTransform: "uppercase", marginTop: 8,
+            letterSpacing: 1, textTransform: "uppercase",
           }}>
-            {MESSAGES.length} MESSAGES · {orderedSegments.length} PRISM SEGMENTS ·
-            MaxDiff · Shrunk lift, 500-iter respondent bootstrap CIs
+            {N_SEGMENTS} PRISM SEGMENTS{" · "}
+            {N_MESSAGES} MESSAGES{" · "}
+            {N_PROOF_TOKENS} PROOF POINT TOKENS{" · "}
+            {N_TOTAL_VARIANTS.toLocaleString()} TOTAL MESSAGE VARIANTS
           </div>
         </div>
-        <ArchitectureLegend />
+
+        <CellArchitectureWidget />
       </div>
 
       {/* ─── CONTROLS BAR ─── */}
@@ -450,6 +473,7 @@ export default function MessageMap() {
       }}>
         <ControlSelect
           label="Outcome"
+          infoTitle="OUTCOME"
           value={metric}
           onChange={setMetric}
           options={METRICS.map(m => ({ value: m.name, label: m.label }))}
@@ -457,13 +481,13 @@ export default function MessageMap() {
         />
         <ControlSelect
           label="Filter (Basket)"
+          infoTitle="FILTER (BASKET)"
           value={basket}
           onChange={setBasket}
           options={BASKETS.map(b => ({ value: b.id, label: b.name }))}
           info={FILTER_INFO}
         />
 
-        {/* Inline lift color ramp + info dot */}
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <span style={{
             fontFamily: MONO, fontSize: 7, color: C.textDim,
@@ -471,7 +495,7 @@ export default function MessageMap() {
             display: "flex", alignItems: "center",
           }}>
             Lift Scale (0–100)
-            <InfoDot label="Color scale info" placement="below">{COLOR_INFO}</InfoDot>
+            <InfoDot title="LIFT SCALE">{COLOR_INFO}</InfoDot>
           </span>
           <LiftRamp />
         </div>
@@ -496,7 +520,7 @@ export default function MessageMap() {
           fontFamily: MONO, fontSize: 9, color: C.violet,
           fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase",
         }}>Proof Points</span>
-        <InfoDot label="Proof points info" placement="below">{PROOF_INFO}</InfoDot>
+        <InfoDot title="PROOF POINTS">{PROOF_INFO}</InfoDot>
         <span>
           Each row drills into its proof-token grid via the ▸ chevron.{" "}
           <em style={{ color: C.textDim }}>Themes are listed in the order they appeared
@@ -505,6 +529,11 @@ export default function MessageMap() {
       </div>
 
       {/* ─── GRID FRAME ─── */}
+      {/*
+          Column layout (left → right):
+              chevron · Message · Variant Universe · 16 segment columns
+          Variant Universe moved LEFT per analyst feedback.
+      */}
       <div style={{
         background: C.card, border: `1px solid ${C.cardBorder}`,
         borderRadius: 6, overflow: "hidden",
@@ -512,7 +541,7 @@ export default function MessageMap() {
         {/* Header row */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: `36px 240px repeat(${orderedSegments.length}, minmax(56px, 1fr)) 140px`,
+          gridTemplateColumns: `36px 220px 150px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
           gap: 0,
           padding: "10px 12px",
           borderBottom: `1px solid ${C.cardBorder}`,
@@ -520,7 +549,7 @@ export default function MessageMap() {
         }}>
           <div /> {/* chevron gutter */}
 
-          {/* MESSAGE column header (with info dot) */}
+          {/* MESSAGE column header */}
           <div style={{
             display: "flex", flexDirection: "column", justifyContent: "flex-end",
             paddingRight: 10, paddingBottom: 4,
@@ -531,16 +560,42 @@ export default function MessageMap() {
               display: "flex", alignItems: "center",
             }}>
               Message
-              <InfoDot label="Message column info" placement="below">{MESSAGE_INFO}</InfoDot>
+              <InfoDot title="MESSAGE" placement="below">{MESSAGE_INFO}</InfoDot>
             </span>
             <span style={{
-              fontFamily: MONO, fontSize: 9, color: C.text,
-              marginTop: 4, letterSpacing: 0.5,
+              fontFamily: MONO, fontSize: 8, color: C.textDim,
+              marginTop: 6, letterSpacing: 1.5, textTransform: "uppercase",
               display: "flex", alignItems: "center",
             }}>
               Segment
-              <InfoDot label="Segment column info" placement="below">{SEGMENT_INFO}</InfoDot>
+              <InfoDot title="SEGMENT" placement="below">{SEGMENT_INFO}</InfoDot>
             </span>
+          </div>
+
+          {/* VARIANT UNIVERSE column header — legend inline */}
+          <div style={{
+            display: "flex", flexDirection: "column", justifyContent: "flex-end",
+            paddingRight: 10, paddingBottom: 2,
+            borderRight: `1px dashed ${C.cardBorder}`,
+          }}>
+            <span style={{
+              fontFamily: MONO, fontSize: 8, color: C.violet,
+              fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase",
+              display: "flex", alignItems: "center",
+            }}>
+              Variant Universe
+              <InfoDot title="VARIANT UNIVERSE" placement="right">{VARIANT_UNIVERSE_INFO}</InfoDot>
+            </span>
+            <VariantUniverseLegend />
+            <div style={{
+              display: "flex", justifyContent: "space-between",
+              fontFamily: MONO, fontSize: 6, color: C.textDim,
+              letterSpacing: 0.5, textTransform: "uppercase",
+              marginTop: -2, paddingLeft: 14, paddingRight: 14,
+            }}>
+              <span>○ core</span>
+              <span style={{ color: "#34d399" }}>● optimal</span>
+            </div>
           </div>
 
           {/* Segment-circle column headers */}
@@ -549,26 +604,6 @@ export default function MessageMap() {
               <SegmentCircle seg={seg} />
             </div>
           ))}
-
-          {/* VARIANT UNIVERSE column header */}
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "flex-end", borderLeft: `1px dashed ${C.cardBorder}`,
-            paddingLeft: 8,
-          }}>
-            <span style={{
-              fontFamily: MONO, fontSize: 8, color: C.violet,
-              fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase",
-              display: "flex", alignItems: "center",
-            }}>
-              Variant Universe
-              <InfoDot label="Variant universe info" placement="left">{VARIANT_UNIVERSE_INFO}</InfoDot>
-            </span>
-            <span style={{
-              fontFamily: MONO, fontSize: 7, color: C.textDim,
-              marginTop: 4, letterSpacing: 0.5,
-            }}>core ○  ●  optimal</span>
-          </div>
         </div>
 
         {/* Body — placeholder rows (live cells land in B2) */}
@@ -576,7 +611,7 @@ export default function MessageMap() {
           {MESSAGES.map((m, i) => (
             <div key={m.id} style={{
               display: "grid",
-              gridTemplateColumns: `36px 240px repeat(${orderedSegments.length}, minmax(56px, 1fr)) 140px`,
+              gridTemplateColumns: `36px 220px 150px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
               gap: 0,
               padding: "8px 12px",
               borderBottom: i < MESSAGES.length - 1 ? `1px solid ${C.cardBorder}` : "none",
@@ -598,6 +633,16 @@ export default function MessageMap() {
                   }}>{m.theme_label}</div>
                 </div>
               </div>
+              {/* Variant Universe strip placeholder */}
+              <div style={{
+                marginRight: 10, height: 22,
+                background: "rgba(167,139,250,0.05)",
+                border: `1px dashed rgba(167,139,250,0.3)`,
+                borderRadius: 2,
+                borderRight: `1px dashed ${C.cardBorder}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
+              }}>B6</div>
               {orderedSegments.map(seg => (
                 <div key={seg.id} style={{
                   height: 24, margin: "0 1px", borderRadius: 2,
@@ -605,15 +650,6 @@ export default function MessageMap() {
                   border: `1px dashed ${C.cardBorder}`,
                 }} />
               ))}
-              {/* Variant Universe strip placeholder */}
-              <div style={{
-                marginLeft: 8, height: 24,
-                background: "rgba(167,139,250,0.05)",
-                border: `1px dashed rgba(167,139,250,0.3)`,
-                borderRadius: 2,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
-              }}>B6</div>
             </div>
           ))}
         </div>
@@ -653,10 +689,6 @@ export default function MessageMap() {
           <h4 style={{ color: C.text, fontSize: 12, marginTop: 14, marginBottom: 4 }}>
             The two outcomes (toggle)
           </h4>
-          <p>
-            The same cell structure supports two distinct dependent variables,
-            accessible via the top toggle:
-          </p>
           <p>
             <strong style={{ color: "#34d399" }}>PERSUASION MESSAGING.</strong>{" "}
             Cell value = engagement-weighted residualized attitudinal shift.
@@ -781,5 +813,5 @@ export default function MessageMap() {
   );
 }
 
-// Exported for B5 (priority-basket reorganization) — not used in B1.5.
+// Exported for B5 (priority-basket reorganization) — not used here yet.
 export { PRIORITY_ORDERED_BY_ROI };

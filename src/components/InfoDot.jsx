@@ -1,58 +1,43 @@
-// Small "ⓘ" info dot — hover or focus to reveal a popover tooltip.
+// Small "?" info dot — hover (or focus) to reveal a popover tooltip.
+//
+// Styling matches the radar-axis tooltip in SegmentProfile.jsx:
+//   - 280px wide, background #1e293b, border #334155, border-radius 8
+//   - Title:  10px / weight 700 / #a78bfa / Nunito / margin-bottom 4
+//   - Body:    9px / #cbd5e1 / Nunito / line-height 1.5
 //
 // Usage:
-//   <InfoDot label="Filter">
-//     <p>Tooltip content...</p>
-//   </InfoDot>
+//   <InfoDot title="OUTCOME">Tooltip body copy…</InfoDot>
 //
-// The dot is a 14×14 circle sitting inline with surrounding text. Tooltip
-// pops above and to the right by default; pass `placement="below"` or
-// `placement="left"` to nudge it.
+// `placement` nudges the tooltip relative to the dot:
+//   "below" (default) | "above" | "left" | "right"
 import { useState, useRef } from "react";
 
-const TOOLTIP_W = 320;
-
 export default function InfoDot({
-  label = "info",
+  title,
   children,
   placement = "below",
-  size = 14,
-  color = "#94a3b8",
+  color = "#475569",
   hoverColor = "#a78bfa",
+  ariaLabel = "info",
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
   const tooltipStyle = {
     position: "absolute",
-    zIndex: 50,
-    width: TOOLTIP_W,
-    background: "#0b1220",
+    zIndex: 100,
+    width: 280,
+    background: "#1e293b",
     border: "1px solid #334155",
-    borderRadius: 6,
+    borderRadius: 8,
     padding: "10px 12px",
-    fontSize: 11,
-    color: "#cbd5e1",
-    fontFamily: "'Nunito',sans-serif",
-    lineHeight: 1.55,
-    boxShadow: "0 12px 32px rgba(0,0,0,0.6)",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
     pointerEvents: "none",
   };
-
-  // Placement: anchor relative to the dot.
-  if (placement === "below") {
-    tooltipStyle.top = size + 6;
-    tooltipStyle.left = -8;
-  } else if (placement === "above") {
-    tooltipStyle.bottom = size + 6;
-    tooltipStyle.left = -8;
-  } else if (placement === "right") {
-    tooltipStyle.left = size + 6;
-    tooltipStyle.top = -4;
-  } else if (placement === "left") {
-    tooltipStyle.right = size + 6;
-    tooltipStyle.top = -4;
-  }
+  if (placement === "below") { tooltipStyle.top = 18;            tooltipStyle.left = -8;  }
+  if (placement === "above") { tooltipStyle.bottom = 18;         tooltipStyle.left = -8;  }
+  if (placement === "right") { tooltipStyle.left = 18;           tooltipStyle.top = -4;   }
+  if (placement === "left")  { tooltipStyle.right = 18;          tooltipStyle.top = -4;   }
 
   return (
     <span
@@ -62,18 +47,17 @@ export default function InfoDot({
       onFocus={() => setOpen(true)}
       onBlur={() => setOpen(false)}
       tabIndex={0}
-      aria-label={label}
+      aria-label={ariaLabel}
       style={{
         position: "relative",
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        width: size, height: size, borderRadius: "50%",
+        width: 13, height: 13, borderRadius: "50%",
         border: `1px solid ${open ? hoverColor : color}`,
         color: open ? hoverColor : color,
-        fontFamily: "'JetBrains Mono',monospace",
-        fontSize: Math.round(size * 0.65),
-        fontWeight: 700,
+        fontFamily: "'Nunito',sans-serif",
+        fontSize: 9, fontWeight: 600, lineHeight: 1,
         cursor: "help",
         marginLeft: 6,
         verticalAlign: "middle",
@@ -83,10 +67,23 @@ export default function InfoDot({
         outline: "none",
       }}
     >
-      i
+      ?
       {open && (
         <span style={tooltipStyle} role="tooltip">
-          {children}
+          {title && (
+            <span style={{
+              display: "block",
+              fontSize: 10, fontWeight: 700, color: "#a78bfa",
+              fontFamily: "'Nunito',sans-serif",
+              marginBottom: 4, lineHeight: 1.3,
+              letterSpacing: 0.5, textTransform: "uppercase",
+            }}>{title}</span>
+          )}
+          <span style={{
+            display: "block",
+            fontSize: 9, color: "#cbd5e1",
+            fontFamily: "'Nunito',sans-serif", lineHeight: 1.5,
+          }}>{children}</span>
         </span>
       )}
     </span>
