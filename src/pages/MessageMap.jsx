@@ -1,129 +1,165 @@
-import { useState, useMemo } from "react";
-import DATA from "../data/studyData";
-import { MESSAGES as STUDY_MESSAGES, CONTROL_SOP, VARIANT_SOP, STUDY_META } from "../data/study";
+// ═══════════════════════════════════════════════════════════════
+// MESSAGE MAP — standalone /messages page
+//
+// Renders the messagemap pipeline output (persuasion_messaging /
+// base_messaging) merged into src/data/topline/dashboard.json:
+//   - messages[]            17 message themes × proof tokens
+//   - message_map_cells{}   per-metric lift cells: msg×seg×arm×proof
+//   - baskets[]             total / priority_all / priority_d / gop / dem
+//   - variants{}            per-message text by persona token
+//   - lift_variants[]       metric metadata (sigma, scale)
+//
+// COMMIT B1 — skeleton only. Header / controls / legend / hint /
+// empty grid frame. No data wiring, no interactivity. Subsequent
+// commits B2–B6 add cell rendering, drill-down, hover, priority
+// reorganization, and the variant-universe strip.
+// ═══════════════════════════════════════════════════════════════
+import { useState } from "react";
+import dashboard from "../data/topline/dashboard.json";
+import { C, FONT, MONO, partyColor } from "../data/theme";
+import { STUDY_METRICS } from "../data/study";
 
-// ─── SEGMENTS from shared data ───
-const SEGMENTS = DATA.segments;
+// ─── Data wiring (frame only — cells render in B2) ───
+const SEGMENTS = dashboard.segments;          // 16 segments, ordered TSP…GHI
+const MESSAGES = dashboard.messages || [];    // 17 message-theme records
+const BASKETS  = dashboard.baskets  || [];    // 5 basket definitions
+const METRICS  = dashboard.lift_variants || []; // [persuasion_messaging, base_messaging]
 
-// ─── Wave-1 vs wave-2 detection ───
-// If the SoP matrix is empty, this study hasn't been scored yet — render a placeholder list.
-const HAS_SOP = Array.isArray(CONTROL_SOP) && CONTROL_SOP.length > 0;
-
-// ─── Build message objects from study.js (wave-2 only) ───
-const SEG_POPS = SEGMENTS.map(s => s.pop);
-const POP_TOTAL = SEG_POPS.reduce((a, b) => a + b, 0);
-
-function buildMessages(sopMatrix, useVariants) {
-  return STUDY_MESSAGES.map((m, i) => {
-    const segSops = sopMatrix[i];
-    const wtTotal = segSops.reduce((sum, v, si) => sum + v * (SEG_POPS[si] / POP_TOTAL), 0);
-    const text = useVariants
-      ? (Object.values(m.variants || {})[0] || m.control || m.text)
-      : (m.control || m.text);
-    return {
-      id: m.id,
-      shortName: m.shortName,
-      text,
-      theme: m.theme,
-      sop: [Math.round(wtTotal * 10) / 10, ...segSops],
-      variants: m.variants,
-      control: m.control,
-    };
-  });
-}
-
-// ─── Theme colors ───
+// Theme colour swatches for the message-theme dots / legend row.
+// Keys match the THEMES emitted by messagemap; extend as new themes appear.
 const THEME_COLORS = {
-  Leadership:"#a78bfa", Security:"#f87171", Economy:"#34d399",
-  Innovation:"#60a5fa", Patient:"#fbbf24", Other:"#94a3b8"
+  "THE ONGOING EPIDEMIC":          "#f87171",
+  "PREVENTION":                    "#34d399",
+  "TREATMENT":                     "#60a5fa",
+  "ACCESS & EQUITY":               "#a78bfa",
+  "ECONOMIC CASE":                 "#fbbf24",
+  "PUBLIC HEALTH INFRASTRUCTURE":  "#22d3ee",
+  "INNOVATION":                    "#2dd4bf",
+  "PATIENT EXPERIENCE":            "#fb7185",
+  "STIGMA & SOCIAL NORMS":         "#f59e0b",
 };
-
-// ─── Party colors ───
-const PARTY_COLOR = { GOP: "#e57373", DEM: "#64b5f6" };
-
-function getSopC(v) {
-  if (v >= 13) return { bg:"#065f46", t:"#6ee7b7" };
-  if (v >= 10) return { bg:"#064e3b", t:"#6ee7b7" };
-  if (v >= 7)  return { bg:"#1a3a2a", t:"#a7f3d0" };
-  if (v >= 6)  return { bg:"#1e293b", t:"#cbd5e1" };
-  if (v >= 5)  return { bg:"#1a1f2e", t:"#94a3b8" };
-  if (v >= 4)  return { bg:"#1a1520", t:"#94a3b8" };
-  if (v >= 3)  return { bg:"#1f1318", t:"#f9a8a8" };
-  return { bg:"#2d1215", t:"#fca5a5" };
+function themeColor(label) {
+  return THEME_COLORS[label] || C.steel;
 }
 
-// Variant keys in study.js use spreadsheet column numbers, not segment IDs.
-// This maps segment ID → variant key for the mismatched segments.
-const SEG_TO_VARIANT = { 1:10, 2:1, 4:7, 7:4, 8:2, 10:8 };
+// Priority basket → segment IDs ordered by ROI desc (from STUDY_METRICS).
+// Used by B5 to cluster priority segments left-to-right.
+const PRIORITY_BASKET = (BASKETS.find(b => b.id === "priority_all") || { segments: [] }).segments;
+const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
+  const ca = SEGMENTS.find(s => s.id === a)?.code;
+  const cb = SEGMENTS.find(s => s.id === b)?.code;
+  return (STUDY_METRICS[cb]?.roi || 0) - (STUDY_METRICS[ca]?.roi || 0);
+});
 
-function Tooltip({ msg, x, y, segIdx, isVariant }) {
-  let displayText = msg.text;
-  let variantLabel = null;
-  if (isVariant && segIdx != null && msg.variants) {
-    const segId = SEGMENTS[segIdx]?.id;
-    const variantKey = SEG_TO_VARIANT[segId] || segId;
-    if (variantKey && msg.variants[variantKey]) {
-      displayText = msg.variants[variantKey];
-      variantLabel = `Segment ${SEGMENTS[segIdx].code} variant`;
-    } else {
-      displayText = msg.control || msg.text;
-      variantLabel = "Control (no segment variant)";
-    }
-  }
+// ─── small UI building-blocks ───
+
+function SegmentCircle({ seg, dim = false }) {
+  const pc = partyColor(seg.party);
   return (
-    <div style={{ position:"fixed", left:Math.min(x + 12, window.innerWidth - 420), top:Math.max(y - 80, 8), width:400, background:"#111827", border:"1px solid #334155", borderRadius:6, padding:12, zIndex:9999, pointerEvents:"none", boxShadow:"0 8px 32px rgba(0,0,0,0.6)" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-        <span style={{ fontFamily:"'Poppins',sans-serif", fontSize:13, fontWeight:700, color:"#e2e8f0", textTransform:"uppercase" }}>{msg.shortName}</span>
-        {variantLabel && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:"#a78bfa", background:"#2d1b69", padding:"2px 6px", borderRadius:3 }}>{variantLabel}</span>}
-      </div>
-      <div style={{ fontSize:11, color:"#cbd5e1", lineHeight:1.6, fontStyle:"italic" }}>"{displayText}"</div>
+    <div style={{
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+      opacity: dim ? 0.35 : 1, transition: "opacity 0.15s",
+    }}>
+      <div style={{
+        width: 30, height: 30, borderRadius: "50%",
+        border: `2px solid ${pc}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 8, fontWeight: 800, color: pc,
+        fontFamily: MONO,
+        background: "transparent",
+      }}>{seg.code}</div>
+      <div style={{
+        fontSize: 7, color: pc, fontFamily: MONO, fontWeight: 700,
+        letterSpacing: 0.5,
+      }}>{seg.pct}%</div>
     </div>
   );
 }
 
-// ─── Wave-1 placeholder: list-only view, no heatmap ───
-function WavePlaceholder() {
+function ControlSelect({ label, value, options, onChange }) {
   return (
-    <div style={{ maxWidth:1100, margin:"0 auto", color:"#e2e8f0" }}>
-      <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:11, color:"#94a3b8", lineHeight:1.5 }}>
-          <strong style={{ color:"#cbd5e1" }}>Message testing results available in Wave 2.</strong>{" "}
-          Messages and stimulus text shown below for reference.
-        </div>
-        <div style={{ fontSize:10, color:"#64748b", marginTop:6, fontFamily:"'JetBrains Mono',monospace", letterSpacing:0.5 }}>
-          {STUDY_META?.nMessages || STUDY_MESSAGES.length} MESSAGES · {STUDY_META?.methodology || ""}
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <span style={{
+        fontFamily: MONO, fontSize: 7, color: C.textDim,
+        letterSpacing: 1.5, textTransform: "uppercase",
+      }}>{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          fontFamily: FONT, fontSize: 11, fontWeight: 600,
+          background: C.card, color: C.white,
+          border: `1px solid ${C.cardBorder}`,
+          borderRadius: 4, padding: "5px 24px 5px 10px",
+          cursor: "pointer", appearance: "none",
+          backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'><path fill='%2394a3b8' d='M0 0l4 5 4-5z'/></svg>")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 8px center",
+          backgroundSize: "8px 5px",
+          outline: "none",
+        }}
+      >
+        {options.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function ActionBtn({ label, onClick, disabled = false }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        fontFamily: MONO, fontSize: 9, fontWeight: 600,
+        letterSpacing: 1, textTransform: "uppercase",
+        background: "transparent", color: disabled ? C.textDim : C.textMuted,
+        border: `1px solid ${C.cardBorder}`,
+        borderRadius: 4, padding: "5px 10px",
+        cursor: disabled ? "not-allowed" : "pointer",
+        transition: "all 0.15s",
+      }}
+    >{label}</button>
+  );
+}
+
+// ─── Legend: 0-100 lift scale + theme dots ───
+function LiftLegend() {
+  // 0-100 scale stops (low → high) — final palette refined in B2.
+  const stops = [
+    { v: 0,   bg: "#7f1d1d", t: "#fecaca" },
+    { v: 25,  bg: "#3f1d1d", t: "#fda4af" },
+    { v: 50,  bg: "#1f2937", t: "#94a3b8" },
+    { v: 75,  bg: "#14532d", t: "#a7f3d0" },
+    { v: 100, bg: "#14532d", t: "#34d399" },
+  ];
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+      <span style={{ fontFamily: MONO, fontSize: 7, color: C.textDim, letterSpacing: 1.5 }}>
+        LIFT (0–100):
+      </span>
+      <div style={{ display: "flex", gap: 2 }}>
+        {stops.map(s => (
+          <div key={s.v} style={{
+            width: 26, height: 14, background: s.bg,
+            border: `1px solid ${C.cardBorder}`, borderRadius: 2,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 7, color: s.t, fontFamily: MONO, fontWeight: 700,
+          }}>{s.v}</div>
+        ))}
       </div>
-
-      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {STUDY_MESSAGES.map(m => (
-          <div key={m.id} style={{
-            background:"#111827", border:"1px solid #1e293b", borderRadius:6,
-            padding:"10px 14px", display:"flex", gap:14, alignItems:"flex-start"
-          }}>
-            <div style={{
-              minWidth:28, fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700,
-              color:"#64748b", padding:"2px 0"
-            }}>{String(m.id).padStart(2,"0")}</div>
-
-            <div style={{ flex:1 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
-                <span style={{
-                  fontFamily:"'Poppins',sans-serif", fontSize:12, fontWeight:700, color:"#e2e8f0",
-                  textTransform:"uppercase", letterSpacing:0.5
-                }}>{m.shortName}</span>
-                {m.theme && (
-                  <span style={{
-                    fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:"#94a3b8",
-                    background:"rgba(0,0,0,0.3)", padding:"1px 6px", borderRadius:3,
-                    textTransform:"uppercase", letterSpacing:0.5
-                  }}>{m.theme}</span>
-                )}
-              </div>
-              <div style={{ fontSize:11, color:"#cbd5e1", lineHeight:1.55, fontStyle:"italic" }}>
-                "{m.text}"
-              </div>
-            </div>
+      <span style={{ fontFamily: MONO, fontSize: 7, color: C.textDim, letterSpacing: 1.5, marginLeft: 8 }}>
+        THEME:
+      </span>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {Object.entries(THEME_COLORS).map(([t, col]) => (
+          <div key={t} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: col }} />
+            <span style={{ fontSize: 8, color: C.textMuted, fontFamily: MONO, letterSpacing: 0.5 }}>
+              {t}
+            </span>
           </div>
         ))}
       </div>
@@ -131,247 +167,211 @@ function WavePlaceholder() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// MAIN PAGE
+// ═══════════════════════════════════════════════════════════════
 export default function MessageMap() {
-  return HAS_SOP ? <Heatmap /> : <WavePlaceholder />;
-}
+  // Wave-1 fallback — render a "not yet scored" placeholder if the
+  // messagemap pipeline hasn't merged into dashboard.json yet.
+  const hasData = MESSAGES.length > 0
+    && dashboard.message_map_cells
+    && Object.keys(dashboard.message_map_cells).length > 0;
 
-function Heatmap() {
-  const [sortCol, setSortCol] = useState(null);
-  const [tooltip, setTooltip] = useState(null);
-  const [variantMode, setVariantMode] = useState("control");
-  const [hoverRow, setHoverRow] = useState(null);
-  const [hoverCol, setHoverCol] = useState(null);
+  const defaultMetric = METRICS[0]?.name || "persuasion_messaging";
+  const [metric, setMetric] = useState(defaultMetric);
+  const [basket, setBasket] = useState("total");
 
-  const isVariant = variantMode === "persona";
-  const MESSAGES = buildMessages(isVariant ? VARIANT_SOP : CONTROL_SOP, isVariant);
+  if (!hasData) {
+    return (
+      <div style={{ maxWidth: 800, margin: "40px auto", color: C.textMuted, fontFamily: FONT }}>
+        <div style={{
+          background: C.card, border: `1px solid ${C.cardBorder}`,
+          borderRadius: 6, padding: "20px 24px", fontSize: 12,
+        }}>
+          <strong style={{ color: C.text }}>Message Map data not yet available.</strong>{" "}
+          Run <code style={{ fontFamily: MONO, color: C.violet }}>python scripts/refresh.py</code>{" "}
+          to regenerate <code style={{ fontFamily: MONO, color: C.violet }}>src/data/topline/dashboard.json</code>{" "}
+          with the messagemap pipeline output.
+        </div>
+      </div>
+    );
+  }
 
-  const sorted = useMemo(() => {
-    const ix = MESSAGES.map((m, i) => ({ ...m, idx: i }));
-    if (sortCol === null) return ix;
-    return [...ix].sort((a, b) => MESSAGES[b.idx].sop[sortCol] - MESSAGES[a.idx].sop[sortCol]);
-  }, [sortCol, variantMode, MESSAGES]);
+  const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
+  const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
 
-  const totalIdx = 0;
-  const segStartIdx = 1;
-
-  const isColActive = (colIdx) => hoverCol === colIdx;
-  const isRowActive = (rowKey) => hoverRow === rowKey;
+  // Segment ordering — B5 will re-order priority basket by ROI desc and
+  // fade non-priority. For B1 we render the canonical 16 in default order.
+  const orderedSegments = SEGMENTS;
 
   return (
-    <div style={{ maxWidth:1650, margin:"0 auto", color:"#e2e8f0" }}>
-      {/* Description */}
-      <div style={{ marginBottom:12 }}>
-        <div style={{ fontSize:11, color:"#94a3b8", maxWidth:1100, lineHeight:1.5 }}>
-          <strong style={{ color:"#cbd5e1" }}>Share of Preference</strong> heatmap <span style={{ color:"#64748b" }}>(a measure from a discrete choice model depicting how likely a message is chosen as the most compelling relative to other messages)</span> · {STUDY_META?.nMessages || STUDY_MESSAGES.length}-item {STUDY_META?.methodology || "MaxDiff · 16 PRISM segments"}.
+    <div style={{ color: C.text, fontFamily: FONT, maxWidth: 1800, margin: "0 auto" }}>
+
+      {/* ─── TITLE BLOCK ─── */}
+      <div style={{ marginBottom: 16 }}>
+        <h1 style={{
+          margin: 0, fontFamily: FONT, fontSize: 22, fontWeight: 800,
+          color: C.white, letterSpacing: 0.2,
+        }}>Message Map</h1>
+        <div style={{ marginTop: 6, fontSize: 12, color: C.textMuted, maxWidth: 1100, lineHeight: 1.55 }}>
+          <strong style={{ color: C.text }}>Persuasion × persona × proof.</strong>{" "}
+          Cells show <em>lift</em> — how much each message variant moves attitudinal
+          alignment above baseline, on a 0–100 scale.
+          Each segment cell is split <span style={{ color: C.text }}>CORE&nbsp;|&nbsp;PERSONA-tuned</span>.
+          Click a row chevron to drill into the full message wording and proof points.
+        </div>
+        <div style={{
+          marginTop: 8, fontSize: 9, color: C.textDim,
+          fontFamily: MONO, letterSpacing: 1, textTransform: "uppercase",
+        }}>
+          {MESSAGES.length} MESSAGES · {orderedSegments.length} PRISM SEGMENTS ·
+          MaxDiff · Shrunk lift, 500-iter respondent bootstrap CIs
         </div>
       </div>
 
-      {/* Persona variant toggle */}
-      <div style={{ display:"flex", gap:4, marginBottom:10, alignItems:"center" }}>
-        {[{ k:"control", l:"CONTROL" }, { k:"persona", l:"PERSONA VARIANTS" }].map(v => (
-          <button key={v.k} onClick={() => { setVariantMode(v.k); setSortCol(null); }} style={{
-            fontFamily:"'JetBrains Mono',monospace", fontSize:9, letterSpacing:0.5,
-            padding:"5px 14px", border:"1px solid", borderRadius:4, cursor:"pointer",
-            borderColor: variantMode === v.k ? "#a78bfa" : "#1e293b",
-            background: variantMode === v.k ? "#2d1b69" : "#111827",
-            color: variantMode === v.k ? "#c4b5fd" : "#64748b",
-            transition:"all 0.15s"
-          }}>{v.l}</button>
-        ))}
-        {isVariant && (
-          <span style={{ fontSize:8, color:"#a78bfa", fontFamily:"'JetBrains Mono',monospace", marginLeft:8 }}>
-            Hover a segment column to see its tailored variant text
-          </span>
-        )}
+      {/* ─── CONTROLS BAR ─── */}
+      <div style={{
+        display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap",
+        padding: "10px 14px",
+        background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
+        marginBottom: 12,
+      }}>
+        <ControlSelect
+          label="Metric"
+          value={metric}
+          onChange={setMetric}
+          options={METRICS.map(m => ({ value: m.name, label: m.label }))}
+        />
+        <ControlSelect
+          label="Basket"
+          value={basket}
+          onChange={setBasket}
+          options={BASKETS.map(b => ({ value: b.id, label: b.name }))}
+        />
+
+        <div style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
+          <ActionBtn label="Expand all" disabled />
+          <ActionBtn label="Collapse all" disabled />
+          <ActionBtn label="Unpin all" disabled />
+        </div>
       </div>
 
-      {/* Legend */}
-      <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:6, flexWrap:"wrap" }}>
-        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:"#475569", letterSpacing:1 }}>SoP:</span>
-        {[{ l:"≤6", bg:"#2d1215" }, { l:"7-8", bg:"#1a1520" }, { l:"9-10", bg:"#1e293b" }, { l:"11-12", bg:"#064e3b" }, { l:"≥13", bg:"#065f46" }].map((h, i) => (
-          <div key={i} style={{ display:"flex", alignItems:"center", gap:2 }}>
-            <div style={{ width:10, height:10, borderRadius:2, background:h.bg, border:"1px solid #1e293b" }} />
-            <span style={{ fontSize:7, color:"#94a3b8" }}>{h.l}</span>
-          </div>
-        ))}
-        <span style={{ marginLeft:10, fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:"#475569", letterSpacing:1 }}>THEME:</span>
-        {Object.entries(THEME_COLORS).filter(([t]) => t !== "Other").map(([t, c]) => (
-          <div key={t} style={{ display:"flex", alignItems:"center", gap:2 }}>
-            <div style={{ width:6, height:6, borderRadius:"50%", background:c }} />
-            <span style={{ fontSize:7, color:"#94a3b8" }}>{t}</span>
-          </div>
-        ))}
+      {/* ─── LEGEND ─── */}
+      <div style={{ marginBottom: 10 }}>
+        <LiftLegend />
       </div>
 
-      {/* Heatmap table */}
-      <div style={{ overflowX:"auto", marginBottom:2 }}>
-        <table style={{ width:"100%", borderCollapse:"separate", borderSpacing:1, fontSize:11 }}>
-          <thead>
-            {/* ─── ROW 1: Party group headers ─── */}
-            <tr>
-              <th colSpan={3} style={{ background:"#111827", padding:2 }} />
-              <th style={{ background:"#0a1a0a", color:"#34d399", fontFamily:"'JetBrains Mono',monospace", fontSize:8, letterSpacing:2, padding:"3px 0", textAlign:"center", borderBottom:"2px solid #34d399" }}>TOTAL</th>
-              <th colSpan={10} style={{ background:"#1a0a0a", color:"#f87171", fontFamily:"'JetBrains Mono',monospace", fontSize:8, letterSpacing:2, padding:"3px 0", textAlign:"center", borderBottom:"2px solid #f87171" }}>REPUBLICAN</th>
-              <th colSpan={6} style={{ background:"#0a0a1a", color:"#60a5fa", fontFamily:"'JetBrains Mono',monospace", fontSize:8, letterSpacing:2, padding:"3px 0", textAlign:"center", borderBottom:"2px solid #60a5fa" }}>DEMOCRAT</th>
-            </tr>
+      {/* ─── HINT BAR ─── */}
+      <div style={{
+        fontSize: 10, color: C.textMuted, fontFamily: MONO, letterSpacing: 0.5,
+        marginBottom: 12, padding: "6px 10px",
+        background: "rgba(167,139,250,0.06)",
+        border: `1px solid rgba(167,139,250,0.18)`,
+        borderRadius: 4,
+      }}>
+        <span style={{ color: C.violet, fontWeight: 700 }}>HINT · </span>
+        Each cell splits <em>CORE</em>&nbsp;(left) | <em>PERSONA-tuned</em>&nbsp;(right) ·
+        hover to see the variant text · click ▸ to drill into proof points ·
+        click any cell to pin its detail
+      </div>
 
-            {/* ─── ROW 2: Segment headers ─── */}
-            <tr>
-              <th style={{ background:"#111827", width:24, padding:2 }} />
-              <th style={{ background:"#111827", textAlign:"left", width:140, fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:"#64748b", padding:"2px 4px", verticalAlign:"bottom" }}>MESSAGE</th>
-              <th style={{ background:"#111827", width:40, fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:"#64748b", padding:2, verticalAlign:"bottom" }}>THEME</th>
+      {/* ─── GRID FRAME ─── */}
+      <div style={{
+        background: C.card, border: `1px solid ${C.cardBorder}`,
+        borderRadius: 6, overflow: "hidden",
+      }}>
+        {/* Segment-circle header row */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `36px 220px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
+          gap: 0,
+          padding: "10px 12px",
+          borderBottom: `1px solid ${C.cardBorder}`,
+          background: C.bg,
+        }}>
+          <div /> {/* chevron gutter */}
+          <div style={{
+            display: "flex", flexDirection: "column", justifyContent: "flex-end",
+            paddingRight: 10, paddingBottom: 4,
+          }}>
+            <span style={{
+              fontFamily: MONO, fontSize: 8, color: C.textDim,
+              letterSpacing: 1.5, textTransform: "uppercase",
+            }}>Message · Theme</span>
+            <span style={{
+              fontFamily: MONO, fontSize: 9, color: C.text,
+              marginTop: 4, letterSpacing: 0.5,
+            }}>{activeMetric?.label || ""}</span>
+          </div>
+          {orderedSegments.map(seg => (
+            <div key={seg.id} style={{ display: "flex", justifyContent: "center" }}>
+              <SegmentCircle seg={seg} />
+            </div>
+          ))}
+        </div>
 
-              {/* ── TOTAL column header ── */}
-              <th
-                onClick={() => setSortCol(sortCol === totalIdx ? null : totalIdx)}
-                onMouseEnter={() => setHoverCol(totalIdx)}
-                onMouseLeave={() => setHoverCol(null)}
-                style={{
-                  background: sortCol === totalIdx ? "#1a2332" : "#0a1208",
-                  minWidth:62, padding:"8px 2px 6px", cursor:"pointer",
-                  verticalAlign:"bottom", textAlign:"center",
-                  borderBottom: sortCol === totalIdx ? "2px solid #60a5fa" : "2px solid transparent",
-                  transition:"all 0.15s",
-                }}
-              >
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
+        {/* Body — placeholder rows for the 17 message themes.
+            B2 replaces each row with the live split-cell grid. */}
+        <div>
+          {MESSAGES.map((m, i) => (
+            <div key={m.id} style={{
+              display: "grid",
+              gridTemplateColumns: `36px 220px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
+              gap: 0,
+              padding: "8px 12px",
+              borderBottom: i < MESSAGES.length - 1 ? `1px solid ${C.cardBorder}` : "none",
+              alignItems: "center",
+              minHeight: 38,
+            }}>
+              <div style={{
+                fontFamily: MONO, fontSize: 10, color: C.textDim,
+                textAlign: "center", cursor: "default",
+              }}>▸</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 10 }}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: themeColor(m.theme_label), flexShrink: 0,
+                }} />
+                <div style={{ minWidth: 0 }}>
                   <div style={{
-                    width:30, height:30, borderRadius:"50%", border:"2px solid #34d399",
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:7, fontWeight:800, color:"#34d399",
-                    fontFamily:"'JetBrains Mono',monospace",
-                    background: sortCol === totalIdx ? "rgba(52,211,153,0.12)" : "transparent"
-                  }}>ALL</div>
+                    fontFamily: MONO, fontSize: 9, color: C.textDim,
+                    letterSpacing: 0.5,
+                  }}>MSG {String(m.id).padStart(2, "0")}</div>
                   <div style={{
-                    fontSize:6, fontWeight:700, color:"#34d399",
-                    fontFamily:"'JetBrains Mono',monospace", textAlign:"center",
-                    lineHeight:1.2
-                  }}>TOTAL</div>
-                  {sortCol === totalIdx && <div style={{ fontSize:7, color:"#60a5fa" }}>▼</div>}
+                    fontFamily: FONT, fontSize: 11, fontWeight: 700, color: C.text,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>{m.theme_label}</div>
                 </div>
-              </th>
-
-              {/* ── SEGMENT column headers ── */}
-              {SEGMENTS.map((seg, si) => {
-                const colIdx = si + segStartIdx;
-                const isSorted = sortCol === colIdx;
-                const pc = PARTY_COLOR[seg.party] || "#cbd5e1";
-                return (
-                  <th
-                    key={seg.id}
-                    onClick={() => setSortCol(isSorted ? null : colIdx)}
-                    onMouseEnter={() => setHoverCol(colIdx)}
-                    onMouseLeave={() => setHoverCol(null)}
-                    style={{
-                      background: isSorted ? "#1a2332" : "#000",
-                      minWidth:68, padding:"8px 2px 6px", cursor:"pointer",
-                      verticalAlign:"bottom", textAlign:"center",
-                      borderBottom: isSorted ? "2px solid #60a5fa" : "2px solid transparent",
-                      transition:"all 0.15s",
-                    }}
-                  >
-                    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
-                      <div style={{
-                        width:30, height:30, borderRadius:"50%", border:`2px solid ${pc}`,
-                        display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:7, fontWeight:800, color:pc,
-                        fontFamily:"'JetBrains Mono',monospace",
-                        background: isSorted ? `${pc}18` : "transparent"
-                      }}>{seg.code || seg.id}</div>
-                      <div style={{
-                        fontSize:6, fontWeight:700, color:pc,
-                        fontFamily:"'JetBrains Mono',monospace", textAlign:"center",
-                        lineHeight:1.2, minHeight:22, display:"flex", alignItems:"center",
-                        justifyContent:"center", padding:"0 1px"
-                      }}>{seg.name.toUpperCase()}</div>
-                      <div style={{
-                        fontSize:7, color:"#64748b",
-                        fontFamily:"'JetBrains Mono',monospace"
-                      }}>{seg.pop}%</div>
-                      {isSorted && <div style={{ fontSize:7, color:"#60a5fa" }}>▼</div>}
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-
-          <tbody>
-            {sorted.map((msg) => {
-              const sop = MESSAGES[msg.idx].sop;
-              const rowActive = isRowActive(msg.id);
-              const rowBrightness = rowActive ? "brightness(1.18)" : "brightness(1)";
-
-              return (
-              <tr
-                key={msg.id}
-                onMouseEnter={() => setHoverRow(msg.id)}
-                onMouseLeave={() => setHoverRow(null)}
-                style={{ filter:rowBrightness, transition:"filter 0.1s" }}
-              >
-                {/* Row # */}
-                <td style={{ background:"#111827", textAlign:"center", fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:"#64748b", fontWeight:700, padding:2 }}>{msg.id}</td>
-
-                {/* Message name — TOOLTIP */}
-                <td
-                  onMouseEnter={e => setTooltip({ msg, x:e.clientX, y:e.clientY, segIdx:null })}
-                  onMouseMove={e => setTooltip(t2 => t2 ? { ...t2, x:e.clientX, y:e.clientY } : null)}
-                  onMouseLeave={() => setTooltip(null)}
-                  style={{
-                    background: rowActive ? "#1a2030" : "#111827",
-                    fontFamily:"'Poppins',sans-serif", fontSize:11, color:"#cbd5e1",
-                    fontWeight:600, padding:"3px 4px", whiteSpace:"nowrap", cursor:"help",
-                    borderLeft: rowActive ? "2px solid #60a5fa" : "2px solid transparent",
-                    transition:"all 0.1s"
-                  }}
-                >{msg.shortName}</td>
-
-                {/* Theme badge */}
-                <td style={{ background: rowActive ? "#1a2030" : "#111827", textAlign:"center", padding:2 }}>
-                  <span style={{ fontSize:6, fontFamily:"'JetBrains Mono',monospace", padding:"1px 4px", borderRadius:3, background:"rgba(0,0,0,0.3)", color:THEME_COLORS[msg.theme] || "#94a3b8", fontWeight:600 }}>{(msg.theme || "").toUpperCase()}</span>
-                </td>
-
-                {/* ── Total cell ── */}
-                {(() => { const val = sop[totalIdx], { bg, t: tx } = getSopC(val), isSel = sortCol === totalIdx, isHovC = isColActive(totalIdx); return (
-                  <td
-                    onMouseEnter={() => setHoverCol(totalIdx)}
-                    onMouseLeave={() => setHoverCol(null)}
-                    style={{
-                      textAlign:"center", borderRadius:2,
-                      background: isHovC || isSel ? `${bg}` : bg,
-                      fontFamily:"'JetBrains Mono',monospace", fontWeight:700, fontSize:12, color:tx,
-                      padding:"6px 2px", minWidth:62,
-                      opacity: (isSel || isHovC || rowActive) ? 1 : 0.85,
-                      transition:"all 0.1s",
-                      borderLeft:"2px solid #34d399", borderRight:"2px solid #1e293b",
-                      boxShadow: (isHovC && rowActive) ? "inset 0 0 0 1px rgba(96,165,250,0.5)" : "none"
-                    }}>{val.toFixed(1)}</td>
-                ); })()}
-
-                {/* ── Segment cells ── */}
-                {SEGMENTS.map((seg, si) => { const colIdx = si + segStartIdx; const val = sop[colIdx], { bg, t: tx } = getSopC(val), isSel = sortCol === colIdx, isHovC = isColActive(colIdx); return (
-                  <td key={seg.id}
-                    onMouseEnter={e => { setHoverCol(colIdx); setTooltip({ msg, x:e.clientX, y:e.clientY, segIdx:si }); }}
-                    onMouseMove={e => setTooltip(t2 => t2 ? { ...t2, x:e.clientX, y:e.clientY } : null)}
-                    onMouseLeave={() => { setHoverCol(null); setTooltip(null); }}
-                    style={{
-                      textAlign:"center", borderRadius:2,
-                      background: isHovC || isSel ? `${bg}` : bg,
-                      fontFamily:"'JetBrains Mono',monospace", fontWeight:700, fontSize:12, color:tx,
-                      padding:"6px 2px", minWidth:68,
-                      opacity: (isSel || isHovC || rowActive) ? 1 : 0.85,
-                      transition:"all 0.1s",
-                      boxShadow: (isHovC && rowActive) ? "inset 0 0 0 1px rgba(96,165,250,0.5)" : "none",
-                      cursor: isVariant ? "help" : "default"
-                    }}>{val.toFixed(1)}</td>
-                ); })}
-              </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </div>
+              {orderedSegments.map(seg => (
+                <div key={seg.id} style={{
+                  height: 24, margin: "0 1px", borderRadius: 2,
+                  background: "rgba(148,163,184,0.06)",
+                  border: `1px dashed ${C.cardBorder}`,
+                }} />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-      {tooltip && <Tooltip msg={tooltip.msg} x={tooltip.x} y={tooltip.y} segIdx={tooltip.segIdx} isVariant={isVariant} />}
+
+      {/* ─── FOOTER ─── */}
+      <div style={{
+        marginTop: 14, padding: "12px 14px",
+        fontSize: 10, color: C.textDim, fontFamily: MONO, letterSpacing: 0.5,
+        background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
+      }}>
+        <strong style={{ color: C.textMuted }}>{dashboard.study?.id}</strong>{" "}
+        · {dashboard.study?.version} · Analyst: {dashboard.study?.analyst} ·
+        N={dashboard.study?.n_total || "—"} ·
+        Active basket: <span style={{ color: C.text }}>{activeBasket?.name}</span>{" "}
+        ({activeBasket?.segments?.length} segments) ·
+        Metric: <span style={{ color: C.text }}>{activeMetric?.label}</span>{" "}
+        (σ<sub>within</sub>={activeMetric?.sigma_within?.toFixed(3)})
+      </div>
     </div>
   );
 }
+
+// Exported for B5 (priority-basket reorganization) — not used in B1.
+export { PRIORITY_ORDERED_BY_ROI };
