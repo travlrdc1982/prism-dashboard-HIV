@@ -16,6 +16,7 @@ import PrePostModule from "./modules/PrePostModule";
 import RoiModule from "./modules/RoiModule";
 import InfluencerModule from "./modules/InfluencerModule";
 import TrustModule from "./modules/TrustModule";
+import MessageMapModule from "./modules/MessageMapModule";
 
 // Map of module id → renderer. Disabled modules fall through to a
 // "deferred" placeholder.
@@ -69,6 +70,9 @@ const MODULE_RENDERERS = {
       study={data.study}
     />
   ),
+  maxdiff: ({ data, module }) => (
+    <MessageMapModule data={data} module={module} />
+  ),
 };
 
 // Modules that should display the cell-toggles bar (every ordinal/nominal
@@ -106,13 +110,20 @@ export default function Topline() {
     (bannerFull ? " banner-full" : "");
 
   // Effective module list: keep dashboard.json's module config as-is, but
-  // light up module 06 ("sources") once the pipeline has emitted trust data.
+  // light up modules once their data is present in the pipeline output.
   // Shared between the in-page section gating below and the top ModNav chip.
-  const effectiveModules = modules.map((m) =>
-    m.id === "sources" && !m.active && dashboard.trust?.length > 0
-      ? { ...m, active: true }
-      : m
-  );
+  //   - 05 (maxdiff) lights up when messagemap cells data is merged in
+  //   - 06 (sources) lights up when the trust battery is emitted
+  const effectiveModules = modules.map((m) => {
+    if (m.id === "sources" && !m.active && dashboard.trust?.length > 0) {
+      return { ...m, active: true };
+    }
+    if (m.id === "maxdiff" && !m.active
+        && dashboard.message_map_cells?.persuasion_messaging?.length > 0) {
+      return { ...m, active: true };
+    }
+    return m;
+  });
 
   return (
     <div ref={rootRef} className={rootClass} style={{ margin: "-24px -28px" }}>
