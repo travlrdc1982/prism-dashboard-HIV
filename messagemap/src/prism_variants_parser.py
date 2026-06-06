@@ -139,17 +139,27 @@ def summarize(parsed: Dict):
 
 
 if __name__ == '__main__':
-    path = '/mnt/user-data/uploads/Gilead_Persona-Tuned_Message_Variants_json.xlsx'
+    import os
+    from pathlib import Path
+    _SRC = Path(__file__).resolve().parent
+    _MESSAGEMAP_DIR = _SRC.parent
+    DEFAULT_WORKBOOK = os.environ.get(
+        'PRISM_VARIANTS_WORKBOOK',
+        str(_MESSAGEMAP_DIR / 'workbooks' / 'Gilead_Persona-Tuned_Message_Variants_json.xlsx'),
+    )
+    DEFAULT_OUT = os.environ.get(
+        'PRISM_VARIANTS_JSON',
+        str(_MESSAGEMAP_DIR / 'outputs' / 'prism_variants.json'),
+    )
     expected = ['TSP','CEC','TC','WE','PP','HF','PFF','HHN',
                 'MFL','VS','UCP','FJP','HCP','HAD','HCI','GHI']
-    parsed = parse_variants_workbook(path, expected_segments=expected)
+    parsed = parse_variants_workbook(DEFAULT_WORKBOOK, expected_segments=expected)
     summarize(parsed)
 
-    out = '/home/claude/prism_variants_v3.json'
-    with open(out, 'w', encoding='utf-8') as f:
+    os.makedirs(os.path.dirname(DEFAULT_OUT), exist_ok=True)
+    with open(DEFAULT_OUT, 'w', encoding='utf-8') as f:
         json.dump(parsed, f, indent=2, ensure_ascii=False)
-    import os
-    print(f"\nWrote {out} ({os.path.getsize(out)/1024:.1f} KB)")
+    print(f"\nWrote {DEFAULT_OUT} ({os.path.getsize(DEFAULT_OUT)/1024:.1f} KB)")
 
     # Spot-check Message 1
     msg1 = parsed['messages'][0]

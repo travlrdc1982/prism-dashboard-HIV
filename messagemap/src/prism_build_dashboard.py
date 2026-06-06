@@ -12,8 +12,25 @@ Runs the full sequence end-to-end:
   6. Load variants.json
   7. Assemble dashboard.json
 """
-import sys, json, time
-sys.path.insert(0, '/home/claude')
+import sys, os, json, time
+from pathlib import Path
+
+# Module imports resolve via the standard sibling-file pattern; no need
+# to monkey with sys.path beyond making the src/ directory importable.
+_SRC_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_SRC_DIR))
+
+# Path resolution. All inputs and the output directory accept env-var
+# overrides; defaults assume the standard repo layout
+# (messagemap/data, messagemap/outputs, repo-root data/).
+_MESSAGEMAP_DIR = _SRC_DIR.parent
+_REPO = _MESSAGEMAP_DIR.parent
+
+DEFAULT_SAV           = os.environ.get('PRISM_SAV',           str(_REPO / 'data' / '260433.sav'))
+DEFAULT_DESIGN        = os.environ.get('PRISM_DESIGN',        str(_MESSAGEMAP_DIR / 'data' / 'Gilead_Design_File.dat'))
+DEFAULT_VARIANTS_JSON = os.environ.get('PRISM_VARIANTS_JSON', str(_MESSAGEMAP_DIR / 'outputs' / 'prism_variants.json'))
+DEFAULT_OUT_DIR       = os.environ.get('PRISM_MM_OUT',        str(_MESSAGEMAP_DIR / 'outputs'))
+
 import numpy as np
 import pandas as pd
 import pyreadstat
@@ -332,7 +349,7 @@ def main():
     # ── Steps 1-3 ─────────────────────────────────────────────────────
     print("\n[1] Loading .sav and computing index + residualized shift...")
     t = time.time()
-    df, _ = pyreadstat.read_sav('/mnt/user-data/uploads/260433.sav')
+    df, _ = pyreadstat.read_sav(DEFAULT_SAV)
     df, diag_idx = compute_persuasion_index(df)
     df, diag_res = compute_residualized_shift(df)
     print(f"    n={len(df)}, alpha_pre={diag_idx['cronbach_alpha_pre']:.3f}, "
@@ -342,7 +359,7 @@ def main():
     print("\n[2] Building exposure matrix...")
     t = time.time()
     exposure, tasks, diag_exp = build_exposure_matrix(
-        df, design_path='/mnt/user-data/uploads/Gilead_Design_File.dat'
+        df, design_path=DEFAULT_DESIGN
     )
     print(f"    {diag_exp['total_exposure_rows']:,} exposure records ({time.time()-t:.1f}s)")
 
@@ -374,7 +391,7 @@ def main():
 
     # ── Load variants ─────────────────────────────────────────────────
     print("\n[7] Loading variants JSON...")
-    with open('/home/claude/prism_variants.json', 'r') as f:
+    with open(DEFAULT_VARIANTS_JSON, 'r') as f:
         variants_data = json.load(f)
     print(f"    {variants_data['n_messages']} messages × {len(variants_data['segment_codes'])} segments")
 
@@ -470,9 +487,8 @@ def main():
         },
     }
 
-    out_path = '/mnt/user-data/outputs/dashboard.json'
-    import os
-    os.makedirs('/mnt/user-data/outputs', exist_ok=True)
+    out_path = str(Path(DEFAULT_OUT_DIR) / 'dashboard.json')
+    os.makedirs(DEFAULT_OUT_DIR, exist_ok=True)
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(dashboard, f, indent=2, ensure_ascii=False)
     size_kb = os.path.getsize(out_path) / 1024

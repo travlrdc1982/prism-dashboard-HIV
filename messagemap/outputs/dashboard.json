@@ -229,7 +229,7 @@
         },
         {
           "proof_id": 1,
-          "short_label": "PEPFAR built onconviction of human dignity and saved 25 million lives.",
+          "short_label": "PEPFAR built on conviction of human dignity and saved 25 million lives.",
           "full_label": "Token 1: PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives."
         },
         {
@@ -273,7 +273,7 @@
         },
         {
           "proof_id": 2,
-          "short_label": "Cuts to prevention coverage would cosy billions",
+          "short_label": "Cuts to prevention coverage would cost billions",
           "full_label": "Token 2: Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs"
         }
       ]
@@ -343,7 +343,7 @@
         },
         {
           "proof_id": 1,
-          "short_label": "Rrequires continued investment in the new HIV treatments",
+          "short_label": "Requires continued investment in the new HIV treatments",
           "full_label": "Token 1: Sustaining that pipeline of innovation requires continued investment in the new HIV treatments being developed today and in the science it drives for tomorrow."
         }
       ]
@@ -33448,16 +33448,16 @@
     ],
     "messages": [
       {
-        "id": 1,
+        "msg_id": "MSG_001",
         "theme_label": "THE ONGOING EPIDEMIC",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "HIV continues to generate new diagnoses and new deaths at a scale that warrants sustained public attention. The epidemic has not ended — public awareness of it has.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV continues generating new diagnoses and new deaths at a scale that demands sustained public attention. The epidemic hasn't ended. Public awareness of it has — and communities across this country are absorbing a growing burden that federal data makes impossible to ignore.",
               "CEC": "HIV keeps generating new diagnoses and deaths at a scale the market hasn't solved and policy hasn't prioritized. The epidemic hasn't ended. Awareness of it has — and the human and economic costs keep accumulating in communities across the country.",
               "TC": "HIV continues generating new diagnoses and new deaths at a scale that demands responsible public attention. The epidemic hasn't ended. Public awareness of it has — and communities across this country are carrying a burden that sound public health policy has the tools to reduce.",
@@ -33477,11 +33477,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "39,000 Americans/year or 10/day diagnosed",
-            "full_label": "Token 1: Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day.",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "39,000 Americans/year or 10/day diagnosed",
+            "proof_full_text": "Token 1: Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day.",
             "text_core": "Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day. HIV continues to generate new diagnoses and new deaths at a scale that warrants sustained public attention. The epidemic has not ended — public awareness of it has.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day. HIV continues generating new diagnoses and new deaths at a scale that demands sustained public attention. The epidemic hasn't ended. Public awareness of it has.",
               "CEC": "Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day.  HIV keeps generating new diagnoses and deaths at a scale the market hasn't solved and policy hasn't prioritized. The epidemic hasn't ended. Awareness of it has.",
               "TC": "Nearly 39,000 Americans are newly diagnosed with HIV every year — approximately 100 every day. HIV continues generating new diagnoses and new deaths at a scale that demands responsible public attention. The epidemic hasn't ended. Public awareness of it has.",
@@ -33501,11 +33502,12 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "Every week 100 Americans die",
-            "full_label": "Token 2: Every week, nearly 100 Americans die from AIDS-related illness.",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "Every week 100 Americans die",
+            "proof_full_text": "Token 2: Every week, nearly 100 Americans die from AIDS-related illness.",
             "text_core": "HIV continues to generate new diagnoses and new deaths at a scale that warrants sustained public attention. Every week, nearly 100 Americans die from AIDS-related illness. The epidemic has not ended — public awareness of it has.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV continues generating new diagnoses and new deaths at a scale that demands sustained public attention. Every week, nearly 100 Americans die from AIDS-related illness. The epidemic hasn't ended. Public awareness of it has.",
               "CEC": "HIV keeps generating new diagnoses and deaths at a scale the market hasn't solved and policy hasn't prioritized.  Every week, nearly 100 Americans die from AIDS-related illness. The epidemic hasn't ended. Awareness of it has.",
               "TC": "HIV continues generating new diagnoses and new deaths at a scale that demands responsible public attention.  Every week, nearly 100 Americans die from AIDS-related illness. The epidemic hasn't ended. Public awareness of it has.",
@@ -33524,19 +33526,21 @@
               "GHI": "HIV continues generating new diagnoses and new deaths — here and around the world — at a scale that sustained global public health attention has not yet solved. Every week, nearly 100 Americans die from AIDS-related illness.  The epidemic hasn't ended. Public awareness of it has."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 2,
+        "msg_id": "MSG_002",
         "theme_label": "PROGRESS PARADOX",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "The United States turned HIV from a death sentence into a manageable condition by treating it as a serious public health crisis. It remains one, and the progress made is far more fragile than it appears.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Expert-led investment turned HIV from a death sentence into a manageable condition. That progress is real — and fragile. Too many Americans are still reaching diagnosis at advanced disease stages. The science held. The infrastructure supporting it hasn't.",
               "CEC": "The U.S. turned HIV into a manageable condition — proof that investment in science and healthcare infrastructure delivers results. That progress is real, and it's at risk. Too many Americans still reach diagnosis at advanced stages because the system failed them before science could.",
               "TC": "The United States transformed HIV into a manageable condition through sustained scientific investment. That progress reflects American capability at its best — and it's at risk. Too many patients still arrive at advanced stages of disease because the infrastructure around proven science hasn't kept pace.",
@@ -33556,11 +33560,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "More than 1 in 5 already at advanced stage when diagnosed",
-            "full_label": "Token 1: More than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "More than 1 in 5 already at advanced stage when diagnosed",
+            "proof_full_text": "Token 1: More than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis",
             "text_core": "The United States turned HIV from a death sentence into a manageable condition. The progress made is far more fragile than it appears: More than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Expert-led investment turned HIV from a death sentence into a manageable condition. That progress is real — and fragile.  Even today, more than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis",
               "CEC": "The U.S. turned HIV into a manageable condition — proof that investment in science and healthcare infrastructure delivers results. That progress is real, and it's at risk.  More than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis.",
               "TC": "The United States transformed HIV into a manageable condition through sustained scientific investment. That progress reflects American capability at its best — and it's at risk. More than one in five people newly diagnosed with HIV in 2023 were already at the most advanced stage of disease at the time of diagnosis.",
@@ -33580,11 +33585,12 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "States with lowest prevention coverage saw 27% increase diagnosis",
-            "full_label": "Token 2: States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "States with lowest prevention coverage saw 27% increase diagnosis",
+            "proof_full_text": "Token 2: States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade",
             "text_core": "The United States turned HIV from a death sentence into a manageable condition. The progress made is far more fragile than it appears: States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Expert-led investment turned HIV from a death sentence into a manageable condition. That progress is real — and fragile. States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade.",
               "CEC": "The U.S. turned HIV into a manageable condition — proof that investment in science and healthcare infrastructure delivers results. That progress is real, and it's at risk. States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade",
               "TC": "The United States transformed HIV into a manageable condition through sustained scientific investment. States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade",
@@ -33603,19 +33609,21 @@
               "GHI": "The United States helped turn HIV from a death sentence into a manageable condition — through science, sustained investment, and global health partnerships that held. That progress is real and fragile. States with the lowest prevention coverage saw new HIV diagnoses rise 27% over the past decade."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 3,
+        "msg_id": "MSG_003",
         "theme_label": "THE PREVENTABLE DIAGNOSIS",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "Effective tools to prevent HIV transmission already exist. People are still being infected because those tools are not reaching them — not because the science has fallen short.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "FDA-approved prevention medication works. Americans who need it aren't receiving it — not because the science failed, but because coverage and provider access haven't kept pace with what experts have already delivered.",
               "CEC": "Proven prevention tools exist and the FDA approved them long ago. The reason millions of Americans who need them don't have them isn't a science failure — it's a market and coverage failure. Transparency and access, applied consistently, would close that gap.",
               "TC": "The FDA approved effective HIV prevention medication years ago. The gap between what approved science makes possible and what Americans can actually access isn't a failure of research — it's a failure of the coverage and delivery systems built around it.",
@@ -33635,11 +33643,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "1 in 3 Americans who need it get prep",
-            "full_label": "Token 1: Only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "1 in 3 Americans who need it get prep",
+            "proof_full_text": "Token 1: Only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it",
             "text_core": "Effective tools to prevent HIV transmission already exist. Only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it. People are still being infected because they aren't rea ching them— not because the science has fallen short.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "FDA-approved prevention medication works. Only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it - not because the science failed, but because coverage and provider access haven't kept pace with what experts have already delivered.",
               "CEC": "Proven prevention tools exist and the FDA approved them long ago. Only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it. Transparency and access, applied consistently, would close that gap.",
               "TC": "The FDA approved effective HIV prevention medication years ago. And yet, only 1 in 3 Americans who could benefit from HIV prevention medication currently receives it. The gap between what approved science makes possible and what Americans can actually access isn't a failure of research — it's a failure of the coverage and delivery systems built around it.",
@@ -33659,11 +33668,12 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "HIV prevention meds available since 2012",
-            "full_label": "Token 2: Effective HIV prevention medications have been available since 2012",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "HIV prevention meds available since 2012",
+            "proof_full_text": "Token 2: Effective HIV prevention medications have been available since 2012",
             "text_core": "Effective HIV prevention medications have been available since 2012. People are still being infected because those tools are not reaching them — not because the science has fallen short.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Effective HIV prevention medications have been available since 2012. Americans who need it aren't receiving it — not because the science failed, but because coverage and provider access haven't kept pace with what experts have already delivered.",
               "CEC": "Effective HIV prevention medications have been available since 2012. The reason millions of Americans who need them don't have them isn't a science failure — it's a market and coverage failure. Transparency and access, applied consistently, would close that gap.",
               "TC": "Effective HIV prevention medications have been available since 2012. The gap between what approved science makes possible and what Americans can actually access isn't a failure of research — it's a failure of the coverage and delivery systems built around it.",
@@ -33682,19 +33692,21 @@
               "GHI": "Effective HIV prevention medications have been available since 2012. People are still being infected not because the science fell short but because the global delivery systems built around it are inconsistently funded and unevenly maintained. That is a solvable institutional failure — not a scientific one."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 4,
+        "msg_id": "MSG_004",
         "theme_label": "COMPASSION",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "People living with HIV deserve the same compassion as anyone living with a serious chronic illness. We don't ask how someone developed cancer, heart disease, or diabetes before deciding they deserve care.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Decent Americans don't ask how someone developed heart disease or diabetes before deciding they deserve care. People living with HIV — managing a chronic, treatable condition — deserve that same everyday decency: the same access, the same presumption of care.",
               "CEC": "People managing HIV live with a chronic, treatable condition — the same basic situation as millions of Americans with other serious illnesses. The standard should be the same: access, affordability, and a system that doesn't put itself between patients and care that works.",
               "TC": "Ministering to the ill has never been conditional on the cause of the illness. People living with HIV — managing a chronic, treatable condition — deserve that same unconditional standard.",
@@ -33714,11 +33726,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "PEPFAR built onconviction of human dignity and saved 25 million lives.",
-            "full_label": "Token 1: PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "PEPFAR built on conviction of human dignity and saved 25 million lives.",
+            "proof_full_text": "Token 1: PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
             "text_core": "People living with HIV deserve the same compassion as anyone living with a serious chronic illness. PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Decent Americans don't ask how someone developed heart disease or diabetes before deciding they deserve care.  PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
               "CEC": "People managing HIV live with a chronic, treatable condition — the same basic situation as millions of Americans with other serious illnesses.  PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
               "TC": "Ministering to the ill has never been conditional on the cause of the illness.  PEPFAR — the U.S. commitment to fighting HIV globally — was built on the conviction that every human life has dignity and saved an estimated 25 million lives.",
@@ -33738,12 +33751,13 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "PEPFAR  launched by President Bush in 2003 saved 25 million lives.",
-            "full_label": "Token 2: PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives.",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "PEPFAR  launched by President Bush in 2003 saved 25 million lives.",
+            "proof_full_text": "Token 2: PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives.",
             "text_core": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. People living with HIV deserve the same compassion as anyone living with a serious chronic illness.",
-            "text_by_segment": {
-              "TSP": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. People living with HIV in America —deserve the samd decency: the same access, the same presumption of care.",
+            "text_by_persona": {
+              "TSP": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. People living with HIV in America —deserve the same decency: the same access, the same presumption of care.",
               "CEC": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. People managing HIV in America deserve access, affordability, and a system that doesn't put itself between patients and care that works.",
               "TC": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. Ministering to the ill has never been conditional on the cause of the illness. People living with HIV deserve that same unconditional standard.",
               "WE": "PEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives. Healthy communities should take care of their own. People living with HIV are parents, neighbors, and community members who deserve the same care as anyone else fighting to stay healthy.",
@@ -33761,19 +33775,21 @@
               "GHI": "PPEPFAR — the “President's Emergency Plan for AIDS Relief” was launched by President George W. Bush in 2003 to provide HIV prevention and treatment to millions of people in Africa and other regions -- saving an estimated 25 million lives.  The standard of care and access should not depend on where someone was born. Global health leadership means holding that standard, not selectively applying it."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 5,
+        "msg_id": "MSG_005",
         "theme_label": "VIGILANCE",
-        "n_proofs": 2,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted — because someone loses access, loses insurance, or simply cannot maintain a daily regimen — the virus can develop resistance, become harder to treat, and be passed to others. The progress made is real, but it requires constant vigilance to maintain.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV requires consistent medication. Interrupt access — through insurance loss, provider gaps, or coverage restrictions — and the virus can develop resistance and spread. Maintaining treatment continuity isn't ideology. It's infection control, established by the science.",
               "CEC": "HIV requires consistent medication. When coverage lapses or costs spike — because a middleman decision got in the way — the virus can develop resistance and spread. This is what happens when the system puts barriers between patients and treatments that work.",
               "TC": "HIV requires consistent, uninterrupted medication. When coverage gaps or system failures break that continuity, the virus can develop resistance and spread further. Maintaining treatment access isn't a policy preference — it's how a responsible public health system protects everyone downstream.",
@@ -33793,11 +33809,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "New prevention treatments once/month or twice/year",
-            "full_label": "Token 1: Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "New prevention treatments once/month or twice/year",
+            "proof_full_text": "Token 1: Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
             "text_core": "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted — because someone loses access, loses insurance, or simply cannot maintain a daily regimen — the virus can develop resistance, become harder to treat, and be passed to others. Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV requires consistent medication. Interrupt access — through insurance loss, provider gaps, or coverage restrictions — and the virus can develop resistance and spread. Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
               "CEC": "HIV requires consistent medication. When coverage lapses or costs spike — because a middleman decision got in the way — the virus can develop resistance and spread. Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
               "TC": "HIV requires consistent, uninterrupted medication. When coverage gaps or system failures break that continuity, the virus can develop resistance and spread further. Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection.",
@@ -33816,19 +33833,21 @@
               "GHI": "HIV requires consistent treatment to stay suppressed. When access is interrupted — by coverage failures, supply chain gaps, or institutional withdrawal — the virus can develop resistance, become harder to treat, and spread. Scientific progress hasn’t stopped, however. New prevention treatments can be taken once monthly and even twice-yearly which can offer more reliable protection."
             }
           }
-        ]
+        ],
+        "n_tokens": 2,
+        "n_proofs": 1
       },
       {
-        "id": 6,
+        "msg_id": "MSG_006",
         "theme_label": "ECONOMIC RETURN",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "HIV prevention is among the highest-return investments in public health. The cost of a prevented infection is a fraction of the lifetime healthcare costs that follow an untreated or late diagnosis — costs carried by taxpayers, employers, insurers, Medicare, and Medicaid.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Each prevented HIV infection avoids substantial lifetime healthcare costs absorbed by Medicaid, community hospitals, and employers. Prevention isn't compassionate spending. It's the upstream fiscal discipline that actually reduces long-term public outlays.",
               "CEC": "HIV prevention delivers a clear return on investment — each prevented infection avoids enormous downstream costs absorbed by employers, insurers, and public programs. Smart spending on prevention isn't charity. It's the cost discipline the system should be built around.",
               "TC": "Every prevented HIV infection avoids substantial long-term costs absorbed by Medicaid, community hospitals, and employers. Responsible stewardship of public health dollars means investing upstream — prevention is consistently the more fiscally sound choice over the lifetime costs that follow untreated disease.",
@@ -33848,11 +33867,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "Prevention saves $500,000 in lifetime healthcare costs",
-            "full_label": "Token 1: Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "Prevention saves $500,000 in lifetime healthcare costs",
+            "proof_full_text": "Token 1: Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs",
             "text_core": "HIV prevention is among the highest-return investments in public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs — costs carried by taxpayers, employers, insurers, Medicare, and Medicaid.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs absorbed by Medicaid, community hospitals, and employers. Prevention isn't compassionate spending. It's the upstream fiscal discipline that actually reduces long-term public outlays.",
               "CEC": "HIV prevention delivers a clear return on investment — each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs. Smart spending on prevention isn't charity. It's the cost discipline the system should be built around.",
               "TC": "Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs absorbed by Medicaid, community hospitals, and employers. Responsible stewardship of public health dollars means investing upstream — prevention is consistently the more fiscally sound choice over the lifetime costs that follow untreated disease.",
@@ -33865,18 +33885,19 @@
               "VS": "Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs — on families, on communities, on public programs that everyone funds. Addressing it early costs a fraction of what untreated disease eventually demands from everyone around it.",
               "UCP": "HIV prevention is among the highest-return investments in public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs. Addressing it early costs a fraction of what untreated disease eventually demands from everyone around it. were always owed.",
               "FJP": "Preventing HIV is among the most cost-effective investments in community health we can make. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs.  That is stewardship — of resources and of people.",
-              "HCP": "HIV prevention is among the highest-return investments in public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costsabsorbed by Medicaid, union health plans, and employers — passed back through premiums and taxes to working people who had nothing to do with the failure.",
+              "HCP": "HIV prevention is among the highest-return investments in public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs absorbed by Medicaid, union health plans, and employers — passed back through premiums and taxes to working people who had nothing to do with the failure.",
               "HAD": "HIV prevention delivers an extraordinary return on investment. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs that would have been absorbed by insurers, employers, and public programs. Smart health systems invest upstream. The data on prevention versus treatment has never been close.",
               "HCI": "HIV prevention is among the most cost-effective investments in public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs absorbed by Medicare, Medicaid, and employer plans. Maintaining prevention infrastructure is not discretionary spending. It is the responsible alternative to far larger costs downstream.",
               "GHI": "HIV prevention is among the highest-return investments in global public health. Each new HIV infection prevented saves an estimated $500,000 or more in lifetime healthcare costs. The fiscal case for sustained prevention investment — domestically and globally — has never been ambiguous."
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "Cuts to prevention coverage would cosy billions",
-            "full_label": "Token 2: Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "Cuts to prevention coverage would cost billions",
+            "proof_full_text": "Token 2: Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs",
             "text_core": "HIV prevention is among the highest-return investments in public health. Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Each prevented HIV infection avoids substantial lifetime healthcare costs absorbed by Medicaid, community hospitals, and employers. Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs.",
               "CEC": "HIV prevention delivers a clear return on investment — each prevented infection avoids enormous downstream costs absorbed by employers, insurers, and public programs. Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs",
               "TC": "Every prevented HIV infection avoids substantial long-term costs absorbed by Medicaid, community hospitals, and employers. Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs.",
@@ -33895,19 +33916,21 @@
               "GHI": "HIV prevention is among the highest-return investments in global public health. Modeling projects that even a modest annual reduction in prevention coverage would generate billions in avoidable long-term treatment costs."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 7,
+        "msg_id": "MSG_007",
         "theme_label": "SHARED COMMUNITIES",
-        "n_proofs": 1,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "The clinics, outreach workers, and treatment programs that support HIV prevention and care serve the same communities — and often the same individuals — affected by the opioid crisis and untreated mental illness. These are not competing priorities.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "The clinics managing HIV prevention are the same clinics on the front line of the opioid crisis and untreated mental illness. These aren't competing priorities. They're the same neighbors, the same providers, the same overstretched local infrastructure.",
               "CEC": "The clinics managing HIV prevention serve the same patients — and the same communities — caught in the opioid crisis and mental health gaps. These aren't separate programs competing for dollars. They're shared infrastructure that the whole community depends on.",
               "TC": "The clinics managing HIV prevention are the same clinics anchoring opioid recovery and mental health care in communities across this country. These are shared local institutions — the same neighbors, the same families, the same overstretched infrastructure serving people who have nowhere else to turn.",
@@ -33926,19 +33949,21 @@
               "GHI": "The clinics and programs managing HIV prevention are the same infrastructure anchoring outbreak response, pandemic preparedness, and primary care access worldwide. These aren't competing investments. HIV built much of the global public health architecture everything else runs on. Weakening it weakens all of it."
             }
           }
-        ]
+        ],
+        "n_tokens": 1,
+        "n_proofs": 0
       },
       {
-        "id": 8,
+        "msg_id": "MSG_008",
         "theme_label": "WORKFORCE COST",
-        "n_proofs": 1,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "Untreated HIV takes people out of the workforce and out of their communities. The losses in productivity, in earnings, and in economic participation — combined with the long-term healthcare costs that follow — are carried not by the individual alone, but by employers, insurers, and public programs that everyone depends on.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Untreated HIV removes working-age people from local economies — away from jobs, small businesses, and the trades. Lost productivity and increased Medicaid enrollment follow. The communities absorbing those costs are often the ones least positioned to carry them.",
               "CEC": "Untreated HIV pulls working-age Americans out of the workforce. The productivity losses and long-term healthcare costs that follow are absorbed by employers and insurers — costs passed on to everyone. The math on prevention versus treatment has always favored prevention.",
               "TC": "Untreated HIV removes working-age Americans from the workforce and from their families. The economic losses and long-term healthcare costs that follow are absorbed by employers, insurers, and public programs — costs distributed across communities that didn't create the problem but end up carrying it.",
@@ -33957,19 +33982,21 @@
               "GHI": "Untreated HIV takes people out of their communities and economies — here and globally. The losses in workforce participation and long-term healthcare costs are absorbed by public programs and institutions everywhere the epidemic goes unaddressed. The economic case for treatment access is the same in every country where the alternative has been tried."
             }
           }
-        ]
+        ],
+        "n_tokens": 1,
+        "n_proofs": 0
       },
       {
-        "id": 9,
+        "msg_id": "MSG_009",
         "theme_label": "BARRIERS",
-        "n_proofs": 1,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "Effective HIV prevention medication exists. Millions of Americans who need it don't have it even if their doctor prescribes it — because of coverage restrictions, cost barriers, and gaps in the healthcare system that could be closed if we treated this as the public health priority it is.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "The FDA approved effective HIV prevention medication more than a decade ago. Millions who need it still can't access it due to coverage restrictions and provider shortages. The science is sound. The delivery system hasn't caught up.",
               "CEC": "FDA-approved HIV prevention has existed for over a decade. Coverage restrictions, insurer gatekeeping, and opaque pricing still keep it from millions who need it. That's exactly the kind of systemic failure — proven tools not reaching patients — that demands accountability and reform.",
               "TC": "Effective HIV prevention has been FDA-approved for over a decade. Coverage restrictions and system barriers still keep it from millions who need it. A well-functioning healthcare system gets proven tools to patients. This one isn't doing that — and accountability starts with acknowledging the failure.",
@@ -33988,19 +34015,21 @@
               "GHI": "Effective HIV prevention has been available for over a decade. Access gaps persist — driven by coverage failures, supply chain inconsistencies, and the institutional fragmentation that follows when sustained commitment gives way to short-term political calculation. A global health system serious about outcomes closes those gaps. It doesn't manage around them."
             }
           }
-        ]
+        ],
+        "n_tokens": 1,
+        "n_proofs": 0
       },
       {
-        "id": 10,
+        "msg_id": "MSG_010",
         "theme_label": "THE FINISH LINE",
-        "n_proofs": 2,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV — the way previous generations ended polio and smallpox.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV was a death sentence a generation ago. Today, science can stop transmission and is closing in on a cure. With the right infrastructure behind proven tools, this could be the generation that ends HIV — the way previous ones ended polio.",
               "CEC": "HIV was a death sentence a generation ago. Today, proven tools can stop transmission and a cure is within reach. Getting there requires the same commitment that got us this far — sustained investment in science and the infrastructure to deliver it.",
               "TC": "A generation ago, HIV was a death sentence. Today, science can stop transmission and is closing in on a cure. With proper infrastructure behind the tools already proven to work, this generation has a genuine opportunity to end HIV the way earlier generations ended polio and smallpox.",
@@ -34020,11 +34049,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "National goal of reducing infections 90% by 2030",
-            "full_label": "Token 1: The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "National goal of reducing infections 90% by 2030",
+            "proof_full_text": "Token 1: The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it",
             "text_core": "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV was a death sentence a generation ago. Today, science can stop transmission and is closing in on a cure. The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it.",
               "CEC": "HIV was a death sentence a generation ago. Today, proven tools can stop transmission and a cure is within reach. The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it.",
               "TC": "A generation ago, HIV was a death sentence. Today, science can stop transmission and is closing in on a cure. The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it.",
@@ -34043,23 +34073,25 @@
               "GHI": "HIV went from death sentence to manageable condition through one of the most successful coordinated global health efforts in history. A cure is within reach. The U.S. has set a national goal of reducing new HIV infections by 90% by 2030 — with existing tools sufficient to reach it."
             }
           }
-        ]
+        ],
+        "n_tokens": 2,
+        "n_proofs": 1
       },
       {
-        "id": 11,
+        "msg_id": "MSG_011",
         "theme_label": "INNOVATION SPILLOVER",
-        "n_proofs": 2,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "American investment in HIV research produced scientific discoveries that now extend far beyond HIV — advances in how we understand the immune system, develop antiviral treatments, and fight cancer that benefit millions of Americans who have never been affected by HIV.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV research produced foundational advances in immunology, antiviral treatment, and cancer therapy now benefiting millions who've never had HIV. Sustaining that pipeline keeps American science competitive and generates breakthroughs with reach far beyond any single disease.",
               "CEC": "HIV research generated breakthroughs in immunology, antiviral therapy, and cancer treatment now benefiting millions with no connection to HIV. The return on that investment extends well beyond a single disease — and sustaining the pipeline keeps delivering.",
               "TC": "American investment in HIV research generated advances in immunology, antiviral treatment, and cancer therapy that now benefit millions with no connection to HIV. Sustaining that pipeline isn't narrow — it's the kind of foundational scientific investment that keeps American medicine leading the world.",
-              "WE": "The science built around fighting HIV didn't ony help people with HIV. It produced breakthroughs in how we understand immunity, fight infection, and treat cancer — discoveries now protecting people who have never been touched by HIV. That is what sustained investment in real science delivers.",
+              "WE": "The science built around fighting HIV didn't only help people with HIV. It produced breakthroughs in how we understand immunity, fight infection, and treat cancer — discoveries now protecting people who have never been touched by HIV. That is what sustained investment in real science delivers.",
               "PP": "American investment in HIV research produced breakthroughs in immunology, antiviral treatment, and cancer care that now benefit millions who never had HIV. That pipeline was built with public dollars. Sustaining it means protecting returns that belong to everyone — not just those who can afford access to them.",
               "HF": "HIV research produced foundational breakthroughs in immunology, gene therapy, and antiviral science now accelerating work on cancer, aging, and pandemic preparedness. This isn't a single-disease investment. It's core infrastructure for American biomedical dominance — and it compounds every year we sustain it.",
               "PFF": "HIV research produced breakthroughs in immunology, antiviral science, and cancer treatment now benefiting millions who never had HIV. That's what sustained investment in real science delivers — not the institutional theater, but the actual discoveries. Cutting it doesn't hurt the bureaucracy. It kills the pipeline.",
@@ -34075,15 +34107,16 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "Rrequires continued investment in the new HIV treatments",
-            "full_label": "Token 1: Sustaining that pipeline of innovation requires continued investment in the new HIV treatments being developed today and in the science it drives for tomorrow.",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "Requires continued investment in the new HIV treatments",
+            "proof_full_text": "Token 1: Sustaining that pipeline of innovation requires continued investment in the new HIV treatments being developed today and in the science it drives for tomorrow.",
             "text_core": "American investment in HIV research produced scientific discoveries that now extend far beyond HIV — including advances in cancer that benefit millions of Americans.  Sustaining that pipeline of innovation requires continued investment in the new HIV treatments being developed today and in the science it drives for tomorrow.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV research produced foundational advances in immunology, antiviral treatment, and cancer therapy now benefiting millions who've never had HIV. Sustaining that pipeline keeps American science competitive and generates breakthroughs with reach far beyond any single disease.",
               "CEC": "HIV research generated breakthroughs in immunology, antiviral therapy, and cancer treatment now benefiting millions with no connection to HIV. The return on that investment extends well beyond a single disease — and sustaining the pipeline keeps delivering.",
               "TC": "American investment in HIV research generated advances in immunology, antiviral treatment, and cancer therapy that now benefit millions with no connection to HIV. Sustaining that pipeline isn't narrow — it's the kind of foundational scientific investment that keeps American medicine leading the world.",
-              "WE": "The science built around fighting HIV didn't ony help people with HIV. It produced breakthroughs in how we understand immunity, fight infection, and treat cancer — discoveries now protecting people who have never been touched by HIV. That is what sustained investment in real science delivers.",
+              "WE": "The science built around fighting HIV didn't only help people with HIV. It produced breakthroughs in how we understand immunity, fight infection, and treat cancer — discoveries now protecting people who have never been touched by HIV. That is what sustained investment in real science delivers.",
               "PP": "American investment in HIV research produced breakthroughs in immunology, antiviral treatment, and cancer care that now benefit millions who never had HIV. That pipeline was built with public dollars. Sustaining it means protecting returns that belong to everyone — not just those who can afford access to them.",
               "HF": "HIV research produced foundational breakthroughs in immunology, gene therapy, and antiviral science now accelerating work on cancer, aging, and pandemic preparedness. This isn't a single-disease investment. It's core infrastructure for American biomedical dominance — and it compounds every year we sustain it.",
               "PFF": "HIV research produced breakthroughs in immunology, antiviral science, and cancer treatment now benefiting millions who never had HIV. That's what sustained investment in real science delivers — not the institutional theater, but the actual discoveries. Cutting it doesn't hurt the bureaucracy. It kills the pipeline.",
@@ -34098,19 +34131,21 @@
               "GHI": "HIV research produced foundational advances in immunology, antiviral science, and vaccine development now underpinning the global response to emerging infectious disease. This is not a single-disease investment. It is core scientific infrastructure for global health security — and it keeps delivering with every year of sustained support."
             }
           }
-        ]
+        ],
+        "n_tokens": 2,
+        "n_proofs": 1
       },
       {
-        "id": 12,
+        "msg_id": "MSG_012",
         "theme_label": "TREATMENT AS PREVENTION",
-        "n_proofs": 2,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "People with HIV who are on effective treatment cannot transmit the virus to others. And for people at higher risk of contracting HIV, preventive medication makes infection nearly impossible. Many people who could benefit from knowing either of these things don't — and that gap is driving infections that don't need to happen.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "CDC and NIH research established it clearly: people on effective HIV treatment cannot transmit the virus. Prevention medication makes infection nearly impossible. The gap between what approved science makes possible and what Americans can actually access is the problem to solve.",
               "CEC": "Established science is clear: effective treatment stops transmission and prevention medication makes infection nearly impossible. The gap between what proven tools can do and what patients can actually access is a market and coverage failure — not a science failure.",
               "TC": "Science has established that people on effective HIV treatment cannot transmit the virus, and that prevention medication makes infection nearly impossible. Getting proven tools to the people who need them is the straightforward public health obligation — and the gap between science and access is where the system is failing.",
@@ -34130,11 +34165,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "New treatments taken once a month or twice a year",
-            "full_label": "Token 1: New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "New treatments taken once a month or twice a year",
+            "proof_full_text": "Token 1: New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
             "text_core": "People with HIV who are on effective treatment cannot transmit the virus to others. And for people at higher risk of contracting HIV, preventive medication makes infection nearly impossible. New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "CDC and NIH research established it clearly: people on effective HIV treatment cannot transmit the virus. Prevention medication makes infection nearly impossible. New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
               "CEC": "Established science is clear: effective treatment stops transmission and prevention medication makes infection nearly impossible. New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
               "TC": "Science has established that people on effective HIV treatment cannot transmit the virus, and that prevention medication makes infection nearly impossible. New treatments taken once a month or twice a year are making consistent protection more achievable than ever.",
@@ -34153,19 +34189,21 @@
               "GHI": "People on effective HIV treatment cannot transmit the virus. Prevention medication makes infection nearly impossible. New treatments taken once a month or twice a year are making consistent protection more achievable than ever."
             }
           }
-        ]
+        ],
+        "n_tokens": 2,
+        "n_proofs": 1
       },
       {
-        "id": 13,
+        "msg_id": "MSG_013",
         "theme_label": "SOUTHERN EPIDEMIC",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "More than half of all new HIV diagnoses in the United States occur in the South. The epidemic most Americans associate with coastal cities is raging in rural communities, smaller cities, and states where it is least visible and least expected.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "More than half of new U.S. HIV diagnoses occur in the South — in smaller cities and communities where the epidemic is least visible and least expected. This is a public health crisis hiding in plain sight, in places that federal health policy isn't adequately reaching.",
               "CEC": "More than half of new HIV diagnoses occur in the South — in mid-sized cities and communities where the epidemic is least visible and least expected. Health systems not reaching these communities are leaving a preventable, and costly, burden unaddressed.",
               "TC": "More than half of new HIV diagnoses occur in the South — in smaller cities and communities where the epidemic is least visible and least expected. These are family-centered communities carrying a public health burden that current policy isn't adequately reaching or addressing.",
@@ -34185,11 +34223,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "HIV incidence in American South similar to sub-Saharan Africa",
-            "full_label": "Token 1: HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "HIV incidence in American South similar to sub-Saharan Africa",
+            "proof_full_text": "Token 1: HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa",
             "text_core": "More than half of all new HIV diagnoses in the United States occur in the South. The epidemic most Americans associate with coastal cities is raging in rural communities, smaller cities, and states where it is least visible and least expected. HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "More than half of new U.S. HIV diagnoses occur in the South — in smaller cities and communities where the epidemic is least visible and least expected. HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa.",
               "CEC": "More than half of new HIV diagnoses occur in the South — in mid-sized cities and communities where the epidemic is least visible and least expected.  HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa.",
               "TC": "More than half of new HIV diagnoses occur in the South — in smaller cities and communities where the epidemic is least visible and least expected.  HIV incidence in parts of the American South now rivals rates recorded in sub-Saharan Africa.",
@@ -34209,11 +34248,12 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "8 of 9 states with highest diagnosis rates are in the South",
-            "full_label": "Token 2: Eight of the nine states with the highest new HIV diagnosis rates are in the South",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "8 of 9 states with highest diagnosis rates are in the South",
+            "proof_full_text": "Token 2: Eight of the nine states with the highest new HIV diagnosis rates are in the South",
             "text_core": "More than half of all new HIV diagnoses in the United States occur in the South. Eight of the nine states with the highest new HIV diagnosis rates are in the South. The epidemic most Americans associate with coastal cities is raging in rural communities, smaller cities, and states where it is least visible and least expected.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "More than half of new U.S. HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South. This is a public health crisis hiding in plain sight, in places that federal health policy isn't adequately reaching.",
               "CEC": "More than half of new HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South. Health systems not reaching these communities are leaving a preventable, and costly, burden unaddressed.",
               "TC": "More than half of new HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South. These are family-centered communities carrying a public health burden that current policy isn't adequately reaching or addressing.",
@@ -34229,22 +34269,24 @@
               "HCP": "More than half of new HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South. These are communities carrying a public health burden largely invisible to the rest of the country and chronically underserved by the systems that should be reaching them.",
               "HAD": "More than half of new HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South. That is a delivery problem with a known solution. The will to implement it is what's missing.",
               "HCI": "More than half of new HIV diagnoses occur in the South — eight of the nine states with the highest new HIV diagnosis rates are in the South.  Leaving that gap unaddressed doesn't contain the problem. It allows it to grow in places where the capacity to manage it is already most stretched.",
-              "GHI": "More than half of new U.S. HIV diagnoses occur in the South — Eeight of the nine states with the highest new HIV diagnosis rates are in the South.  The same forces shaping the burden in sub-Saharan Africa are shaping it in parts of America. Global health experience has lessons for both — if the institutions remain strong enough to apply them."
+              "GHI": "More than half of new U.S. HIV diagnoses occur in the South — Eight of the nine states with the highest new HIV diagnosis rates are in the South.  The same forces shaping the burden in sub-Saharan Africa are shaping it in parts of America. Global health experience has lessons for both — if the institutions remain strong enough to apply them."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 14,
+        "msg_id": "MSG_014",
         "theme_label": "GETTING YOUNGER",
-        "n_proofs": 1,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "One in five new HIV diagnoses occurs among people aged 13 to 24 — the group least likely to know their status, least likely to be on prevention medication, and least likely to be reached by current efforts. The epidemic is not aging out. It is getting younger.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "New HIV diagnoses are concentrated among young people — the least likely to know their status and hardest for overstretched local health systems to reach. The epidemic isn't aging out. It's cycling into the next generation.",
               "CEC": "New HIV diagnoses are concentrated among young Americans — the least likely to know their status and hardest for existing systems to reach. An epidemic cycling into the next generation is a failure of access and awareness, not of science.",
               "TC": "New HIV diagnoses are concentrated among young Americans — the generation least likely to know their status and hardest for existing systems to reach. An epidemic cycling into the next generation represents a failure of the institutions and systems entrusted with protecting them.",
@@ -34263,19 +34305,21 @@
               "GHI": "New HIV diagnoses are concentrated among young people — worldwide and here at home. The generation that inherits this epidemic will inherit either a controlled one or an uncontrolled one. Which outcome they get depends on whether the institutional commitments holding it in check are maintained or abandoned."
             }
           }
-        ]
+        ],
+        "n_tokens": 1,
+        "n_proofs": 0
       },
       {
-        "id": 15,
+        "msg_id": "MSG_015",
         "theme_label": "RURAL HEALTH",
-        "n_proofs": 2,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "In many rural communities, the federally-funded clinics that provide HIV prevention and care are also a primary healthcare resource available to local residents — serving patients well beyond those with HIV. Cutting HIV funding in these communities doesn't only affect people with HIV.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "The federally-funded clinics delivering HIV prevention in rural America are often the only primary healthcare resource within driving distance — serving the whole community, not just HIV patients. Cutting HIV funding in rural communities doesn't just affect HIV patients. It pulls the last clinic off main street.",
               "CEC": "In rural America, federally-funded clinics delivering HIV prevention are often the only primary care option for miles. These aren't specialty programs — they're the backbone of local healthcare. Cutting HIV funding doesn't just affect HIV patients. It pulls the last clinic off main street.",
               "TC": "In rural America, federally-funded clinics delivering HIV prevention are often the only primary care option within driving distance. These aren't specialty programs — they're the backbone of local healthcare. Cutting HIV funding doesn't just affect HIV patients. It pulls the last clinic off main street.",
@@ -34295,11 +34339,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "The Ryan White HIV/AIDS Program is primary healthcare resource in many rural / Southern communities",
-            "full_label": "Token 1: The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "The Ryan White HIV/AIDS Program is primary healthcare resource in many rural / Southern communities",
+            "proof_full_text": "Token 1: The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities",
             "text_core": "The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities. Cutting HIV funding in these communities doesn't only affect people with HIV.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities. Cutting HIV funding in rural communities doesn't just affect HIV patients. It pulls the last clinic off main street.",
               "CEC": "The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities. Cutting HIV funding doesn't just affect HIV patients. It pulls the last clinic off main street.",
               "TC": "The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities. Cutting HIV funding doesn't just affect HIV patients. It pulls the last clinic off main street.",
@@ -34318,19 +34363,21 @@
               "GHI": "The Ryan White HIV/AIDS Program — the federal program that funds HIV prevention and care for more than half of all Americans living with diagnosed HIV — is the primary healthcare resource in many rural and Southern communities. Cutting that funding doesn't reduce the burden. It relocates and amplifies it where systems are least equipped to absorb it."
             }
           }
-        ]
+        ],
+        "n_tokens": 2,
+        "n_proofs": 1
       },
       {
-        "id": 16,
+        "msg_id": "MSG_016",
         "theme_label": "RACIAL DISPARITY",
-        "n_proofs": 3,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "Black and Hispanic Americans are diagnosed with HIV at rates far exceeding their share of the population — and are significantly less likely to have access to prevention medication. The epidemic is most concentrated precisely where prevention is least available.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Black and Hispanic Americans are diagnosed with HIV at rates far exceeding their share of the population — and are significantly less likely to reach prevention medication. CDC data is clear on this. The gap isn't a mystery; it tracks directly onto where healthcare infrastructure is thinnest and hardest to reach.",
               "CEC": "Black and Hispanic Americans are diagnosed with HIV at rates far exceeding their share of the population and are significantly less likely to access prevention medication. That's not an abstraction — it's a market and access failure with measurable costs that everyone in the system ends up absorbing.",
               "TC": "Black and Hispanic Americans bear HIV diagnosis rates far exceeding their share of the population and are significantly less likely to reach prevention medication. These gaps trace directly to where healthcare infrastructure is thinnest — a resource and access problem that the system has the tools to address.",
@@ -34350,11 +34397,12 @@
             }
           },
           {
-            "proof_id": 1,
-            "short_label": "Black Americans are 38% of new diagnoses (12% of the U.S. population)",
-            "full_label": "Token 1: Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population",
+            "token": 1,
+            "is_base": false,
+            "proof_short_label": "Black Americans are 38% of new diagnoses (12% of the U.S. population)",
+            "proof_full_text": "Token 1: Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population",
             "text_core": "Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population — and are significantly less likely to have access to prevention medication. The epidemic is most concentrated precisely where prevention is least available.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population — and are significantly less likely to reach prevention medication. CDC data is clear on this. The gap isn't a mystery; it tracks directly onto where healthcare infrastructure is thinnest and hardest to reach.",
               "CEC": "Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population — and are significantly less likely to have access to prevention medication.  That's not an abstraction — it's a market and access failure with measurable costs that everyone in the system ends up absorbing.",
               "TC": "Black Americans represent 38% of new HIV diagnoses while comprising approximately 12% of the U.S. population — and are significantly less likely to have access to prevention medication. These gaps trace directly to where healthcare infrastructure is thinnest — a resource and access problem that the system has the tools to address.",
@@ -34374,11 +34422,12 @@
             }
           },
           {
-            "proof_id": 2,
-            "short_label": "Hispanics are 34% of new diagnoses  and only 18% of prevention med users",
-            "full_label": "Token 2: Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users",
+            "token": 2,
+            "is_base": false,
+            "proof_short_label": "Hispanics are 34% of new diagnoses  and only 18% of prevention med users",
+            "proof_full_text": "Token 2: Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users",
             "text_core": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. The epidemic is most concentrated precisely where prevention is least available.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. The gap isn't a mystery; it tracks directly onto where healthcare infrastructure is thinnest and hardest to reach.",
               "CEC": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. That's not an abstraction — it's a market and access failure with measurable costs that everyone in the system ends up absorbing.",
               "TC": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. These gaps trace directly to where healthcare infrastructure is thinnest — a resource and access problem that the system has the tools to address.",
@@ -34387,7 +34436,7 @@
               "HF": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. These are the communities where better data systems, targeted outreach technology, and smarter access models would have the highest measurable impact.",
               "PFF": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. The burden lands hardest where the system has always invested least. That's not a coincidence — it's a pattern the establishment has never been held accountable for.",
               "HHN": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. These are communities already carrying more than their share — and the HIV burden compounds everything else they are navigating without adequate support.",
-              "MFL": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication usersand are significantly less likely to have access to prevention medication — not because they aren't trying, but because the access barriers are highest precisely where the need is greatest.",
+              "MFL": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users and are significantly less likely to have access to prevention medication — not because they aren't trying, but because the access barriers are highest precisely where the need is greatest.",
               "VS": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. The burden lands hardest where access is thinnest — a pattern that holds regardless of how you interpret everything else around it.",
               "UCP": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medications. This is not a disparity. It is the predictable outcome of a system that has always allocated suffering along the same lines.",
               "FJP": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. This is not background data. These are our neighbors, our congregation members, our families — bearing a burden that justice demands we take seriously.",
@@ -34397,19 +34446,21 @@
               "GHI": "Hispanic and Latino Americans represent 34% of new HIV diagnoses but only 18% of prevention medication users— and are significantly less likely to have access to prevention medication. These disparities are consistent across health systems and track onto the same gaps in infrastructure that define global health inequity."
             }
           }
-        ]
+        ],
+        "n_tokens": 3,
+        "n_proofs": 2
       },
       {
-        "id": 17,
+        "msg_id": "MSG_017",
         "theme_label": "ALL OF US AFFECTED",
-        "n_proofs": 1,
-        "proofs": [
+        "tokens": [
           {
-            "proof_id": 0,
-            "short_label": "base",
-            "full_label": "base (no proof)",
+            "token": 0,
+            "is_base": true,
+            "proof_short_label": null,
+            "proof_full_text": null,
             "text_core": "HIV touches every state and every kind of community. Where the burden falls most heavily is determined not by identity or lifestyle, but by geography, the availability of healthcare infrastructure, and the reach of prevention programs.",
-            "text_by_segment": {
+            "text_by_persona": {
               "TSP": "HIV is present in every state — small cities, farming communities, mid-sized towns. Where the burden falls is determined by geography and healthcare infrastructure, not identity. What erodes the health of our neighbors erodes the economic and social fabric of the whole community.",
               "CEC": "HIV is present in every state — in communities that look nothing like the epidemic's public image. Where the burden lands is determined by gaps in coverage, transparency, and access. Fix those gaps and the epidemic becomes controllable. Leave them and the costs keep compounding.",
               "TC": "HIV today reaches rural families, women, newborns, and communities that bear no resemblance to the epidemic's original associations. The assumption that this disease belongs to someone else's community has always been incomplete — and the data has long since moved past it. This is a shared responsibility, not a selective one.",
@@ -34428,7 +34479,9 @@
               "GHI": "HIV is present in every country — shaped everywhere by the strength of the systems built to contain it. Where the burden falls is determined by institutional commitment and healthcare infrastructure, not by identity or geography alone. American leadership in global health was built on understanding that. Walking away from it has consequences that will not stay contained."
             }
           }
-        ]
+        ],
+        "n_tokens": 1,
+        "n_proofs": 0
       }
     ]
   }
