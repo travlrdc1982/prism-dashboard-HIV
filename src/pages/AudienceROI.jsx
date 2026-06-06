@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DATA from "../data/studyData";
 import { STUDY_METRICS, PREPOST_METRICS, getAssignedTier } from "../data/study";
+import PageHeader from "../components/PageHeader";
 // Tier is always the analyst-configured value from the workbook; never derived from ROI.
 
 // ─── Build segment data by merging shared 16-segment skeleton with study-specific metrics ───
@@ -328,15 +329,12 @@ export default function AudienceROI() {
 
   return (
     <div style={{ maxWidth: 1300, margin: "0 auto" }}>
-        {/* Title */}
-        <div style={{ marginBottom: 16 }}>
-          <h1 style={{
-            fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 700,
-            color: C.text1, margin: 0, letterSpacing: 2, textTransform: "uppercase"
-          }}>Audience ROI</h1>
-          <div style={{ fontSize: 9, color: C.text3, marginTop: 3, fontFamily: "'JetBrains Mono',monospace" }}>
-            ROI = Population × (Persuasion + Coalition Value + Activation + Influence)
-          </div>
+        <PageHeader title="Audience ROI" />
+        <div style={{
+          fontSize: 9, color: C.text3, marginBottom: 16,
+          fontFamily: "'JetBrains Mono',monospace",
+        }}>
+          ROI = Population × (Persuasion + Coalition Value + Activation + Influence)
         </div>
 
         {/* Grid */}
