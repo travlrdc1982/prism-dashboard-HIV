@@ -1,5 +1,5 @@
 {
-  "source_file": "/home/user/prism-dashboard-HIV/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx",
+  "source_file": "/home/user/prism-dashboard-HIV/pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx",
   "sheet_name": "Message Variants",
   "segment_codes": [
     "TSP",

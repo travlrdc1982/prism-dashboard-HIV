@@ -16,28 +16,25 @@ from typing import Tuple, Dict, Any
 
 
 # ═════════════════════════════════════════════════════════════════
-# STUDY CONFIG — PRISM HIV 2026
+# STUDY CONFIG — loaded from study/study.yaml (index: section).
 # ─────────────────────────────────────────────────────────────────
-# Per-study declaration: which 7 (or N) pre/post items form the
-# persuasion index. 'reverse' is for studies where analyst-reversed
-# companion variables don't exist; here, both XQPRE_1r1r1 and XPOST_1r1r1
-# are already analyst-reversed (higher = more aligned with client),
-# so reverse=False throughout this study.
+# The YAML declares index items by idx_id; raw .sav variable names are
+# resolved through sav_conventions patterns + legacy_rename. 'reverse'
+# is for studies where analyst-reversed companion variables don't
+# exist; in HIV 2026 both XQPRE_1r1r1 and XPOST_1r1r1 are already
+# analyst-reversed, so reverse=False throughout.
 # ═════════════════════════════════════════════════════════════════
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+from study_config import load_config as _load_config, index_items as _index_items
 
-INDEX_ITEMS = [
-    {'pre': 'XQPRE_1r1r1', 'post': 'XPOST_1r1r1', 'reverse': False, 'label': 'HIV national priority'},
-    {'pre': 'QPRE_2',      'post': 'QPOST_2',     'reverse': False, 'label': 'Community concern'},
-    {'pre': 'QPRE_3',      'post': 'QPOST_3',     'reverse': False, 'label': 'Access concern'},
-    {'pre': 'QPRE_4',      'post': 'QPOST_4',     'reverse': False, 'label': 'Personal relevance'},
-    {'pre': 'QPRE_5',      'post': 'QPOST_5',     'reverse': False, 'label': 'Support expanded access'},
-    {'pre': 'XQPRE_6R',    'post': 'XPOST_6R',    'reverse': False, 'label': 'Oppose eligibility cuts'},
-    {'pre': 'QPRE_7r1',    'post': 'QPOST_7r1',   'reverse': False, 'label': 'Innovation orientation'},
-]
-INDEX_SCALE_MIN = 1
-INDEX_SCALE_MAX = 7
-INDEX_ALPHA_SOFT = 0.70   # Below this, build warns but proceeds
-INDEX_ALPHA_HARD = 0.60   # Below this, build fails unless --override-alpha
+_cfg = _load_config()
+INDEX_ITEMS = _index_items(_cfg)
+INDEX_SCALE_MIN = _cfg['index']['scale']['min']
+INDEX_SCALE_MAX = _cfg['index']['scale']['max']
+INDEX_ALPHA_SOFT = _cfg['index']['alpha_soft_threshold']   # warn below
+INDEX_ALPHA_HARD = _cfg['index']['alpha_hard_threshold']   # fail below
 
 
 # ─────────────────────────────────────────────────────────────────

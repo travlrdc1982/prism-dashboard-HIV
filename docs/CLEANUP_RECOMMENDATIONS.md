@@ -94,7 +94,21 @@ but with one config and no duplicated truths.
 
 ## 2. Recommendations, in order
 
-### R1 — Finish the config refactor (single `study.yaml`)  *(highest leverage)*
+### R1 — Finish the config refactor (single `study.yaml`)  ✅ DONE
+
+> Landed on `messagemap-integration`. `study/study.yaml` is the single
+> study configuration: the thin messagemap YAML (verified equal to the
+> hardcoded constants before adoption) + `segment_registry` (one segment
+> table for BOTH engines, with `mm_name` overrides where they
+> historically differed) + `maxdiff_messages` (token map) +
+> `topline_config` (all 9 compute_core registries, generated from the
+> live constants — zero transcription). Engines read it via
+> `pipeline/study_config.py`; raw .sav names resolve through
+> `sav_conventions` patterns + inverted `legacy_rename`.
+> `canonical/hiv_2026.yaml` (dead) and
+> `pipeline/messagemap/config/study.yaml` deleted. Gates: deep-equality
+> of every loaded registry vs pre-refactor snapshot, full pipeline rerun
+> byte-identical, Pydantic fail-case suite green.
 
 The Pydantic model (`messagemap/src/prism_config.py`) already exists and
 validates a rich schema. The work is to make the engines **read** it:

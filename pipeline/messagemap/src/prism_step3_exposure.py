@@ -34,28 +34,28 @@ from typing import Tuple, Dict
 #       r36..r51         = 16 segment-tuned + proof B   (seg = row_idx - 35)
 # ═════════════════════════════════════════════════════════════════════
 
-MESSAGE_CONFIG = [
-    {'item': 1,  'proof_var': 'HIV_R1',  'n_proofs': 3},
-    {'item': 2,  'proof_var': 'HIV_R2',  'n_proofs': 3},
-    {'item': 3,  'proof_var': 'HIV_R3',  'n_proofs': 3},
-    {'item': 4,  'proof_var': 'HIV_R4',  'n_proofs': 3},
-    {'item': 5,  'proof_var': 'HIV_R5',  'n_proofs': 2},
-    {'item': 6,  'proof_var': 'HIV_R6',  'n_proofs': 3},
-    {'item': 7,  'proof_var': None,      'n_proofs': 1},  # no proof
-    {'item': 8,  'proof_var': None,      'n_proofs': 1},
-    {'item': 9,  'proof_var': None,      'n_proofs': 1},
-    {'item': 10, 'proof_var': 'HIV_R7',  'n_proofs': 2},
-    {'item': 11, 'proof_var': 'HIV_R8',  'n_proofs': 2},
-    {'item': 12, 'proof_var': 'HIV_R9',  'n_proofs': 2},
-    {'item': 13, 'proof_var': 'HIV_R10', 'n_proofs': 3},
-    {'item': 14, 'proof_var': None,      'n_proofs': 1},
-    {'item': 15, 'proof_var': 'HIV_R11', 'n_proofs': 2},
-    {'item': 16, 'proof_var': 'HIV_R12', 'n_proofs': 3},
-    {'item': 17, 'proof_var': None,      'n_proofs': 1},
-]
-N_TASKS = 14
-ITEMS_PER_TASK = 4
-N_ITEMS = 17
+# Config-driven (study/study.yaml): maxdiff_messages declares the
+# per-message token-value counts; sav_conventions + legacy_rename
+# resolve the raw .sav variable names (HIV_R*, QHIV_*best, HIV_RANDOM).
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+from study_config import (load_config as _load_config,
+                          message_config as _message_config,
+                          task_vars as _task_vars,
+                          sav_vars as _sav_vars)
+
+_cfg = _load_config()
+MESSAGE_CONFIG = _message_config(_cfg)
+N_TASKS = _cfg['maxdiff']['n_tasks']
+ITEMS_PER_TASK = _cfg['maxdiff']['items_per_task']
+N_ITEMS = _cfg['maxdiff']['n_messages']
+TASK_VARS = _task_vars(_cfg)               # {task: (best_var, worst_var)}
+_SV = _sav_vars(_cfg)
+ARM_VAR = _SV['arm']                       # HIV_RANDOM   (1=PERSONA, 2=CORE)
+SEG_VAR = _SV['segment']                   # XSEG_ASSIGNED
+VERSION_VAR = _SV['design_version']        # QHIV_Version
+RECORD_VAR = _SV['record_id']              # record
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -112,35 +112,35 @@ def build_exposure_matrix(
     msg_by_item = {m['item']: m for m in message_config}
 
     # Required columns
-    required = ['QHIV_Version', 'HIV_RANDOM', 'XSEG_ASSIGNED']
-    required += [f'QHIV_{t}best' for t in range(1, n_tasks + 1)]
-    required += [f'QHIV_{t}worst' for t in range(1, n_tasks + 1)]
+    required = [VERSION_VAR, ARM_VAR, SEG_VAR]
+    required += [TASK_VARS[t][0] for t in range(1, n_tasks + 1)]
+    required += [TASK_VARS[t][1] for t in range(1, n_tasks + 1)]
     required += [m['proof_var'] for m in message_config if m['proof_var']]
     missing = [c for c in required if c not in df.columns]
     if missing:
         raise ValueError(f"Required columns missing: {missing}")
 
     # Use record_id if present, otherwise row index
-    rec_col = 'record' if 'record' in df.columns else None
+    rec_col = RECORD_VAR if RECORD_VAR in df.columns else None
     
     task_rows = []
     exposure_acc = {}  # (record_id, item) -> {n_shown, n_best, n_worst, framing, proof, segment}
 
     for idx, row in df.iterrows():
         rec_id = row[rec_col] if rec_col else idx
-        version = int(row['QHIV_Version']) if not pd.isna(row['QHIV_Version']) else None
+        version = int(row[VERSION_VAR]) if not pd.isna(row[VERSION_VAR]) else None
         if version is None:
             continue
-        arm = int(row['HIV_RANDOM'])  # 1=PERSONA, 2=CORE
-        seg = int(row['XSEG_ASSIGNED']) if not pd.isna(row['XSEG_ASSIGNED']) else None
+        arm = int(row[ARM_VAR])  # 1=PERSONA, 2=CORE
+        seg = int(row[SEG_VAR]) if not pd.isna(row[SEG_VAR]) else None
 
         for t in range(1, n_tasks + 1):
             key = (version, t)
             if key not in design:
                 continue
             items_shown = design[key]
-            best_val = row[f'QHIV_{t}best']
-            worst_val = row[f'QHIV_{t}worst']
+            best_val = row[TASK_VARS[t][0]]
+            worst_val = row[TASK_VARS[t][1]]
             # best/worst values are indices into the SHOWN items (1-4),
             # we need to decode which actual item number that was.
             # In Decipher MaxDiff outputs, the best/worst columns store
@@ -192,7 +192,7 @@ def build_exposure_matrix(
         'n_items': n_items,
         'total_task_rows': len(task_long),
         'total_exposure_rows': len(exposure_long),
-        'arm_distribution': df['HIV_RANDOM'].value_counts().to_dict(),
+        'arm_distribution': df[ARM_VAR].value_counts().to_dict(),
         'mean_exposures_per_item': exposure_long.groupby('item')['n_shown'].sum().mean(),
         'best_pick_rate': float(task_long['best_item'].notna().mean()),
         'worst_pick_rate': float(task_long['worst_item'].notna().mean()),

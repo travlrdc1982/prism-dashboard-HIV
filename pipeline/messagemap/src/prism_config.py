@@ -405,6 +405,25 @@ class OutputPaths(BaseModel):
     variants_json: str
 
 
+class SegmentRegistryEntry(BaseModel):
+    """One row of the shared segment table (consumed by BOTH engines)."""
+    model_config = ConfigDict(extra="forbid")
+    id: int = Field(ge=1)
+    code: str
+    name: str
+    party: Literal["GOP", "DEM"]
+    # messagemap display-name override where the two engines historically
+    # differed (HF, FJP). Absent = same name in both engines.
+    mm_name: Optional[str] = None
+
+
+class MaxDiffMessage(BaseModel):
+    """Per-message token-value count (1 = base only, no proof variants)."""
+    model_config = ConfigDict(extra="forbid")
+    msg: int = Field(ge=1)
+    n_token_values: int = Field(ge=1)
+
+
 # ─────────────────────────────────────────────────────────────────────
 # Root model
 # ─────────────────────────────────────────────────────────────────────
@@ -430,6 +449,12 @@ class StudyConfig(BaseModel):
     baskets: List[Basket]
     dashboard: DashboardConfig
     output: OutputPaths
+    segment_registry: List[SegmentRegistryEntry]
+    maxdiff_messages: List[MaxDiffMessage]
+    # Topline engine registries (study/labels/modules/trust_lbl/batteries/
+    # influencer_blocks/items/pre_post). Deep schema is documented in
+    # pipeline/topline/BUILD_GUIDE.md; validated structurally here only.
+    topline_config: Dict[str, Any]
 
     # ── Per-field validators ─────────────────────────────────────────
 
@@ -574,6 +599,38 @@ class StudyConfig(BaseModel):
                 f"({seg!r}) for segment fixed effects. Got: "
                 f"{self.residualization.predictors}"
             )
+        return self
+
+
+    @model_validator(mode="after")
+    def _registry_matches_expected_ids(self) -> "StudyConfig":
+        reg_ids = [r.id for r in self.segment_registry]
+        if reg_ids != list(self.segments.expected_ids):
+            raise ValueError(
+                f"segment_registry ids {reg_ids} != segments.expected_ids "
+                f"{self.segments.expected_ids}"
+            )
+        codes = [r.code for r in self.segment_registry]
+        if len(codes) != len(set(codes)):
+            raise ValueError("segment_registry codes are not unique")
+        return self
+
+    @model_validator(mode="after")
+    def _maxdiff_messages_cover_design(self) -> "StudyConfig":
+        msgs = [m.msg for m in self.maxdiff_messages]
+        want = list(range(1, self.maxdiff.n_messages + 1))
+        if msgs != want:
+            raise ValueError(
+                f"maxdiff_messages must cover messages 1..{self.maxdiff.n_messages} "
+                f"in order; got {msgs}"
+            )
+        for m in self.maxdiff_messages:
+            if m.n_token_values > self.platform_constraints.max_tokens_per_message:
+                raise ValueError(
+                    f"maxdiff_messages msg {m.msg}: n_token_values "
+                    f"{m.n_token_values} exceeds platform max "
+                    f"{self.platform_constraints.max_tokens_per_message}"
+                )
         return self
 
 

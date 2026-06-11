@@ -1,3 +1,8 @@
+> **STATUS (Jun 2026):** the config refactor described below (P0-1) is
+> DONE — the config now lives at `study/study.yaml` (repo root) and all
+> engines read it via `pipeline/study_config.py`. This document is kept
+> as the original handoff record.
+
 # Opening in Claude Code
 
 ## Quick start

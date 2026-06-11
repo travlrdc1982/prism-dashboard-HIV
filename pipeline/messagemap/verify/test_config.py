@@ -1,7 +1,7 @@
 """
 Smoke test for prism_config.py.
 
-1. Load config/study.yaml as-is. Expect success; print a summary.
+1. Load study/study.yaml as-is. Expect success; print a summary.
 2. Mutate the in-memory dict in three ways that should each be
    caught by a different validator, and confirm each one raises.
 
@@ -41,7 +41,7 @@ def _expect_fail(label: str, cfg_dict: dict, expected_substring: str) -> None:
 
 
 def main() -> None:
-    yaml_path = ROOT / "config" / "study.yaml"
+    yaml_path = ROOT.parent.parent / "study" / "study.yaml"
     print("=" * 72)
     print("Part 1: load real study.yaml")
     print("=" * 72)

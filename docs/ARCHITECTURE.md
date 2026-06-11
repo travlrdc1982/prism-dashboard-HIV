@@ -107,8 +107,8 @@ survey. Contains:
   `BATTERIES`, `TRUST_LBL`, `INFLUENCER_BLOCKS` in `compute_core.py`)
 
 Legacy SAVs (e.g. Decipher-exported HIV with `HIV_R1`, `QHIV_*`, etc.)
-are renamed to canonical names via the `legacy_rename` block in
-`pipeline/messagemap/config/study.yaml`.
+are resolved to canonical names via the `legacy_rename` block in
+`study/study.yaml` (the single study configuration).
 
 ### 3.2 The workbook (`HIV_Study_Template.xlsx`)
 
@@ -156,8 +156,6 @@ respondent saw in each of their 14 MaxDiff tasks. Read by
 These do **not** vary with the field data — they encode the PRISM
 methodology itself:
 
-- `canonical/hiv_2026.yaml` — study-specific overrides (also lives at
-  `pipeline/messagemap/config/study.yaml`)
 - `canonical/scales.yaml` — 1–7 Likert / 1–5 trust / etc. scale defs
 - `canonical/segments.yaml` — canonical 16-segment definitions
 - `canonical/maxdiff_designs/hiv_2026_design.csv` — alternate copy of
@@ -190,7 +188,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 | File              | Role                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------ |
 | `compute.py`      | CLI entry point. Reads `.sav` via `pyreadstat`, calls `build_topline(df)`.                 |
-| `compute_core.py` | The actual compute. Contains the per-study registries (`STUDY`, `SEGMENTS`, `ITEMS`, `PRE_POST`, `BATTERIES`, `TRUST_LBL`, `INFLUENCER_BLOCKS`) and the `build_topline(df, out_dir, weight_var)` entry function. Writes `dashboard.json` covering: `study`, `labels`, `modules`, `segments`, `items`, `item_results`, `pre_post`, `pp_results`, `demographics`, `influencer`, `stigma_extras`, `trust`, `roi_svg`, `roi_data`. |
+| `compute_core.py` | The actual compute. Study registries (`STUDY`, `LABELS`, `MODULES`, `SEGMENTS`, `ITEMS`, `PRE_POST`, `BATTERIES`, `TRUST_LBL`, `INFLUENCER_BLOCKS`) are loaded from `study/study.yaml` (topline_config section); the engine carries no hardcoded study constants. `build_topline(df, out_dir, weight_var)` is the entry function. Writes `dashboard.json` covering: `study`, `labels`, `modules`, `segments`, `items`, `item_results`, `pre_post`, `pp_results`, `demographics`, `influencer`, `stigma_extras`, `trust`, `roi_svg`, `roi_data`. |
 | `dashboard_template.html` | Reference HTML mock that the React Topline ports from (source of truth for visuals + scoped CSS). |
 | `BUILD_GUIDE.md` / `BUILD_GUIDE.html` | Analyst guide for adding/changing items in the registry. |
 
@@ -212,11 +210,17 @@ its real script — `refresh.py` doesn't compute anything itself.
 
 ### 4.3 Messagemap pipeline
 
+`pipeline/study_config.py` — the shared config loader. Every engine
+loads its study constants from `study/study.yaml` through this module
+(`load_config`, `resolve_var` for legacy-name resolution, plus shaped
+views: `segments_topline`, `segments_messagemap`, `baskets`,
+`index_items`, `message_config`, `task_vars`, `sav_vars`).
+
 `pipeline/messagemap/src/`
 
 | File                          | Role                                                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| `prism_config.py`             | Pydantic v2 model for `study.yaml` (loads + validates the canonical config).                     |
+| `prism_config.py`             | Pydantic v2 model for `study/study.yaml` (full schema validation incl. segment registry + token map). |
 | `prism_variants_parser.py`    | Reads the variants workbook → `outputs/prism_variants.json`. Pure transformation, no analytics.  |
 | `prism_index.py`              | Steps 1–2: builds the persuasion index (`pre_composite`, `post_composite`, Cronbach α) and the **residualized shift** (regress post on pre + segment FE; the residual is each respondent's persuasion shift above their baseline + segment expectation). |
 | `prism_step3_exposure.py`     | Step 3: reads the design file + `M{NNN}_token` + best/worst picks → builds a respondent × message × token × persona-framing **exposure matrix**, plus the per-respondent Best–Worst differential per message. |
@@ -484,7 +488,7 @@ evolution but not yet implemented.
 | `pipeline/messagemap/src/prism_step3_exposure.py`                   | Exposure matrix from design + token vars                                                     |
 | `pipeline/messagemap/src/prism_step4_lift_v2.py`                    | Cell lift estimator + shrinkage + bootstrap                                                  |
 | `pipeline/messagemap/src/prism_config.py`                           | Pydantic model for study.yaml                                                                |
-| `pipeline/messagemap/config/study.yaml`                             | Per-study messagemap config (legacy_rename, item index, baskets, etc.)                       |
+| `study/study.yaml`                                         | **THE study configuration** — sources, legacy_rename, segments, index, baskets, estimation, topline registries |
 | `pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx` | Variant text (content source of truth)                                                       |
 | `pipeline/messagemap/data/Gilead_Design_File.dat`                   | MaxDiff design                                                                               |
 | `pipeline/messagemap/outputs/prism_variants.json`                   | Parsed variants (cached)                                                                     |
@@ -497,7 +501,6 @@ evolution but not yet implemented.
 | `pipeline/topline/compute_core.py`  | Step 1: topline compute + study registries                                                   |
 | `pipeline/topline/dashboard_template.html` | Reference HTML mock that React Topline ports from                                      |
 | `pipeline/topline/BUILD_GUIDE.md`   | Analyst guide for the topline registries                                                     |
-| `canonical/hiv_2026.yaml`                                  | Study canonical config (mirrors `pipeline/messagemap/config/study.yaml`)                              |
 | `canonical/scales.yaml` / `segments.yaml`                  | Methodology-level canonical defs                                                             |
 | `canonical/maxdiff_designs/hiv_2026_design.csv`            | CSV mirror of the design file                                                                |
 | `canonical/rake_targets/registered_voters_2026.yaml`       | Rake margin targets used by SPSS to produce WGT                                              |

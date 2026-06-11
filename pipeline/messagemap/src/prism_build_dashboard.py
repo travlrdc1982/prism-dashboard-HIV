@@ -44,40 +44,34 @@ from prism_step4_lift_v2 import compute_cell_lifts_fast, cell_weighted_shifts, m
 # STUDY CONFIG
 # ═════════════════════════════════════════════════════════════════════
 
-SEGMENTS = {
-    1:  {'code': 'TSP', 'label': 'Trust-the-Science Pragmatists',  'party': 'R', 'priority_tier': None},
-    2:  {'code': 'CEC', 'label': 'Consumer Empowerment Champions', 'party': 'R', 'priority_tier': None},
-    3:  {'code': 'TC',  'label': 'Traditional Conservatives',      'party': 'R', 'priority_tier': None},
-    4:  {'code': 'HF',  'label': 'Health Futurists',               'party': 'R', 'priority_tier': None},
-    5:  {'code': 'PP',  'label': 'Price Populists',                'party': 'R', 'priority_tier': None},
-    6:  {'code': 'WE',  'label': 'Wellness Evangelists',           'party': 'R', 'priority_tier': None},
-    7:  {'code': 'PFF', 'label': 'Paleo Freedom Fighters',         'party': 'R', 'priority_tier': None},
-    8:  {'code': 'HHN', 'label': 'Holistic Health Naturalists',    'party': 'R', 'priority_tier': 2},
-    9:  {'code': 'MFL', 'label': 'Medical Freedom Libertarians',   'party': 'R', 'priority_tier': None},
-    10: {'code': 'VS',  'label': 'Vaccine Skeptics',               'party': 'R', 'priority_tier': None},
-    11: {'code': 'UCP', 'label': 'Universal Care Progressives',    'party': 'D', 'priority_tier': 1},
-    12: {'code': 'FJP', 'label': 'Faith and Justice Progressives', 'party': 'D', 'priority_tier': 1},
-    13: {'code': 'HCP', 'label': 'Health Care Protectionists',    'party': 'D', 'priority_tier': 1},
-    14: {'code': 'HAD', 'label': 'Health Abundance Democrats',     'party': 'D', 'priority_tier': 2},
-    15: {'code': 'HCI', 'label': 'Health Care Incrementalists',    'party': 'D', 'priority_tier': 2},
-    16: {'code': 'GHI', 'label': 'Global Health Institutionalists','party': 'D', 'priority_tier': 1},
-}
+# Config-driven (study/study.yaml): segment_registry + baskets +
+# estimation params. The engines carry no hardcoded study constants.
+_PIPELINE_DIR = _MESSAGEMAP_DIR.parent
+sys.path.insert(0, str(_PIPELINE_DIR))
+from study_config import (load_config as _load_config,
+                          segments_messagemap as _segments_messagemap,
+                          baskets as _baskets,
+                          sav_vars as _sav_vars)
 
-BASKETS = [
-    {'id': 'total',        'name': 'Total Sample',     'segments': list(range(1, 17)), 'weight': 'equal'},
-    {'id': 'priority_d',   'name': 'D-side Persuadables','segments': [11, 12, 13, 16],  'weight': 'equal'},
-    {'id': 'priority_all', 'name': 'Full Priority Basket', 'segments': [8, 11, 12, 13, 14, 15, 16], 'weight': 'equal'},
-    {'id': 'gop',          'name': 'GOP Segments',     'segments': [1,2,3,4,5,6,7,8,9,10], 'weight': 'equal'},
-    {'id': 'dem',          'name': 'DEM Segments',     'segments': [11, 12, 13, 14, 15, 16], 'weight': 'equal'},
-]
+_cfg = _load_config()
+SEGMENTS = _segments_messagemap(_cfg)
+BASKETS = _baskets(_cfg)
+_SV = _sav_vars(_cfg)
+ARM_VAR = _SV['arm']                  # HIV_RANDOM (1=PERSONA, 2=CORE)
+SEG_VAR = _SV['segment']              # XSEG_ASSIGNED
+N_BOOTSTRAP_CELLS = _cfg['estimation']['bootstrap']['n_iter']      # 500
+BOOTSTRAP_SEED = _cfg['estimation']['bootstrap']['seed']           # 42
+N_BOOTSTRAP_TOPLINE = _cfg['topline']['bootstrap_n_iter']          # 300
 
 
 # ═════════════════════════════════════════════════════════════════════
 # Outcome construction wrappers
 # ═════════════════════════════════════════════════════════════════════
 
-def construct_outcome(df, variant_name, seg_col='XSEG_ASSIGNED'):
+def construct_outcome(df, variant_name, seg_col=None):
     """Prepare the outcome column for a given lift variant."""
+    if seg_col is None:
+        seg_col = SEG_VAR
     if variant_name == 'persuasion_messaging':
         # residual_shift is already mean-zero by construction (step 2)
         return df, 'residual_shift'
@@ -94,9 +88,9 @@ def construct_outcome(df, variant_name, seg_col='XSEG_ASSIGNED'):
 def compute_cells_for_outcome(df, exposure, outcome_col, n_bootstrap=500, rng_seed=42):
     """Run the cell estimator with an arbitrary outcome column."""
     rng = np.random.default_rng(rng_seed)
-    resp = df[[outcome_col, 'XSEG_ASSIGNED', 'HIV_RANDOM']].copy()
+    resp = df[[outcome_col, SEG_VAR, ARM_VAR]].copy()
     resp['record_id'] = resp.index
-    resp = resp.rename(columns={'XSEG_ASSIGNED': 'segment', 'HIV_RANDOM': 'arm', outcome_col: '_outcome'})
+    resp = resp.rename(columns={SEG_VAR: 'segment', ARM_VAR: 'arm', outcome_col: '_outcome'})
 
     e = exposure[['record_id', 'item', 'bw_score', 'proof_variant']].copy()
     e = e.merge(resp[['record_id', '_outcome', 'segment', 'arm']], on='record_id')
@@ -367,21 +361,23 @@ def main():
     print("\n[3] Computing cells: persuasion_messaging (outcome = residual_shift)...")
     t = time.time()
     df, outcome_col_p = construct_outcome(df, 'persuasion_messaging')
-    cells_persuasion, diag_p = compute_cells_for_outcome(df, exposure, outcome_col_p, n_bootstrap=500)
+    cells_persuasion, diag_p = compute_cells_for_outcome(df, exposure, outcome_col_p,
+                                                         n_bootstrap=N_BOOTSTRAP_CELLS, rng_seed=BOOTSTRAP_SEED)
     print(f"    {len(cells_persuasion)} cells, σ_within={diag_p['sigma_within']:.3f}, "
           f"σ_between={diag_p['sigma_between']:.3f} ({time.time()-t:.1f}s)")
 
     print("\n[4] Computing cells: base_messaging (outcome = pre_composite, centered by segment)...")
     t = time.time()
     df, outcome_col_b = construct_outcome(df, 'base_messaging')
-    cells_base, diag_b = compute_cells_for_outcome(df, exposure, outcome_col_b, n_bootstrap=500)
+    cells_base, diag_b = compute_cells_for_outcome(df, exposure, outcome_col_b,
+                                                   n_bootstrap=N_BOOTSTRAP_CELLS, rng_seed=BOOTSTRAP_SEED)
     print(f"    {len(cells_base)} cells, σ_within={diag_b['sigma_within']:.3f}, "
           f"σ_between={diag_b['sigma_between']:.3f} ({time.time()-t:.1f}s)")
 
     # ── Topline ───────────────────────────────────────────────────────
     print("\n[5] Computing topline (SoP + Utility per segment × message)...")
     t = time.time()
-    topline = compute_topline(exposure, df, n_bootstrap=300)
+    topline = compute_topline(exposure, df, n_bootstrap=N_BOOTSTRAP_TOPLINE, rng_seed=BOOTSTRAP_SEED)
     print(f"    {len(topline)} (seg × msg) topline rows ({time.time()-t:.1f}s)")
 
     print("\n[6] Computing simple SoP plot data (5 baskets)...")
@@ -396,9 +392,9 @@ def main():
     print(f"    {variants_data['n_messages']} messages × {len(variants_data['segment_codes'])} segments")
 
     # ── Compose segment metadata with sample sizes ────────────────────
-    seg_n = df['XSEG_ASSIGNED'].value_counts().to_dict()
+    seg_n = df[SEG_VAR].value_counts().to_dict()
     segments_out = []
-    for sid in range(1, 17):
+    for sid in sorted(SEGMENTS):
         meta = SEGMENTS[sid]
         segments_out.append({
             'id': sid, 'code': meta['code'], 'label': meta['label'],

@@ -151,8 +151,12 @@ if __name__ == '__main__':
         'PRISM_VARIANTS_JSON',
         str(_MESSAGEMAP_DIR / 'outputs' / 'prism_variants.json'),
     )
-    expected = ['TSP','CEC','TC','WE','PP','HF','PFF','HHN',
-                'MFL','VS','UCP','FJP','HCP','HAD','HCI','GHI']
+    # Expected segment codes come from the study config registry
+    # (validated as a set — order doesn't matter).
+    import sys
+    sys.path.insert(0, str(_MESSAGEMAP_DIR.parent))
+    from study_config import load_config
+    expected = [r['code'] for r in load_config()['segment_registry']]
     parsed = parse_variants_workbook(DEFAULT_WORKBOOK, expected_segments=expected)
     summarize(parsed)
 

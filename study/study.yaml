@@ -1,0 +1,1138 @@
+# ═══════════════════════════════════════════════════════════════════════
+# PRISM STUDY CONFIG — PRISM_HIV_2026
+# ═══════════════════════════════════════════════════════════════════════
+# Single source of truth for analytical configuration of this study.
+# The workbook (pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx)
+# is the source of truth for content: messages, tokens, persona variants.
+# Engine reads this YAML + the workbook + the .sav and produces dashboard.json.
+# ═══════════════════════════════════════════════════════════════════════
+
+study:
+  id: PRISM_HIV_2026
+  title: "PRISM HIV Treatment & Prevention"
+  client: Gilead
+  field_dates: "Apr-May 2026"
+  analyst: Bryan Dumont
+  version: v1.0
+
+# ── DATA SOURCES ────────────────────────────────────────────────────────
+sources:
+  sav_path: data/260433.sav                                       # study .sav (repo root data/)
+  design_file: pipeline/messagemap/data/Gilead_Design_File.dat    # MaxDiff design
+  variants_workbook: pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx
+  variants_sheet: "Message Variants"
+  weight_var: WGT                                                  # null if unweighted
+  record_id_var: record
+
+# ── PLATFORM CONVENTIONS (variable naming) ──────────────────────────────
+# Patterns used by the rename step and generator. These let the engine
+# produce/consume canonically-named data regardless of how the survey
+# script labeled variables.
+sav_conventions:
+  arm_var: persona_framing                       # 1=PERSONA, 2=CORE
+  segment_var: XSEG_ASSIGNED                     # 1..16, segment id
+  design_version_var: design_version
+  token_var_pattern: "M{msg_num:03d}_token"      # M001_token..MNNN_token
+  task_best_pattern: "task{task:02d}_best"       # task01_best..task14_best
+  task_worst_pattern: "task{task:02d}_worst"
+  index_pre_pattern: "idx{idx_num:03d}_pre"
+  index_post_pattern: "idx{idx_num:03d}_post"
+  best_worst_encoding: msg_id_numeric            # task picks store 1..n_messages
+
+# ── LEGACY .SAV RENAME MAP (for THIS study only) ────────────────────────
+# Map the legacy Decipher-exported names to canonical names.
+# Future studies fielded with canonical naming from the start make this empty.
+legacy_rename:
+  HIV_RANDOM: persona_framing
+  QHIV_Version: design_version
+  HIV_R1: M001_token
+  HIV_R2: M002_token
+  HIV_R3: M003_token
+  HIV_R4: M004_token
+  HIV_R5: M005_token
+  HIV_R6: M006_token
+  HIV_R7: M010_token       # irregular pairing in legacy script
+  HIV_R8: M011_token
+  HIV_R9: M012_token
+  HIV_R10: M013_token
+  HIV_R11: M015_token
+  HIV_R12: M016_token
+  QHIV_1best: task01_best
+  QHIV_1worst: task01_worst
+  QHIV_2best: task02_best
+  QHIV_2worst: task02_worst
+  QHIV_3best: task03_best
+  QHIV_3worst: task03_worst
+  QHIV_4best: task04_best
+  QHIV_4worst: task04_worst
+  QHIV_5best: task05_best
+  QHIV_5worst: task05_worst
+  QHIV_6best: task06_best
+  QHIV_6worst: task06_worst
+  QHIV_7best: task07_best
+  QHIV_7worst: task07_worst
+  QHIV_8best: task08_best
+  QHIV_8worst: task08_worst
+  QHIV_9best: task09_best
+  QHIV_9worst: task09_worst
+  QHIV_10best: task10_best
+  QHIV_10worst: task10_worst
+  QHIV_11best: task11_best
+  QHIV_11worst: task11_worst
+  QHIV_12best: task12_best
+  QHIV_12worst: task12_worst
+  QHIV_13best: task13_best
+  QHIV_13worst: task13_worst
+  QHIV_14best: task14_best
+  QHIV_14worst: task14_worst
+  XQPRE_1r1r1: idx001_pre
+  XPOST_1r1r1: idx001_post
+  QPRE_2: idx002_pre
+  QPOST_2: idx002_post
+  QPRE_3: idx003_pre
+  QPOST_3: idx003_post
+  QPRE_4: idx004_pre
+  QPOST_4: idx004_post
+  QPRE_5: idx005_pre
+  QPOST_5: idx005_post
+  XQPRE_6R: idx006_pre
+  XPOST_6R: idx006_post
+  QPRE_7r1: idx007_pre
+  QPOST_7r1: idx007_post
+
+# ── SEGMENT BINDINGS ────────────────────────────────────────────────────
+# Per-study segment metadata. Platform-level definitions (codes, labels,
+# party) live in the central PRISM segment registry, not here.
+segments:
+  assignment_var: XSEG_ASSIGNED
+  expected_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  priority_tier_in_study:
+    8:  2     # HHN
+    11: 1     # UCP
+    12: 1     # FJP
+    13: 1     # HCP
+    14: 2     # HAD
+    15: 2     # HCI
+    16: 1     # GHI
+  data_confidence:
+    ok_min_n: 100
+    thin_min_n: 50
+
+# ── PERSUASION INDEX ────────────────────────────────────────────────────
+index:
+  items:
+    - {idx_id: IDX_001, label: "HIV national priority",     reverse: false}
+    - {idx_id: IDX_002, label: "Community concern",         reverse: false}
+    - {idx_id: IDX_003, label: "Access concern",            reverse: false}
+    - {idx_id: IDX_004, label: "Personal relevance",        reverse: false}
+    - {idx_id: IDX_005, label: "Support expanded access",   reverse: false}
+    - {idx_id: IDX_006, label: "Oppose eligibility cuts",   reverse: false}
+    - {idx_id: IDX_007, label: "Innovation orientation",    reverse: false}
+  scale: {min: 1, max: 7, type: likert_7pt}
+  composite_method: mean
+  alpha_soft_threshold: 0.70
+  alpha_hard_threshold: 0.60
+  on_hard_fail: block_build
+
+# ── RESIDUALIZATION ─────────────────────────────────────────────────────
+residualization:
+  outcome_var: post_composite
+  predictors: [pre_composite, XSEG_ASSIGNED]
+  output_col: residual_shift
+  min_n_to_fit: 50
+
+# ── MAXDIFF DESIGN ──────────────────────────────────────────────────────
+maxdiff:
+  n_messages: 17
+  n_tasks: 14
+  items_per_task: 4
+  design_file: pipeline/messagemap/data/Gilead_Design_File.dat
+  # Workbook is source of truth for which messages have which tokens.
+  # Engine reads it; no per-message proof config needed here.
+
+# ── PLATFORM CONSTRAINTS (study must fall within these) ─────────────────
+platform_constraints:
+  max_messages_per_study: 25
+  max_tokens_per_message: 10
+  max_personas: 17                       # 1 CORE + 16 PRISM segments
+  max_tasks_per_respondent: 20
+  max_items_per_task: 6
+
+# ── ESTIMATION ──────────────────────────────────────────────────────────
+estimation:
+  cell_estimator: weighted_shift_signed
+  outcome_centering: by_segment_mean
+  shrinkage:
+    method: empirical_bayes
+    target: message_marginal
+  bootstrap:
+    n_iter: 500
+    seed: 42
+  ci_level: 0.95
+  significance_rule: ci_excludes_zero
+  thin_cell_threshold: 30
+  shrink_weight_warn_below: 0.60
+
+# ── LIFT VARIANTS (outcome toggle in dashboard) ─────────────────────────
+lift_variants:
+  - name: persuasion_messaging
+    label: "PERSUASION MESSAGING"
+    description: "How much engagement with this variant moves attitudinal alignment above baseline"
+    outcome_construction:
+      method: residualized_shift
+      source_col: residual_shift
+    color_scale: {min: -0.30, max: 0.30, neutral: 0.0}
+
+  - name: base_messaging
+    label: "BASE MESSAGING"
+    description: "How much more aligned message-engagers are than their segment baseline"
+    outcome_construction:
+      method: centered_level
+      source_col: pre_composite
+      centering: by_segment_mean
+    color_scale: {min: -0.30, max: 0.30, neutral: 0.0}
+
+# ── TOPLINE METRICS ─────────────────────────────────────────────────────
+topline:
+  metrics_enabled: [share_of_preference, utility_score]
+  bw_normalization: per_respondent_exposure
+  utility_rescale: zero_centered_0_100
+  sop_formula: softmax_exp_meanbw
+  bootstrap_ci: true
+  bootstrap_n_iter: 300
+
+# ── SIMPLE SoP PLOT ─────────────────────────────────────────────────────
+sop_simple:
+  enabled: true
+  default_basket: priority_d
+
+# ── BASKETS ─────────────────────────────────────────────────────────────
+baskets:
+  - {id: total,        name: "Total Sample",          segments: all,                                  weight: equal}
+  - {id: priority_d,   name: "D-side Persuadables",   segments: [11, 12, 13, 16],                     weight: equal}
+  - {id: priority_all, name: "Full Priority Basket",  segments: [8, 11, 12, 13, 14, 15, 16],          weight: equal}
+  - {id: gop,          name: "GOP Segments",          segments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],      weight: equal}
+  - {id: dem,          name: "DEM Segments",          segments: [11, 12, 13, 14, 15, 16],             weight: equal}
+
+# ── DASHBOARD ───────────────────────────────────────────────────────────
+dashboard:
+  default_view: message_map
+  views:
+    message_map:   {enabled: true,  default: true}
+    topline_table: {enabled: true,  default: false}
+    sop_simple:    {enabled: true,  default: false}
+  default_outcome: persuasion_messaging
+  outcome_toggle_visible: true
+  default_basket: priority_d
+  basket_selector_visible: true
+  cell_render:
+    show_uncertainty: always
+    fade_low_confidence: true
+    value_decimals: 2
+  segment_display:
+    context_segments: collapsed
+    show_data_confidence_flag: true
+
+# ── OUTPUT ──────────────────────────────────────────────────────────────
+output:
+  dashboard_json: outputs/dashboard.json
+  cells_csv: outputs/prism_cells.csv
+  exposure_csv: outputs/prism_exposure_long.csv
+  variants_json: outputs/prism_variants.json
+
+# ── SEGMENT REGISTRY ────────────────────────────────────────────────────
+# Single segment table for BOTH engines (topline compute_core +
+# messagemap). `name` is the topline display name; `mm_name` overrides
+# it for messagemap output where the two engines historically differed
+# (HF, FJP). party is GOP/DEM; messagemap maps to R/D internally.
+# priority_tier lives above in segments.priority_tier_in_study.
+segment_registry:
+  - {id:  1, code: TSP, name: "Trust-the-Science Pragmatists", party: GOP}
+  - {id:  2, code: CEC, name: "Consumer Empowerment Champions", party: GOP}
+  - {id:  3, code: TC , name: "Traditional Conservatives", party: GOP}
+  - {id:  4, code: HF , name: "Health Futurist", party: GOP, mm_name: "Health Futurists"}
+  - {id:  5, code: PP , name: "Price Populists", party: GOP}
+  - {id:  6, code: WE , name: "Wellness Evangelists", party: GOP}
+  - {id:  7, code: PFF, name: "Paleo Freedom Fighters", party: GOP}
+  - {id:  8, code: HHN, name: "Holistic Health Naturalists", party: GOP}
+  - {id:  9, code: MFL, name: "Medical Freedom Libertarians", party: GOP}
+  - {id: 10, code: VS , name: "Vaccine Skeptics", party: GOP}
+  - {id: 11, code: UCP, name: "Universal Care Progressives", party: DEM}
+  - {id: 12, code: FJP, name: "Faith & Justice Progressives", party: DEM, mm_name: "Faith and Justice Progressives"}
+  - {id: 13, code: HCP, name: "Health Care Protectionists", party: DEM}
+  - {id: 14, code: HAD, name: "Health Abundance Democrats", party: DEM}
+  - {id: 15, code: HCI, name: "Health Care Incrementalists", party: DEM}
+  - {id: 16, code: GHI, name: "Global Health Institutionalists", party: DEM}
+
+# ── MAXDIFF MESSAGE TOKEN MAP ───────────────────────────────────────────
+# Per-message token-value count (1 = base only, no proof variants).
+# The proof-token .sav variable is derived from
+# sav_conventions.token_var_pattern + legacy_rename; messages with
+# n_token_values 1 have no proof variable.
+maxdiff_messages:
+  - {msg:  1, n_token_values: 3}
+  - {msg:  2, n_token_values: 3}
+  - {msg:  3, n_token_values: 3}
+  - {msg:  4, n_token_values: 3}
+  - {msg:  5, n_token_values: 2}
+  - {msg:  6, n_token_values: 3}
+  - {msg:  7, n_token_values: 1}
+  - {msg:  8, n_token_values: 1}
+  - {msg:  9, n_token_values: 1}
+  - {msg: 10, n_token_values: 2}
+  - {msg: 11, n_token_values: 2}
+  - {msg: 12, n_token_values: 2}
+  - {msg: 13, n_token_values: 3}
+  - {msg: 14, n_token_values: 1}
+  - {msg: 15, n_token_values: 2}
+  - {msg: 16, n_token_values: 3}
+  - {msg: 17, n_token_values: 1}
+
+# ── TOPLINE REGISTRIES (compute_core) ──────────────────────────────────
+# Everything the topline engine needs that varies per study. Field
+# semantics are documented in pipeline/topline/BUILD_GUIDE.md.
+# segments are NOT here — both engines read segment_registry above.
+topline_config:
+  study:
+    id: PRISM_HIV_2026
+    title: PRISM HIV Treatment & Prevention
+    subtitle: PRISM Voter Study — RCG / Dynata
+    field_dates: TBD
+    version: v1.0
+    analyst: Bryan Dumont
+    rendered: '2026-05-15'
+    weighted: true
+    weight_target: Rake weights — Census parameters (age × sex × race/ethnicity × education × region) × 2024 vote
+    weight_note: Production rake weights applied (WGT). Weighted n equals sample n.
+    validity_note: All n=1,044 included. Validity flags pending review.
+    nav_brand: PRISM
+    nav_study_label: HIV Treatment & Prevention
+    coalition_a_label: GOP Coalition
+    coalition_b_label: DEM Coalition
+    party_band_a_label: GOP COALITION
+    party_band_b_label: DEM COALITION
+  labels:
+    pop_top3: Top-3 (5-7)
+    pop_bot3: Bot-3 (1-3)
+    pop_mean: Mean
+    pop_n: n
+    pop_net: NET
+    pop_delta_top3: Δ Top-3
+    pop_delta_mean: Δ Mean
+    pop_n_paired: n (paired)
+    pop_paired_title: Paired test (McNemar)
+    pop_paired_no_discord: no discordant pairs
+    pop_paired_switchers: '{gain} respondents gained top-3 · {loss} lost top-3'
+    pop_dvr_title: Δ vs. rest of sample
+    pop_dvr_subtitle: Differential persuadability
+    method_mcnemar_chi2: McNemar (continuity corrected)
+    method_mcnemar_exact: Exact McNemar (binomial)
+    method_no_discord: no discordant pairs
+    sig_zr_ns: not sig vs. rest of sample
+    sig_zr_05: sig at p<.05 vs. rest of sample
+    sig_zr_01: sig at p<.01 vs. rest of sample
+    sig_d_ns: not sig
+    sig_d_10: sig at p<.10
+    sig_d_05: sig at p<.05
+    sig_d_01: sig at p<.01
+    sig_dvr_ns: n.s.
+    sig_dvr_10: p<.10
+    sig_dvr_05: p<.05
+    sig_dvr_01: p<.01
+    toggle_show_mb3: Show m / b3 under each cell
+    toggle_show_dist: Show full 1–7 distribution in each cell
+    toggle_info: Click any cell for popover · z-test vs. rest of sample
+    legend_shading_title: 'Shading (top-3 vs. Total):'
+    legend_shading_arrow: pp below ← Total → pp above
+    legend_sig_zr_title: 'Sig — PRE/POST row (vs. rest):'
+    legend_sig_d_title: 'Sig — Δ row (paired):'
+    legend_p10: p<.10
+    legend_p05: p<.05
+    legend_p01: p<.01
+  modules:
+  - id: stigma
+    active: true
+    item_type: items
+    nav_label: HIV Stigma
+    tile_num: '01'
+    tile_title: HIV Stigma
+    tile_desc: HIV stigma · MFQ · knowledge · composites
+    section_title: HIV Stigma
+    section_meta: HIV stigma items, Moral Foundations, HIV knowledge, and composites (MBS, SDS, EDS, SCS, CFS, PFS,
+      SCF, HKS)
+    section_intro: 'Three batteries plus a composites block. <strong>HIV Stigma</strong>: 13 items (7-pt agree-disagree).
+      <strong>MFQ</strong>: 8 items (7-pt relevance). <strong>HIV Knowledge</strong>: 11 items, % aware — item 5
+      ("epidemic effectively over") is the false statement. <strong>Composites</strong>: MBS, SDS, EDS, SCS from
+      HIV Stigma items; CFS, PFS, SCF from MFQ items; HKS from knowledge items (excluding K5).'
+    show_legend: false
+    show_toggles: false
+  - id: prepost
+    active: true
+    item_type: pre_post
+    nav_label: Pre / Post
+    tile_num: '02'
+    tile_title: Pre-Post Outcome Metrics
+    tile_desc: 7 items × Total + 16 segments × PRE/POST/Δ
+    section_title: Pre-Post Outcome Metrics
+    section_meta: Movement on key health and policy items, before vs. after message exposure
+    section_intro: 'Each item appears twice: <strong>PRE</strong> (before exposure), <strong>POST</strong> (after).
+      Δ = POST − PRE. Cells show <strong>Top-3 Box %</strong>. Three panes per item: the question as the respondent
+      saw it (Fraunces) · codebook (vars, scale, recodes, composites) · banner table.'
+    show_legend: true
+    show_toggles: true
+  - id: roi
+    active: true
+    item_type: roi
+    nav_label: ROI
+    tile_num: '03'
+    tile_title: ROI Scorecard
+    tile_desc: 16-segment ROI infographic · Coalition × Persuasion × Activation × Influence
+    section_title: ROI Scorecard
+    section_meta: Per-segment ROI score, coalition support, persuasion, activation, and influence
+    section_intro: 'Per-segment ROI rendered as a vector infographic. ROI is normalized: <strong>segment mean efROI
+      ÷ total mean efROI</strong>. Values ≥ 1.0 appear in pills; below 1.0 grey without pill. Coalition Support
+      = top-2 box of XCOALITION (Champions + Supporters). Persuasion = sign of XALIGN_MOVEr1. Activation = mean
+      XROIr5 (mobilization probability). Influence³⁶⁰ = mean BCS (XSMr4). All computation aside from the ROI ratio
+      is done in SPSS.'
+    show_legend: false
+    show_toggles: false
+  - id: critics
+    active: true
+    item_type: items
+    nav_label: Critics
+    tile_num: '04'
+    tile_title: Critics Messages
+    tile_desc: 11 counter-argument items · Top-3 by segment
+    section_title: Critics Messages
+    section_meta: Counter-arguments and oppositional frames respondents may have encountered
+    section_intro: <strong>Top-3 Box %</strong> agreeing with each oppositional statement, by segment. Sig markers
+      indicate significance vs. rest of sample at p&lt;.05 (•) or p&lt;.01 (••). Higher = more receptive to the
+      critique.
+    show_legend: false
+    show_toggles: false
+  - id: maxdiff
+    active: false
+    nav_label: Message Testing
+    tile_num: '05'
+    tile_title: Message Testing
+    tile_desc: 16 messages × MaxDiff utilities (tabular)
+  - id: sources
+    active: false
+    nav_label: Trusted Sources
+    tile_num: '06'
+    tile_title: Trusted Sources
+    tile_desc: 23 sources × split-sample blocked k=9
+  - id: demos
+    active: true
+    item_type: demographics
+    nav_label: Demographics
+    tile_num: '07'
+    tile_title: Demographics
+    tile_desc: 11 questions · per-segment frequency distribution
+    section_title: Demographics
+    section_meta: Gender, age, race/ethnicity, region, RUCA, education, veteran, union, religion, income, personal
+      contact
+    section_intro: 'Each question renders as a multi-row block: one row per response option. Cells show <strong>%
+      of segment selecting that option</strong>. Hover for n and weighted percent. Continuous QAGE mean/median shown
+      in the age question popover.'
+    show_legend: false
+    show_toggles: false
+  - id: influencer
+    active: true
+    item_type: influencer
+    nav_label: Influencer360
+    tile_num: 08
+    tile_title: Influencer360
+    tile_desc: 14 behaviors + 3 actions + social-media + composites
+    section_title: Influencer360
+    section_meta: Behavioral influence profile by segment — L1 / L2 / L3 / BCS composites
+    section_intro: 'Single-row banner per item showing <strong>% Yes</strong> in each segment for binary behaviors,
+      <strong>% any activity</strong> for the social-media frequency items (excludes "Never"). Items grouped into
+      four sub-blocks: high-engagement (L2/L3), low-engagement (L1), social-media advocacy, and audience reach (categorical
+      distribution). Composites L1 / L2 / L3 / BCS rendered at the top.'
+    show_legend: false
+    show_toggles: false
+  trust_lbl:
+    QTRUSTr1: FDA / CDC
+    QTRUSTr2: Pharmaceutical companies
+    QTRUSTr4A: Infectious disease specialists
+    QTRUSTr4B: Nurses / NPs
+    QTRUSTr4C: Pharmacists
+    QTRUSTr5A: Academic medical centers
+    QTRUSTr5B: FQHC / Ryan White
+    QTRUSTr5C: Catholic health systems
+    QTRUSTr6A: Human Rights Campaign (HRC)
+    QTRUSTr6B: GLAAD
+    QTRUSTr6C: PFLAG
+    QTRUSTr6D: LGBTQ community centers
+    QTRUSTr7A: Health podcasters / YT
+    QTRUSTr7B: Black media
+    QTRUSTr7C: Religious media
+    QTRUSTr7D: LGBTQ media
+    QTRUSTr8A: Medical journals
+    QTRUSTr8B: Science journalists
+    QTRUSTr8C: University HIV centers
+    QTRUSTr9A: amfAR
+    QTRUSTr9B: NMAC
+    QTRUSTr9C: AIDS United
+  batteries:
+    critics:
+      section: critics
+      total: 11
+      scale: 7
+      scale_anchors:
+      - Strongly DISAGREE
+      - Neither / Neutral
+      - Strongly AGREE
+      survey:
+        style: CARDSHUFFLE
+        intro: You'll now see a handful of statements drawn from people who see this issue from a variety of perspectives.
+          We're interested in your honest reaction to how these arguments land with you.
+        stem: For each statement, indicate how much you agree or disagree…
+        anchor_left: 'Strongly
+
+          Disagree'
+        anchor_center: 'Neutral /
+
+          Unsure'
+        anchor_right: 'Strongly
+
+          Agree'
+      codebook:
+        scale_type: 7-pt Likert (agree-disagree)
+        filter: All respondents (n=957 valid)
+        block: Critics Messages (randomized order, k=11 items)
+        recode: None
+        design_note: Order of critic messages rotated before and after outcome pre-test measures.
+      metric_label_scale: Top-3 Box (5-7) of 7-pt agree-disagree scale
+    hivstigma:
+      section: stigma
+      total: 13
+      scale: 7
+      scale_anchors:
+      - Strongly DISAGREE
+      - Neither / Neutral
+      - Strongly AGREE
+      survey:
+        style: CARDSHUFFLE
+        intro: People hold many different views on the following issues. Please tell us how much you agree or disagree
+          with each statement. There are no right or wrong answers.
+        stem: For each statement, indicate how much you agree or disagree…
+        anchor_left: 'Strongly
+
+          Disagree'
+        anchor_center: 'Neutral /
+
+          Unsure'
+        anchor_right: 'Strongly
+
+          Agree'
+      codebook:
+        scale_type: 7-pt Likert (agree-disagree)
+        filter: Designed split sample · n=833 valid of 1,044 total
+        block: HIV Stigma battery (randomized order, k=13 items)
+        recode: None
+        design_note: 'Battery on a designed split sample (LOI-reduction allocation): ~80% of respondents received
+          these items. Sig markers compare each segment against the rest of the valid sample within this battery.'
+      metric_label_scale: Top-3 Box (5-7) of 7-pt agree-disagree scale
+    mfq:
+      section: stigma
+      total: 8
+      scale: 7
+      scale_anchors:
+      - Not at all RELEVANT
+      - Neither / Neutral
+      - Extremely RELEVANT
+      survey:
+        style: CARDSHUFFLE
+        intro: Now consider a different set of moral concerns. For each item below, please indicate how relevant
+          it is to how you make moral judgments, from 1 ('Not at all relevant') to 7 ('Extremely relevant').
+        stem: How relevant is this consideration to how you make moral judgments?
+        anchor_left: 'Not at all
+
+          relevant'
+        anchor_center: Neutral
+        anchor_right: 'Extremely
+
+          relevant'
+      codebook:
+        scale_type: 7-pt relevance scale (1 = not at all, 7 = extremely)
+        filter: Designed split sample · n=829 valid of 1,044 total
+        block: Moral Foundations Questionnaire (randomized order, k=8 items)
+        recode: None
+        citation: Graham J, Haidt J, Nosek BA (2009). Liberals and conservatives rely on different sets of moral
+          foundations. J Pers Soc Psychol, 96(5), 1029–46.
+        design_note: 'Abbreviated MFQ on a designed split sample (LOI-reduction allocation): ~80% of respondents
+          received these items. Care (r1, r2), Purity (r3, r4), Fairness (r5), Liberty (r6), Loyalty (r7), Authority
+          (r8). Care/Purity items feed CFS, PFS, SCF composites.'
+      metric_label_scale: Top-3 Box (5-7) of 7-pt relevance scale
+  influencer_blocks:
+  - id: composites
+    block_label: Influencer360 — Composites
+    wording: Behavioral influence composite scores (derived, not asked)
+    kind: composites
+    pane_style: derived_note
+    pane_subtitle: L1, L2, L3, and BCS are computed from the behavioral items below. They are not survey questions;
+      they summarize behavioral influence into tiers and a continuous index.
+    items:
+    - var: XCOMPUTE_LOWINFr1
+      code: L1
+      wording: L1 — Low-engagement tier
+      metric: pct_yes
+      formula: L1 = 1 if (LOWINFr1=1) OR (LOWINFr2=1) OR (LOWINFr3=1), else 0
+    - var: XCOMPUTE_LOWINFr2
+      code: L2
+      wording: L2 — Medium-engagement tier
+      metric: pct_yes
+      formula: L2 = 1 if (INFLUENCER360r4=1) OR (r7=1) OR (r13=1), else 0
+    - var: XCOMPUTE_LOWINFr3
+      code: L3
+      wording: L3 — High-engagement tier
+      metric: pct_yes
+      formula: L3 = 1 if any of INFLUENCER360r1, r2, r3, r5, r6, r8, r9, r10, r11, r12, r14 = 1
+    - var: XSMr4
+      code: BCS
+      wording: BCS — Behavioral Coalition Score (continuous)
+      metric: mean
+      formula: BCS = composite influence index (0–1) derived from QSMr1-r3 + tier indicators
+  - id: highengagement
+    block_label: Influencer360 — High-Engagement Behaviors (lifetime)
+    wording: How have you made your voice heard? (select all that apply)
+    kind: binary_set
+    pane_style: checklist
+    pane_subtitle: ''
+    metric: pct_yes
+    yes_value: 1
+    items:
+    - var: INFLUENCER360r1
+      code: INF_1
+      wording: Held elected office
+      tier: L3
+    - var: INFLUENCER360r2
+      code: INF_2
+      wording: Been a paid staffer or advisor to an elected official or gov't agency
+      tier: L3
+    - var: INFLUENCER360r3
+      code: INF_3
+      wording: Held an elected or appointed role in a party committee
+      tier: L3
+    - var: INFLUENCER360r4
+      code: INF_4
+      wording: Contacted an elected official or their staff
+      tier: L2
+    - var: INFLUENCER360r5
+      code: INF_5
+      wording: Helped recruit a candidate to run for public office
+      tier: L3
+    - var: INFLUENCER360r6
+      code: INF_6
+      wording: Helped recruit staff for a political campaign or office
+      tier: L3
+    - var: INFLUENCER360r7
+      code: INF_7
+      wording: Met with congressional, agency, or state legislative staff
+      tier: L2
+    - var: INFLUENCER360r8
+      code: INF_8
+      wording: Sat on the board or executive committee of a health, policy, or business association
+      tier: L3
+    - var: INFLUENCER360r9
+      code: INF_9
+      wording: Worked with or advised a Washington-based organization (think tank, patient advocacy, trade association)
+      tier: L3
+    - var: INFLUENCER360r10
+      code: INF_10
+      wording: Testified or submitted written comments to a legislative or Congressional committee
+      tier: L3
+    - var: INFLUENCER360r11
+      code: INF_11
+      wording: Spoke at a public meeting, podcast, webinar, church or civic group on a health topic
+      tier: L3
+    - var: INFLUENCER360r12
+      code: INF_12
+      wording: Wrote an article, blog post, Substack, or op-ed on an issue
+      tier: L3
+    - var: INFLUENCER360r13
+      code: INF_13
+      wording: Volunteered on a political campaign
+      tier: L2
+    - var: INFLUENCER360r14
+      code: INF_14
+      wording: Organized an event or rally on any issue
+      tier: L3
+  - id: lowengagement
+    block_label: Influencer360 — Low-Engagement Actions (past 12 months)
+    wording: In the past 12 months, have you taken any of the following actions related to a public policy issue?
+      (select all that apply)
+    kind: binary_set
+    pane_style: checklist
+    pane_subtitle: ''
+    metric: pct_yes
+    yes_value: 1
+    items:
+    - var: LOWINFr1
+      code: L1_PETITION
+      wording: Signed a petition
+      tier: L1
+    - var: LOWINFr2
+      code: L1_MEETING
+      wording: Attended a meeting
+      tier: L1
+    - var: LOWINFr3
+      code: L1_DONATION
+      wording: Donated money
+      tier: L1
+  - id: followers
+    block_label: Influencer360 — Audience Reach
+    wording: Across all your public social-media accounts, about how many followers or subscribers do you have in
+      total?
+    pane_subtitle: Including X/Twitter, Instagram, TikTok, Facebook pages, Substack, podcast, YouTube, etc. Cells
+      show % in each bracket (rows sum to 100%).
+    kind: categorical
+    pane_style: buttonselect
+    var: QTOT_FOLLOWERS
+    options:
+    - - 0
+      - None — no social media
+    - - 1
+      - 1 - 500
+    - - 2
+      - 500 - 1,999
+    - - 3
+      - 2,000 - 9,999
+    - - 4
+      - 10,000 - 49,999
+    - - 5
+      - 50,000 or more
+  - id: sm_activity
+    block_label: Influencer360 — Social-Media Activity (past 30 days)
+    wording: How many times over the past 30 days have you done any of the following to advocate on a public policy
+      issue?
+    pane_subtitle: 'Across any social-media platform (Facebook, X, LinkedIn, TikTok, or others). 5-point frequency
+      scale: Never / Not in past 30 days / 1 time / 2-4 times / 5+ times. Cells show % any activity (excludes "Never").'
+    kind: frequency
+    pane_style: cardshuffle
+    metric: any_activity
+    never_value: 1
+    items:
+    - var: QSMr1
+      code: SM_SHARED
+      wording: Shared or reposted content
+    - var: QSMr2
+      code: SM_COMMENTED
+      wording: Commented or replied to posts
+    - var: QSMr3
+      code: SM_CREATED
+      wording: Created an original post or video
+  items:
+  - battery: hivstigma
+    id: QHIVSTIGMAr1
+    code: HIVSTIGMA_SB_1
+    wording: People who became infected with HIV through sexual behavior made choices that led to their situation.
+    metric_label: '% AGREE — HIV: Sexual Behavior is a Choice [SB1 → MBS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr2
+    code: HIVSTIGMA_SB_2
+    wording: When someone contracts HIV as a result of their own behavior, they bear more personal responsibility
+      for dealing with the consequences than someone who became ill in other ways.
+    metric_label: '% AGREE — HIV: Personal Responsibility for Behavior [SB2 → MBS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr3
+    code: HIVSTIGMA_SD_1
+    wording: I would be comfortable working closely alongside a colleague I knew was HIV-positive.
+    metric_label: '% AGREE — Comfort: Working with HIV+ Colleague [SD1 → SDS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr4
+    code: HIVSTIGMA_SD_2
+    wording: I would be comfortable having a close personal friendship with someone who is living with HIV.
+    metric_label: '% AGREE — Comfort: Close Friendship with HIV+ Person [SD2 → SDS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr5
+    code: HIVSTIGMA_EQ_1
+    wording: Gay and lesbian people have been pushing harder for rights and recognition than is really necessary.
+    metric_label: '% AGREE — Anti-LGBTQ: Pushed Too Hard [EQ1 → EDS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr6
+    code: HIVSTIGMA_EQ_2
+    wording: The amount of attention given to the concerns of gay and lesbian people in public life has gone beyond
+      what the situation actually calls for.
+    metric_label: '% AGREE — Anti-LGBTQ: Excessive Attention [EQ2 → EDS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr7
+    code: HIVSTIGMA_SC_1
+    wording: I would be comfortable living in a neighborhood where gay or lesbian couples were among my neighbors.
+    metric_label: '% AGREE — Comfort: LGBTQ Neighbors [SC1 → SCS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr8
+    code: HIVSTIGMA_SC_2
+    wording: In most everyday social situations, I am comfortable around people who are gay or lesbian.
+    metric_label: '% AGREE — Comfort: Around LGBTQ Persons [SC2 → SCS]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr9
+    code: HIVSTIGMA_CTRL_1
+    wording: People who face discrimination based on their religious beliefs or political views deserve the same
+      legal protections as other groups.
+    metric_label: '% AGREE — Religious / Political Discrimination Deserve Protection [CTRL]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr10
+    code: HIVSTIGMA_CTRL_2
+    wording: In recent years, some groups have received more attention and sympathy in public life than is really
+      warranted.
+    metric_label: '% AGREE — Some Groups Get Unwarranted Attention [CTRL]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr11
+    code: HIVSTIGMA_CTRL_3
+    wording: People who develop Type 2 diabetes as a result of poor diet and lack of exercise are largely responsible
+      for their own condition.
+    metric_label: '% AGREE — Diabetes Self-Responsibility (parallel SB test) [CTRL]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr12
+    code: HIVSTIGMA_CTRL_4
+    wording: People who struggle with alcohol or drug addiction deserve the same compassion as people with other
+      medical conditions.
+    metric_label: '% AGREE — Addiction Deserves Compassion (parallel SD test) [CTRL]'
+  - battery: hivstigma
+    id: QHIVSTIGMAr13
+    code: HIVSTIGMA_CTRL_5
+    wording: I would feel comfortable working alongside a colleague I knew had been treated for depression or anxiety.
+    metric_label: '% AGREE — Comfort: Mental Health Colleague (parallel SD test) [CTRL]'
+  - battery: mfq
+    id: QMFQr1
+    code: MFQ_CARE_1
+    wording: Whether or not someone suffered emotionally or was hurt in some way.
+    metric_label: '% RELEVANT — Care: Suffering / Emotional Harm [Care1 → CFS]'
+  - battery: mfq
+    id: QMFQr2
+    code: MFQ_CARE_2
+    wording: Whether or not someone showed compassion and concern for people who were worse off.
+    metric_label: '% RELEVANT — Care: Compassion for Worse Off [Care2 → CFS]'
+  - battery: mfq
+    id: QMFQr3
+    code: MFQ_PURITY_1
+    wording: Whether or not something was morally disgusting or violated widely shared standards of decency.
+    metric_label: '% RELEVANT — Purity: Moral Disgust / Decency [Purity1 → PFS]'
+  - battery: mfq
+    id: QMFQr4
+    code: MFQ_PURITY_2
+    wording: Whether or not something went against the natural order or violated what many people consider sacred.
+    metric_label: '% RELEVANT — Purity: Natural Order / Sacred [Purity2 → PFS]'
+  - battery: mfq
+    id: QMFQr5
+    code: MFQ_FAIR
+    wording: Whether or not someone was treated fairly and got what they deserved.
+    metric_label: '% RELEVANT — Fairness: Just Deserts'
+  - battery: mfq
+    id: QMFQr6
+    code: MFQ_LIBERTY
+    wording: Whether or not a person's individual freedom or right to make their own choices was restricted.
+    metric_label: '% RELEVANT — Liberty: Individual Freedom Restricted'
+  - battery: mfq
+    id: QMFQr7
+    code: MFQ_LOYALTY
+    wording: Whether or not someone was loyal to the people and groups they belong to.
+    metric_label: '% RELEVANT — Loyalty: In-Group Loyalty'
+  - battery: mfq
+    id: QMFQr8
+    code: MFQ_AUTHORITY
+    wording: Whether or not someone showed proper respect for authority and traditional social roles.
+    metric_label: '% RELEVANT — Authority: Respect for Tradition'
+  - battery: critics
+    id: QCRITICr1
+    code: CRITIC_1
+    wording: People who contract HIV as a result of their own sexual behavior are largely responsible for managing
+      the consequences.
+    metric_label: '% AGREE — HIV Result of Sexual Choices'
+  - battery: critics
+    id: QCRITICr2
+    code: CRITIC_2
+    wording: Providing government funding for HIV prevention programs sends the wrong message by reducing the consequences
+      of risky behavior.
+    metric_label: '% AGREE — Funding Prevention: Moral Hazard'
+  - battery: critics
+    id: QCRITICr3
+    code: CRITIC_3
+    wording: HIV is no longer the public health emergency it once was — other health crises deserve more attention
+      and resources today.
+    metric_label: '% AGREE — Not an Emergency Anymore'
+  - battery: critics
+    id: QCRITICr4
+    code: CRITIC_4
+    wording: With limited resources for public health, it makes sense to shift funding away from HIV toward conditions
+      like the opioid crisis and mental health.
+    metric_label: '% AGREE — Opioid Crisis / Mental Health Bigger Priority'
+  - battery: critics
+    id: QCRITICr5
+    code: CRITIC_5
+    wording: Reducing the federal deficit and controlling government spending should take priority over maintaining
+      current levels of HIV funding.
+    metric_label: '% AGREE — Control Deficit Spending Bigger Priority'
+  - battery: critics
+    id: QCRITICr6
+    code: CRITIC_6
+    wording: HIV treatment and prevention programs have received a disproportionate share of public health funding
+      relative to the size of the affected population.
+    metric_label: '% AGREE — Spending on HIV Disproportionate to Impact'
+  - battery: critics
+    id: QCRITICr7
+    code: CRITIC_7
+    wording: HIV is primarily a problem affecting specific communities and lifestyle choices — most Americans do
+      not need to see it as their concern.
+    metric_label: '% AGREE — HIV Affects Communities and Lifestyle Choices'
+  - battery: critics
+    id: QCRITICr8
+    code: CRITIC_8
+    wording: The people most affected by HIV in the United States are concentrated in communities with behaviors
+      and values very different from most Americans.
+    metric_label: '% AGREE — HIV Affects Communities Different from Most Americans'
+  - battery: critics
+    id: QCRITICr9
+    code: CRITIC_9
+    wording: Resources spent on HIV primarily benefit populations in large cities — rural and suburban communities
+      have more pressing health needs.
+    metric_label: '% AGREE — Resource Needs are Outside of Urban Areas'
+  - battery: critics
+    id: QCRITICr10
+    code: CRITIC_10
+    wording: States should have full flexibility to decide how to allocate HIV prevention and treatment funding
+      rather than being directed by Washington.
+    metric_label: '% AGREE — States Should Decide'
+  - battery: critics
+    id: QCRITICr11
+    code: CRITIC_11
+    wording: Federal HIV programs have too much waste and inefficiency to justify continued investment at current
+      levels.
+    metric_label: '% AGREE — Waste in Federal HIV Programs'
+  pre_post:
+  - id: PP1
+    pre_var: XQPRE_1r1r1
+    post_var: XPOST_1r1r1
+    code: PRE_1 / POST_1
+    section: prepost
+    wording: People have different views about which health issues should be the top priority for elected officials.
+      Please rank the following health issues from 1 (most important) to 7 (least important). [Rank shown for HIV/AIDS,
+      recoded so 7 = top priority.]
+    scale_anchors:
+    - Ranked LAST (1)
+    - Middle (4)
+    - Ranked FIRST (7)
+    survey:
+      style: RANKSORT
+      progress: 1 of 7 issues
+      stem: Drag each issue to its ranking (1 = most important).
+      items:
+      - HIV/AIDS
+      - Cancer
+      - Mental health and addiction
+      - Obesity and Diabetes
+      - Heart disease
+      - Alzheimer's and dementia
+      - Maternal health
+      focal: HIV/AIDS
+    codebook:
+      var_pre: QPRE_1r1 → XQPRE_1r1r1 (recoded 8 − rank, so 7 = top priority)
+      var_post: QPOST_1r1 → XPOST_1r1r1
+      scale_type: Forced rank (1–7) across 7 health issues
+      filter: All respondents (n=975)
+      block: PRE block · randomized issue order
+      recode: 'Reverse to ascending priority: XQPRE_1r1r1 = 8 − QPRE_1r1'
+      design_note: Single-item priority rank for HIV/AIDS extracted from the full ranking task.
+    metric_label: '% RANKING HIV/AIDS A TOP-3 PRIORITY'
+    metric_label_scale: Top-3 positions (5-7) of recoded 7-pt rank (7 = top priority)
+  - id: PP2
+    pre_var: QPRE_2
+    post_var: QPOST_2
+    code: PRE_2 / POST_2
+    section: prepost
+    wording: How concerned are you about the impact of HIV/AIDS on your local community?
+    scale_anchors:
+    - NOT AT ALL Concerned (1)
+    - Neutral (4)
+    - EXTREMELY Concerned (7)
+    survey:
+      style: CARDSHUFFLE
+      progress: 2 of 7 PRE items
+      stem: How concerned are you about the impact of HIV/AIDS on your local community?
+      text: ''
+      anchor_left: 'Not at all
+
+        Concerned'
+      anchor_center: Neutral
+      anchor_right: 'Extremely
+
+        Concerned'
+    codebook:
+      var_pre: QPRE_2
+      var_post: QPOST_2
+      scale_type: 7-pt concern (1–7)
+      filter: All respondents
+      block: PRE Block A (rotated with Block B at exposure)
+      recode: None
+      design_note: Local-impact concern measure; appears identically in PRE and POST.
+    metric_label: '% CONCERNED — Local Impact of HIV/AIDS'
+    metric_label_scale: Top-3 Box (5-7) of 7-pt concern scale
+  - id: PP3
+    pre_var: QPRE_3
+    post_var: QPOST_3
+    code: PRE_3 / POST_3
+    section: prepost
+    wording: How concerned are you about the impact that reduced access to HIV prevention and treatment would have
+      on your community?
+    scale_anchors:
+    - NOT AT ALL Concerned (1)
+    - Neutral (4)
+    - EXTREMELY Concerned (7)
+    survey:
+      style: CARDSHUFFLE
+      progress: 3 of 7 PRE items
+      stem: How concerned are you about the impact that reduced access to HIV prevention and treatment would have
+        on your community?
+      text: ''
+      anchor_left: 'Not at all
+
+        Concerned'
+      anchor_center: Neutral
+      anchor_right: 'Extremely
+
+        Concerned'
+    codebook:
+      var_pre: QPRE_3
+      var_post: QPOST_3
+      scale_type: 7-pt concern (1–7)
+      filter: All respondents
+      block: PRE Block A
+      recode: None
+      design_note: Reduced-access concern; central instrumental outcome.
+    metric_label: '% CONCERNED — Reduced Access to HIV Care'
+    metric_label_scale: Top-3 Box (5-7) of 7-pt concern scale
+  - id: PP4
+    pre_var: QPRE_4
+    post_var: QPOST_4
+    code: PRE_4 / POST_4
+    section: prepost
+    wording: How much does the issue of HIV/AIDS feel relevant to you personally or to your community?
+    scale_anchors:
+    - NOT AT ALL Relevant (1)
+    - Neutral (4)
+    - EXTREMELY Relevant (7)
+    survey:
+      style: CARDSHUFFLE
+      progress: 4 of 7 PRE items
+      stem: How much does the issue of HIV/AIDS feel relevant to you personally or to your community?
+      text: ''
+      anchor_left: 'Not at all
+
+        Relevant'
+      anchor_center: Neutral
+      anchor_right: 'Extremely
+
+        Relevant'
+    codebook:
+      var_pre: QPRE_4
+      var_post: QPOST_4
+      scale_type: 7-pt relevance (1–7)
+      filter: All respondents
+      block: PRE Block A
+      recode: None
+      design_note: Personal / community relevance; salience indicator.
+    metric_label: '% RELEVANT — HIV/AIDS to Me or My Community'
+    metric_label_scale: Top-3 Box (5-7) of 7-pt relevance scale
+  - id: PP5
+    pre_var: QPRE_5
+    post_var: QPOST_5
+    code: PRE_5 / POST_5
+    section: prepost
+    wording: Do you support or oppose expanding access to HIV prevention medications like PrEP and HIV treatment
+      programs?
+    scale_anchors:
+    - Strongly OPPOSE (1)
+    - Neutral (4)
+    - Strongly SUPPORT (7)
+    survey:
+      style: CARDSHUFFLE
+      progress: 5 of 7 PRE items
+      stem: Do you support or oppose expanding access to HIV prevention medications like PrEP and HIV treatment
+        programs?
+      text: ''
+      anchor_left: 'Strongly
+
+        Oppose'
+      anchor_center: Neutral
+      anchor_right: 'Strongly
+
+        Support'
+    codebook:
+      var_pre: QPRE_5
+      var_post: QPOST_5
+      scale_type: 7-pt support-oppose (1–7)
+      filter: All respondents
+      block: PRE Block A
+      recode: None
+      design_note: PrEP / treatment expansion. Core policy support metric.
+    metric_label: '% SUPPORT — Expanding PrEP and HIV Treatment Access'
+    metric_label_scale: Top-3 Box (5-7) of 7-pt support-oppose scale
+  - id: PP6
+    pre_var: XQPRE_6R
+    post_var: XPOST_6R
+    code: PRE_6R / POST_6R (reversed)
+    section: prepost
+    data_inverted_for_display: true
+    wording: Some states are considering reducing eligibility for HIV treatment assistance programs in order to
+      address budget shortfalls. Do you support or oppose such reductions?
+    scale_anchors:
+    - Strongly SUPPORT reductions (1)
+    - Neutral (4)
+    - Strongly OPPOSE reductions (7)
+    survey:
+      style: CARDSHUFFLE
+      progress: 6 of 7 PRE items
+      stem: Some states are considering reducing eligibility for HIV treatment assistance programs in order to address
+        budget shortfalls and reduce the burden on taxpayers. Do you support or oppose such reductions?
+      text: ''
+      anchor_left: 'Strongly
+
+        Oppose'
+      anchor_center: Neutral
+      anchor_right: 'Strongly
+
+        Support'
+    codebook:
+      var_pre: QPRE_6 → XQPRE_6R
+      var_post: QPOST_6 → XPOST_6R
+      scale_type: 7-pt support-oppose, REVERSED so high = pro-access
+      filter: All respondents
+      block: PRE Block A
+      recode: XQPRE_6R = 8 − QPRE_6 (reverse-coded)
+      design_note: Counter-pressure / reductions item. Reversed so all PRE/POST items run in the same pro-access
+        direction.
+    metric_label: '% OPPOSE — Reductions in HIV Treatment Eligibility'
+    metric_label_scale: Top-3 Box (5-7) of reverse-coded 7-pt scale (high = pro-access)
+  - id: PP7
+    pre_var: QPRE_7r1
+    post_var: QPOST_7r1
+    code: PRE_7 / POST_7
+    section: prepost
+    wording: Which statement comes closest to your view? (1) "We already have medicines that effectively treat and
+      prevent HIV…" vs. (7) "The next generation of HIV treatment and prevention will do what existing medicines
+      cannot. That innovation requires continued investment."
+    scale_anchors:
+    - 'Strong A: access (1)'
+    - Neutral (4)
+    - 'Strong B: innovation (7)'
+    survey:
+      style: SEMANTIC
+      progress: 7 of 7 PRE items
+      stem: Which statement comes closer to your view?
+      pole_left: We already have medicines that effectively treat and prevent HIV. The focus should be on getting
+        those medicines to the people who need them — not on developing newer, more expensive options.
+      pole_right: The next generation of HIV treatment and prevention will do what existing medicines cannot — make
+        adherence easier, reach more people, and move us closer to a cure. That innovation requires continued investment.
+    codebook:
+      var_pre: QPRE_7r1
+      var_post: QPOST_7r1
+      scale_type: 7-pt semantic differential (1–7)
+      filter: All respondents
+      block: PRE Block A
+      recode: None
+      design_note: Forced-choice instrumental outcome. High = pro-innovation.
+    metric_label: '% PRO-INNOVATION — Forced Choice (Access vs. Innovation)'
+    metric_label_scale: Top-3 Box (5-7) of 7-pt semantic differential (high = innovation pole)
