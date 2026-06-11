@@ -63,6 +63,7 @@ MESSAGEMAP_DASHBOARD_OUT   = MESSAGEMAP_DIR / 'outputs' / 'dashboard.json'
 # get folded into the topline dashboard.json after the messagemap step.
 # Everything else in src/data/topline/dashboard.json stays compute_core-owned.
 MESSAGEMAP_OWNED_TOPLEVEL = (
+    'ui',
     'messages',
     'baskets',
     'lift_variants',

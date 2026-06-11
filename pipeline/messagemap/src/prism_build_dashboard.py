@@ -454,6 +454,13 @@ def main():
             },
         },
         'segments': segments_out,
+        # UI configuration for the React Message Map page — authored in
+        # study/study.yaml (dashboard: section + the fade threshold from
+        # estimation:). The page reads defaults + render rules from here.
+        'ui': {
+            **_cfg['dashboard'],
+            'fade_shrink_weight_below': _cfg['estimation']['shrink_weight_warn_below'],
+        },
         'messages': messages_out,
         'baskets': [{
             'id': b['id'], 'name': b['name'],

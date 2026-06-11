@@ -79637,5 +79637,36 @@
         "n_proofs": 0
       }
     ]
+  },
+  "ui": {
+    "default_view": "message_map",
+    "views": {
+      "message_map": {
+        "enabled": true,
+        "default": true
+      },
+      "topline_table": {
+        "enabled": true,
+        "default": false
+      },
+      "sop_simple": {
+        "enabled": true,
+        "default": false
+      }
+    },
+    "default_outcome": "persuasion_messaging",
+    "outcome_toggle_visible": true,
+    "default_basket": "priority_d",
+    "basket_selector_visible": true,
+    "cell_render": {
+      "show_uncertainty": "always",
+      "fade_low_confidence": true,
+      "value_decimals": 2
+    },
+    "segment_display": {
+      "context_segments": "collapsed",
+      "show_data_confidence_flag": true
+    },
+    "fade_shrink_weight_below": 0.6
   }
 }

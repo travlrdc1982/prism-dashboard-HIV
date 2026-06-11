@@ -25,7 +25,7 @@
 // basket reorganization, and the variant-universe data still land
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -38,13 +38,20 @@ import {
   ActionBtn,
   LiftRamp,
   VariantUniverseLegend,
+  SplitCell,
 } from "../components/MessageMap";
+import { scaleLift } from "../components/MessageMap/liftScale";
 
 // ─── Data wiring (frame only — cells render in B2) ───
 const SEGMENTS = dashboard.segments;             // 16 segments
 const MESSAGES = dashboard.messages || [];       // 17 message-theme records
 const BASKETS  = dashboard.baskets  || [];       // 5 baskets
 const METRICS  = dashboard.lift_variants || [];  // persuasion / base
+// UI config authored in study/study.yaml (dashboard: section), emitted by
+// the messagemap pipeline as dashboard.json's `ui` section. Defaults +
+// render rules come from here; hardcoded fallbacks cover old artifacts.
+const UI = dashboard.ui || {};
+const FADE_BELOW = UI.fade_shrink_weight_below ?? 0.6;
 
 // ─── Derived study counts ───
 // PROOF POINT TOKENS = count of tokens with proof_id > 0 across messages
@@ -76,9 +83,45 @@ export default function MessageMap() {
     && dashboard.message_map_cells
     && Object.keys(dashboard.message_map_cells).length > 0;
 
-  const defaultMetric = METRICS[0]?.name || "persuasion_messaging";
+  const defaultMetric = UI.default_outcome || METRICS[0]?.name || "persuasion_messaging";
   const [metric, setMetric] = useState(defaultMetric);
-  const [basket, setBasket] = useState("total");
+  const [basket, setBasket] = useState(UI.default_basket || "total");
+
+  const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
+  const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
+  const orderedSegments = SEGMENTS;
+
+  // ── Cell aggregation ──────────────────────────────────────────────
+  // The artifact carries one cell per (message × segment × arm × proof).
+  // The collapsed row shows one value per (message × segment × arm): the
+  // n-weighted mean of lift_shrunk across that half's proof tokens
+  // (per-proof rows land with the B3 drill-down). Shrink weight is
+  // n-weight-averaged the same way and drives the low-confidence fade.
+  const cellIndex = useMemo(() => {
+    const cells = dashboard.message_map_cells?.[metric] || [];
+    const acc = new Map();
+    for (const c of cells) {
+      const key = `${c.message}|${c.segment}|${c.arm}`;
+      let a = acc.get(key);
+      if (!a) { a = { sumLift: 0, sumW: 0, n: 0 }; acc.set(key, a); }
+      a.sumLift += c.lift_shrunk * c.n;
+      a.sumW += c.shrink_weight * c.n;
+      a.n += c.n;
+    }
+    const out = new Map();
+    for (const [key, a] of acc) {
+      out.set(key, { lift: a.sumLift / a.n, w: a.sumW / a.n, n: a.n });
+    }
+    return out;
+  }, [metric]);
+
+  const colorScale = activeMetric?.color_scale;
+  // arm encoding from the survey: 1 = PERSONA-tuned, 2 = CORE
+  const getHalf = (msgId, segId, arm) => {
+    const a = cellIndex.get(`${msgId}|${segId}|${arm}`);
+    if (!a) return null;
+    return { v: scaleLift(a.lift, colorScale), lift: a.lift, n: a.n, w: a.w };
+  };
 
   if (!hasData) {
     return (
@@ -97,9 +140,6 @@ export default function MessageMap() {
     );
   }
 
-  const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
-  const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
-  const orderedSegments = SEGMENTS;
 
   // ─── Tooltip copy (title + body, radar-style) ───
   const OUTCOME_INFO = (
@@ -401,11 +441,12 @@ export default function MessageMap() {
                 fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
               }}>B6</div>
               {orderedSegments.map(seg => (
-                <div key={seg.id} style={{
-                  height: 24, margin: "0 1px", borderRadius: 2,
-                  background: "rgba(148,163,184,0.06)",
-                  border: `1px dashed ${C.cardBorder}`,
-                }} />
+                <SplitCell
+                  key={seg.id}
+                  core={getHalf(m.id, seg.id, 2)}
+                  tuned={getHalf(m.id, seg.id, 1)}
+                  fadeBelow={FADE_BELOW}
+                />
               ))}
             </div>
           ))}
