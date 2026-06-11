@@ -92,6 +92,9 @@ _cfg = _load_config()
 _tl = _cfg['topline_config']
 
 STUDY             = _topline_study(_cfg)
+# `rendered` is artifact metadata, not configuration — stamp at build time.
+import datetime as _dt
+STUDY['rendered'] = _dt.date.today().isoformat()
 LABELS            = _tl['labels']
 MODULES           = _tl['modules']
 TRUST_LBL         = _tl['trust_lbl']

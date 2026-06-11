@@ -281,7 +281,6 @@ topline_config:
   # top-level study block; only topline-specific display fields live here.
   study:
     subtitle: PRISM Voter Study — RCG / Dynata
-    rendered: '2026-05-15'
     weighted: true
     weight_target: Rake weights — Census parameters (age × sex × race/ethnicity × education × region) × 2024 vote
     weight_note: Production rake weights applied (WGT). Weighted n equals sample n.
