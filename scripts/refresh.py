@@ -48,11 +48,11 @@ DEFAULT_SAV = os.environ.get('PRISM_SAV', str(REPO / 'data' / '260433.sav'))
 DEFAULT_WORKBOOK = str(REPO / 'HIV_Study_Template.xlsx')
 DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WGT')
 
-PIPELINE_DIR = REPO / 'src' / 'components' / 'Topline' / 'ToplineDashboard'
+PIPELINE_DIR = REPO / 'pipeline' / 'topline'
 TOPLINE_DASHBOARD_OUT = PIPELINE_DIR / 'dashboard.json'
 TOPLINE_DASHBOARD_DEST = REPO / 'src' / 'data' / 'topline' / 'dashboard.json'
 
-MESSAGEMAP_DIR = REPO / 'messagemap'
+MESSAGEMAP_DIR = REPO / 'pipeline' / 'messagemap'
 MESSAGEMAP_VARIANTS_PARSER = MESSAGEMAP_DIR / 'src' / 'prism_variants_parser.py'
 MESSAGEMAP_BUILDER         = MESSAGEMAP_DIR / 'src' / 'prism_build_dashboard.py'
 MESSAGEMAP_VARIANTS_JSON   = MESSAGEMAP_DIR / 'outputs' / 'prism_variants.json'
@@ -186,14 +186,14 @@ def main():
 
     # ── 4. HIV-tab data derivation ────────────────────────────────
     step("4/5  HIV-tab data (derive_hiv_seg_data)")
-    run([sys.executable, 'scripts/derive_hiv_seg_data.py'], cwd=REPO)
+    run([sys.executable, 'pipeline/derive_hiv_seg_data.py'], cwd=REPO)
 
     # ── 5. Workbook → study.js + studyData.js HIV block ───────────
     step("5/5  Workbook → study.js / studyData.js (extract_hiv)")
     if not workbook.exists():
         sys.exit(f"  ✗ Workbook not found: {workbook}")
     # extract_hiv.py reads HIV_Study_Template.xlsx from cwd
-    run([sys.executable, 'extract_hiv.py'], cwd=REPO)
+    run([sys.executable, 'pipeline/extract_hiv.py'], cwd=REPO)
 
     print()
     print("═══ Refresh complete ═══")

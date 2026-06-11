@@ -1,5 +1,13 @@
-# PRISM HIV Dashboard — Python data pipeline dependencies.
+# PRISM HIV Dashboard — Python data pipeline dependencies (all stages).
 # Install once:  pip install -r requirements.txt
+#
+# Used by: scripts/refresh.py and everything it calls —
+#   pipeline/topline/   (compute_core: pandas, pyreadstat, openpyxl)
+#   pipeline/messagemap/ (numpy, pandas, pyreadstat, openpyxl, pyyaml, pydantic)
+#   pipeline/derive_hiv_seg_data.py, pipeline/extract_hiv.py
+numpy>=1.24
 pandas>=2.0
 openpyxl>=3.1
 pyreadstat>=1.2
+pyyaml>=6.0
+pydantic>=2.0

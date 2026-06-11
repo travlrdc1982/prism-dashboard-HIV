@@ -58,11 +58,12 @@ from prism_build_dashboard import (
 )
 
 
-# Paths. The pipeline hardcodes /mnt/user-data/uploads/* in compute.py
-# and prism_index.py / prism_step3_exposure.py. The harness reuses
-# those symlinks for the input side; output goes to the repo path.
-SAV_PATH = "/mnt/user-data/uploads/260433.sav"
-DESIGN_PATH = "/mnt/user-data/uploads/Gilead_Design_File.dat"
+# Paths. Same env-var overrides as the orchestrator; defaults assume
+# the standard repo layout (repo-root data/ for the .sav,
+# pipeline/messagemap/data for the design file).
+_REPO = ROOT.parent.parent  # pipeline/messagemap → pipeline → repo root
+SAV_PATH = os.environ.get("PRISM_SAV", str(_REPO / "data" / "260433.sav"))
+DESIGN_PATH = os.environ.get("PRISM_DESIGN", str(ROOT / "data" / "Gilead_Design_File.dat"))
 OUT_PATH = str(ROOT / "outputs" / "dashboard_verify.json")
 
 

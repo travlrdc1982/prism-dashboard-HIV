@@ -26,9 +26,9 @@ Per-study text, item lists, module definitions, weighting. Six files; mostly mec
 | File | Owner | What goes here |
 |---|---|---|
 | `{STUDY}_Study_Template.xlsx` | Analyst | Tier, message stimuli, study metadata, theme colors |
-| `src/components/Topline/ToplineDashboard/compute_core.py` | Engineering | `STUDY` dict (titles), `MODULES` array, item definitions, `TRUST_LBL`, composite formulas |
-| `src/components/Topline/ToplineDashboard/compute.py` | Engineering | Default `.sav` filename + weight var |
-| `extract_hiv.py` → `extract_study.py` | Engineering | Workbook filename + study-specific labels |
+| `pipeline/topline/compute_core.py` | Engineering | `STUDY` dict (titles), `MODULES` array, item definitions, `TRUST_LBL`, composite formulas |
+| `pipeline/topline/compute.py` | Engineering | Default `.sav` filename + weight var |
+| `pipeline/extract_hiv.py` → `pipeline/extract_study.py` | Engineering | Workbook filename + study-specific labels |
 | `scripts/refresh.py` | Engineering | `DEFAULT_WORKBOOK` filename |
 | `package.json`, `index.html`, `README.md` | Engineering | Project name, study title |
 
@@ -76,7 +76,7 @@ Login screen and Shell badge already read from `STUDY_META.name`, so they update
 
 ### Step 3 — Update the topline pipeline config
 
-Open `src/components/Topline/ToplineDashboard/compute_core.py`. Edit in place:
+Open `pipeline/topline/compute_core.py`. Edit in place:
 
 **a. `STUDY` dict** (top of file):
 ```python
@@ -101,7 +101,7 @@ STUDY = {
 ### Step 4 — Rename the data extractor
 
 ```bash
-git mv extract_hiv.py extract_study.py
+git mv pipeline/extract_hiv.py pipeline/extract_study.py
 ```
 
 Then edit `extract_study.py`:

@@ -163,7 +163,14 @@ block) holds only what a human decided.
 **Payoff:** the .sav drops in straight from SPSS with zero translation
 layer — the literal "mostly direct from SPSS" goal.
 
-### R4 — One pipeline package, one .sav, no Python in `src/`
+### R4 — One pipeline package, one .sav, no Python in `src/`  ✅ DONE
+
+> Landed on `messagemap-integration`. Layout: `pipeline/topline/`,
+> `pipeline/messagemap/`, `pipeline/extract_hiv.py`,
+> `pipeline/derive_hiv_seg_data.py`, `pipeline/port_topline_css.py`;
+> dead tools in `attic/`; one merged `requirements.txt`; duplicate
+> `.sav` removed; verify-harness stale `/mnt` paths fixed. The analyst
+> entry point is unchanged: `python scripts/refresh.py`.
 
 Mechanical moves, low risk, big hygiene gain:
 

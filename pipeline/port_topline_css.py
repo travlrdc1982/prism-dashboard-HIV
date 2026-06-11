@@ -15,14 +15,14 @@ Usage:
 import sys
 import os
 
-SRC = "src/components/Topline/ToplineDashboard/dashboard_template.html"
+SRC = "pipeline/topline/dashboard_template.html"
 OUT = "src/components/Topline/Topline.css"
 HEADER = """/* PRISM Topline — ported from dashboard_template.html (style block).
  * Every selector is scoped under .topline-root so it cannot leak into
  * the rest of the dashboard. CSS variables (:root) remain global —
  * they're prefixed with --bg-, --ink-, etc. and are unlikely to collide.
  *
- * To refresh: re-run scripts/port_topline_css.py. Do not hand-edit
+ * To refresh: re-run pipeline/port_topline_css.py. Do not hand-edit
  * individual selectors here — keep the source-of-truth alignment with
  * dashboard_template.html.
  */

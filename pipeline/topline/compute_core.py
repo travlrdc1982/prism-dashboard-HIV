@@ -46,9 +46,9 @@ def _apply_workbook_roi_overrides(roi_data):
     import os
     wb_path = os.environ.get('PRISM_WORKBOOK', 'HIV_Study_Template.xlsx')
     if not Path(wb_path).exists():
-        # Try repo root relative to this file's location
+        # Try repo root relative to this file's location (pipeline/topline/)
         for candidate in [
-            Path(__file__).parent.parent.parent.parent.parent / 'HIV_Study_Template.xlsx',
+            Path(__file__).parent.parent.parent / 'HIV_Study_Template.xlsx',
             Path('HIV_Study_Template.xlsx'),
         ]:
             if candidate.exists():

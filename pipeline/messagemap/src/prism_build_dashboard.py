@@ -22,9 +22,9 @@ sys.path.insert(0, str(_SRC_DIR))
 
 # Path resolution. All inputs and the output directory accept env-var
 # overrides; defaults assume the standard repo layout
-# (messagemap/data, messagemap/outputs, repo-root data/).
-_MESSAGEMAP_DIR = _SRC_DIR.parent
-_REPO = _MESSAGEMAP_DIR.parent
+# (pipeline/messagemap/data, pipeline/messagemap/outputs, repo-root data/).
+_MESSAGEMAP_DIR = _SRC_DIR.parent          # pipeline/messagemap
+_REPO = _MESSAGEMAP_DIR.parent.parent      # repo root (two up: pipeline/, repo)
 
 DEFAULT_SAV           = os.environ.get('PRISM_SAV',           str(_REPO / 'data' / '260433.sav'))
 DEFAULT_DESIGN        = os.environ.get('PRISM_DESIGN',        str(_MESSAGEMAP_DIR / 'data' / 'Gilead_Design_File.dat'))

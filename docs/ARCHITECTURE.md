@@ -3,7 +3,7 @@
 > A complete file-by-file map of the repo as it exists today, plus the
 > end-to-end data flow from raw SPSS export to deployed Vercel preview.
 >
-> Snapshot: branch `messagemap-integration`, commit `041fdb9` (Jun 2026).
+> Snapshot: branch `messagemap-integration` (Jun 2026, post-R4 pipeline/ reorg).
 
 ---
 
@@ -45,7 +45,7 @@ Vercel (every push to a branch produces a preview URL; `main` → prod).
                ▼
   ┌──────────────────────────┐         ┌─────────────────────────────┐
   │ MESSAGEMAP PIPELINE      │         │ HIV-TAB DERIVATION           │
-  │ prism_build_dashboard.py │         │ scripts/derive_hiv_seg_data  │
+  │ prism_build_dashboard.py │         │ pipeline/derive_hiv_seg_data │
   │ - persuasion index       │         │  → src/data/hiv/seg_data.json│
   │ - residualized shift     │         │  → src/data/hiv/bench.json   │
   │ - cell lifts × 2 outcomes│         │  → src/data/hiv/items.json   │
@@ -80,11 +80,11 @@ python scripts/refresh.py --commit
 
 | Step | Reads                                  | Writes                                                    | Code                                                                  |
 | ---- | -------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
-| 1/5  | `data/260433.sav`                      | `…/ToplineDashboard/dashboard.json`                       | `src/components/Topline/ToplineDashboard/compute.py` + `compute_core.py` |
+| 1/5  | `data/260433.sav`                      | `pipeline/topline/dashboard.json`                       | `pipeline/topline/compute.py` + `compute_core.py` |
 | 2/5  | (above)                                | `src/data/topline/dashboard.json` (copy)                  | `scripts/refresh.py`                                                  |
-| 3/5  | `data/260433.sav`, design `.dat`, variants `.xlsx` | merges 7 sections into `src/data/topline/dashboard.json` | `messagemap/src/prism_build_dashboard.py`                            |
-| 4/5  | `src/data/topline/dashboard.json`      | `src/data/hiv/seg_data.json`, `bench.json`, `items.json`, `zparams.json` | `scripts/derive_hiv_seg_data.py`                                     |
-| 5/5  | `HIV_Study_Template.xlsx`              | `src/data/study.js`, `src/data/studyData.js` (HIV block)  | `extract_hiv.py`                                                      |
+| 3/5  | `data/260433.sav`, design `.dat`, variants `.xlsx` | merges 7 sections into `src/data/topline/dashboard.json` | `pipeline/messagemap/src/prism_build_dashboard.py`                            |
+| 4/5  | `src/data/topline/dashboard.json`      | `src/data/hiv/seg_data.json`, `bench.json`, `items.json`, `zparams.json` | `pipeline/derive_hiv_seg_data.py`                                     |
+| 5/5  | `HIV_Study_Template.xlsx`              | `src/data/study.js`, `src/data/studyData.js` (HIV block)  | `pipeline/extract_hiv.py`                                                      |
 | git  | (above outputs)                        | commit + push                                             | `scripts/refresh.py`                                                  |
 
 ---
@@ -108,7 +108,7 @@ survey. Contains:
 
 Legacy SAVs (e.g. Decipher-exported HIV with `HIV_R1`, `QHIV_*`, etc.)
 are renamed to canonical names via the `legacy_rename` block in
-`messagemap/config/study.yaml`.
+`pipeline/messagemap/config/study.yaml`.
 
 ### 3.2 The workbook (`HIV_Study_Template.xlsx`)
 
@@ -132,7 +132,7 @@ agree.
 
 ### 3.3 The variants workbook (messagemap)
 
-`messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx`
+`pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx`
 — one sheet (`Message Variants`) with 18 columns per row:
 
 ```
@@ -141,12 +141,12 @@ msg_id   theme_label   token   proof_full_text   proof_short_label   core_msg_te
 ```
 
 Each row is one (message × token) variant; columns hold the per-persona
-rewrites. Parsed by `messagemap/src/prism_variants_parser.py` into
-`messagemap/outputs/prism_variants.json`.
+rewrites. Parsed by `pipeline/messagemap/src/prism_variants_parser.py` into
+`pipeline/messagemap/outputs/prism_variants.json`.
 
 ### 3.4 The MaxDiff design file
 
-`messagemap/data/Gilead_Design_File.dat` — the survey-platform's
+`pipeline/messagemap/data/Gilead_Design_File.dat` — the survey-platform's
 balanced incomplete block design that tells you which 4 messages each
 respondent saw in each of their 14 MaxDiff tasks. Read by
 `prism_step3_exposure.py`.
@@ -157,7 +157,7 @@ These do **not** vary with the field data — they encode the PRISM
 methodology itself:
 
 - `canonical/hiv_2026.yaml` — study-specific overrides (also lives at
-  `messagemap/config/study.yaml`)
+  `pipeline/messagemap/config/study.yaml`)
 - `canonical/scales.yaml` — 1–7 Likert / 1–5 trust / etc. scale defs
 - `canonical/segments.yaml` — canonical 16-segment definitions
 - `canonical/maxdiff_designs/hiv_2026_design.csv` — alternate copy of
@@ -185,7 +185,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 
 ### 4.2 Topline pipeline
 
-`src/components/Topline/ToplineDashboard/`
+`pipeline/topline/`
 
 | File              | Role                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------ |
@@ -212,7 +212,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 
 ### 4.3 Messagemap pipeline
 
-`messagemap/src/`
+`pipeline/messagemap/src/`
 
 | File                          | Role                                                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -221,7 +221,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 | `prism_index.py`              | Steps 1–2: builds the persuasion index (`pre_composite`, `post_composite`, Cronbach α) and the **residualized shift** (regress post on pre + segment FE; the residual is each respondent's persuasion shift above their baseline + segment expectation). |
 | `prism_step3_exposure.py`     | Step 3: reads the design file + `M{NNN}_token` + best/worst picks → builds a respondent × message × token × persona-framing **exposure matrix**, plus the per-respondent Best–Worst differential per message. |
 | `prism_step4_lift_v2.py`      | Step 4: vectorized cell-level lift estimator. For each (message × segment × arm × proof) cell: signed-B-W-weighted shift in the numerator, abs-B-W in the denominator. Empirical-Bayes shrinkage toward the message marginal. 500-iter respondent bootstrap CIs. Runs **twice**: once with `outcome = residual_shift` (PERSUASION) and once with `outcome = pre_composite` centered by segment mean (BASE). |
-| `prism_build_dashboard.py`    | The orchestrator. Stages 1–7: load `.sav`; build exposure; compute cells × 2 outcomes; compute topline SoP + Utility; compute simple SoP across 5 baskets; load variants.json; assemble messagemap-owned sections; write `messagemap/outputs/dashboard.json`. |
+| `prism_build_dashboard.py`    | The orchestrator. Stages 1–7: load `.sav`; build exposure; compute cells × 2 outcomes; compute topline SoP + Utility; compute simple SoP across 5 baskets; load variants.json; assemble messagemap-owned sections; write `pipeline/messagemap/outputs/dashboard.json`. |
 
 **Sections owned by messagemap** (merged by `refresh.py` into
 `src/data/topline/dashboard.json`):
@@ -237,7 +237,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 
 ### 4.4 HIV-tab derivation
 
-`scripts/derive_hiv_seg_data.py` — reads `src/data/topline/dashboard.json`,
+`pipeline/derive_hiv_seg_data.py` — reads `src/data/topline/dashboard.json`,
 selects the composites that drive the persona-profile HIV tab (`MBS`, `SDS`,
 `EDS`, `SCS`, `CFS`, `PFS`, `SCF`, `HKS`), reverse-codes `SDS`/`SCS`
 (topline frames them as comfort, HIV tab frames them as avoidance),
@@ -253,7 +253,7 @@ Leaves `trust.json` (wave-2) and `manifest.json` (metadata) untouched.
 
 ### 4.5 Workbook extraction
 
-`extract_hiv.py` — reads `HIV_Study_Template.xlsx`, walks the 9 sheets,
+`pipeline/extract_hiv.py` — reads `HIV_Study_Template.xlsx`, walks the 9 sheets,
 auto-detects `K` (# pre-post items) from header pattern
 `prepost_keyN_label`, and emits:
 
@@ -267,11 +267,11 @@ auto-detects `K` (# pre-post items) from header pattern
 
 | File                          | Role                                                                                       |
 | ----------------------------- | ------------------------------------------------------------------------------------------ |
-| `convert_study.py`            | Generic non-HIV workbook → study.js converter (legacy template tool, not in refresh path). |
-| `create_template.py`          | Generates a blank workbook template for new studies.                                       |
-| `scripts/port_topline_css.py` | Extracts the `<style>` block from `dashboard_template.html` and scopes every selector under `.topline-root` → writes `src/components/Topline/Topline.css`. Run only when the HTML mock changes. |
-| `messagemap/verify/verify_harness.py` | Byte-equality test that re-runs the messagemap pipeline and compares against `outputs/dashboard.json`. Catches regressions. |
-| `messagemap/verify/test_config.py`    | Pydantic test for `study.yaml` schema.                                                     |
+| `attic/convert_study.py`      | Retired: generic non-HIV workbook → study.js converter (pre-refresh era).                  |
+| `attic/create_template.py`    | Retired: blank-workbook generator for new studies (pre-refresh era).                       |
+| `pipeline/port_topline_css.py` | Extracts the `<style>` block from `dashboard_template.html` and scopes every selector under `.topline-root` → writes `src/components/Topline/Topline.css`. Run only when the HTML mock changes. |
+| `pipeline/messagemap/verify/verify_harness.py` | Byte-equality test that re-runs the messagemap pipeline and compares against `outputs/dashboard.json`. Catches regressions. |
+| `pipeline/messagemap/verify/test_config.py`    | Pydantic test for `study.yaml` schema.                                                     |
 
 ---
 
@@ -312,7 +312,7 @@ The cell-level message map. **Inputs:** `src/data/topline/dashboard.json` direct
 The persona deep-dive. **Inputs:** local hard-coded `SEGMENTS` array + the imported `IdeologyHeatmap` and `HIVTab` sub-pages. Carries the radar-axis tooltips (`VECTOR_DEFS`) that everywhere else (incl. `InfoDot.jsx`) is now styled to match.
 
 #### `src/pages/HIVTab.jsx`  → embedded inside `/profile`
-The stigma-topology + accordions. **Inputs:** `src/data/hiv/*.json` (all four files derived by `scripts/derive_hiv_seg_data.py`) + `getAssignedTier()`. Renders the stigma 2-D quadrant chart, the SCF/Stigma/Know/Contact accordions, the trust panel, and the bench glyph toggles.
+The stigma-topology + accordions. **Inputs:** `src/data/hiv/*.json` (all four files derived by `pipeline/derive_hiv_seg_data.py`) + `getAssignedTier()`. Renders the stigma 2-D quadrant chart, the SCF/Stigma/Know/Contact accordions, the trust panel, and the bench glyph toggles.
 
 #### `src/pages/IdeologyHeatmap.jsx`  → embedded inside `/profile`
 Standalone heatmap on the 15 bipolar ideology dimensions × 16 segments. **Inputs:** hardcoded `IDEOLOGY_DATA` (static — not study-specific).
@@ -327,7 +327,7 @@ Auth screens + admin invite tool (calls the Supabase edge function in `supabase/
 | File                                          | Role                                                                                          |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `Topline.jsx`                                 | Wave-1 entry. Reads `src/data/topline/dashboard.json`, picks renderers via `MODULE_RENDERERS` keyed by `module.id`, handles the cell popover + expand/freq-dist/banner-full toggles. |
-| `Topline.css`                                 | Generated by `scripts/port_topline_css.py` from `dashboard_template.html`. Scoped under `.topline-root`. |
+| `Topline.css`                                 | Generated by `pipeline/port_topline_css.py` from `dashboard_template.html`. Scoped under `.topline-root`. |
 | `Topline.addendum.css`                        | Hand-authored polish: cell popover, banner-full overrides, sticky headers, etc.               |
 | `components/TopNav.jsx`                       | Study name + Data Inspector button.                                                           |
 | `components/ModNav.jsx`                       | Module chip nav (auto-enables `sources` once `trust.length > 0`).                             |
@@ -369,10 +369,10 @@ Files that **do** vary with field data, regenerated each refresh:
 | File                                    | Generated by                                                  |
 | --------------------------------------- | ------------------------------------------------------------- |
 | `src/data/topline/dashboard.json`       | Topline pipeline (step 2) + messagemap merge (step 3)         |
-| `src/data/hiv/seg_data.json`            | `scripts/derive_hiv_seg_data.py`                              |
-| `src/data/hiv/bench.json`               | `scripts/derive_hiv_seg_data.py`                              |
-| `src/data/hiv/items.json`               | `scripts/derive_hiv_seg_data.py`                              |
-| `src/data/hiv/zparams.json`             | `scripts/derive_hiv_seg_data.py`                              |
+| `src/data/hiv/seg_data.json`            | `pipeline/derive_hiv_seg_data.py`                              |
+| `src/data/hiv/bench.json`               | `pipeline/derive_hiv_seg_data.py`                              |
+| `src/data/hiv/items.json`               | `pipeline/derive_hiv_seg_data.py`                              |
+| `src/data/hiv/zparams.json`             | `pipeline/derive_hiv_seg_data.py`                              |
 | `src/data/hiv/trust.json`               | Wave-2 only (placeholder for now)                             |
 | `src/data/hiv/manifest.json`            | Hand-maintained metadata (study id, dates)                    |
 | `src/data/study.js`                     | `extract_hiv.py`                                              |
@@ -473,32 +473,31 @@ evolution but not yet implemented.
 | `data/260433.sav`                                          | Raw SPSS export, n=2,578                                                                     |
 | `HIV_Study_Template.xlsx`                                  | Analyst workbook (tier, ROI inputs, messages, sig flags)                                     |
 | `scripts/refresh.py`                                       | One-command orchestrator (5 stages + git)                                                    |
-| `scripts/derive_hiv_seg_data.py`                           | Step 4: dashboard.json → HIV-tab JSON files                                                  |
-| `scripts/port_topline_css.py`                              | Extract scoped CSS from dashboard_template.html                                              |
-| `extract_hiv.py`                                           | Step 5: workbook → study.js + studyData.js                                                   |
-| `convert_study.py` / `create_template.py`                  | Generic non-HIV workbook tools (not in refresh path)                                         |
-| `requirements.txt`                                         | pandas / openpyxl / pyreadstat for refresh.py                                                |
-| `messagemap/src/prism_build_dashboard.py`                  | Step 3: messagemap orchestrator                                                              |
-| `messagemap/src/prism_variants_parser.py`                  | Variants workbook → prism_variants.json                                                      |
-| `messagemap/src/prism_index.py`                            | Persuasion index + residualized shift                                                        |
-| `messagemap/src/prism_step3_exposure.py`                   | Exposure matrix from design + token vars                                                     |
-| `messagemap/src/prism_step4_lift_v2.py`                    | Cell lift estimator + shrinkage + bootstrap                                                  |
-| `messagemap/src/prism_config.py`                           | Pydantic model for study.yaml                                                                |
-| `messagemap/config/study.yaml`                             | Per-study messagemap config (legacy_rename, item index, baskets, etc.)                       |
-| `messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx` | Variant text (content source of truth)                                                       |
-| `messagemap/data/260433.sav`                               | Copy of the .sav for self-contained pipeline runs                                            |
-| `messagemap/data/Gilead_Design_File.dat`                   | MaxDiff design                                                                               |
-| `messagemap/outputs/prism_variants.json`                   | Parsed variants (cached)                                                                     |
-| `messagemap/outputs/dashboard.json`                        | Standalone messagemap dashboard.json (pre-merge)                                             |
-| `messagemap/outputs/prism_cells.csv`                       | All cells as CSV (1,152 rows) for diagnostics                                                |
-| `messagemap/outputs/prism_exposure_long.csv`               | Long-format exposure matrix (43,826 rows) for diagnostics                                    |
-| `messagemap/verify/verify_harness.py`                      | Byte-equality regression test for the pipeline                                               |
-| `messagemap/verify/test_config.py`                         | Pydantic schema test                                                                         |
-| `src/components/Topline/ToplineDashboard/compute.py`       | Step 1: topline CLI entry                                                                    |
-| `src/components/Topline/ToplineDashboard/compute_core.py`  | Step 1: topline compute + study registries                                                   |
-| `src/components/Topline/ToplineDashboard/dashboard_template.html` | Reference HTML mock that React Topline ports from                                      |
-| `src/components/Topline/ToplineDashboard/BUILD_GUIDE.md`   | Analyst guide for the topline registries                                                     |
-| `canonical/hiv_2026.yaml`                                  | Study canonical config (mirrors `messagemap/config/study.yaml`)                              |
+| `pipeline/derive_hiv_seg_data.py`                           | Step 4: dashboard.json → HIV-tab JSON files                                                  |
+| `pipeline/port_topline_css.py`                              | Extract scoped CSS from dashboard_template.html                                              |
+| `pipeline/extract_hiv.py`                                  | Step 5: workbook → study.js + studyData.js                                                   |
+| `attic/convert_study.py` / `attic/create_template.py`      | Retired pre-refresh-era tools (kept for reference only)                                      |
+| `requirements.txt`                                         | All pipeline deps (numpy/pandas/openpyxl/pyreadstat/pyyaml/pydantic)                         |
+| `pipeline/messagemap/src/prism_build_dashboard.py`                  | Step 3: messagemap orchestrator                                                              |
+| `pipeline/messagemap/src/prism_variants_parser.py`                  | Variants workbook → prism_variants.json                                                      |
+| `pipeline/messagemap/src/prism_index.py`                            | Persuasion index + residualized shift                                                        |
+| `pipeline/messagemap/src/prism_step3_exposure.py`                   | Exposure matrix from design + token vars                                                     |
+| `pipeline/messagemap/src/prism_step4_lift_v2.py`                    | Cell lift estimator + shrinkage + bootstrap                                                  |
+| `pipeline/messagemap/src/prism_config.py`                           | Pydantic model for study.yaml                                                                |
+| `pipeline/messagemap/config/study.yaml`                             | Per-study messagemap config (legacy_rename, item index, baskets, etc.)                       |
+| `pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx` | Variant text (content source of truth)                                                       |
+| `pipeline/messagemap/data/Gilead_Design_File.dat`                   | MaxDiff design                                                                               |
+| `pipeline/messagemap/outputs/prism_variants.json`                   | Parsed variants (cached)                                                                     |
+| `pipeline/messagemap/outputs/dashboard.json`                        | Standalone messagemap dashboard.json (pre-merge)                                             |
+| `pipeline/messagemap/outputs/prism_cells.csv`                       | All cells as CSV (1,152 rows) for diagnostics                                                |
+| `pipeline/messagemap/outputs/prism_exposure_long.csv`               | Long-format exposure matrix (43,826 rows) for diagnostics                                    |
+| `pipeline/messagemap/verify/verify_harness.py`                      | Byte-equality regression test for the pipeline                                               |
+| `pipeline/messagemap/verify/test_config.py`                         | Pydantic schema test                                                                         |
+| `pipeline/topline/compute.py`       | Step 1: topline CLI entry                                                                    |
+| `pipeline/topline/compute_core.py`  | Step 1: topline compute + study registries                                                   |
+| `pipeline/topline/dashboard_template.html` | Reference HTML mock that React Topline ports from                                      |
+| `pipeline/topline/BUILD_GUIDE.md`   | Analyst guide for the topline registries                                                     |
+| `canonical/hiv_2026.yaml`                                  | Study canonical config (mirrors `pipeline/messagemap/config/study.yaml`)                              |
 | `canonical/scales.yaml` / `segments.yaml`                  | Methodology-level canonical defs                                                             |
 | `canonical/maxdiff_designs/hiv_2026_design.csv`            | CSV mirror of the design file                                                                |
 | `canonical/rake_targets/registered_voters_2026.yaml`       | Rake margin targets used by SPSS to produce WGT                                              |
@@ -540,14 +539,14 @@ evolution but not yet implemented.
 | If you want to…                                              | Look at                                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | Change a topline item's label or scale                       | `compute_core.py` → `ITEMS` registry                                                 |
-| Change which pre/post items form the persuasion index        | `messagemap/src/prism_index.py` → `INDEX_ITEMS`                                      |
-| Add a basket to the message map                              | `messagemap/src/prism_build_dashboard.py` → `BASKETS` block + `study.yaml`           |
+| Change which pre/post items form the persuasion index        | `pipeline/messagemap/src/prism_index.py` → `INDEX_ITEMS`                                      |
+| Add a basket to the message map                              | `pipeline/messagemap/src/prism_build_dashboard.py` → `BASKETS` block + `study.yaml`           |
 | Re-color a segment                                           | `src/data/theme.js` (party colors) + `partyColor()`                                  |
 | Edit a persona quote / who-are                               | `src/data/segments.js`                                                               |
 | Update a workbook number (tier, ROI, sig flag)               | `HIV_Study_Template.xlsx` → rerun `python scripts/refresh.py`                        |
-| Edit a message variant rewrite                               | `messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx`               |
-| Adjust the cell shrinkage formula                            | `messagemap/src/prism_step4_lift_v2.py` → `eb_shrink_vec`                            |
+| Edit a message variant rewrite                               | `pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx`               |
+| Adjust the cell shrinkage formula                            | `pipeline/messagemap/src/prism_step4_lift_v2.py` → `eb_shrink_vec`                            |
 | Add a new dashboard route                                    | `src/App.jsx` (router) + new page in `src/pages/` + new nav item in `Shell.jsx`      |
-| Re-port the topline CSS after editing the HTML mock          | `python scripts/port_topline_css.py`                                                 |
+| Re-port the topline CSS after editing the HTML mock          | `python pipeline/port_topline_css.py`                                                 |
 | Bypass auth for a demo                                       | Flip `BYPASS_AUTH = true` in `src/App.jsx`                                           |
 | Generate a client invite                                     | Sign in as admin → `/admin` → enter email                                            |

@@ -12,6 +12,6 @@ __pycache__/
 venv/
 
 # Topline pipeline build artifacts — regenerated every refresh.py run
-src/components/Topline/ToplineDashboard/dashboard.json
-src/components/Topline/ToplineDashboard/results_long.csv
-src/components/Topline/ToplineDashboard/dashboard.html
+pipeline/topline/dashboard.json
+pipeline/topline/results_long.csv
+pipeline/topline/dashboard.html
