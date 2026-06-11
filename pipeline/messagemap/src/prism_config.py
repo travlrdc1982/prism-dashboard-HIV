@@ -76,10 +76,13 @@ class StudyMeta(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: str
     title: str
+    short_name: str
+    topic: str
     client: str
     field_dates: str
     analyst: str
     version: str
+    methodology: str
 
 
 class Sources(BaseModel):
@@ -87,6 +90,7 @@ class Sources(BaseModel):
     sav_path: str
     design_file: str
     variants_workbook: str
+    judgments_workbook: str
     variants_sheet: str
     weight_var: Optional[str] = None
     record_id_var: str
@@ -390,6 +394,8 @@ class SegmentRegistryEntry(BaseModel):
     code: str
     name: str
     party: Literal["GOP", "DEM"]
+    # Canonical PRISM population share (fraction; registry must sum to 1.0)
+    pop_share: float = Field(gt=0, lt=1)
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -552,6 +558,15 @@ class StudyConfig(BaseModel):
             )
         return self
 
+
+    @model_validator(mode="after")
+    def _registry_pop_shares_sum_to_one(self) -> "StudyConfig":
+        total = sum(r.pop_share for r in self.segment_registry)
+        if abs(total - 1.0) > 1e-6:
+            raise ValueError(
+                f"segment_registry pop_share values sum to {total:.4f}, "
+                f"expected 1.0 (canonical population shares)")
+        return self
 
     @model_validator(mode="after")
     def _registry_well_formed(self) -> "StudyConfig":

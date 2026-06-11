@@ -25,10 +25,19 @@ import json
 import math
 
 DASH = "src/data/topline/dashboard.json"
-SEG_NAME = {1:"TSP",2:"CEC",3:"TC",4:"HF",5:"PP",6:"WE",7:"PFF",8:"HHN",9:"MFL",10:"VS",
-            11:"UCP",12:"FJP",13:"HCP",14:"HAD",15:"HCI",16:"GHI"}
-GOP = {1,2,3,4,5,6,7,8,9,10}
-DEM = {11,12,13,14,15,16}
+# Segment identity + party + canonical population shares come from the
+# study config registry (study/study.yaml) — the single source.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parent))
+from study_config import (load_config as _load_config,
+                          seg_name_by_id as _seg_name_by_id,
+                          party_ids as _party_ids,
+                          pop_share_by_code as _pop_share_by_code)
+_cfg = _load_config()
+SEG_NAME = _seg_name_by_id(_cfg)
+GOP = _party_ids(_cfg, "GOP")
+DEM = _party_ids(_cfg, "DEM")
 COMPOSITES = ["MBS","SDS","EDS","SCS","CFS","PFS","SCF","HKS"]
 # Composites that need reverse-coding (topline=comfort → HIV tab=avoidance)
 REVERSE = {"SDS","SCS"}
@@ -61,12 +70,7 @@ def pop_weighted_sd(values_by_seg, pops, seg_ids, mean):
 # aggregates should reflect the population, not the sample's
 # representation of it. Sample-derived inputs would double-weight
 # (rake + post-rake segment share) and bias the aggregates.
-CANONICAL_POP_BY_CODE = {
-    "TSP": 0.02, "CEC": 0.07, "TC":  0.06, "HF":  0.02, "PP":  0.03,
-    "WE":  0.09, "PFF": 0.04, "HHN": 0.03, "MFL": 0.05, "VS":  0.05,
-    "UCP": 0.11, "FJP": 0.10, "HCP": 0.08, "HAD": 0.08, "HCI": 0.07,
-    "GHI": 0.10,
-}
+CANONICAL_POP_BY_CODE = _pop_share_by_code(_cfg)
 
 
 def main():

@@ -26,7 +26,7 @@ Vercel (every push to a branch produces a preview URL; `main` → prod).
 
 ```
    ┌─── SPSS export (.sav) ────┐         ┌── Analyst workbook (.xlsx) ──┐
-   │  data/260433.sav          │         │  HIV_Study_Template.xlsx     │
+   │  data/260433.sav          │         │  study/judgments.xlsx     │
    │  - rake weights           │         │  - tier, ROI inputs          │
    │  - 200+ survey variables  │         │  - messages, sig flags       │
    │  - persona_framing arm    │         │  - pre/post labels           │
@@ -36,7 +36,7 @@ Vercel (every push to a branch produces a preview URL; `main` → prod).
                    ▼                                  ▼
   ┌──────────────────────────┐         ┌──────────────────────────────┐
   │ TOPLINE PIPELINE         │         │ EXTRACT PIPELINE             │
-  │ compute_core.build_      │         │ extract_hiv.py               │
+  │ compute_core.build_      │         │ extract_study.py               │
   │ topline()                │         │  → src/data/study.js         │
   │  → dashboard.json (45k+  │         │  → src/data/studyData.js     │
   │    lines, all sections)  │         │    (HIV block)               │
@@ -84,7 +84,7 @@ python scripts/refresh.py --commit
 | 2/5  | (above)                                | `src/data/topline/dashboard.json` (copy)                  | `scripts/refresh.py`                                                  |
 | 3/5  | `data/260433.sav`, design `.dat`, variants `.xlsx` | merges 7 sections into `src/data/topline/dashboard.json` | `pipeline/messagemap/src/prism_build_dashboard.py`                            |
 | 4/5  | `src/data/topline/dashboard.json`      | `src/data/hiv/seg_data.json`, `bench.json`, `items.json`, `zparams.json` | `pipeline/derive_hiv_seg_data.py`                                     |
-| 5/5  | `HIV_Study_Template.xlsx`              | `src/data/study.js`, `src/data/studyData.js` (HIV block)  | `pipeline/extract_hiv.py`                                                      |
+| 5/5  | `study/judgments.xlsx`              | `src/data/study.js`, `src/data/studyData.js` (HIV block)  | `pipeline/extract_study.py`                                                      |
 | git  | (above outputs)                        | commit + push                                             | `scripts/refresh.py`                                                  |
 
 ---
@@ -110,22 +110,21 @@ Legacy SAVs (e.g. Decipher-exported HIV with `HIV_R1`, `QHIV_*`, etc.)
 are resolved to canonical names via the `legacy_rename` block in
 `study/study.yaml` (the single study configuration).
 
-### 3.2 The workbook (`HIV_Study_Template.xlsx`)
+### 3.2 The workbook (`study/judgments.xlsx`)
 
-Analyst-editable Excel file at repo root, 9 sheets:
+Analyst-editable Excel file (judgments ONLY), 2 sheets:
 
 | Sheet              | Role                                                                |
 | ------------------ | ------------------------------------------------------------------- |
-| `StudyMeta`        | Study name, client, field dates, K (#pre/post items)                |
-| `Messages`         | Message text + theme labels                                         |
-| `VariantText`      | Per-segment persona-variant text per message                        |
-| `ControlSoP`       | Share-of-Preference matrix, control arm (legacy, wave-1)            |
-| `VariantSoP`       | Share-of-Preference matrix, persona arm (legacy, wave-1)            |
-| `SigFlags_*`       | Significance markers per cell (legacy, wave-1)                      |
+| `Messages`         | Message short-names, themes, core text labels                       |
 | `SegmentMetrics`   | Per-segment ROI, tier, coalition support, activation, influence, persuadability bar, pre/post values |
-| `ThemeColors`      | Optional theme color overrides                                      |
 
-`extract_hiv.py` reads this and regenerates `study.js` + the HIV block
+(The wave-1 computed sheets — ControlSoP, VariantSoP, SigFlags, VariantText
+— and StudyMeta/ThemeColors were removed in R2; study meta lives in
+`study/study.yaml`, message structure in the variants workbook. Both
+workbook consumers go through the single reader `pipeline/workbook.py`.)
+
+`extract_study.py` reads this and regenerates `study.js` + the HIV block
 of `studyData.js`. `compute_core.py` re-reads the `SegmentMetrics` rows
 into `roi_data` so the `/roi` page and the embedded topline ROI module
 agree.
@@ -175,7 +174,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 **Flags:**
 
 - `--sav PATH` (default: `data/260433.sav`, env: `PRISM_SAV`)
-- `--workbook PATH` (default: `HIV_Study_Template.xlsx`)
+- `--workbook PATH` (default: `study/judgments.xlsx`)
 - `--weight VAR` (default: `WGT`)
 - `--skip-pipeline` — skip the topline compute step (run derivations only)
 - `--skip-messagemap` — skip the messagemap step
@@ -257,7 +256,7 @@ Leaves `trust.json` (wave-2) and `manifest.json` (metadata) untouched.
 
 ### 4.5 Workbook extraction
 
-`pipeline/extract_hiv.py` — reads `HIV_Study_Template.xlsx`, walks the 9 sheets,
+`pipeline/extract_study.py` — reads `study/judgments.xlsx`, walks the 9 sheets,
 auto-detects `K` (# pre-post items) from header pattern
 `prepost_keyN_label`, and emits:
 
@@ -379,8 +378,8 @@ Files that **do** vary with field data, regenerated each refresh:
 | `src/data/hiv/zparams.json`             | `pipeline/derive_hiv_seg_data.py`                              |
 | `src/data/hiv/trust.json`               | Wave-2 only (placeholder for now)                             |
 | `src/data/hiv/manifest.json`            | Hand-maintained metadata (study id, dates)                    |
-| `src/data/study.js`                     | `extract_hiv.py`                                              |
-| `src/data/studyData.js` (HIV block)     | `extract_hiv.py`                                              |
+| `src/data/study.js`                     | `extract_study.py`                                              |
+| `src/data/studyData.js` (HIV block)     | `extract_study.py`                                              |
 
 ---
 
@@ -475,11 +474,11 @@ evolution but not yet implemented.
 | Path                                                       | One-line role                                                                                |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `data/260433.sav`                                          | Raw SPSS export, n=2,578                                                                     |
-| `HIV_Study_Template.xlsx`                                  | Analyst workbook (tier, ROI inputs, messages, sig flags)                                     |
+| `study/judgments.xlsx`                                  | Analyst workbook (tier, ROI inputs, messages, sig flags)                                     |
 | `scripts/refresh.py`                                       | One-command orchestrator (5 stages + git)                                                    |
 | `pipeline/derive_hiv_seg_data.py`                           | Step 4: dashboard.json → HIV-tab JSON files                                                  |
 | `pipeline/port_topline_css.py`                              | Extract scoped CSS from dashboard_template.html                                              |
-| `pipeline/extract_hiv.py`                                  | Step 5: workbook → study.js + studyData.js                                                   |
+| `pipeline/extract_study.py`                                  | Step 5: workbook → study.js + studyData.js                                                   |
 | `attic/convert_study.py` / `attic/create_template.py`      | Retired pre-refresh-era tools (kept for reference only)                                      |
 | `requirements.txt`                                         | All pipeline deps (numpy/pandas/openpyxl/pyreadstat/pyyaml/pydantic)                         |
 | `pipeline/messagemap/src/prism_build_dashboard.py`                  | Step 3: messagemap orchestrator                                                              |
@@ -546,7 +545,7 @@ evolution but not yet implemented.
 | Add a basket to the message map                              | `pipeline/messagemap/src/prism_build_dashboard.py` → `BASKETS` block + `study.yaml`           |
 | Re-color a segment                                           | `src/data/theme.js` (party colors) + `partyColor()`                                  |
 | Edit a persona quote / who-are                               | `src/data/segments.js`                                                               |
-| Update a workbook number (tier, ROI, sig flag)               | `HIV_Study_Template.xlsx` → rerun `python scripts/refresh.py`                        |
+| Update a workbook number (tier, ROI, sig flag)               | `study/judgments.xlsx` → rerun `python scripts/refresh.py`                        |
 | Edit a message variant rewrite                               | `pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx`               |
 | Adjust the cell shrinkage formula                            | `pipeline/messagemap/src/prism_step4_lift_v2.py` → `eb_shrink_vec`                            |
 | Add a new dashboard route                                    | `src/App.jsx` (router) + new page in `src/pages/` + new nav item in `Shell.jsx`      |

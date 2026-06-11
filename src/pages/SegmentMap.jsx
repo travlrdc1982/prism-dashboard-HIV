@@ -1,25 +1,33 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SEG_BY_CODE } from "../data/generated/segments";
 
-// ─── BUBBLE DATA: exact coords/sizes/z from the HTML ───
-const BUBBLES = [
-  { code:"UCP", name:"Universal Care\nProgressives",     party:"DEM", left:115,  top:196,  w:900, z:4, pop:11 },
-  { code:"FJP", name:"Faith & Justice\nProgressives",    party:"DEM", left:650,  top:639,  w:897, z:3, pop:10 },
-  { code:"GHI", name:"Global Health\nInstitutionalists", party:"DEM", left:1320, top:1028, w:897, z:2, pop:10 },
-  { code:"VS",  name:"Vaccine\nSkeptics",                party:"GOP", left:4470, top:772,  w:897, z:2, pop:5  },
-  { code:"TSP", name:"Trust the Science\nPragmatists",   party:"GOP", left:2727, top:497,  w:560, z:3, pop:2  },
-  { code:"HCP", name:"Health Care\nProtectionists",      party:"DEM", left:1389, top:454,  w:775, z:1, pop:8  },
-  { code:"HAD", name:"Health Abundance\nDemocrats",      party:"DEM", left:1965, top:290,  w:850, z:4, pop:8  },
-  { code:"HCI", name:"Health Care\nIncrementalists",     party:"DEM", left:1980, top:794,  w:800, z:3, pop:6  },
-  { code:"PFF", name:"Paleo Freedom\nFighters",          party:"GOP", left:3955, top:29,   w:770, z:2, pop:4  },
-  { code:"PP",  name:"Price\nPopulists",                 party:"GOP", left:3484, top:154,  w:660, z:2, pop:3  },
-  { code:"HF",  name:"Health\nFuturists",                party:"GOP", left:3182, top:474,  w:660, z:2, pop:2  },
-  { code:"CEC", name:"Consumer Empowerment\nChampions",  party:"GOP", left:2857, top:780,  w:800, z:1, pop:7  },
-  { code:"TC",  name:"Traditional\nConservatives",       party:"GOP", left:3388, top:1146, w:800, z:4, pop:6  },
-  { code:"HHN", name:"Holistic Health\nNaturalists",     party:"GOP", left:4379, top:400,  w:670, z:3, pop:3  },
-  { code:"MFL", name:"Medical Freedom\nLibertarians",    party:"GOP", left:4094, top:1172, w:830, z:3, pop:5  },
-  { code:"WE",  name:"Wellness\nEvangelists",            party:"GOP", left:3568, top:400,  w:1100,z:1, pop:9  },
+// ─── BUBBLE LAYOUT: exact coords/sizes/z from the HTML; display names
+// carry line breaks. party + pop come from the generated segment table
+// (study/study.yaml registry — the canonical population shares). ───
+const BUBBLE_LAYOUT = [
+  { code:"UCP", name:"Universal Care\nProgressives",     left:115,  top:196,  w:900, z:4 },
+  { code:"FJP", name:"Faith & Justice\nProgressives",    left:650,  top:639,  w:897, z:3 },
+  { code:"GHI", name:"Global Health\nInstitutionalists", left:1320, top:1028, w:897, z:2 },
+  { code:"VS",  name:"Vaccine\nSkeptics",                left:4470, top:772,  w:897, z:2 },
+  { code:"TSP", name:"Trust the Science\nPragmatists",   left:2727, top:497,  w:560, z:3 },
+  { code:"HCP", name:"Health Care\nProtectionists",      left:1389, top:454,  w:775, z:1 },
+  { code:"HAD", name:"Health Abundance\nDemocrats",      left:1965, top:290,  w:850, z:4 },
+  { code:"HCI", name:"Health Care\nIncrementalists",     left:1980, top:794,  w:800, z:3 },
+  { code:"PFF", name:"Paleo Freedom\nFighters",          left:3955, top:29,   w:770, z:2 },
+  { code:"PP",  name:"Price\nPopulists",                 left:3484, top:154,  w:660, z:2 },
+  { code:"HF",  name:"Health\nFuturists",                left:3182, top:474,  w:660, z:2 },
+  { code:"CEC", name:"Consumer Empowerment\nChampions",  left:2857, top:780,  w:800, z:1 },
+  { code:"TC",  name:"Traditional\nConservatives",       left:3388, top:1146, w:800, z:4 },
+  { code:"HHN", name:"Holistic Health\nNaturalists",     left:4379, top:400,  w:670, z:3 },
+  { code:"MFL", name:"Medical Freedom\nLibertarians",    left:4094, top:1172, w:830, z:3 },
+  { code:"WE",  name:"Wellness\nEvangelists",            left:3568, top:400,  w:1100,z:1 },
 ];
+const BUBBLES = BUBBLE_LAYOUT.map(b => ({
+  ...b,
+  party: SEG_BY_CODE[b.code].party,
+  pop: SEG_BY_CODE[b.code].pop,
+}));
 
 //Persona cards
 const CARD_IMAGES = {

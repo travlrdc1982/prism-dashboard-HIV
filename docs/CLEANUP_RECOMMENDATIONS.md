@@ -150,7 +150,23 @@ template you fork and surgically edit" and "platform you configure."
 already exists to prove byte-equality of `dashboard.json` before/after —
 the refactor can be done with a hard regression gate at every step.
 
-### R2 — Shrink the workbook to judgment-only; let the .sav carry the data
+### R2 — Shrink the workbook to judgment-only; let the .sav carry the data  ✅ DONE
+
+> Landed on `messagemap-integration`. The workbook is renamed to what it
+> is — `study/judgments.xlsx` (it was never a template; it's this
+> study's judgment file, wiped/replaced per study, living in the
+> study/ folder with the config). Sheets cut 9 → 2 (Messages +
+> SegmentMetrics); StudyMeta moved into study/study.yaml; the wave-1
+> computed sheets (ControlSoP/VariantSoP/SigFlags/VariantText) and
+> ThemeColors deleted (nothing read them). SegmentMetrics lost its
+> pop/party columns (registry owns identity). ONE workbook code path:
+> pipeline/workbook.py, imported by both extract_study.py and
+> compute_core's ROI overrides (field-equality verified at the switch:
+> 16 segments × 4 fields). The reader now fails loudly on empty
+> judgment cells instead of silently skipping. Found + preserved: the
+> workbook's prepost headers have a historical typo (items 5-7 labeled
+> key4) — detect_k is positional on purpose; the regression test for
+> this is the byte-equality of STUDY_METRICS.
 
 - **Drop the computed sheets** from `HIV_Study_Template.xlsx`:
   `ControlSoP`, `VariantSoP`, `SigFlags_Control`, `SigFlags_Variant`
@@ -217,7 +233,22 @@ Mechanical moves, low risk, big hygiene gain:
   pre-refresh-era and outside the workflow — delete or move to
   `attic/` so nobody mistakes them for live paths.
 
-### R5 — Generate the JS data files from canonical; stop hand-maintaining copies
+### R5 — Generate the JS data files from canonical; stop hand-maintaining copies  ✅ DONE (first pass)
+
+> Landed on `messagemap-integration`. segment_registry gained pop_share
+> (the canonical 5aaa83b shares, Pydantic-validated to sum to 1.0).
+> derive_hiv_seg_data + extract_study read the registry (SEG_NAME /
+> CANONICAL_POP_BY_CODE / GOP / DEM / SEG_ORDER hardcodes deleted);
+> hiv/*.json regenerate byte-identical. NEW src/data/generated/
+> segments.js — THE segment table for React. studyData.js is now FULLY
+> generated (the hand-maintained skeleton is gone) and SegmentMap pulls
+> party/pop from the generated table. The drift audit found and FIXED
+> real shipped-UI bugs: studyData skeleton had HAD 10→8, HCI 8→7,
+> GHI 6→10 (AudienceROI was showing GHI at 6% vs canonical 10%!);
+> SegmentMap had HCI 6→7; the workbook pop column had CEC 6→7, PP 2→3.
+> Remaining copies (cosmetic, name-formatting differences):
+> SegmentProfile.jsx, IdeologyHeatmap.jsx, segments.js, vectors.js —
+> persona/template content, left for a dedicated pass.
 
 - Make `canonical/segments.yaml` the single segment definition
   (id, code, name, party, **canonical population share**). The pipeline

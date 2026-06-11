@@ -5,7 +5,7 @@ How an analyst refreshes the dashboard with new field data — **without touchin
 ## TL;DR
 
 1. Export your SPSS dataset → `data/260433.sav`
-2. Edit `HIV_Study_Template.xlsx` in Excel (tier, messages, etc.)
+2. Edit `study/judgments.xlsx` in Excel (tier, messages, etc.)
 3. Run **one command**: `python scripts/refresh.py --commit`
 4. Done. Vercel redeploys in ~60 seconds.
 
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 You should already have:
 - **SPSS** for producing the `.sav` file
-- **Excel** for editing `HIV_Study_Template.xlsx`
+- **Excel** for editing `study/judgments.xlsx`
 - **Git** (just so the `--commit` step works; you never need to touch git commands directly)
 
 ---
@@ -47,7 +47,7 @@ If your file lives elsewhere, pass `--sav /path/to/file.sav` to the refresh comm
 
 ### Step 2 — Update the workbook in Excel
 
-Open `HIV_Study_Template.xlsx` in Excel. The tabs that drive the dashboard:
+Open `study/judgments.xlsx` in Excel. The tabs that drive the dashboard:
 
 | Tab | What it controls |
 |---|---|
@@ -116,7 +116,7 @@ Open `hiv.rcghealthprism.app` ~60 seconds later to see the new data.
 The script stops at the first error with a clear message. The most likely cases:
 
 - **".sav not found"** — drop it in `data/260433.sav` or pass `--sav`.
-- **"Workbook not found"** — make sure `HIV_Study_Template.xlsx` is in the repo root (it should be by default).
+- **"Workbook not found"** — make sure `study/judgments.xlsx` is in the repo root (it should be by default).
 - **"Module not found: pyreadstat" (etc.)** — re-run `pip install -r requirements.txt`.
 - **Anything else** — copy the error and ping the engineering side. The data scripts are designed so a partial failure doesn't corrupt anything; the previous `dashboard.json` stays intact until the new one writes successfully.
 

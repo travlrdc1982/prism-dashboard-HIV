@@ -54,6 +54,21 @@ def registry_ids(cfg):
     return [r['id'] for r in cfg['segment_registry']]
 
 
+def seg_name_by_id(cfg):
+    """{id: code} — replaces per-script SEG_NAME hardcodes."""
+    return {r['id']: r['code'] for r in cfg['segment_registry']}
+
+
+def pop_share_by_code(cfg):
+    """{code: canonical population share} — THE population weighting source."""
+    return {r['code']: r['pop_share'] for r in cfg['segment_registry']}
+
+
+def party_ids(cfg, party):
+    """Segment-id set for a party ('GOP' or 'DEM')."""
+    return {r['id'] for r in cfg['segment_registry'] if r['party'] == party}
+
+
 def segments_topline(cfg):
     """compute_core's SEGMENTS shape: [[id, code, name, party], ...]."""
     return [[r['id'], r['code'], r['name'], r['party']]

@@ -28,7 +28,7 @@ Per-study text, item lists, module definitions, weighting. Six files; mostly mec
 | `{STUDY}_Study_Template.xlsx` | Analyst | Tier, message stimuli, study metadata, theme colors |
 | `pipeline/topline/compute_core.py` | Engineering | `STUDY` dict (titles), `MODULES` array, item definitions, `TRUST_LBL`, composite formulas |
 | `pipeline/topline/compute.py` | Engineering | Default `.sav` filename + weight var |
-| `pipeline/extract_hiv.py` → `pipeline/extract_study.py` | Engineering | Workbook filename + study-specific labels |
+| `pipeline/extract_study.py` → `pipeline/extract_study.py` | Engineering | Workbook filename + study-specific labels |
 | `scripts/refresh.py` | Engineering | `DEFAULT_WORKBOOK` filename |
 | `package.json`, `index.html`, `README.md` | Engineering | Project name, study title |
 
@@ -101,11 +101,10 @@ STUDY = {
 ### Step 4 — Rename the data extractor
 
 ```bash
-git mv pipeline/extract_hiv.py pipeline/extract_study.py
 ```
 
 Then edit `extract_study.py`:
-- Change `WORKBOOK = "HIV_Study_Template.xlsx"` → `"{STUDY}_Study_Template.xlsx"`
+- Change `WORKBOOK = "study/judgments.xlsx"` → `"{STUDY}_Study_Template.xlsx"`
 - Update study-specific labels in comments and prints
 
 Update `scripts/refresh.py`:
@@ -114,7 +113,7 @@ Update `scripts/refresh.py`:
 
 ### Step 5 — Set up the new workbook
 
-Copy `HIV_Study_Template.xlsx` to `{STUDY}_Study_Template.xlsx`. The tab structure is the same — only the cell contents change:
+Copy `study/judgments.xlsx` to `{STUDY}_Study_Template.xlsx`. The tab structure is the same — only the cell contents change:
 
 - **StudyMeta** — title, client, field dates
 - **SegmentMetrics** — tier assignments (analyst will fill these)

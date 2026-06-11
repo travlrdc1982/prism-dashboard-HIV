@@ -10,16 +10,20 @@
 study:
   id: PRISM_HIV_2026
   title: "PRISM HIV Treatment & Prevention"
+  short_name: HIV                         # nav badge / compact labels
+  topic: "HIV Treatment & Prevention"     # title without the brand prefix
   client: Gilead
   field_dates: "Apr-Jun 2026"
   analyst: Bryan Dumont
   version: v1.0
+  methodology: "MaxDiff · 16 PRISM segments"
 
 # ── DATA SOURCES ────────────────────────────────────────────────────────
 sources:
   sav_path: data/260433.sav                                       # study .sav (repo root data/)
   design_file: pipeline/messagemap/data/Gilead_Design_File.dat    # MaxDiff design
   variants_workbook: pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx
+  judgments_workbook: study/judgments.xlsx                        # analyst judgments (tier, ROI inputs)
   variants_sheet: "Message Variants"
   weight_var: WGT                                                  # null if unweighted
   record_id_var: record
@@ -247,24 +251,26 @@ output:
 # ── SEGMENT REGISTRY ────────────────────────────────────────────────────
 # Single segment table for BOTH engines (topline compute_core +
 # messagemap). party is GOP/DEM; messagemap maps to R/D internally.
+# pop_share = canonical PRISM population share (sums to 1.00) — the
+# single source for population weighting and display pops everywhere.
 # priority_tier lives above in segments.priority_tier_in_study.
 segment_registry:
-  - {id:  1, code: TSP, name: "Trust-the-Science Pragmatists", party: GOP}
-  - {id:  2, code: CEC, name: "Consumer Empowerment Champions", party: GOP}
-  - {id:  3, code: TC , name: "Traditional Conservatives", party: GOP}
-  - {id:  4, code: HF , name: "Health Futurist", party: GOP}
-  - {id:  5, code: PP , name: "Price Populists", party: GOP}
-  - {id:  6, code: WE , name: "Wellness Evangelists", party: GOP}
-  - {id:  7, code: PFF, name: "Paleo Freedom Fighters", party: GOP}
-  - {id:  8, code: HHN, name: "Holistic Health Naturalists", party: GOP}
-  - {id:  9, code: MFL, name: "Medical Freedom Libertarians", party: GOP}
-  - {id: 10, code: VS , name: "Vaccine Skeptics", party: GOP}
-  - {id: 11, code: UCP, name: "Universal Care Progressives", party: DEM}
-  - {id: 12, code: FJP, name: "Faith & Justice Progressives", party: DEM}
-  - {id: 13, code: HCP, name: "Health Care Protectionists", party: DEM}
-  - {id: 14, code: HAD, name: "Health Abundance Democrats", party: DEM}
-  - {id: 15, code: HCI, name: "Health Care Incrementalists", party: DEM}
-  - {id: 16, code: GHI, name: "Global Health Institutionalists", party: DEM}
+  - {id:  1, code: TSP, name: "Trust-the-Science Pragmatists", party: GOP, pop_share: 0.02}
+  - {id:  2, code: CEC, name: "Consumer Empowerment Champions", party: GOP, pop_share: 0.07}
+  - {id:  3, code: TC , name: "Traditional Conservatives", party: GOP, pop_share: 0.06}
+  - {id:  4, code: HF , name: "Health Futurist", party: GOP, pop_share: 0.02}
+  - {id:  5, code: PP , name: "Price Populists", party: GOP, pop_share: 0.03}
+  - {id:  6, code: WE , name: "Wellness Evangelists", party: GOP, pop_share: 0.09}
+  - {id:  7, code: PFF, name: "Paleo Freedom Fighters", party: GOP, pop_share: 0.04}
+  - {id:  8, code: HHN, name: "Holistic Health Naturalists", party: GOP, pop_share: 0.03}
+  - {id:  9, code: MFL, name: "Medical Freedom Libertarians", party: GOP, pop_share: 0.05}
+  - {id: 10, code: VS , name: "Vaccine Skeptics", party: GOP, pop_share: 0.05}
+  - {id: 11, code: UCP, name: "Universal Care Progressives", party: DEM, pop_share: 0.11}
+  - {id: 12, code: FJP, name: "Faith & Justice Progressives", party: DEM, pop_share: 0.10}
+  - {id: 13, code: HCP, name: "Health Care Protectionists", party: DEM, pop_share: 0.08}
+  - {id: 14, code: HAD, name: "Health Abundance Democrats", party: DEM, pop_share: 0.08}
+  - {id: 15, code: HCI, name: "Health Care Incrementalists", party: DEM, pop_share: 0.07}
+  - {id: 16, code: GHI, name: "Global Health Institutionalists", party: DEM, pop_share: 0.10}
 
 # ── TOPLINE REGISTRIES (compute_core) ──────────────────────────────────
 # Everything the topline engine needs that varies per study. Field

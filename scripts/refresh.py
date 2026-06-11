@@ -3,7 +3,7 @@
 PRISM HIV Dashboard — one-command refresh.
 
 For the analyst: this is the only Python command you ever need to run.
-Given a fresh .sav from SPSS and an updated HIV_Study_Template.xlsx,
+Given a fresh .sav from SPSS and an updated study/judgments.xlsx,
 this script rebuilds every data file the dashboard reads:
 
     .sav  ──►  compute.py                ──►  dashboard.json
@@ -17,7 +17,7 @@ this script rebuilds every data file the dashboard reads:
                                                   ├──►  derive_hiv_seg_data.py
                                                   │       └──►  src/data/hiv/*.json
                                                   │
-    .xlsx ──►  extract_hiv.py            ──►  src/data/study.js
+    .xlsx ──►  extract_study.py          ──►  src/data/study.js
                                               src/data/studyData.js HIV block
 
 Usage:
@@ -32,7 +32,7 @@ Usage:
 
 Defaults:
     --sav        ./data/260433.sav  (or $PRISM_SAV)
-    --workbook   ./HIV_Study_Template.xlsx
+    --workbook   ./study/judgments.xlsx
     --weight     WGT
 """
 import argparse
@@ -45,7 +45,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_SAV = os.environ.get('PRISM_SAV', str(REPO / 'data' / '260433.sav'))
-DEFAULT_WORKBOOK = str(REPO / 'HIV_Study_Template.xlsx')
+DEFAULT_WORKBOOK = str(REPO / 'study' / 'judgments.xlsx')
 DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WGT')
 
 PIPELINE_DIR = REPO / 'pipeline' / 'topline'
@@ -189,11 +189,11 @@ def main():
     run([sys.executable, 'pipeline/derive_hiv_seg_data.py'], cwd=REPO)
 
     # ── 5. Workbook → study.js + studyData.js HIV block ───────────
-    step("5/5  Workbook → study.js / studyData.js (extract_hiv)")
+    step("5/5  Workbook → study.js / studyData.js (extract_study)")
     if not workbook.exists():
         sys.exit(f"  ✗ Workbook not found: {workbook}")
-    # extract_hiv.py reads HIV_Study_Template.xlsx from cwd
-    run([sys.executable, 'pipeline/extract_hiv.py'], cwd=REPO)
+    # extract_study.py reads study/judgments.xlsx (path from study.yaml)
+    run([sys.executable, 'pipeline/extract_study.py'], cwd=REPO)
 
     print()
     print("═══ Refresh complete ═══")

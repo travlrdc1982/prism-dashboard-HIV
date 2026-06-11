@@ -43,45 +43,33 @@ from pathlib import Path
 # ═════════════════════════════════════════════════════════════════════
 
 def _apply_workbook_roi_overrides(roi_data):
+    """Apply the analyst's SegmentMetrics judgments to roi_data. Parsing
+    lives in pipeline/workbook.py — the single workbook code path shared
+    with extract_hiv.py (field-equality verified at the R2 switch)."""
     import os
-    wb_path = os.environ.get('PRISM_WORKBOOK', 'HIV_Study_Template.xlsx')
+    _default = _cfg['sources']['judgments_workbook']   # study/judgments.xlsx
+    wb_path = os.environ.get('PRISM_WORKBOOK', _default)
     if not Path(wb_path).exists():
         # Try repo root relative to this file's location (pipeline/topline/)
-        for candidate in [
-            Path(__file__).parent.parent.parent / 'HIV_Study_Template.xlsx',
-            Path('HIV_Study_Template.xlsx'),
-        ]:
-            if candidate.exists():
-                wb_path = str(candidate)
-                break
+        candidate = Path(__file__).resolve().parent.parent.parent / _default
+        if candidate.exists():
+            wb_path = str(candidate)
         else:
-            raise FileNotFoundError(f"Workbook not found at {wb_path}")
+            raise FileNotFoundError(f"Judgments workbook not found at {wb_path}")
 
-    import openpyxl
-    wb = openpyxl.load_workbook(wb_path, data_only=True)
-    ws = wb['SegmentMetrics']
-    headers = [str(c.value or '').strip().lower() for c in ws[1]]
-    col = lambda name: headers.index(name) if name in headers else None
-    c_code        = col('code')
-    c_tier        = col('tier')
-    c_supporters  = col('supporters')
-    c_activation  = col('activation')
-    c_influence   = col('influence')
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import workbook as _wbmod
+    sm, _, _ = _wbmod.read_segment_metrics(_wbmod.load(wb_path))
     overrides = 0
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if not row or row[c_code] is None:
-            continue
-        code = str(row[c_code]).strip()
+    for code, m in sm.items():
         if code not in roi_data:
             continue
-        if c_tier is not None and row[c_tier] is not None:
-            roi_data[code]['priority_tier'] = int(row[c_tier])
-        if c_supporters is not None and row[c_supporters] is not None:
-            roi_data[code]['coalition_support'] = round(float(row[c_supporters]) * 100)
-        if c_activation is not None and row[c_activation] is not None:
-            roi_data[code]['activation_prob'] = round(float(row[c_activation]) * 100)
-        if c_influence is not None and row[c_influence] is not None:
-            roi_data[code]['influence_pct'] = round(float(row[c_influence]) * 100)
+        if m['tier'] is not None:
+            roi_data[code]['priority_tier'] = m['tier']
+        roi_data[code]['coalition_support'] = m['supporters']
+        roi_data[code]['activation_prob'] = m['activation']
+        roi_data[code]['influence_pct'] = m['influence']
         overrides += 1
     print(f"Applied workbook ROI overrides: {overrides} segments from {wb_path}")
 
