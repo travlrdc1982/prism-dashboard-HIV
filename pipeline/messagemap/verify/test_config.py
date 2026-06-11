@@ -56,7 +56,7 @@ def main() -> None:
           f"{cfg.index.on_hard_fail}")
     print(f"  residualization       = predict {cfg.residualization.outcome_var} on "
           f"{cfg.residualization.predictors}")
-    print(f"  maxdiff               = {cfg.maxdiff.n_messages} msgs x "
+    print(f"  maxdiff               = "
           f"{cfg.maxdiff.n_tasks} tasks x {cfg.maxdiff.items_per_task} items/task")
     print(f"  estimation.bootstrap  = {cfg.estimation.bootstrap.n_iter} iter, "
           f"seed {cfg.estimation.bootstrap.seed}")
@@ -67,7 +67,7 @@ def main() -> None:
           f"outcome={cfg.dashboard.default_outcome}, "
           f"basket={cfg.dashboard.default_basket}")
     print(f"  legacy_rename         = {len(cfg.legacy_rename)} entries")
-    print(f"  segments.expected_ids = {cfg.segments.expected_ids}")
+    print(f"  segment_registry ids  = {[r.id for r in cfg.segment_registry]}")
     print(f"  segments.priority    = {cfg.segments.priority_tier_in_study}")
     print("  validation PASS")
 
@@ -97,13 +97,13 @@ def main() -> None:
         "target canonical names are not unique",
     )
 
-    # ── Fail 3: basket references a segment ID not in expected_ids ─
+    # ── Fail 3: basket references a segment ID not in the registry ─
     bad = deepcopy(raw)
-    bad["baskets"][1]["segments"] = [11, 12, 13, 99]  # 99 not in expected_ids
+    bad["baskets"][1]["segments"] = [11, 12, 13, 99]  # 99 not in registry
     _expect_fail(
-        "basket referencing segment ID 99 (not in expected_ids) should fail",
+        "basket referencing segment ID 99 (not in registry) should fail",
         bad,
-        "segment IDs [99] not in segments.expected_ids",
+        "segment IDs [99] not in segment_registry",
     )
 
     # ── Fail 4: legacy_rename target violates canonical naming ─────
@@ -136,11 +136,11 @@ def main() -> None:
 
     # ── Fail 7: maxdiff exceeds platform_constraints ───────────────
     bad = deepcopy(raw)
-    bad["maxdiff"]["n_messages"] = 26   # max is 25
+    bad["maxdiff"]["n_tasks"] = 26   # max is 20
     _expect_fail(
-        "maxdiff.n_messages (26) exceeding max_messages_per_study (25) should fail",
+        "maxdiff.n_tasks (26) exceeding max_tasks_per_respondent (20) should fail",
         bad,
-        "exceeds platform_constraints.max_messages_per_study",
+        "exceeds platform_constraints.max_tasks_per_respondent",
     )
 
     # ── Fail 8: data_confidence thin_min_n >= ok_min_n ─────────────

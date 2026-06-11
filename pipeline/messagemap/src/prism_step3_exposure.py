@@ -42,6 +42,7 @@ from pathlib import Path as _Path
 _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
 from study_config import (load_config as _load_config,
                           message_config as _message_config,
+                          n_messages as _n_messages,
                           task_vars as _task_vars,
                           sav_vars as _sav_vars)
 
@@ -49,7 +50,7 @@ _cfg = _load_config()
 MESSAGE_CONFIG = _message_config(_cfg)
 N_TASKS = _cfg['maxdiff']['n_tasks']
 ITEMS_PER_TASK = _cfg['maxdiff']['items_per_task']
-N_ITEMS = _cfg['maxdiff']['n_messages']
+N_ITEMS = _n_messages(_cfg)
 TASK_VARS = _task_vars(_cfg)               # {task: (best_var, worst_var)}
 _SV = _sav_vars(_cfg)
 ARM_VAR = _SV['arm']                       # HIV_RANDOM   (1=PERSONA, 2=CORE)

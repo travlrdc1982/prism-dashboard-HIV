@@ -97,12 +97,13 @@ def _apply_workbook_roi_overrides(roi_data):
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from study_config import (load_config as _load_config,
-                          segments_topline as _segments_topline)
+                          segments_topline as _segments_topline,
+                          topline_study as _topline_study)
 
 _cfg = _load_config()
 _tl = _cfg['topline_config']
 
-STUDY             = _tl['study']
+STUDY             = _topline_study(_cfg)
 LABELS            = _tl['labels']
 MODULES           = _tl['modules']
 TRUST_LBL         = _tl['trust_lbl']

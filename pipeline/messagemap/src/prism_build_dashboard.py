@@ -436,10 +436,10 @@ def main():
     print("\n[8] Assembling dashboard.json...")
     dashboard = {
         'study': {
-            'id': 'PRISM_HIV_2026',
-            'title': 'PRISM HIV Treatment & Prevention',
-            'client': 'Gilead',
-            'analyst': 'Bryan Dumont',
+            'id': _cfg['study']['id'],
+            'title': _cfg['study']['title'],
+            'client': _cfg['study']['client'],
+            'analyst': _cfg['study']['analyst'],
             'n_total': len(df),
             'index': {
                 'n_items': diag_idx['n_items'],

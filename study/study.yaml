@@ -11,7 +11,7 @@ study:
   id: PRISM_HIV_2026
   title: "PRISM HIV Treatment & Prevention"
   client: Gilead
-  field_dates: "Apr-May 2026"
+  field_dates: "Apr-Jun 2026"
   analyst: Bryan Dumont
   version: v1.0
 
@@ -104,8 +104,8 @@ legacy_rename:
 # Per-study segment metadata. Platform-level definitions (codes, labels,
 # party) live in the central PRISM segment registry, not here.
 segments:
-  assignment_var: XSEG_ASSIGNED
-  expected_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  # assignment variable = sav_conventions.segment_var; expected ids are
+  # derived from segment_registry below. Only judgments live here.
   priority_tier_in_study:
     8:  2     # HHN
     11: 1     # UCP
@@ -121,13 +121,13 @@ segments:
 # ── PERSUASION INDEX ────────────────────────────────────────────────────
 index:
   items:
-    - {idx_id: IDX_001, label: "HIV national priority",     reverse: false}
-    - {idx_id: IDX_002, label: "Community concern",         reverse: false}
-    - {idx_id: IDX_003, label: "Access concern",            reverse: false}
-    - {idx_id: IDX_004, label: "Personal relevance",        reverse: false}
-    - {idx_id: IDX_005, label: "Support expanded access",   reverse: false}
-    - {idx_id: IDX_006, label: "Oppose eligibility cuts",   reverse: false}
-    - {idx_id: IDX_007, label: "Innovation orientation",    reverse: false}
+    - {label: "HIV national priority",     reverse: false}
+    - {label: "Community concern",         reverse: false}
+    - {label: "Access concern",            reverse: false}
+    - {label: "Personal relevance",        reverse: false}
+    - {label: "Support expanded access",   reverse: false}
+    - {label: "Oppose eligibility cuts",   reverse: false}
+    - {label: "Innovation orientation",    reverse: false}
   scale: {min: 1, max: 7, type: likert_7pt}
   composite_method: mean
   alpha_soft_threshold: 0.70
@@ -143,12 +143,12 @@ residualization:
 
 # ── MAXDIFF DESIGN ──────────────────────────────────────────────────────
 maxdiff:
-  n_messages: 17
   n_tasks: 14
   items_per_task: 4
-  design_file: pipeline/messagemap/data/Gilead_Design_File.dat
-  # Workbook is source of truth for which messages have which tokens.
-  # Engine reads it; no per-message proof config needed here.
+  # n_messages and the per-message token map are DERIVED from the variants
+  # workbook (sources.variants_workbook → outputs/prism_variants.json);
+  # the design file path lives in sources.design_file. Nothing here to
+  # keep in sync.
 
 # ── PLATFORM CONSTRAINTS (study must fall within these) ─────────────────
 platform_constraints:
@@ -207,12 +207,16 @@ sop_simple:
   default_basket: priority_d
 
 # ── BASKETS ─────────────────────────────────────────────────────────────
+# Selectors resolve against segment_registry + priority_tier_in_study:
+#   all        → every segment          party:GOP / party:DEM → by party
+#   tier:any   → any priority tier      tier:1                → that tier
+# Explicit id lists ([11, 12, ...]) remain supported for ad-hoc baskets.
 baskets:
-  - {id: total,        name: "Total Sample",          segments: all,                                  weight: equal}
-  - {id: priority_d,   name: "D-side Persuadables",   segments: [11, 12, 13, 16],                     weight: equal}
-  - {id: priority_all, name: "Full Priority Basket",  segments: [8, 11, 12, 13, 14, 15, 16],          weight: equal}
-  - {id: gop,          name: "GOP Segments",          segments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],      weight: equal}
-  - {id: dem,          name: "DEM Segments",          segments: [11, 12, 13, 14, 15, 16],             weight: equal}
+  - {id: total,        name: "Total Sample",          segments: all,        weight: equal}
+  - {id: priority_d,   name: "D-side Persuadables",   segments: "tier:1",   weight: equal}
+  - {id: priority_all, name: "Full Priority Basket",  segments: "tier:any", weight: equal}
+  - {id: gop,          name: "GOP Segments",          segments: "party:GOP", weight: equal}
+  - {id: dem,          name: "DEM Segments",          segments: "party:DEM", weight: equal}
 
 # ── DASHBOARD ───────────────────────────────────────────────────────────
 dashboard:
@@ -242,15 +246,13 @@ output:
 
 # ── SEGMENT REGISTRY ────────────────────────────────────────────────────
 # Single segment table for BOTH engines (topline compute_core +
-# messagemap). `name` is the topline display name; `mm_name` overrides
-# it for messagemap output where the two engines historically differed
-# (HF, FJP). party is GOP/DEM; messagemap maps to R/D internally.
+# messagemap). party is GOP/DEM; messagemap maps to R/D internally.
 # priority_tier lives above in segments.priority_tier_in_study.
 segment_registry:
   - {id:  1, code: TSP, name: "Trust-the-Science Pragmatists", party: GOP}
   - {id:  2, code: CEC, name: "Consumer Empowerment Champions", party: GOP}
   - {id:  3, code: TC , name: "Traditional Conservatives", party: GOP}
-  - {id:  4, code: HF , name: "Health Futurist", party: GOP, mm_name: "Health Futurists"}
+  - {id:  4, code: HF , name: "Health Futurist", party: GOP}
   - {id:  5, code: PP , name: "Price Populists", party: GOP}
   - {id:  6, code: WE , name: "Wellness Evangelists", party: GOP}
   - {id:  7, code: PFF, name: "Paleo Freedom Fighters", party: GOP}
@@ -258,48 +260,21 @@ segment_registry:
   - {id:  9, code: MFL, name: "Medical Freedom Libertarians", party: GOP}
   - {id: 10, code: VS , name: "Vaccine Skeptics", party: GOP}
   - {id: 11, code: UCP, name: "Universal Care Progressives", party: DEM}
-  - {id: 12, code: FJP, name: "Faith & Justice Progressives", party: DEM, mm_name: "Faith and Justice Progressives"}
+  - {id: 12, code: FJP, name: "Faith & Justice Progressives", party: DEM}
   - {id: 13, code: HCP, name: "Health Care Protectionists", party: DEM}
   - {id: 14, code: HAD, name: "Health Abundance Democrats", party: DEM}
   - {id: 15, code: HCI, name: "Health Care Incrementalists", party: DEM}
   - {id: 16, code: GHI, name: "Global Health Institutionalists", party: DEM}
-
-# ── MAXDIFF MESSAGE TOKEN MAP ───────────────────────────────────────────
-# Per-message token-value count (1 = base only, no proof variants).
-# The proof-token .sav variable is derived from
-# sav_conventions.token_var_pattern + legacy_rename; messages with
-# n_token_values 1 have no proof variable.
-maxdiff_messages:
-  - {msg:  1, n_token_values: 3}
-  - {msg:  2, n_token_values: 3}
-  - {msg:  3, n_token_values: 3}
-  - {msg:  4, n_token_values: 3}
-  - {msg:  5, n_token_values: 2}
-  - {msg:  6, n_token_values: 3}
-  - {msg:  7, n_token_values: 1}
-  - {msg:  8, n_token_values: 1}
-  - {msg:  9, n_token_values: 1}
-  - {msg: 10, n_token_values: 2}
-  - {msg: 11, n_token_values: 2}
-  - {msg: 12, n_token_values: 2}
-  - {msg: 13, n_token_values: 3}
-  - {msg: 14, n_token_values: 1}
-  - {msg: 15, n_token_values: 2}
-  - {msg: 16, n_token_values: 3}
-  - {msg: 17, n_token_values: 1}
 
 # ── TOPLINE REGISTRIES (compute_core) ──────────────────────────────────
 # Everything the topline engine needs that varies per study. Field
 # semantics are documented in pipeline/topline/BUILD_GUIDE.md.
 # segments are NOT here — both engines read segment_registry above.
 topline_config:
+  # id / title / field_dates / version / analyst inherit from the
+  # top-level study block; only topline-specific display fields live here.
   study:
-    id: PRISM_HIV_2026
-    title: PRISM HIV Treatment & Prevention
     subtitle: PRISM Voter Study — RCG / Dynata
-    field_dates: TBD
-    version: v1.0
-    analyst: Bryan Dumont
     rendered: '2026-05-15'
     weighted: true
     weight_target: Rake weights — Census parameters (age × sex × race/ethnicity × education × region) × 2024 vote

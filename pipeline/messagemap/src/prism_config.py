@@ -131,20 +131,12 @@ class DataConfidenceThresholds(BaseModel):
 
 
 class SegmentBindings(BaseModel):
+    # assignment variable lives in sav_conventions.segment_var; the
+    # expected id list is derived from segment_registry. Only the
+    # study-specific judgments remain here.
     model_config = ConfigDict(extra="forbid")
-    assignment_var: str
-    expected_ids: List[int]
     priority_tier_in_study: Dict[int, int]
     data_confidence: DataConfidenceThresholds
-
-    @field_validator("expected_ids")
-    @classmethod
-    def _expected_ids_unique_positive(cls, v: List[int]) -> List[int]:
-        if len(v) != len(set(v)):
-            raise ValueError(f"expected_ids contains duplicates: {v}")
-        if any(i <= 0 for i in v):
-            raise ValueError(f"expected_ids must be positive: {v}")
-        return v
 
     @field_validator("priority_tier_in_study")
     @classmethod
@@ -155,16 +147,6 @@ class SegmentBindings(BaseModel):
                     f"priority_tier_in_study[{sid}] = {tier} (must be 1, 2, or 3)"
                 )
         return v
-
-    @model_validator(mode="after")
-    def _priority_ids_subset_of_expected(self) -> "SegmentBindings":
-        bad = [sid for sid in self.priority_tier_in_study if sid not in self.expected_ids]
-        if bad:
-            raise ValueError(
-                f"priority_tier_in_study references segment IDs not in "
-                f"expected_ids: {bad}"
-            )
-        return self
 
 
 class ScaleSpec(BaseModel):
@@ -181,17 +163,11 @@ class ScaleSpec(BaseModel):
 
 
 class IndexItem(BaseModel):
+    # Index variable numbers are positional (1-based list order); the
+    # idx{NNN}_pre/_post patterns format with the item's position.
     model_config = ConfigDict(extra="forbid")
-    idx_id: str
     label: str
     reverse: bool
-
-    @field_validator("idx_id")
-    @classmethod
-    def _idx_id_canonical(cls, v: str) -> str:
-        if not re.match(r"^IDX_\d{3}$", v):
-            raise ValueError(f"idx_id {v!r} must match pattern IDX_NNN")
-        return v
 
 
 class IndexConfig(BaseModel):
@@ -212,17 +188,6 @@ class IndexConfig(BaseModel):
             )
         return self
 
-    @field_validator("items")
-    @classmethod
-    def _idx_ids_unique(cls, v: List[IndexItem]) -> List[IndexItem]:
-        ids = [it.idx_id for it in v]
-        if len(ids) != len(set(ids)):
-            dup = [i for i in ids if ids.count(i) > 1]
-            raise ValueError(f"index.items: duplicate idx_id values: {sorted(set(dup))}")
-        if len(v) < 2:
-            raise ValueError(f"index.items must have at least 2 items (got {len(v)})")
-        return v
-
 
 class ResidualizationConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -242,11 +207,11 @@ class ResidualizationConfig(BaseModel):
 
 
 class MaxDiffConfig(BaseModel):
+    # n_messages and the per-message token map are derived from the
+    # variants workbook; the design file path lives in sources.design_file.
     model_config = ConfigDict(extra="forbid")
-    n_messages: int = Field(gt=0)
     n_tasks: int = Field(gt=0)
     items_per_task: int = Field(gt=0)
-    design_file: str
 
 
 class PlatformConstraints(BaseModel):
@@ -349,8 +314,21 @@ class Basket(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: str
     name: str
-    segments: Union[Literal["all"], List[int]]
+    # 'all' | 'party:GOP' | 'party:DEM' | 'tier:any' | 'tier:N' | [ids...]
+    segments: Union[Literal["all"], List[int], str]
     weight: Literal["equal", "population"]
+
+    @field_validator("segments")
+    @classmethod
+    def _selector_syntax(cls, v):
+        if isinstance(v, (list,)) or v == "all":
+            return v
+        if re.match(r"^party:(GOP|DEM)$", v) or re.match(r"^tier:(any|[123])$", v):
+            return v
+        raise ValueError(
+            f"basket segments selector {v!r} not recognized "
+            f"(all | party:GOP | party:DEM | tier:any | tier:N | [ids...])"
+        )
 
 
 class CellRenderConfig(BaseModel):
@@ -412,16 +390,6 @@ class SegmentRegistryEntry(BaseModel):
     code: str
     name: str
     party: Literal["GOP", "DEM"]
-    # messagemap display-name override where the two engines historically
-    # differed (HF, FJP). Absent = same name in both engines.
-    mm_name: Optional[str] = None
-
-
-class MaxDiffMessage(BaseModel):
-    """Per-message token-value count (1 = base only, no proof variants)."""
-    model_config = ConfigDict(extra="forbid")
-    msg: int = Field(ge=1)
-    n_token_values: int = Field(ge=1)
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -450,7 +418,6 @@ class StudyConfig(BaseModel):
     dashboard: DashboardConfig
     output: OutputPaths
     segment_registry: List[SegmentRegistryEntry]
-    maxdiff_messages: List[MaxDiffMessage]
     # Topline engine registries (study/labels/modules/trust_lbl/batteries/
     # influencer_blocks/items/pre_post). Deep schema is documented in
     # pipeline/topline/BUILD_GUIDE.md; validated structurally here only.
@@ -508,16 +475,16 @@ class StudyConfig(BaseModel):
     # ── Cross-field model_validators ─────────────────────────────────
 
     @model_validator(mode="after")
-    def _basket_segments_subset_of_expected(self) -> "StudyConfig":
-        expected = set(self.segments.expected_ids)
+    def _basket_segments_subset_of_registry(self) -> "StudyConfig":
+        expected = {r.id for r in self.segment_registry}
         for b in self.baskets:
-            if b.segments == "all":
-                continue
+            if not isinstance(b.segments, list):
+                continue  # selectors resolve against the registry by construction
             extra = set(b.segments) - expected
             if extra:
                 raise ValueError(
                     f"basket {b.id!r}: segment IDs {sorted(extra)} not in "
-                    f"segments.expected_ids ({sorted(expected)})"
+                    f"segment_registry ({sorted(expected)})"
                 )
             if len(set(b.segments)) != len(b.segments):
                 dup = sorted({s for s in b.segments if b.segments.count(s) > 1})
@@ -554,12 +521,9 @@ class StudyConfig(BaseModel):
     def _maxdiff_within_platform_constraints(self) -> "StudyConfig":
         pc = self.platform_constraints
         md = self.maxdiff
-        if md.n_messages > pc.max_messages_per_study:
-            raise ValueError(
-                f"maxdiff.n_messages ({md.n_messages}) exceeds "
-                f"platform_constraints.max_messages_per_study "
-                f"({pc.max_messages_per_study})"
-            )
+        # (message-count vs max_messages_per_study is enforced at load
+        #  time in study_config.message_config(), where the variants-
+        #  derived count is known)
         if md.n_tasks > pc.max_tasks_per_respondent:
             raise ValueError(
                 f"maxdiff.n_tasks ({md.n_tasks}) exceeds "
@@ -571,19 +535,6 @@ class StudyConfig(BaseModel):
                 f"maxdiff.items_per_task ({md.items_per_task}) exceeds "
                 f"platform_constraints.max_items_per_task "
                 f"({pc.max_items_per_task})"
-            )
-        return self
-
-    @model_validator(mode="after")
-    def _maxdiff_design_file_matches_sources(self) -> "StudyConfig":
-        # The YAML has the design file in two places (sources + maxdiff).
-        # Make sure they agree, then prefer sources.design_file as canonical.
-        if self.maxdiff.design_file != self.sources.design_file:
-            raise ValueError(
-                f"design file mismatch: sources.design_file = "
-                f"{self.sources.design_file!r} but maxdiff.design_file = "
-                f"{self.maxdiff.design_file!r}. Keep them in sync (or remove "
-                f"one; sources.design_file is the canonical location)."
             )
         return self
 
@@ -603,35 +554,23 @@ class StudyConfig(BaseModel):
 
 
     @model_validator(mode="after")
-    def _registry_matches_expected_ids(self) -> "StudyConfig":
+    def _registry_well_formed(self) -> "StudyConfig":
         reg_ids = [r.id for r in self.segment_registry]
-        if reg_ids != list(self.segments.expected_ids):
-            raise ValueError(
-                f"segment_registry ids {reg_ids} != segments.expected_ids "
-                f"{self.segments.expected_ids}"
-            )
+        if len(reg_ids) != len(set(reg_ids)):
+            raise ValueError(f"segment_registry ids are not unique: {reg_ids}")
         codes = [r.code for r in self.segment_registry]
         if len(codes) != len(set(codes)):
             raise ValueError("segment_registry codes are not unique")
+        # priority tiers must reference registry ids
+        bad = [sid for sid in self.segments.priority_tier_in_study
+               if sid not in set(reg_ids)]
+        if bad:
+            raise ValueError(
+                f"priority_tier_in_study references segment IDs not in "
+                f"segment_registry: {bad}"
+            )
         return self
 
-    @model_validator(mode="after")
-    def _maxdiff_messages_cover_design(self) -> "StudyConfig":
-        msgs = [m.msg for m in self.maxdiff_messages]
-        want = list(range(1, self.maxdiff.n_messages + 1))
-        if msgs != want:
-            raise ValueError(
-                f"maxdiff_messages must cover messages 1..{self.maxdiff.n_messages} "
-                f"in order; got {msgs}"
-            )
-        for m in self.maxdiff_messages:
-            if m.n_token_values > self.platform_constraints.max_tokens_per_message:
-                raise ValueError(
-                    f"maxdiff_messages msg {m.msg}: n_token_values "
-                    f"{m.n_token_values} exceeds platform max "
-                    f"{self.platform_constraints.max_tokens_per_message}"
-                )
-        return self
 
 
 # ─────────────────────────────────────────────────────────────────────

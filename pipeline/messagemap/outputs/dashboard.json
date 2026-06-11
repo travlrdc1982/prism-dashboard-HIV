@@ -48,7 +48,7 @@
     {
       "id": 4,
       "code": "HF",
-      "label": "Health Futurists",
+      "label": "Health Futurist",
       "party": "R",
       "priority_tier": null,
       "n": 171
@@ -112,7 +112,7 @@
     {
       "id": 12,
       "code": "FJP",
-      "label": "Faith and Justice Progressives",
+      "label": "Faith & Justice Progressives",
       "party": "D",
       "priority_tier": 1,
       "n": 354

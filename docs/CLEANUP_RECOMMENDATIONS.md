@@ -110,6 +110,17 @@ but with one config and no duplicated truths.
 > of every loaded registry vs pre-refactor snapshot, full pipeline rerun
 > byte-identical, Pydantic fail-case suite green.
 
+**R1.1 follow-up (also landed):** redundancy pass on the config —
+`maxdiff.design_file` + `maxdiff.n_messages` + `segments.assignment_var`
++ `segments.expected_ids` + `idx_id` deleted (derived);
+`maxdiff_messages` section deleted entirely (token map now derived from
+the variants workbook, with platform-constraint checks at load);
+baskets use selector expressions (`tier:1`, `party:GOP`, …) resolved
+against the registry; `topline_config.study` inherits identity fields
+from the top-level study block (and `field_dates` corrected to
+"Apr-Jun 2026"); HF/FJP names reconciled to the shipped spellings and
+`mm_name` removed.
+
 The Pydantic model (`messagemap/src/prism_config.py`) already exists and
 validates a rich schema. The work is to make the engines **read** it:
 
