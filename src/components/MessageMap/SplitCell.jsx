@@ -32,10 +32,13 @@ function Half({ cell, side, fadeBelow, compact, title }) {
   const { bg, text } = rampColor(cell.v);
   const faded = cell.w != null && cell.w < fadeBelow;
   const sig = !!cell.sig;
-  // Texture: a soft diagonal sheen over the ramp color so large fields
-  // of similar values read as surfaces, not flat paint.
-  const sheen = side === "persona"
-    ? "linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.10) 100%)"
+  // Texture: CORE renders as a flat ramp color with the subtlest sheen
+  // for surface. PERSONA renders the same ramp color AS A GRADIENT —
+  // brighter at top-left, deeper at bottom-right — so the persona arm
+  // is identifiable by gradient signature alone, even before reading
+  // the violet frame. Value color stays tied to lift.
+  const skin = side === "persona"
+    ? "linear-gradient(155deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.06) 38%, rgba(0,0,0,0.28) 100%)"
     : "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 45%, rgba(0,0,0,0.14) 100%)";
   const frames = [];
   if (side === "persona") frames.push(`inset 0 0 0 1px ${PERSONA_FRAME}`);
@@ -44,9 +47,9 @@ function Half({ cell, side, fadeBelow, compact, title }) {
     <div title={title || undefined} style={{
       flex: 1, position: "relative",
       display: "flex", alignItems: "center", justifyContent: "center",
-      backgroundImage: sheen, backgroundColor: bg,
+      backgroundImage: skin, backgroundColor: bg,
       color: text,
-      fontFamily: MONO, fontSize: compact ? 9 : 10, fontWeight: 700,
+      fontFamily: MONO, fontSize: compact ? 9 : 14, fontWeight: 700,
       opacity: faded ? 0.45 : 1,
       boxShadow: frames.join(", ") || "none",
     }}>

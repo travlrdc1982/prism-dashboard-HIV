@@ -31,21 +31,25 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
   }
   const { bg, text } = rampColor(cell.v);
   const faded = cell.w != null && cell.w < fadeBelow;
+  // Persona cells render as a ramp-color GRADIENT (bright→deep along
+  // the diagonal); core stays a subtle flat. The persona arm is
+  // identifiable by gradient signature anywhere it appears.
+  const skin = side === "persona"
+    ? "linear-gradient(155deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.06) 38%, rgba(0,0,0,0.28) 100%)"
+    : "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(0,0,0,0.14))";
   return (
     <div
       title={wording || undefined}
       style={{
-        height: 28, position: "relative",
+        height: 30, position: "relative",
         display: "flex", alignItems: "center", justifyContent: "center",
         borderRadius: 3,
         backgroundColor: bg,
-        backgroundImage: side === "persona"
-          ? "linear-gradient(135deg, rgba(255,255,255,0.16), rgba(0,0,0,0.10))"
-          : "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(0,0,0,0.14))",
+        backgroundImage: skin,
         border: side === "persona"
           ? `1.5px solid ${PERSONA_BLUE}`
           : "1px solid rgba(148,163,184,0.5)",
-        color: text, fontFamily: MONO, fontSize: 10, fontWeight: 700,
+        color: text, fontFamily: MONO, fontSize: 14, fontWeight: 700,
         opacity: faded ? 0.5 : 1,
         cursor: "pointer",
       }}

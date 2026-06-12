@@ -127,7 +127,28 @@ export default function MessageMap() {
 
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
-  const orderedSegments = SEGMENTS;
+
+  // Segment column order — drag a segment circle to reorder. Initial
+  // order matches the data; the user can rearrange the 16 columns.
+  const [segmentOrder, setSegmentOrder] = useState(
+    () => SEGMENTS.map(s => s.id)
+  );
+  const orderedSegments = useMemo(
+    () => segmentOrder
+      .map(id => SEGMENTS.find(s => s.id === id))
+      .filter(Boolean),
+    [segmentOrder]
+  );
+  const [dragSegId, setDragSegId] = useState(null);
+  const moveSegment = (sourceId, targetId) => {
+    if (sourceId == null || sourceId === targetId) return;
+    setSegmentOrder(prev => {
+      const next = prev.filter(id => id !== sourceId);
+      const idx = next.indexOf(targetId);
+      next.splice(idx, 0, sourceId);
+      return next;
+    });
+  };
 
   // ── Cell aggregation ──────────────────────────────────────────────
   // The artifact carries one cell per (message × segment × arm × proof).
@@ -340,13 +361,15 @@ export default function MessageMap() {
     </>
   );
 
-  // CUBE — the shared column template. The focal segment column widens
-  // to host the in-place mini-grid; everything else keeps its share.
-  // Header + every row use this same template so the whole COLUMN
-  // expands together (segment circles included).
-  const gridTemplate = orderedSegments.map(seg =>
-    focal && focal.segId === seg.id ? "minmax(180px, 3fr)" : "minmax(56px, 1fr)"
-  ).join(" ");
+  // CUBE — the shared column template. EITHER a focal cube OR a
+  // segment-column spotlight widens the spotlit segment column to host
+  // the open persona half; everything else keeps its share. Header +
+  // every row use this same template so the whole COLUMN expands
+  // together (segment circles included).
+  const gridTemplate = orderedSegments.map(seg => {
+    const widened = (focal && focal.segId === seg.id) || colFocus === seg.id;
+    return widened ? "minmax(180px, 3fr)" : "minmax(56px, 1fr)";
+  }).join(" ");
   const rowTemplate = `36px 220px 150px ${gridTemplate}`;
 
   return (
@@ -483,8 +506,7 @@ export default function MessageMap() {
                   width: "100%", height: "100%",
                   border: "1.5px solid #7F77DD",
                   borderRadius: 8,
-                  background: "linear-gradient(to right, transparent 0%, transparent 38%, rgba(127,119,221,0.10) 55%, rgba(127,119,221,0.20) 100%)",
-                  boxShadow: "0 0 18px rgba(127,119,221,0.25), 0 8px 24px rgba(0,0,0,0.45)",
+                  background: "transparent",
                 }} />
               </div>
             </div>
@@ -583,14 +605,32 @@ export default function MessageMap() {
               const lit = spot === null
                 ? (hoverSeg === null || seg.id === hoverSeg)
                 : seg.id === spot;
+              const isDragging = dragSegId === seg.id;
               return (
                 <div key={seg.id}
+                  draggable
+                  onDragStart={(e) => {
+                    setDragSegId(seg.id);
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", String(seg.id));
+                  }}
+                  onDragEnd={() => setDragSegId(null)}
+                  onDragOver={(e) => {
+                    if (dragSegId == null || dragSegId === seg.id) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    moveSegment(dragSegId, seg.id);
+                    setDragSegId(null);
+                  }}
                   onClick={() => toggleColFocus(seg.id)}
                   style={{
                     display: "flex", justifyContent: "center",
                     opacity: lit ? 1 : 0.15,
                     transition: "opacity 0.12s",
-                    cursor: "pointer",
+                    cursor: isDragging ? "grabbing" : "grab",
                     position: "relative", zIndex: 5,
                   }}>
                   <SegmentCircle seg={seg} />
@@ -672,10 +712,10 @@ export default function MessageMap() {
                     }}>B6</div>
 
                     {/* THE VIOLET COLUMN BRACKET — one container around
-                        the persona-open column. Gradient fill: clear
-                        on the CORE (left) side, violet on the PERSONA
-                        (right) side, so the column itself signals
-                        which arm is which. */}
+                        the persona-open column. Border only (no fill,
+                        no shadow); the persona/core differentiation
+                        now lives inside the cells via the persona
+                        cell gradient. */}
                     <div style={{
                       gridRow: `1 / span ${2 + vals.length}`,
                       gridColumn: focalIdx + 4,
@@ -683,7 +723,7 @@ export default function MessageMap() {
                       margin: "-6px -5px",
                       border: "1.5px solid #7F77DD",
                       borderRadius: 5,
-                      background: "linear-gradient(to right, transparent 0%, transparent 40%, rgba(127,119,221,0.10) 55%, rgba(127,119,221,0.20) 100%)",
+                      background: "transparent",
                       zIndex: 1, pointerEvents: "none",
                     }} />
                     {/* THE CUBE OUTLINE — one white box around the
@@ -905,7 +945,9 @@ export default function MessageMap() {
                           core={getHalf(m.id, seg.id, 2)}
                           tuned={getHalf(m.id, seg.id, 1)}
                           fadeBelow={FADE_BELOW}
-                          height={24}
+                          height={colFocus === seg.id ? 30 : 24}
+                          compact={colFocus !== seg.id}
+                          personaOpen={colFocus === seg.id}
                           onClick={() => toggleFocal(m.id, seg.id)}
                         />
                       </div>
@@ -979,6 +1021,10 @@ export default function MessageMap() {
                               && (hoverMsg !== null || hoverSeg !== null)
                               && !(m.id === hoverMsg || seg.id === hoverSeg))
                               ? 0.15 : 1;
+                            // Persona × proof cells only render when
+                            // the persona column is actually expanded
+                            // (a colFocus spotlight in this column).
+                            const open = colFocus === seg.id;
                             return (
                               <div
                                 key={seg.id}
@@ -989,8 +1035,9 @@ export default function MessageMap() {
                                   core={getProofHalf(m.id, seg.id, 2, v)}
                                   tuned={getProofHalf(m.id, seg.id, 1, v)}
                                   fadeBelow={FADE_BELOW}
-                                  height={20}
-                                  personaOpen
+                                  height={open ? 26 : 20}
+                                  compact={!open}
+                                  personaOpen={open}
                                   onClick={() => toggleFocal(m.id, seg.id)}
                                 />
                               </div>
