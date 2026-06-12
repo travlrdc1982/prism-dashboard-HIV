@@ -215,21 +215,24 @@ export default function MessageMap() {
   };
 
   const toggleFocal = (msgId, segId, evt) => {
-    setFocal(f => {
-      if (f && f.msgId === msgId && f.segId === segId) return null;
-      // Anchor the cube card to the clicked cell, clamped to the frame
-      if (evt && frameRef.current) {
-        const frame = frameRef.current.getBoundingClientRect();
-        const cell = evt.currentTarget.getBoundingClientRect();
-        const CARD_W = 430;
-        setAnchor({
-          left: Math.max(8, Math.min(cell.left - frame.left,
-                                     frame.width - CARD_W - 8)),
-          top: cell.bottom - frame.top + 6,
-        });
-      }
-      return { msgId, segId };
-    });
+    // Same cell again → fold the cube back up.
+    if (focal && focal.msgId === msgId && focal.segId === segId) {
+      setFocal(null);
+      return;
+    }
+    // Measure the clicked cell NOW — evt.currentTarget is nulled once
+    // the handler returns, so it must never be read inside an updater.
+    if (evt && evt.currentTarget && frameRef.current) {
+      const frame = frameRef.current.getBoundingClientRect();
+      const cell = evt.currentTarget.getBoundingClientRect();
+      const CARD_W = 430;
+      setAnchor({
+        left: Math.max(8, Math.min(cell.left - frame.left,
+                                   frame.width - CARD_W - 8)),
+        top: cell.bottom - frame.top + 6,
+      });
+    }
+    setFocal({ msgId, segId });
   };
   const toggleRow = (msgId) => {
     if (focal?.msgId === msgId) { setFocal(null); return; }
