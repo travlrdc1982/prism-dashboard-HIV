@@ -15,3 +15,4 @@ venv/
 pipeline/topline/dashboard.json
 pipeline/topline/results_long.csv
 pipeline/topline/dashboard.html
+prism/prism_platform.egg-info/

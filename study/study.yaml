@@ -25,7 +25,7 @@ sources:
   variants_workbook: pipeline/messagemap/workbooks/Gilead_Persona-Tuned_Message_Variants_json.xlsx
   judgments_workbook: study/judgments.xlsx                        # analyst judgments (tier, ROI inputs)
   variants_sheet: "Message Variants"
-  weight_var: WGT                                                  # null if unweighted
+  weight_var: WEIGHT                                               # the ONE weight column (prism package output); null if unweighted
   record_id_var: record
 
 # ── PLATFORM CONVENTIONS (variable naming) ──────────────────────────────
@@ -283,7 +283,7 @@ topline_config:
     subtitle: PRISM Voter Study — RCG / Dynata
     weighted: true
     weight_target: Rake weights — Census parameters (age × sex × race/ethnicity × education × region) × 2024 vote
-    weight_note: Production rake weights applied (WGT). Weighted n equals sample n.
+    weight_note: Production two-stage rake weights applied (WEIGHT). Weighted n equals sample n.
     validity_note: All n=1,044 included. Validity flags pending review.
     nav_brand: PRISM
     nav_study_label: HIV Treatment & Prevention

@@ -33,7 +33,7 @@ Usage:
 Defaults:
     --sav        ./data/260433.sav  (or $PRISM_SAV)
     --workbook   ./study/judgments.xlsx
-    --weight     WGT
+    --weight     WEIGHT
 """
 import argparse
 import json
@@ -46,7 +46,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_SAV = os.environ.get('PRISM_SAV', str(REPO / 'data' / '260433.sav'))
 DEFAULT_WORKBOOK = str(REPO / 'study' / 'judgments.xlsx')
-DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WGT')
+# WEIGHT is the one weight variable end to end (produced by the prism
+# package's two-stage rake; the legacy SPSS 'WGT' convention is retired).
+DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WEIGHT')
 
 PIPELINE_DIR = REPO / 'pipeline' / 'topline'
 TOPLINE_DASHBOARD_OUT = PIPELINE_DIR / 'dashboard.json'

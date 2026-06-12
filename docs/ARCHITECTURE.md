@@ -97,7 +97,7 @@ python scripts/refresh.py --commit
 survey. Contains:
 
 - One row per respondent (n=2,578)
-- `WGT` — rake weights (Census parameters × 2024 vote)
+- `WEIGHT` — two-stage rake weights (produced by the prism package; the legacy `WGT` name is retired)
 - `XSEG_ASSIGNED` — canonical PRISM segment id 1–16
 - `persona_framing` — between-subject arm: 1 = PERSONA-tuned, 2 = CORE
 - `M{NNN}_token` — within-subject proof-token assignment per message
@@ -160,7 +160,7 @@ methodology itself:
 - `canonical/maxdiff_designs/hiv_2026_design.csv` — alternate copy of
   the design file in CSV form
 - `canonical/rake_targets/registered_voters_2026.yaml` — rake margin
-  targets used to produce `WGT`
+  targets used to produce the weights (superseded by prism/benchmarks)
 
 ---
 
@@ -175,7 +175,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 
 - `--sav PATH` (default: `data/260433.sav`, env: `PRISM_SAV`)
 - `--workbook PATH` (default: `study/judgments.xlsx`)
-- `--weight VAR` (default: `WGT`)
+- `--weight VAR` (default: `WEIGHT`)
 - `--skip-pipeline` — skip the topline compute step (run derivations only)
 - `--skip-messagemap` — skip the messagemap step
 - `--commit` — `git add` + `git commit` + `git push` the regenerated artifacts
@@ -194,7 +194,7 @@ its real script — `refresh.py` doesn't compute anything itself.
 **What `compute_core.build_topline()` does:**
 
 1. Validates `XSEG_ASSIGNED` exists; maps id → code.
-2. Applies `WGT` (or `1.0`) to every row.
+2. Applies `WEIGHT` (or `1.0`) to every row.
 3. For every item in `ITEMS` (expanded from `BATTERIES`), runs
    `_compute_item()`: per-segment weighted stats (`top3_count`, mean,
    freq dist) + a z-test vs rest-of-sample, with significance flagged.
@@ -502,7 +502,7 @@ evolution but not yet implemented.
 | `pipeline/topline/BUILD_GUIDE.md`   | Analyst guide for the topline registries                                                     |
 | `canonical/scales.yaml` / `segments.yaml`                  | Methodology-level canonical defs                                                             |
 | `canonical/maxdiff_designs/hiv_2026_design.csv`            | CSV mirror of the design file                                                                |
-| `canonical/rake_targets/registered_voters_2026.yaml`       | Rake margin targets used by SPSS to produce WGT                                              |
+| `canonical/rake_targets/registered_voters_2026.yaml`       | Legacy rake targets (superseded by prism/benchmarks/populations/voters_v1)                   |
 | `src/data/topline/dashboard.json`                          | **The merged final artifact** — drives Topline + MessageMap                                  |
 | `src/data/hiv/seg_data.json` + `bench.json` + `items.json` + `zparams.json` | Derived HIV-tab data files                                                                  |
 | `src/data/hiv/trust.json` + `manifest.json`                | Wave-2 stub + study metadata (hand-maintained)                                               |

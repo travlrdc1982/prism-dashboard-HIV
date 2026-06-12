@@ -12,7 +12,7 @@ Usage:
 Environment variables (used as defaults when CLI flags omitted):
     PRISM_SAV     — path to the .sav file
     PRISM_OUT     — output directory for dashboard.json
-    PRISM_WEIGHT  — weight variable name (default: WGT)
+    PRISM_WEIGHT  — weight variable name (default: WEIGHT)
 """
 import argparse
 import os
@@ -23,7 +23,7 @@ from compute_core import build_topline
 
 DEFAULT_SAV = os.environ.get('PRISM_SAV', '/home/claude/data/260433.sav')
 DEFAULT_OUT = os.environ.get('PRISM_OUT', str(Path(__file__).parent))
-DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WGT')
+DEFAULT_WEIGHT = os.environ.get('PRISM_WEIGHT', 'WEIGHT')
 
 
 def main():
