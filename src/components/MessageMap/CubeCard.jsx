@@ -1,23 +1,24 @@
-// CubeCard — THE focal object of the Message Map.
+// CubeCard — THE focal object of the Message Map, rendered IN PLACE.
 //
-// Clicking a message × segment intersection grows this card out of the
-// cell: one cohesive expanded square showing every possibility tested
-// within that spec —
+// No popup. Clicking a message × segment intersection swaps that cell
+// for this mini-grid: the segment column widens, the row grows taller,
+// and the full possibility space of the spec unfolds inside the cell —
 //
 //          CORE          |  ⊙ PERSONA
-//   core message       [v]|[v]   ← just the core / translated to persona
+//   core message only  [v]|[v]   ← just the core / translated to persona
 //   + proof point A    [v]|[v]   ← proof variants stack downward
 //   + proof point B    [v]|[v]
 //
 // Values use the shared ramp; significance dots and shrinkage fades
 // carry over. Hovering any mini-cell shows the exact wording that
-// variant's respondents read (core or persona-translated, via title).
+// variant's respondents read (title). Clicking the cube folds it back.
 import { useEffect, useState } from "react";
-import { C, FONT, MONO } from "../../data/theme";
+import { C, MONO } from "../../data/theme";
 import { rampColor } from "./liftScale";
 
 const PERSONA_BLUE = "#7db3fa";
 const DIVIDER = "rgba(127,119,221,0.45)";
+const COLS = "110px 1fr 8px 1fr";
 
 function MiniCell({ cell, side, fadeBelow, wording }) {
   if (!cell) {
@@ -64,9 +65,7 @@ function MiniCell({ cell, side, fadeBelow, wording }) {
   );
 }
 
-export default function CubeCard({
-  message, seg, segColor, rows, fadeBelow, anchor, onClose,
-}) {
+export default function CubeCard({ rows, fadeBelow, onClose }) {
   // Grow-out-of-the-cell animation
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -75,47 +74,25 @@ export default function CubeCard({
   }, []);
 
   return (
-    <div style={{
-      position: "absolute",
-      left: anchor.left, top: anchor.top,
-      width: 430, zIndex: 40,
-      background: "#0c1322",
-      border: "1.5px solid rgba(203,213,225,0.9)",
-      borderRadius: 8,
-      boxShadow: "0 0 0 1px rgba(241,245,249,0.25), 0 0 22px rgba(203,213,225,0.25), 0 18px 48px rgba(0,0,0,0.75)",
-      padding: "12px 14px 14px",
-      transform: mounted ? "scale(1)" : "scale(0.55)",
-      opacity: mounted ? 1 : 0,
-      transformOrigin: "top left",
-      transition: "transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s",
-    }}>
-      {/* Header: the spec — segment circle + message label + close */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
-          background: segColor, display: "flex",
-          alignItems: "center", justifyContent: "center",
-          fontFamily: MONO, fontSize: 9, fontWeight: 800, color: "#fff",
-        }}>{seg.code}</div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{
-            fontFamily: FONT, fontSize: 13, fontWeight: 800, color: C.white,
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>{message.theme_label}</div>
-          <div style={{
-            fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 1,
-          }}>MSG {String(message.id).padStart(2, "0")} × {seg.name?.toUpperCase?.() || seg.code}</div>
-        </div>
-        <button onClick={onClose} style={{
-          background: "none", border: `1px solid ${C.cardBorder}`,
-          borderRadius: 4, color: C.textMuted, cursor: "pointer",
-          fontFamily: MONO, fontSize: 11, lineHeight: 1, padding: "4px 7px",
-        }}>×</button>
-      </div>
-
+    <div
+      onClick={onClose}
+      style={{
+        position: "relative", zIndex: 6,
+        background: "#0c1322",
+        border: "1.5px solid rgba(203,213,225,0.9)",
+        borderRadius: 6,
+        boxShadow: "0 0 0 1px rgba(241,245,249,0.25), 0 0 22px rgba(203,213,225,0.25), 0 14px 36px rgba(0,0,0,0.7)",
+        padding: "8px 10px 9px",
+        cursor: "pointer",
+        transform: mounted ? "scale(1)" : "scale(0.4)",
+        opacity: mounted ? 1 : 0,
+        transformOrigin: "center",
+        transition: "transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s",
+      }}
+    >
       {/* Column headers: CORE | persona icon + PERSONA */}
       <div style={{
-        display: "grid", gridTemplateColumns: "150px 1fr 8px 1fr",
+        display: "grid", gridTemplateColumns: COLS,
         gap: 3, marginBottom: 4, alignItems: "end",
       }}>
         <div />
@@ -142,7 +119,7 @@ export default function CubeCard({
       {/* The matrix: one row per token, divider lane between the arms */}
       {rows.map((r, i) => (
         <div key={i} style={{
-          display: "grid", gridTemplateColumns: "150px 1fr 8px 1fr",
+          display: "grid", gridTemplateColumns: COLS,
           gap: 3, marginBottom: 3, alignItems: "center",
         }}>
           <div style={{
@@ -150,7 +127,7 @@ export default function CubeCard({
             fontSize: r.isBase ? 12.5 : 13, lineHeight: 1.25,
             fontStyle: r.isBase ? "italic" : "normal",
             color: r.isBase ? C.textDim : "#e2e8f0",
-            paddingRight: 8,
+            paddingRight: 6,
             display: "-webkit-box", WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical", overflow: "hidden",
           }} title={r.label}>
@@ -169,11 +146,10 @@ export default function CubeCard({
       ))}
 
       <div style={{
-        marginTop: 8, fontFamily: FONT, fontSize: 9.5, color: C.textDim,
-        lineHeight: 1.4,
+        marginTop: 6, fontFamily: MONO, fontSize: 7.5, color: C.textDim,
+        letterSpacing: 0.8, textTransform: "uppercase", textAlign: "center",
       }}>
-        Hover any cell for the exact wording shown to that group ·
-        ● = significant (95% CI excludes zero) · faded = low-confidence cell
+        hover for exact wording · ● significant · click to fold
       </div>
     </div>
   );

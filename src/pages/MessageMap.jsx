@@ -25,7 +25,7 @@
 // basket reorganization, and the variant-universe data still land
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -104,14 +104,13 @@ export default function MessageMap() {
   const [metric, setMetric] = useState(defaultMetric);
   const [basket, setBasket] = useState(UI.default_basket || "total");
 
-  // CUBE — the focal intersection. Clicking any cell zooms it: the row
-  // accordions open into proof-token sub-rows, the column widens, and
-  // everything outside the focal row/column dims (spotlight). Clicking
-  // the same cell (or the chevron of its row) folds it back up.
+  // CUBE — the focal intersection. Clicking any cell swaps it IN PLACE
+  // for the expanded mini-grid (CubeCard): the segment column widens,
+  // the row grows taller, and everything outside the focal row/column
+  // dims (spotlight). Clicking the cube (or the same cell again) folds
+  // it back up. No popup — the mini-grid IS the focal point.
   // {msgId, segId} | null
   const [focal, setFocal] = useState(null);          // {msgId, segId}
-  const [anchor, setAnchor] = useState(null);        // {left, top} in frame
-  const frameRef = useRef(null);
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
   const [openRows, setOpenRows] = useState(() => new Set());
   // CROSSHAIR — hover any cell to light up its full row + column;
@@ -214,25 +213,13 @@ export default function MessageMap() {
     return p.short_label;
   };
 
-  const toggleFocal = (msgId, segId, evt) => {
+  const toggleFocal = (msgId, segId) => {
     // Same cell again → fold the cube back up.
-    if (focal && focal.msgId === msgId && focal.segId === segId) {
-      setFocal(null);
-      return;
-    }
-    // Measure the clicked cell NOW — evt.currentTarget is nulled once
-    // the handler returns, so it must never be read inside an updater.
-    if (evt && evt.currentTarget && frameRef.current) {
-      const frame = frameRef.current.getBoundingClientRect();
-      const cell = evt.currentTarget.getBoundingClientRect();
-      const CARD_W = 430;
-      setAnchor({
-        left: Math.max(8, Math.min(cell.left - frame.left,
-                                   frame.width - CARD_W - 8)),
-        top: cell.bottom - frame.top + 6,
-      });
-    }
-    setFocal({ msgId, segId });
+    setFocal(prev =>
+      prev && prev.msgId === msgId && prev.segId === segId
+        ? null
+        : { msgId, segId }
+    );
   };
   const toggleRow = (msgId) => {
     if (focal?.msgId === msgId) { setFocal(null); return; }
@@ -324,10 +311,11 @@ export default function MessageMap() {
   );
 
   // CUBE — the shared column template. The focal segment column widens
-  // (zoom-in); everything else keeps its share. Header + every row use
-  // this same template so the whole COLUMN expands together.
+  // far enough to host the in-place mini-grid; everything else keeps
+  // its share. Header + every row use this same template so the whole
+  // COLUMN expands together (segment circles included).
   const gridTemplate = orderedSegments.map(seg =>
-    focal && focal.segId === seg.id ? "minmax(150px, 2.6fr)" : "minmax(56px, 1fr)"
+    focal && focal.segId === seg.id ? "minmax(360px, 3fr)" : "minmax(56px, 1fr)"
   ).join(" ");
   const rowTemplate = `36px 220px 150px ${gridTemplate}`;
 
@@ -440,41 +428,10 @@ export default function MessageMap() {
               chevron · Message · Variant Universe · 16 segment columns
           Variant Universe moved LEFT per analyst feedback.
       */}
-      <div ref={frameRef} style={{
+      <div style={{
         background: C.card, border: `1px solid ${C.cardBorder}`,
         borderRadius: 6, overflow: "visible", position: "relative",
       }}>
-        {/* CUBE CARD — grows out of the clicked intersection */}
-        {focal && anchor && (() => {
-          const m = MESSAGES.find(x => x.id === focal.msgId);
-          const seg = SEGMENTS.find(x => x.id === focal.segId);
-          if (!m || !seg) return null;
-          const tokens = tokensByMsg.get(m.id) || [];
-          const rows = proofValuesFor(m.id).map(v => {
-            // token value v ↔ tokens[max(v-1, 0)] (variant 1 = base)
-            const tok = tokens[Math.max(v - 1, 0)] || {};
-            const label = proofLabel(m, v);
-            return {
-              isBase: label === "no proof point",
-              label,
-              core: getProofHalf(m.id, seg.id, 2, v),
-              tuned: getProofHalf(m.id, seg.id, 1, v),
-              coreText: tok.text_core || "",
-              personaText: tok.text_by_persona?.[seg.code] || "",
-            };
-          });
-          return (
-            <CubeCard
-              message={m}
-              seg={seg}
-              segColor={seg.party === "GOP" ? "#ef4444" : "#3b82f6"}
-              rows={rows}
-              fadeBelow={FADE_BELOW}
-              anchor={anchor}
-              onClose={() => setFocal(null)}
-            />
-          );
-        })()}
         {/* Header row */}
         <div style={{
           display: "grid",
@@ -483,6 +440,7 @@ export default function MessageMap() {
           padding: "10px 12px",
           borderBottom: `1px solid ${C.cardBorder}`,
           background: C.bg,
+          transition: "grid-template-columns 0.3s",
         }}>
           <div /> {/* chevron gutter */}
 
@@ -542,9 +500,12 @@ export default function MessageMap() {
           <div style={{
             gridColumn: `4 / span ${orderedSegments.length}`,
             display: "grid",
-            gridTemplateColumns: `repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
+            // Same tracks + gap as the body rows, so the circles track
+            // the focal column when it widens.
+            gridTemplateColumns: gridTemplate,
             gridTemplateRows: "auto auto",
-            columnGap: 0, rowGap: 4,
+            columnGap: 3, rowGap: 4,
+            transition: "grid-template-columns 0.3s",
           }}>
             <div style={{
               gridColumn: `1 / -1`,
@@ -572,9 +533,9 @@ export default function MessageMap() {
           </div>
         </div>
 
-        {/* Body — the cube grid. Click any cell to zoom its intersection:
-            the row accordions into proof-token sub-rows, the column
-            widens, everything else dims. Chevron = accordion only. */}
+        {/* Body — the cube grid. Click any cell and the mini-grid takes
+            its place: the column widens, the row grows, everything else
+            dims. Chevron = proof accordion only. */}
         <div>
           {MESSAGES.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
@@ -590,7 +551,7 @@ export default function MessageMap() {
                   display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                   padding: "8px 12px", alignItems: "center", minHeight: 38,
                   background: isFocalRow ? "rgba(96,165,250,0.04)" : "transparent",
-                  transition: "background 0.25s",
+                  transition: "background 0.25s, grid-template-columns 0.3s",
                 }}>
                   <div
                     onClick={() => toggleRow(m.id)}
@@ -657,22 +618,48 @@ export default function MessageMap() {
                           <div style={{
                             position: "absolute", top: -21, left: 0, right: 0,
                             display: "flex", justifyContent: "center",
-                            zIndex: 5, pointerEvents: "none",
+                            zIndex: 7, pointerEvents: "none",
                           }}>
                             <PersonaIcon />
                           </div>
                         )}
-                        <SplitCell
-                          core={getHalf(m.id, seg.id, 2)}
-                          tuned={getHalf(m.id, seg.id, 1)}
-                          fadeBelow={FADE_BELOW}
-                          height={isFocalCell ? 30 : 24}
-                          compact={!isFocalCol}
-                          group={isFocalCell}
-                          dim={focal ? !(isFocalRow || isFocalCol) : false}
-                          personaOpen={!!focal && (isFocalRow || isFocalCol)}
-                          onClick={(e) => toggleFocal(m.id, seg.id, e)}
-                        />
+                        {isFocalCell ? (() => {
+                          // THE CUBE — the mini-grid replaces the cell in
+                          // place: full possibility space of this spec.
+                          const tokens = tokensByMsg.get(m.id) || [];
+                          const cubeRows = proofValuesFor(m.id).map(v => {
+                            // token value v ↔ tokens[max(v-1, 0)]
+                            // (variant 1 = base)
+                            const tok = tokens[Math.max(v - 1, 0)] || {};
+                            const label = proofLabel(m, v);
+                            return {
+                              isBase: label === "no proof point",
+                              label,
+                              core: getProofHalf(m.id, seg.id, 2, v),
+                              tuned: getProofHalf(m.id, seg.id, 1, v),
+                              coreText: tok.text_core || "",
+                              personaText: tok.text_by_persona?.[seg.code] || "",
+                            };
+                          });
+                          return (
+                            <CubeCard
+                              rows={cubeRows}
+                              fadeBelow={FADE_BELOW}
+                              onClose={() => setFocal(null)}
+                            />
+                          );
+                        })() : (
+                          <SplitCell
+                            core={getHalf(m.id, seg.id, 2)}
+                            tuned={getHalf(m.id, seg.id, 1)}
+                            fadeBelow={FADE_BELOW}
+                            height={24}
+                            compact={!isFocalCol}
+                            dim={focal ? !(isFocalRow || isFocalCol) : false}
+                            personaOpen={!!focal && (isFocalRow || isFocalCol)}
+                            onClick={() => toggleFocal(m.id, seg.id)}
+                          />
+                        )}
                       </div>
                     );
                   })}
