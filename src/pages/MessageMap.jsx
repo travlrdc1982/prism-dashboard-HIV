@@ -1049,14 +1049,13 @@ export default function MessageMap() {
             }
 
             // ── Standard row (+ chevron accordion) — while a focal box
-            // is open elsewhere, everything here fades out.
+            // is open elsewhere, everything here fades out. The wording
+            // drawer ONLY renders for the focal row (the cube being
+            // dissected); resting-state hovers don't summon it.
             return (
               <div key={m.id} style={{
                 borderBottom: groupBorder, position: "relative",
               }}>
-                {hoverWording?.msgId === m.id && (
-                  <WordingDrawer hover={hoverWording} />
-                )}
                 {/* ── Main (aggregated) row ── */}
                 <div style={{
                   display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
