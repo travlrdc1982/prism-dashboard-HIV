@@ -931,52 +931,6 @@ export default function MessageMap() {
                               onCellHover={cellHoverHandler(m, seg, null)}
                               onClick={() => toggleFocal(m.id, seg.id)}
                             />
-                            {/* Δ chips — quantify the proof-point
-                                contribution. aggregate − baseline,
-                                both as the displayed 0-100 values
-                                (cell.v). */}
-                            {(() => {
-                              const baselineV = vals[0];
-                              const coreAgg = getHalf(m.id, seg.id, 2);
-                              const personaAgg = getHalf(m.id, seg.id, 1);
-                              const coreBase = baselineV != null
-                                ? getProofHalf(m.id, seg.id, 2, baselineV)
-                                : null;
-                              const personaBase = baselineV != null
-                                ? getProofHalf(m.id, seg.id, 1, baselineV)
-                                : null;
-                              const fmt = (agg, base) => {
-                                if (!agg || !base) return null;
-                                const d = Math.round(agg.v - base.v);
-                                return { d, label: `Δ ${d > 0 ? "+" : ""}${d} vs baseline` };
-                              };
-                              const cD = fmt(coreAgg, coreBase);
-                              const pD = fmt(personaAgg, personaBase);
-                              const tone = (d) => d == null
-                                ? "#94a3b8"
-                                : d > 0 ? "#34d399"
-                                : d < 0 ? "#f87171"
-                                : "#94a3b8";
-                              return (
-                                <div style={{
-                                  display: "grid",
-                                  gridTemplateColumns: "1fr 8px 1fr",
-                                  marginTop: 4,
-                                  fontFamily: MONO, fontSize: 8,
-                                  fontWeight: 700, letterSpacing: 0.8,
-                                  textAlign: "center",
-                                  textTransform: "uppercase",
-                                }}>
-                                  <span style={{ color: tone(cD?.d) }}>
-                                    {cD ? cD.label : "—"}
-                                  </span>
-                                  <div />
-                                  <span style={{ color: tone(pD?.d) }}>
-                                    {pD ? pD.label : "—"}
-                                  </span>
-                                </div>
-                              );
-                            })()}
                           </div>
                         );
                       }
