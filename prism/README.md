@@ -38,7 +38,7 @@ get_population("voters_v1")            # Stage-1 rake target (DEM/GOP)
 | `quality/` (DQ flags) | ✅ byte-reproduces the reference flags |
 | `composites/` | ✅ byte-equivalent to the frozen prototype; Decipher audit encoded |
 | `activation/` | ✅ outcomes prototype-equivalent; per-study fit runs on HIV Wave 1 |
-| `weighting/` (joint-convergence rake) | ⏳ |
+| `weighting/` (joint-convergence rake) | ✅ vectorized IPF; both margin sets enforced; trim-limited residuals reported |
 | `studies/` + YAML schema | ⏳ |
 | `pipeline.py` + CLI | ⏳ |
 
