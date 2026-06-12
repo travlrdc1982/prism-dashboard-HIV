@@ -75,7 +75,12 @@ export default function SplitCell({
         border: "1px solid rgba(30,41,59,0.7)",
         cursor: onClick ? "zoom-in" : "default",
         opacity: dim ? 0.15 : 1,
-        boxShadow: focal ? "0 0 0 2px rgba(241,245,249,0.9)" : "none",
+        // The spotlighted cell reads as one cohesive square (analyst):
+        // a thin light-grey border wraps the WHOLE cell when focal,
+        // outside the cuts.
+        boxShadow: focal
+          ? "0 0 0 1.5px rgba(203,213,225,0.95), 0 0 0 2.5px rgba(241,245,249,0.35)"
+          : "none",
         transition: "opacity 0.25s, box-shadow 0.2s, height 0.3s",
       }}
     >

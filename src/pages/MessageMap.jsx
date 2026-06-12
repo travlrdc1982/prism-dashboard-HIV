@@ -75,6 +75,22 @@ const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
   return (STUDY_METRICS[cb]?.roi || 0) - (STUDY_METRICS[ca]?.roi || 0);
 });
 
+// PersonaIcon — generic person silhouette in a circle. Sits above the
+// segment header circle when that column's persona half is unfolded;
+// labels the right side of the cube as the persona-tuned variant.
+function PersonaIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+      <circle cx="12" cy="12" r="11" fill="none"
+              stroke="#7db3fa" strokeWidth="1.5" />
+      <circle cx="12" cy="9.5" r="2.6" fill="none"
+              stroke="#7db3fa" strokeWidth="1.5" />
+      <path d="M5.5 19 Q12 14 18.5 19" fill="none"
+            stroke="#7db3fa" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
@@ -476,11 +492,28 @@ export default function MessageMap() {
               {N_SEGMENTS} PRISM Segments
               <InfoDot title="Segments" placement="below">{SEGMENT_INFO}</InfoDot>
             </div>
-            {orderedSegments.map(seg => (
-              <div key={seg.id} style={{ display: "flex", justifyContent: "center" }}>
-                <SegmentCircle seg={seg} />
-              </div>
-            ))}
+            {/* Segment-circle column headers. When the column is the focal
+                (persona-open) column, a small persona icon appears above the
+                circle to label the unfolded side. */}
+            {orderedSegments.map(seg => {
+              const personaOpen = !!focal && focal.segId === seg.id;
+              return (
+                <div key={seg.id} style={{
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", gap: 2,
+                }}>
+                  <div style={{
+                    height: 18,
+                    opacity: personaOpen ? 1 : 0,
+                    transform: personaOpen ? "translateY(0)" : "translateY(4px)",
+                    transition: "opacity 0.2s, transform 0.2s",
+                  }}>
+                    <PersonaIcon />
+                  </div>
+                  <SegmentCircle seg={seg} />
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -521,10 +554,11 @@ export default function MessageMap() {
                   }} onClick={() => toggleRow(m.id)}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{
-                        fontFamily: MONO, fontSize: 18, color: C.textDim, letterSpacing: 0.5,
+                        fontFamily: MONO, fontSize: 9, color: C.textDim, letterSpacing: 0.5,
                       }}>MSG {String(m.id).padStart(2, "0")}</div>
                       <div style={{
-                        fontFamily: FONT, fontSize: 22, fontWeight: 700, color: C.text,
+                        // Analyst direction: message label 1.3x (11 → 14.3)
+                        fontFamily: FONT, fontSize: 14.3, fontWeight: 700, color: C.text,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{m.theme_label}</div>
                     </div>
@@ -577,8 +611,9 @@ export default function MessageMap() {
                           // analyst direction: question wording labels AND
                           // hover tooltips read in the editorial serif;
                           // admin labels (MSG ##, theme labels) stay Nunito.
+                          // Analyst direction: question wording 1.5x (13 → 19.5)
                           fontFamily: "'Lora', Georgia, serif",
-                          fontSize: 13, fontStyle: "italic", lineHeight: 1.55,
+                          fontSize: 19.5, fontStyle: "italic", lineHeight: 1.5,
                           color: "#cbd5e1",
                           borderLeft: `2px solid ${C.violet}`,
                           paddingLeft: 10, marginLeft: 2,
@@ -605,8 +640,9 @@ export default function MessageMap() {
                             paddingLeft: 22, paddingRight: 10,
                             // Lora — proof-point label IS respondent-facing
                             // wording (the appended proof statement)
+                            // Analyst direction: proof-point wording 1.5x (12 → 18)
                             fontFamily: "'Lora', Georgia, serif",
-                            fontSize: 12, fontWeight: 500,
+                            fontSize: 18, fontWeight: 500,
                             color: v === 0 || proofLabel(m, v) === "no proof point"
                               ? C.textDim : "#e2e8f0",
                             fontStyle: proofLabel(m, v) === "no proof point" ? "italic" : "normal",
