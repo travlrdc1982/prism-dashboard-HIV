@@ -33,9 +33,15 @@ class WeightConfig:
     tolerance: float = 1.0e-7
 
     # Joint-convergence outer loop (analyst decision: both margin sets
-    # enforced simultaneously, superseding the one-pass prototype)
+    # enforced simultaneously, superseding the one-pass prototype).
+    # Default tolerance 0.005 (half a point) is the knee of the
+    # DEFF-vs-precision curve on HIV Wave 1: ~5 outer passes, every
+    # margin within 0.5pp (far below sampling noise), DEFF 1.96 vs
+    # 2.02 at the trim-limited floor — and vs the one-pass prototype's
+    # 9.9pp worst demographic gap (GOP 65+). Tighten or loosen per
+    # study in YAML; the residual table reports either way.
     outer_max_iterations: int = 50
-    outer_tolerance: float = 1.0e-4     # max margin gap, proportion units
+    outer_tolerance: float = 0.005      # max margin gap, proportion units
 
     def validate(self):
         assert self.rake_dimensions, "rake_dimensions must not be empty"
