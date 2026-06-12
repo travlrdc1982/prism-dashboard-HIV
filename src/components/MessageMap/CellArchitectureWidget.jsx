@@ -1,172 +1,193 @@
-// Message Map building block — shared chrome for the /messages page.
-// Lifted from src/pages/MessageMap.jsx (B2 prep) so later studies can
-// reuse the Message Map shell without forking the page.
+// Message Map building block — the cell-architecture explainer.
+//
+// One square = one message × segment intersection. Clicking the square
+// unfolds the array of possibilities tested at that intersection:
+//
+//   state 0   ■            the intersection (one cell)
+//   state 1   ■|■           × 2 framings — CORE | PERSONA-TUNED
+//   state 2   ■|■           × 6 proof tokens — "no proof" + proofs 1–5
+//             ─┼─             expand below as rows inside the SAME square
+//             ▦|▦           = up to 12 tested variants per intersection
+//
+// All labels live OUTSIDE the square (column labels above, token labels
+// in a left gutter). Hovering any sub-cell names its exact combination
+// in the caption. Click cycles 0 → 1 → 2 → 0.
 import { useState } from "react";
 import { C, FONT, MONO } from "../../data/theme";
 import InfoDot from "../InfoDot";
 
-// ═══════════════════════════════════════════════════════════════
-// CELL-ARCHITECTURE INTERACTIVE WIDGET
-// ═══════════════════════════════════════════════════════════════
-// One cohesive square that unfolds:
-//   • Click "+ persona" — the right half slides out from the CORE left
-//     half (transformOrigin: left, scaleX 0→1). The whole shape stays
-//     a single bordered square the entire time.
-//   • Click "▸ proof tokens" — horizontal dashed cuts slide into the
-//     same square, creating base/proof-1/proof-2/proof-3 stripes.
-// All labels (CORE, PERSONA, base/proof-N) sit OUTSIDE the square.
+const N_PROOFS = 5;          // illustrative maximum (platform supports 1–5)
+const COL_W = 62;            // each framing column, px
+const GUTTER = 58;           // left token-label gutter, px
+const BASE_H = 56;           // square height while undivided / two columns
+const BASE_H_OPEN = 26;      // "no proof" row height once tokens unfold
+const ROW_H = 17;            // each proof-token row height
+const EASE = "0.35s cubic-bezier(0.4, 0, 0.2, 1)";
+
+const BLUE = "#60a5fa";
+const CORE_BG = "#334155";
+const PERSONA_BG = "rgba(96,165,250,0.22)";
+
 export default function CellArchitectureWidget() {
-  const [personaOpen, setPersonaOpen] = useState(false);
-  const [proofsOpen,  setProofsOpen]  = useState(false);
+  const [state, setState] = useState(0);          // 0 → 1 → 2 → 0
+  const [hover, setHover] = useState(null);       // {col, row} | null
 
-  const HALF_W   = 60;        // each half-cell width
-  const LABEL_W  = 54;        // gutter for left-side row labels
-  const H_ROW    = 20;        // every row inside the square
-  const PROOFS   = ["Proof 1", "Proof 2", "Proof 3"];
+  const split = state >= 1;
+  const open = state === 2;
 
-  const tokenCut    = "1.5px dashed #64748b";
-  const personaCut  = "1.5px dashed #60a5fa";
-  const borderColor = "#94a3b8";
+  const captions = [
+    "One message × segment intersection. Click the square to unfold what was tested inside it.",
+    "× 2 framings — the CORE wording (left) vs the segment-tuned PERSONA variant (right). Click again.",
+    `× ${N_PROOFS + 1} proof tokens — the base wording plus up to ${N_PROOFS} appended proof points = up to ${2 * (N_PROOFS + 1)} tested variants in this one cell. Click to fold up.`,
+  ];
+
+  const hoverName = hover
+    ? `${hover.col === 0 ? "CORE" : "PERSONA-TUNED"}${
+        open ? ` · ${hover.row === 0 ? "no proof" : `proof ${hover.row}`}` : ""
+      } — one tested variant`
+    : null;
+
+  const variantCount = state === 0 ? 1 : state === 1 ? 2 : 2 * (N_PROOFS + 1);
+
+  // One sub-rectangle of the matrix.
+  const subCell = (col, row) => {
+    const isHover = hover && hover.col === col && hover.row === row;
+    return (
+      <div
+        key={`${col}-${row}`}
+        onMouseEnter={() => setHover({ col, row })}
+        onMouseLeave={() => setHover(null)}
+        style={{
+          flex: 1,
+          background: col === 0 ? CORE_BG : PERSONA_BG,
+          filter: isHover ? "brightness(1.45)" : "none",
+          boxShadow: isHover ? "inset 0 0 0 1px rgba(241,245,249,0.8)" : "none",
+          transition: "filter 0.1s",
+        }}
+      />
+    );
+  };
+
+  // A row of the matrix: CORE half + seam + PERSONA half (PERSONA width
+  // animates from 0 so the seam visibly slides out of the CORE square).
+  const matrixRow = (row, height, topCut) => (
+    <div key={row} style={{
+      display: "flex", height, overflow: "hidden",
+      borderTop: topCut ? "1px dashed #64748b" : "none",
+      transition: `height ${EASE}`,
+    }}>
+      <div style={{ width: COL_W, display: "flex", flexShrink: 0 }}>
+        {subCell(0, row)}
+      </div>
+      <div style={{
+        width: split ? 1 : 0, flexShrink: 0,
+        background: BLUE, opacity: split ? 0.8 : 0,
+        transition: `all ${EASE}`,
+      }} />
+      <div style={{
+        width: split ? COL_W : 0, display: "flex", flexShrink: 0,
+        overflow: "hidden", transition: `width ${EASE}`,
+      }}>
+        {subCell(1, row)}
+      </div>
+    </div>
+  );
+
+  // Token label in the gutter, vertically matched to its row.
+  const gutterLabel = (row, height) => (
+    <div key={row} style={{
+      height, display: "flex", alignItems: "center", justifyContent: "flex-end",
+      paddingRight: 8, overflow: "hidden",
+      opacity: open ? 1 : 0,
+      transition: `height ${EASE}, opacity 0.25s ${open ? "0.2s" : "0s"}`,
+      fontFamily: FONT, fontSize: 9,
+      color: row === 0 ? C.textDim : C.textMuted,
+      fontStyle: row === 0 ? "italic" : "normal",
+      fontWeight: 600, whiteSpace: "nowrap",
+    }}>
+      {row === 0 ? "no proof" : `proof ${row}`}
+    </div>
+  );
+
+  const rows = [0, ...Array.from({ length: N_PROOFS }, (_, i) => i + 1)];
+  const rowHeight = (row) =>
+    row === 0 ? (open ? BASE_H_OPEN : BASE_H) : (open ? ROW_H : 0);
 
   return (
     <div style={{
-      flexShrink: 0,
-      padding: "10px 12px 12px",
-      background: C.card,
-      border: `1px solid ${C.cardBorder}`,
-      borderRadius: 6,
-      width: 240,
+      flexShrink: 0, width: 252,
+      padding: "10px 14px 12px",
+      background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
     }}>
-      {/* Title */}
+      {/* Title + live variant counter */}
       <div style={{
-        fontFamily: MONO, fontSize: 7, color: C.textDim,
-        letterSpacing: 1.5, textTransform: "uppercase",
-        marginBottom: 10, display: "flex", alignItems: "center",
+        display: "flex", alignItems: "center", marginBottom: 8,
       }}>
-        Cell Architecture
-        <InfoDot title="Cell architecture">
-          Each cell is one (message × segment × persona × proof token)
-          combination. Click below to unfold the persona half and the
-          proof-token rows.
-        </InfoDot>
+        <span style={{
+          fontFamily: MONO, fontSize: 7, color: C.textDim,
+          letterSpacing: 1.5, textTransform: "uppercase",
+          display: "flex", alignItems: "center",
+        }}>
+          Cell Architecture
+          <InfoDot title="Cell architecture">
+            Every intersection of a message row and a segment column holds an
+            array of tested possibilities: 2 framings (CORE vs persona-tuned)
+            × up to 6 proof tokens. Click the square to unfold them.
+          </InfoDot>
+        </span>
+        <span style={{
+          marginLeft: "auto",
+          fontFamily: MONO, fontSize: 8, fontWeight: 700,
+          color: state === 0 ? C.textMuted : "#34d399",
+          letterSpacing: 0.5,
+          transition: "color 0.2s",
+        }}>
+          {variantCount} variant{variantCount > 1 ? "s" : ""}
+        </span>
       </div>
 
-      {/* ─── Diagram ─── */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `${LABEL_W}px auto`,
-        rowGap: 0, columnGap: 0, marginBottom: 12,
-      }}>
-        {/* Top-left empty corner */}
-        <div />
-        {/* Top labels: CORE | PERSONA (outside the square) */}
+      {/* Column labels — outside the square, above each framing column */}
+      <div style={{ display: "flex", marginBottom: 3 }}>
+        <div style={{ width: GUTTER, flexShrink: 0 }} />
         <div style={{
-          display: "grid",
-          gridTemplateColumns: `${HALF_W}px ${personaOpen ? HALF_W : 0}px`,
-          transition: "grid-template-columns 0.28s ease",
-          paddingBottom: 4,
-        }}>
-          <div style={{
-            textAlign: "center",
-            fontFamily: MONO, fontSize: 8, fontWeight: 700,
-            color: "#cbd5e1", letterSpacing: 1, textTransform: "uppercase",
-          }}>Core</div>
-          <div style={{
-            textAlign: "center", overflow: "hidden",
-            fontFamily: MONO, fontSize: 8, fontWeight: 700,
-            color: "#60a5fa", letterSpacing: 1, textTransform: "uppercase",
-            opacity: personaOpen ? 1 : 0,
-            transition: "opacity 0.2s 0.1s",
-          }}>Persona</div>
-        </div>
-
-        {/* Left labels column — base + (optional) proof rows */}
-        <div style={{ display: "flex", flexDirection: "column", paddingRight: 6 }}>
-          <div style={{
-            height: H_ROW, display: "flex", alignItems: "center", justifyContent: "flex-end",
-            fontFamily: FONT, fontSize: 9, fontWeight: 600,
-            color: proofsOpen ? C.textMuted : "transparent",
-            fontStyle: "italic", transition: "color 0.2s",
-          }}>base</div>
-          {proofsOpen && PROOFS.map(label => (
-            <div key={label} style={{
-              height: H_ROW, display: "flex", alignItems: "center", justifyContent: "flex-end",
-              fontFamily: FONT, fontSize: 9, fontWeight: 600, color: C.text,
-            }}>{label}</div>
-          ))}
-        </div>
-
-        {/* The unified square — single border, internal dashed cuts */}
+          width: COL_W, textAlign: "center", flexShrink: 0,
+          fontFamily: MONO, fontSize: 7, fontWeight: 700,
+          letterSpacing: 1, textTransform: "uppercase", color: "#cbd5e1",
+        }}>Core</div>
         <div style={{
-          border: `1.5px solid ${borderColor}`,
-          borderRadius: 3,
-          overflow: "hidden",
-          display: "grid",
-          gridTemplateColumns: `${HALF_W}px ${personaOpen ? HALF_W : 0}px`,
-          transition: "grid-template-columns 0.28s ease",
+          width: split ? COL_W + 1 : 0, overflow: "hidden", flexShrink: 0,
+          textAlign: "center",
+          fontFamily: MONO, fontSize: 7, fontWeight: 700,
+          letterSpacing: 1, textTransform: "uppercase", color: BLUE,
+          opacity: split ? 1 : 0,
+          transition: `width ${EASE}, opacity 0.25s`,
+          whiteSpace: "nowrap",
+        }}>Persona</div>
+      </div>
+
+      {/* Gutter + the square (one border around the whole unfolding matrix) */}
+      <div style={{ display: "flex", cursor: "pointer" }}
+           onClick={() => { setState((state + 1) % 3); setHover(null); }}>
+        <div style={{ width: GUTTER, flexShrink: 0 }}>
+          {rows.map(r => gutterLabel(r, rowHeight(r)))}
+        </div>
+        <div style={{
+          border: "1.5px solid #94a3b8", borderRadius: 3,
+          overflow: "hidden", flexShrink: 0,
+          alignSelf: "flex-start",
         }}>
-          {/* CORE column */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ height: H_ROW, background: "#334155" }} />
-            {proofsOpen && PROOFS.map((_, i) => (
-              <div key={i} style={{
-                height: H_ROW, background: "#1e293b",
-                borderTop: tokenCut,
-              }} />
-            ))}
-          </div>
-          {/* PERSONA column — unfolds from left edge */}
-          <div style={{
-            display: "flex", flexDirection: "column",
-            borderLeft: personaOpen ? personaCut : "none",
-            transformOrigin: "left center",
-            transform: personaOpen ? "scaleX(1)" : "scaleX(0)",
-            transition: "transform 0.28s ease",
-            overflow: "hidden",
-          }}>
-            <div style={{ height: H_ROW, background: "rgba(96,165,250,0.22)" }} />
-            {proofsOpen && PROOFS.map((_, i) => (
-              <div key={i} style={{
-                height: H_ROW, background: "rgba(96,165,250,0.12)",
-                borderTop: tokenCut,
-              }} />
-            ))}
-          </div>
+          {rows.map(r => matrixRow(r, rowHeight(r), r > 0 && open))}
         </div>
       </div>
 
-      {/* Controls below the diagram */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <button
-          type="button"
-          onClick={() => setPersonaOpen(s => !s)}
-          style={{
-            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
-            background: "transparent", border: "none", cursor: "pointer",
-            fontFamily: MONO, fontSize: 9, color: "#60a5fa", fontWeight: 700,
-            letterSpacing: 0.5, outline: "none",
-          }}
-        >
-          <span style={{ width: 10, color: "#60a5fa" }}>{personaOpen ? "−" : "+"}</span>
-          {personaOpen ? "fold persona" : "unfold persona half"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setProofsOpen(s => !s)}
-          style={{
-            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
-            background: "transparent", border: "none", cursor: "pointer",
-            fontFamily: MONO, fontSize: 9, color: C.violet, fontWeight: 700,
-            letterSpacing: 0.5, outline: "none",
-          }}
-        >
-          <span style={{
-            transform: proofsOpen ? "rotate(90deg)" : "rotate(0deg)",
-            transition: "transform 0.18s", display: "inline-block",
-            width: 10,
-          }}>▸</span>
-          {proofsOpen ? "hide proof tokens" : "cut into proof tokens"}
-        </button>
+      {/* Caption — fixed height so the card never jumps; hover overrides */}
+      <div style={{
+        marginTop: 8, minHeight: 56,
+        fontFamily: FONT, fontSize: 10, lineHeight: 1.45,
+        color: hoverName ? "#34d399" : C.textMuted,
+        transition: "color 0.1s",
+      }}>
+        {hoverName || captions[state]}
       </div>
     </div>
   );
