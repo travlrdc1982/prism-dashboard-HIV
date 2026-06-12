@@ -40,6 +40,7 @@ import {
   VariantUniverseLegend,
   SplitCell,
   CubePair,
+  VariantUniverseBar,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -193,6 +194,53 @@ export default function MessageMap() {
     }
     return out;
   }, []);
+
+  // VARIANT UNIVERSE — per-message stats: {min,max,core,optimal,live}.
+  // Restricted to the active basket so the band, the ○/● dots and the
+  // live tick all describe the audience the analyst is targeting.
+  const universeByMsg = useMemo(() => {
+    const cells = dashboard.message_map_cells?.[metric] || [];
+    const basketSegs = (BASKETS.find(b => b.id === basket) || BASKETS[0])
+      ?.segments || [];
+    const basketSet = new Set(basketSegs);
+
+    const wmean = (cs) => {
+      let sl = 0, sn = 0;
+      for (const c of cs) { sl += c.lift_shrunk * c.n; sn += c.n; }
+      return sn > 0 ? sl / sn : null;
+    };
+
+    const out = new Map();
+    for (const m of MESSAGES) {
+      const mc = cells.filter(c => c.message === m.id);
+      const bc = basketSet.size > 0
+        ? mc.filter(c => basketSet.has(c.segment)) : mc;
+      if (bc.length === 0) continue;
+
+      const lifts = bc.map(c => c.lift_shrunk);
+      const min = Math.min(...lifts);
+      const max = Math.max(...lifts);
+
+      const core = wmean(bc.filter(c => c.arm === 2 && c.proof === 0));
+
+      const armProofs = new Set(bc.map(c => `${c.arm}|${c.proof}`));
+      let optimal = -Infinity;
+      for (const k of armProofs) {
+        const [a, p] = k.split("|").map(Number);
+        const apMean = wmean(bc.filter(c => c.arm === a && c.proof === p));
+        if (apMean != null && apMean > optimal) optimal = apMean;
+      }
+      if (optimal === -Infinity) optimal = null;
+
+      const live = wmean(bc);
+      out.set(m.id, { min, max, core, optimal, live });
+    }
+    return out;
+  }, [metric, basket]);
+
+  // Bar color tracks the active metric: green for persuasion, blue for
+  // base (matches the strong-color callouts in the description).
+  const universeColor = metric === "base_messaging" ? "#60a5fa" : "#34d399";
 
   // CUBE — full token records per message id (core + per-persona text).
   const tokensByMsg = useMemo(() => {
@@ -682,16 +730,16 @@ export default function MessageMap() {
                       </div>
                     </div>
                     <div style={{
-                      gridRow: 1, gridColumn: 3,
-                      marginRight: 10, height: 22,
-                      background: "rgba(167,139,250,0.05)",
-                      border: `1px dashed rgba(167,139,250,0.3)`,
-                      borderRadius: 2,
+                      gridRow: 1, gridColumn: 3, marginRight: 10,
                       display: "flex", alignItems: "center",
-                      justifyContent: "center",
-                      fontFamily: MONO, fontSize: 8, color: C.textDim,
-                      letterSpacing: 0.5, opacity: 0.15,
-                    }}>B6</div>
+                      opacity: 0.15,
+                    }}>
+                      <VariantUniverseBar
+                        stats={universeByMsg.get(m.id)}
+                        colorScale={colorScale}
+                        color={universeColor}
+                      />
+                    </div>
 
                     {/* THE VIOLET COLUMN BRACKET — one container around
                         the persona-open column. Border only (no fill,
@@ -933,16 +981,19 @@ export default function MessageMap() {
                       }}>{m.theme_label}</div>
                     </div>
                   </div>
-                  {/* Variant Universe strip placeholder (B6) */}
+                  {/* Variant Universe strip — per-message 1-D summary */}
                   <div style={{
-                    marginRight: 10, height: 22,
-                    background: "rgba(167,139,250,0.05)",
-                    border: `1px dashed rgba(167,139,250,0.3)`,
-                    borderRadius: 2,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
-                    opacity: rowDim ? 0.15 : 1, transition: "opacity 0.25s",
-                  }}>B6</div>
+                    marginRight: 10,
+                    display: "flex", alignItems: "center",
+                    opacity: rowDim ? 0.15 : 1,
+                    transition: "opacity 0.25s",
+                  }}>
+                    <VariantUniverseBar
+                      stats={universeByMsg.get(m.id)}
+                      colorScale={colorScale}
+                      color={universeColor}
+                    />
+                  </div>
                   {orderedSegments.map(seg => {
                     const cross = focal
                       ? 0.15

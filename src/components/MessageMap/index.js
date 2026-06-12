@@ -7,6 +7,7 @@ export { default as ControlSelect } from './ControlSelect';
 export { default as ActionBtn } from './ActionBtn';
 export { default as LiftRamp } from './LiftRamp';
 export { default as VariantUniverseLegend } from './VariantUniverseLegend';
+export { default as VariantUniverseBar } from './VariantUniverseBar';
 export { default as SplitCell } from './SplitCell';
 export { scaleLift, rampColor } from './liftScale';
 export { default as CubePair, MiniCell } from './CubePair';
