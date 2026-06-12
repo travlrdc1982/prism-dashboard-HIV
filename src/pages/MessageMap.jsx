@@ -87,6 +87,15 @@ export default function MessageMap() {
   const [metric, setMetric] = useState(defaultMetric);
   const [basket, setBasket] = useState(UI.default_basket || "total");
 
+  // CUBE — the focal intersection. Clicking any cell zooms it: the row
+  // accordions open into proof-token sub-rows, the column widens, and
+  // everything outside the focal row/column dims (spotlight). Clicking
+  // the same cell (or the chevron of its row) folds it back up.
+  // {msgId, segId} | null
+  const [focal, setFocal] = useState(null);
+  // Chevron-expanded rows (no zoom/spotlight — just the accordion).
+  const [openRows, setOpenRows] = useState(() => new Set());
+
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
   const orderedSegments = SEGMENTS;
@@ -115,12 +124,74 @@ export default function MessageMap() {
     return out;
   }, [metric]);
 
+  // CUBE — exact per-proof cells (no aggregation): `msg|seg|arm|proof`.
+  const proofIndex = useMemo(() => {
+    const cells = dashboard.message_map_cells?.[metric] || [];
+    const idx = new Map();
+    for (const c of cells) {
+      idx.set(`${c.message}|${c.segment}|${c.arm}|${c.proof}`, c);
+    }
+    return idx;
+  }, [metric]);
+
+  // CUBE — full core wording per message id (variants workbook).
+  const coreTextByMsg = useMemo(() => {
+    const out = new Map();
+    for (const m of dashboard.variants?.messages || []) {
+      const id = parseInt(String(m.msg_id).split("_").pop(), 10);
+      out.set(id, m.tokens?.[0]?.text_core || "");
+    }
+    return out;
+  }, []);
+
   const colorScale = activeMetric?.color_scale;
   // arm encoding from the survey: 1 = PERSONA-tuned, 2 = CORE
   const getHalf = (msgId, segId, arm) => {
     const a = cellIndex.get(`${msgId}|${segId}|${arm}`);
     if (!a) return null;
     return { v: scaleLift(a.lift, colorScale), lift: a.lift, n: a.n, w: a.w };
+  };
+  // Per-proof half, with the significance flag (95% CI excludes zero).
+  const getProofHalf = (msgId, segId, arm, proof) => {
+    const c = proofIndex.get(`${msgId}|${segId}|${arm}|${proof}`);
+    if (!c) return null;
+    return {
+      v: scaleLift(c.lift_shrunk, colorScale), lift: c.lift_shrunk,
+      n: c.n, w: c.shrink_weight,
+      sig: c.ci_low > 0 || c.ci_high < 0,
+    };
+  };
+
+  // The proof-token values present for a message in the cell data, in
+  // order. Token value v maps to messages[].proofs[v-1] for its label
+  // (survey variant 1 = the base/no-proof wording; see step3 exposure
+  // notes); the 5 no-proof messages carry a single token value 0.
+  const proofValuesFor = (msgId) => {
+    const vals = new Set();
+    for (const key of proofIndex.keys()) {
+      const [m, , , p] = key.split("|");
+      if (+m === msgId) vals.add(+p);
+    }
+    return [...vals].sort((a, b) => a - b);
+  };
+  const proofLabel = (m, v) => {
+    if (v === 0) return "no proof point";
+    const p = m.proofs?.[v - 1];
+    if (!p || p.short_label === "base") return "no proof point";
+    return p.short_label;
+  };
+
+  const toggleFocal = (msgId, segId) => {
+    setFocal(f => (f && f.msgId === msgId && f.segId === segId)
+      ? null : { msgId, segId });
+  };
+  const toggleRow = (msgId) => {
+    if (focal?.msgId === msgId) { setFocal(null); return; }
+    setOpenRows(prev => {
+      const next = new Set(prev);
+      if (next.has(msgId)) next.delete(msgId); else next.add(msgId);
+      return next;
+    });
   };
 
   if (!hasData) {
@@ -203,6 +274,14 @@ export default function MessageMap() {
     </>
   );
 
+  // CUBE — the shared column template. The focal segment column widens
+  // (zoom-in); everything else keeps its share. Header + every row use
+  // this same template so the whole COLUMN expands together.
+  const gridTemplate = orderedSegments.map(seg =>
+    focal && focal.segId === seg.id ? "minmax(150px, 2.6fr)" : "minmax(56px, 1fr)"
+  ).join(" ");
+  const rowTemplate = `36px 220px 150px ${gridTemplate}`;
+
   return (
     <div style={{ color: C.text, fontFamily: FONT, maxWidth: 1800, margin: "0 auto" }}>
 
@@ -277,8 +356,10 @@ export default function MessageMap() {
         </div>
 
         <div style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
-          <ActionBtn label="Expand all" disabled />
-          <ActionBtn label="Collapse all" disabled />
+          <ActionBtn label="Expand all"
+            onClick={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))} />
+          <ActionBtn label="Collapse all"
+            onClick={() => { setOpenRows(new Set()); setFocal(null); }} />
           <ActionBtn label="Unpin all" disabled />
         </div>
       </div>
@@ -317,7 +398,7 @@ export default function MessageMap() {
         {/* Header row */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: `36px 220px 150px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
+          gridTemplateColumns: rowTemplate,
           gap: 0,
           padding: "10px 12px",
           borderBottom: `1px solid ${C.cardBorder}`,
@@ -403,53 +484,147 @@ export default function MessageMap() {
           </div>
         </div>
 
-        {/* Body — placeholder rows (live cells land in B2) */}
+        {/* Body — the cube grid. Click any cell to zoom its intersection:
+            the row accordions into proof-token sub-rows, the column
+            widens, everything else dims. Chevron = accordion only. */}
         <div>
-          {MESSAGES.map((m, i) => (
-            <div key={m.id} style={{
-              display: "grid",
-              gridTemplateColumns: `36px 220px 150px repeat(${orderedSegments.length}, minmax(56px, 1fr))`,
-              gap: 0,
-              padding: "8px 12px",
-              borderBottom: i < MESSAGES.length - 1 ? `1px solid ${C.cardBorder}` : "none",
-              alignItems: "center",
-              minHeight: 38,
-            }}>
-              <div style={{
-                fontFamily: MONO, fontSize: 10, color: C.textDim,
-                textAlign: "center", cursor: "default",
-              }}>▸</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 10 }}>
-                <div style={{ minWidth: 0 }}>
+          {MESSAGES.map((m, i) => {
+            const isFocalRow = focal?.msgId === m.id;
+            const isOpen = isFocalRow || openRows.has(m.id);
+            const rowDim = focal ? !isFocalRow : false;
+            const proofVals = isOpen ? proofValuesFor(m.id) : [];
+            return (
+              <div key={m.id} style={{
+                borderBottom: i < MESSAGES.length - 1 ? `1px solid ${C.cardBorder}` : "none",
+              }}>
+                {/* ── Main (aggregated) row ── */}
+                <div style={{
+                  display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                  padding: "8px 12px", alignItems: "center", minHeight: 38,
+                  background: isFocalRow ? "rgba(96,165,250,0.04)" : "transparent",
+                  transition: "background 0.25s",
+                }}>
+                  <div
+                    onClick={() => toggleRow(m.id)}
+                    style={{
+                      fontFamily: MONO, fontSize: 10,
+                      color: isOpen ? C.violet : C.textDim,
+                      textAlign: "center", cursor: "pointer",
+                      transform: isOpen ? "rotate(90deg)" : "none",
+                      transition: "transform 0.2s",
+                      opacity: rowDim ? 0.25 : 1,
+                    }}>▸</div>
                   <div style={{
-                    fontFamily: MONO, fontSize: 9, color: C.textDim, letterSpacing: 0.5,
-                  }}>MSG {String(m.id).padStart(2, "0")}</div>
+                    display: "flex", alignItems: "center", gap: 8,
+                    paddingRight: 10, opacity: rowDim ? 0.25 : 1,
+                    transition: "opacity 0.25s", cursor: "pointer",
+                  }} onClick={() => toggleRow(m.id)}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontFamily: MONO, fontSize: 9, color: C.textDim, letterSpacing: 0.5,
+                      }}>MSG {String(m.id).padStart(2, "0")}</div>
+                      <div style={{
+                        fontFamily: FONT, fontSize: 11, fontWeight: 700, color: C.text,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>{m.theme_label}</div>
+                    </div>
+                  </div>
+                  {/* Variant Universe strip placeholder (B6) */}
                   <div style={{
-                    fontFamily: FONT, fontSize: 11, fontWeight: 700, color: C.text,
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>{m.theme_label}</div>
+                    marginRight: 10, height: 22,
+                    background: "rgba(167,139,250,0.05)",
+                    border: `1px dashed rgba(167,139,250,0.3)`,
+                    borderRadius: 2,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
+                    opacity: rowDim ? 0.25 : 1, transition: "opacity 0.25s",
+                  }}>B6</div>
+                  {orderedSegments.map(seg => {
+                    const isFocalCol = focal?.segId === seg.id;
+                    const isFocalCell = isFocalRow && isFocalCol;
+                    return (
+                      <SplitCell
+                        key={seg.id}
+                        core={getHalf(m.id, seg.id, 2)}
+                        tuned={getHalf(m.id, seg.id, 1)}
+                        fadeBelow={FADE_BELOW}
+                        height={isFocalCell ? 30 : 24}
+                        compact={!isFocalCol}
+                        focal={isFocalCell}
+                        dim={focal ? !(isFocalRow || isFocalCol) : false}
+                        onClick={() => toggleFocal(m.id, seg.id)}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* ── Accordion: core wording + per-proof sub-rows ── */}
+                <div style={{
+                  maxHeight: isOpen ? 600 : 0, overflow: "hidden",
+                  transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}>
+                  {isOpen && (
+                    <>
+                      <div style={{
+                        display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                        padding: "2px 12px 6px",
+                      }}>
+                        <div />
+                        <div style={{
+                          gridColumn: "2 / span 2", paddingRight: 16,
+                          fontFamily: "'Lora', Georgia, serif",
+                          fontSize: 11.5, fontStyle: "italic", lineHeight: 1.55,
+                          color: "#cbd5e1",
+                          borderLeft: `2px solid ${C.violet}`,
+                          paddingLeft: 10, marginLeft: 2,
+                        }}>
+                          “{coreTextByMsg.get(m.id) || "(core wording unavailable)"}”
+                          <span style={{
+                            display: "block", marginTop: 3,
+                            fontFamily: MONO, fontSize: 7.5, fontStyle: "normal",
+                            color: C.textDim, letterSpacing: 1, textTransform: "uppercase",
+                          }}>Core message — exact wording shown to respondents</span>
+                        </div>
+                        <div style={{ gridColumn: `4 / span ${orderedSegments.length}` }} />
+                      </div>
+                      {proofVals.map(v => (
+                        <div key={v} style={{
+                          display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                          padding: "0 12px 4px", alignItems: "center",
+                        }}>
+                          <div style={{
+                            textAlign: "center", fontFamily: MONO,
+                            fontSize: 8, color: C.textDim,
+                          }}>·</div>
+                          <div style={{
+                            paddingLeft: 22, paddingRight: 10,
+                            fontFamily: FONT, fontSize: 10, fontWeight: 600,
+                            color: v === 0 || proofLabel(m, v) === "no proof point"
+                              ? C.textDim : C.textMuted,
+                            fontStyle: proofLabel(m, v) === "no proof point" ? "italic" : "normal",
+                            overflow: "hidden", textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}>↳ {proofLabel(m, v)}</div>
+                          <div />
+                          {orderedSegments.map(seg => (
+                            <SplitCell
+                              key={seg.id}
+                              core={getProofHalf(m.id, seg.id, 2, v)}
+                              tuned={getProofHalf(m.id, seg.id, 1, v)}
+                              fadeBelow={FADE_BELOW}
+                              height={20}
+                              compact={focal?.segId !== seg.id}
+                              dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
-              {/* Variant Universe strip placeholder */}
-              <div style={{
-                marginRight: 10, height: 22,
-                background: "rgba(167,139,250,0.05)",
-                border: `1px dashed rgba(167,139,250,0.3)`,
-                borderRadius: 2,
-                borderRight: `1px dashed ${C.cardBorder}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
-              }}>B6</div>
-              {orderedSegments.map(seg => (
-                <SplitCell
-                  key={seg.id}
-                  core={getHalf(m.id, seg.id, 2)}
-                  tuned={getHalf(m.id, seg.id, 1)}
-                  fadeBelow={FADE_BELOW}
-                />
-              ))}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
