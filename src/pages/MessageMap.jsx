@@ -111,6 +111,10 @@ export default function MessageMap() {
   const [focal, setFocal] = useState(null);
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
   const [openRows, setOpenRows] = useState(() => new Set());
+  // CROSSHAIR — hover any cell to light up its full row + column;
+  // suppressed while a focal cell is active (focal logic wins).
+  const [hoverMsg, setHoverMsg] = useState(null);
+  const [hoverSeg, setHoverSeg] = useState(null);
 
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
@@ -415,7 +419,7 @@ export default function MessageMap() {
         <div style={{
           display: "grid",
           gridTemplateColumns: rowTemplate,
-          gap: 0,
+          gap: 3,
           padding: "10px 12px",
           borderBottom: `1px solid ${C.cardBorder}`,
           background: C.bg,
@@ -495,25 +499,16 @@ export default function MessageMap() {
             {/* Segment-circle column headers. When the column is the focal
                 (persona-open) column, a small persona icon appears above the
                 circle to label the unfolded side. */}
-            {orderedSegments.map(seg => {
-              const personaOpen = !!focal && focal.segId === seg.id;
-              return (
-                <div key={seg.id} style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", gap: 2,
-                }}>
-                  <div style={{
-                    height: 18,
-                    opacity: personaOpen ? 1 : 0,
-                    transform: personaOpen ? "translateY(0)" : "translateY(4px)",
-                    transition: "opacity 0.2s, transform 0.2s",
-                  }}>
-                    <PersonaIcon />
-                  </div>
-                  <SegmentCircle seg={seg} />
-                </div>
-              );
-            })}
+            {orderedSegments.map(seg => (
+              <div key={seg.id} style={{
+                display: "flex", justifyContent: "center",
+                opacity: (!focal && hoverSeg !== null && seg.id !== hoverSeg)
+                  ? 0.15 : 1,
+                transition: "opacity 0.12s",
+              }}>
+                <SegmentCircle seg={seg} />
+              </div>
+            ))}
           </div>
         </div>
 
@@ -532,7 +527,7 @@ export default function MessageMap() {
               }}>
                 {/* ── Main (aggregated) row ── */}
                 <div style={{
-                  display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                  display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                   padding: "8px 12px", alignItems: "center", minHeight: 38,
                   background: isFocalRow ? "rgba(96,165,250,0.04)" : "transparent",
                   transition: "background 0.25s",
@@ -544,13 +539,20 @@ export default function MessageMap() {
                       color: isOpen ? C.violet : C.textDim,
                       textAlign: "center", cursor: "pointer",
                       transform: isOpen ? "rotate(90deg)" : "none",
-                      transition: "transform 0.2s",
-                      opacity: rowDim ? 0.25 : 1,
+                      transition: "transform 0.2s, opacity 0.12s",
+                      opacity: rowDim
+                        ? 0.25
+                        : (!focal && hoverMsg !== null && m.id !== hoverMsg)
+                          ? 0.15 : 1,
                     }}>▸</div>
                   <div style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    paddingRight: 10, opacity: rowDim ? 0.25 : 1,
-                    transition: "opacity 0.25s", cursor: "pointer",
+                    paddingRight: 10,
+                    opacity: rowDim
+                      ? 0.25
+                      : (!focal && hoverMsg !== null && m.id !== hoverMsg)
+                        ? 0.15 : 1,
+                    transition: "opacity 0.12s", cursor: "pointer",
                   }} onClick={() => toggleRow(m.id)}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{
@@ -576,19 +578,42 @@ export default function MessageMap() {
                   {orderedSegments.map(seg => {
                     const isFocalCol = focal?.segId === seg.id;
                     const isFocalCell = isFocalRow && isFocalCol;
+                    const cross = focal
+                      ? 1
+                      : (hoverMsg !== null || hoverSeg !== null)
+                        ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
+                        : 1;
                     return (
-                      <SplitCell
+                      <div
                         key={seg.id}
-                        core={getHalf(m.id, seg.id, 2)}
-                        tuned={getHalf(m.id, seg.id, 1)}
-                        fadeBelow={FADE_BELOW}
-                        height={isFocalCell ? 30 : 24}
-                        compact={!isFocalCol}
-                        focal={isFocalCell}
-                        dim={focal ? !(isFocalRow || isFocalCol) : false}
-                        personaOpen={!!focal && (isFocalRow || isFocalCol)}
-                        onClick={() => toggleFocal(m.id, seg.id)}
-                      />
+                        onMouseEnter={() => { setHoverMsg(m.id); setHoverSeg(seg.id); }}
+                        onMouseLeave={() => { setHoverMsg(null); setHoverSeg(null); }}
+                        style={{
+                          position: "relative",
+                          opacity: cross,
+                          transition: "opacity 0.12s",
+                        }}>
+                        {isFocalCell && (
+                          <div style={{
+                            position: "absolute", top: -21, left: 0, right: 0,
+                            display: "flex", justifyContent: "center",
+                            zIndex: 5, pointerEvents: "none",
+                          }}>
+                            <PersonaIcon />
+                          </div>
+                        )}
+                        <SplitCell
+                          core={getHalf(m.id, seg.id, 2)}
+                          tuned={getHalf(m.id, seg.id, 1)}
+                          fadeBelow={FADE_BELOW}
+                          height={isFocalCell ? 30 : 24}
+                          compact={!isFocalCol}
+                          group={isFocalCell}
+                          dim={focal ? !(isFocalRow || isFocalCol) : false}
+                          personaOpen={!!focal && (isFocalRow || isFocalCol)}
+                          onClick={() => toggleFocal(m.id, seg.id)}
+                        />
+                      </div>
                     );
                   })}
                 </div>
@@ -601,7 +626,7 @@ export default function MessageMap() {
                   {isOpen && (
                     <>
                       <div style={{
-                        display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                        display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                         padding: "2px 12px 6px",
                       }}>
                         <div />
@@ -632,7 +657,7 @@ export default function MessageMap() {
                       </div>
                       {proofVals.map(v => (
                         <div key={v} style={{
-                          display: "grid", gridTemplateColumns: rowTemplate, gap: 0,
+                          display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                           padding: "0 12px 4px", alignItems: "center",
                         }}>
                           <div style={{
@@ -653,18 +678,31 @@ export default function MessageMap() {
                             whiteSpace: "nowrap",
                           }}>↳ {proofLabel(m, v)}</div>
                           <div />
-                          {orderedSegments.map(seg => (
-                            <SplitCell
-                              key={seg.id}
-                              core={getProofHalf(m.id, seg.id, 2, v)}
-                              tuned={getProofHalf(m.id, seg.id, 1, v)}
-                              fadeBelow={FADE_BELOW}
-                              height={20}
-                              compact={focal?.segId !== seg.id}
-                              dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
-                              personaOpen
-                            />
-                          ))}
+                          {orderedSegments.map(seg => {
+                            const cross = focal
+                              ? 1
+                              : (hoverMsg !== null || hoverSeg !== null)
+                                ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
+                                : 1;
+                            return (
+                              <div
+                                key={seg.id}
+                                onMouseEnter={() => { setHoverMsg(m.id); setHoverSeg(seg.id); }}
+                                onMouseLeave={() => { setHoverMsg(null); setHoverSeg(null); }}
+                                style={{ opacity: cross, transition: "opacity 0.12s" }}>
+                                <SplitCell
+                                  core={getProofHalf(m.id, seg.id, 2, v)}
+                                  tuned={getProofHalf(m.id, seg.id, 1, v)}
+                                  fadeBelow={FADE_BELOW}
+                                  height={20}
+                                  compact={focal?.segId !== seg.id}
+                                  group={focal?.segId === seg.id && focal?.msgId === m.id}
+                                  dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
+                                  personaOpen
+                                />
+                              </div>
+                            );
+                          })}
                         </div>
                       ))}
                     </>

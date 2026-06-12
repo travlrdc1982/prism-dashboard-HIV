@@ -46,6 +46,14 @@ function Half({ cell, side, fadeBelow, compact }) {
       boxShadow: frames.join(", ") || "none",
     }}>
       {cell.v}
+      {/* Significance dot — bootstrap CI excludes zero */}
+      {sig && (
+        <span style={{
+          position: "absolute", top: 3, right: 3,
+          width: 5, height: 5, borderRadius: "50%",
+          background: "rgba(255,255,255,0.85)",
+        }} />
+      )}
       {side === "persona" && (
         <span style={{
           position: "absolute", top: 0, right: 0,
@@ -94,7 +102,14 @@ export default function SplitCell({
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact} />
       {personaOpen ? (
         <>
-          <div style={{ width: 1, background: "rgba(96,165,250,0.55)", flexShrink: 0 }} />
+          {/* 8px divider lane: thin centered violet line marks the
+              CORE | PERSONA axis even when both halves carry color */}
+          <div style={{
+            width: 8, flexShrink: 0,
+            display: "flex", justifyContent: "center", alignItems: "stretch",
+          }}>
+            <div style={{ width: 1, background: "rgba(127,119,221,0.3)" }} />
+          </div>
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
             <Half cell={tuned} side="persona" fadeBelow={fadeBelow} compact={compact} />
           </div>
