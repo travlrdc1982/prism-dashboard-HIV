@@ -41,7 +41,7 @@ import {
   SplitCell,
   CubePair,
   VariantUniverseBar,
-  WordingPreview,
+  WordingDrawer,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -133,19 +133,25 @@ export default function MessageMap() {
   // cursor instead of an aggregate.
   const [hoverLift, setHoverLift] = useState(null);
   const [hoverLiftMsg, setHoverLiftMsg] = useState(null);
-  // VARIANT WORDING preview — populated as you hover any cell. Drives
-  // the WordingPreview strip above the grid (outside the cube). All
-  // wording text below comes straight from the variants workbook;
-  // captions are dashboard chrome.
+  // VARIANT WORDING drawer — slides out from the LEFT of the hovered
+  // message row. msgId pins it to its row; all wording text comes
+  // straight from the variants workbook (captions are chrome).
   const [hoverWording, setHoverWording] = useState(null);
-  // Shared hover-payload handler: cells fire either null (mouse-leave)
-  // or { lift, wording, side }. We translate that into the three
-  // hover states (tick override + wording preview).
+  // Debounce the clear so moving across the cell seam (CORE → divider
+  // → PERSONA, or row → row) doesn't blink the drawer in and out.
+  // A new hover within ~80ms cancels the pending clear.
+  const clearTimerRef = useRef(null);
   const cellHoverHandler = (m, seg, proofLbl) => (info) => {
+    if (clearTimerRef.current) {
+      clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = null;
+    }
     if (info == null) {
-      setHoverLift(null);
-      setHoverLiftMsg(null);
-      setHoverWording(null);
+      clearTimerRef.current = setTimeout(() => {
+        setHoverLift(null);
+        setHoverLiftMsg(null);
+        setHoverWording(null);
+      }, 80);
       return;
     }
     if (info.lift != null) {
@@ -153,6 +159,7 @@ export default function MessageMap() {
       setHoverLiftMsg(m.id);
     }
     setHoverWording({
+      msgId: m.id,
       wording: info.wording || "",
       side: info.side,
       messageLabel: m.theme_label,
@@ -594,11 +601,10 @@ export default function MessageMap() {
         </span>
       </div>
 
-      {/* ─── WORDING PREVIEW STRIP — lives OUTSIDE the grid so it
-          never hides the cube/matrix. Updates live as you hover any
-          cell. Wording text is pulled straight from the variants
-          workbook (text_core / text_by_persona[seg.code]). ─── */}
-      <WordingPreview hover={hoverWording} />
+      {/* Wording is shown by a per-row WordingDrawer that slides out
+          from the LEFT of the hovered row — see below. The global
+          preview strip was replaced because the layout shift it
+          caused on hover read as a screen 'blink'. */}
 
       {/* ─── GRID FRAME ─── */}
       {/*
@@ -779,7 +785,12 @@ export default function MessageMap() {
               const vals = proofValuesFor(m.id);
               const focalIdx = orderedSegments.findIndex(s => s.id === focal.segId);
               return (
-                <div key={m.id} style={{ borderBottom: groupBorder }}>
+                <div key={m.id} style={{
+                  borderBottom: groupBorder, position: "relative",
+                }}>
+                  {hoverWording?.msgId === m.id && (
+                    <WordingDrawer hover={hoverWording} />
+                  )}
                   <div ref={focalRef} style={{
                     display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                     padding: "8px 12px", alignItems: "center",
@@ -1040,7 +1051,12 @@ export default function MessageMap() {
             // ── Standard row (+ chevron accordion) — while a focal box
             // is open elsewhere, everything here fades out.
             return (
-              <div key={m.id} style={{ borderBottom: groupBorder }}>
+              <div key={m.id} style={{
+                borderBottom: groupBorder, position: "relative",
+              }}>
+                {hoverWording?.msgId === m.id && (
+                  <WordingDrawer hover={hoverWording} />
+                )}
                 {/* ── Main (aggregated) row ── */}
                 <div style={{
                   display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
