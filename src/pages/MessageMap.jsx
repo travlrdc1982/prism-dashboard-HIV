@@ -721,9 +721,10 @@ export default function MessageMap() {
                 circle to label the unfolded side. */}
             {orderedSegments.map(seg => {
               const spot = focal?.segId ?? colFocus;
-              const lit = spot === null
-                ? (hoverSeg === null || seg.id === hoverSeg)
-                : seg.id === spot;
+              // No hover-driven crosshair anymore — only an active
+              // spotlight (focal cube column / clicked-segment column)
+              // dims the rest.
+              const lit = spot === null || seg.id === spot;
               const isDragging = dragSegId === seg.id;
               return (
                 <div key={seg.id}
@@ -930,6 +931,52 @@ export default function MessageMap() {
                               onCellHover={cellHoverHandler(m, seg, null)}
                               onClick={() => toggleFocal(m.id, seg.id)}
                             />
+                            {/* Δ chips — quantify the proof-point
+                                contribution. aggregate − baseline,
+                                both as the displayed 0-100 values
+                                (cell.v). */}
+                            {(() => {
+                              const baselineV = vals[0];
+                              const coreAgg = getHalf(m.id, seg.id, 2);
+                              const personaAgg = getHalf(m.id, seg.id, 1);
+                              const coreBase = baselineV != null
+                                ? getProofHalf(m.id, seg.id, 2, baselineV)
+                                : null;
+                              const personaBase = baselineV != null
+                                ? getProofHalf(m.id, seg.id, 1, baselineV)
+                                : null;
+                              const fmt = (agg, base) => {
+                                if (!agg || !base) return null;
+                                const d = Math.round(agg.v - base.v);
+                                return { d, label: `Δ ${d > 0 ? "+" : ""}${d} vs baseline` };
+                              };
+                              const cD = fmt(coreAgg, coreBase);
+                              const pD = fmt(personaAgg, personaBase);
+                              const tone = (d) => d == null
+                                ? "#94a3b8"
+                                : d > 0 ? "#34d399"
+                                : d < 0 ? "#f87171"
+                                : "#94a3b8";
+                              return (
+                                <div style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "1fr 8px 1fr",
+                                  marginTop: 4,
+                                  fontFamily: MONO, fontSize: 8,
+                                  fontWeight: 700, letterSpacing: 0.8,
+                                  textAlign: "center",
+                                  textTransform: "uppercase",
+                                }}>
+                                  <span style={{ color: tone(cD?.d) }}>
+                                    {cD ? cD.label : "—"}
+                                  </span>
+                                  <div />
+                                  <span style={{ color: tone(pD?.d) }}>
+                                    {pD ? pD.label : "—"}
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
                       }
@@ -1071,18 +1118,12 @@ export default function MessageMap() {
                       textAlign: "center", cursor: "pointer",
                       transform: isOpen ? "rotate(90deg)" : "none",
                       transition: "transform 0.2s, opacity 0.12s",
-                      opacity: rowDim
-                        ? 0.15
-                        : (!focal && hoverMsg !== null && m.id !== hoverMsg)
-                          ? 0.15 : 1,
+                      opacity: rowDim ? 0.15 : 1,
                     }}>▸</div>
                   <div style={{
                     display: "flex", alignItems: "center", gap: 8,
                     paddingRight: 10,
-                    opacity: rowDim
-                      ? 0.15
-                      : (!focal && hoverMsg !== null && m.id !== hoverMsg)
-                        ? 0.15 : 1,
+                    opacity: rowDim ? 0.15 : 1,
                     transition: "opacity 0.12s", cursor: "pointer",
                   }} onClick={() => toggleRow(m.id)}>
                     <div style={{ minWidth: 0 }}>
@@ -1112,13 +1153,13 @@ export default function MessageMap() {
                     />
                   </div>
                   {orderedSegments.map(seg => {
+                    // Only column spotlight or focal cube dims the rest;
+                    // hover no longer drives a crosshair.
                     const cross = focal
                       ? 0.15
                       : colFocus !== null
                         ? (seg.id === colFocus ? 1 : 0.15)
-                        : (hoverMsg !== null || hoverSeg !== null)
-                          ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
-                          : 1;
+                        : 1;
                     return (
                       <div
                         key={seg.id}
@@ -1211,10 +1252,9 @@ export default function MessageMap() {
                           }}>↳ {proofLabel(m, v)}</div>
                           <div />
                           {orderedSegments.map(seg => {
-                            const cross = (!focal
-                              && (hoverMsg !== null || hoverSeg !== null)
-                              && !(m.id === hoverMsg || seg.id === hoverSeg))
-                              ? 0.15 : 1;
+                            // Crosshair removed; cells stay at full
+                            // opacity unless a focal cube / colFocus
+                            // owns the dim state above.
                             // Persona × proof cells only render when
                             // the persona column is actually expanded
                             // (a colFocus spotlight in this column).
@@ -1224,7 +1264,7 @@ export default function MessageMap() {
                                 key={seg.id}
                                 onMouseEnter={() => { setHoverMsg(m.id); setHoverSeg(seg.id); }}
                                 onMouseLeave={() => { setHoverMsg(null); setHoverSeg(null); }}
-                                style={{ opacity: cross, transition: "opacity 0.12s" }}>
+                                style={{ transition: "opacity 0.12s" }}>
                                 <SplitCell
                                   core={getProofHalf(m.id, seg.id, 2, v)}
                                   tuned={getProofHalf(m.id, seg.id, 1, v)}
