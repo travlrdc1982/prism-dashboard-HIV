@@ -327,13 +327,6 @@ export default function MessageMap() {
       variant moves attitudinal alignment above baseline, on a 0–100 scale.
     </>
   );
-  const SEGMENT_INFO = (
-    <>
-      The 16 PRISM segments derived from cultural-ideological clustering of
-      the US public. Click a segment label to see its full profile in the
-      Persona Profile view.
-    </>
-  );
   const MESSAGE_INFO = (
     <>
       The substantive message themes using PRISM's "message grammar"
@@ -574,29 +567,17 @@ export default function MessageMap() {
             </div>
           </div>
 
-          {/* 16 PRISM SEGMENTS — group label spans all segment columns,
-              circle row sits underneath. Label + InfoDot sit OUTSIDE
-              the message column. */}
+          {/* PRISM SEGMENTS — segment-circle band. The 'N PRISM SEGMENTS'
+              group label is gone; the circles + names speak for
+              themselves. Same tracks + gap as the body rows, so the
+              circles track the focal column when it widens. */}
           <div ref={segBandRef} style={{
             gridColumn: `4 / span ${orderedSegments.length}`,
             display: "grid",
-            // Same tracks + gap as the body rows, so the circles track
-            // the focal column when it widens.
             gridTemplateColumns: gridTemplate,
-            gridTemplateRows: "auto auto",
-            columnGap: 3, rowGap: 4,
+            columnGap: 3,
             transition: "grid-template-columns 0.3s",
           }}>
-            <div style={{
-              gridColumn: `1 / -1`,
-              textAlign: "center",
-              fontFamily: MONO, fontSize: 8, fontWeight: 700,
-              color: C.text, letterSpacing: 1.5, textTransform: "uppercase",
-              display: "flex", justifyContent: "center", alignItems: "center",
-            }}>
-              {N_SEGMENTS} PRISM Segments
-              <InfoDot title="Segments" placement="below">{SEGMENT_INFO}</InfoDot>
-            </div>
             {/* Segment-circle column headers. When the column is the focal
                 (persona-open) column, a small persona icon appears above the
                 circle to label the unfolded side. */}
@@ -633,7 +614,8 @@ export default function MessageMap() {
                     cursor: isDragging ? "grabbing" : "grab",
                     position: "relative", zIndex: 5,
                   }}>
-                  <SegmentCircle seg={seg} />
+                  <SegmentCircle seg={seg}
+                    widened={focal?.segId === seg.id || colFocus === seg.id} />
                 </div>
               );
             })}
