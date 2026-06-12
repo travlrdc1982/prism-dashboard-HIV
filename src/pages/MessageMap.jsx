@@ -903,6 +903,9 @@ export default function MessageMap() {
                             fadeBelow={FADE_BELOW}
                             height={24}
                             compact
+                            coreTitle={coreTextByMsg.get(m.id)}
+                            tunedTitle={tokensByMsg.get(m.id)?.[0]
+                              ?.text_by_persona?.[seg.code]}
                             onClick={() => toggleFocal(m.id, seg.id)}
                           />
                         </div>
@@ -1089,6 +1092,9 @@ export default function MessageMap() {
                           height={colFocus === seg.id ? 30 : 24}
                           compact={colFocus !== seg.id}
                           personaOpen={colFocus === seg.id}
+                          coreTitle={coreTextByMsg.get(m.id)}
+                          tunedTitle={tokensByMsg.get(m.id)?.[0]
+                            ?.text_by_persona?.[seg.code]}
                           onClick={() => toggleFocal(m.id, seg.id)}
                         />
                       </div>
@@ -1134,7 +1140,10 @@ export default function MessageMap() {
                         </div>
                         <div style={{ gridColumn: `4 / span ${orderedSegments.length}` }} />
                       </div>
-                      {proofVals.map(v => (
+                      {proofVals.map(v => {
+                        const tok = tokensByMsg.get(m.id)
+                          ?.[Math.max(v - 1, 0)] || {};
+                        return (
                         <div key={v} style={{
                           display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                           padding: "0 12px 4px", alignItems: "center",
@@ -1179,13 +1188,16 @@ export default function MessageMap() {
                                   height={open ? 26 : 20}
                                   compact={!open}
                                   personaOpen={open}
+                                  coreTitle={tok.text_core}
+                                  tunedTitle={tok.text_by_persona?.[seg.code]}
                                   onClick={() => toggleFocal(m.id, seg.id)}
                                 />
                               </div>
                             );
                           })}
                         </div>
-                      ))}
+                        );
+                      })}
                     </>
                   )}
                 </div>
