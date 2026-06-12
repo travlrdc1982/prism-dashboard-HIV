@@ -54,15 +54,10 @@ def test_dashboard_pop_share_is_largest_remainder_projection(registry):
             f"largest-remainder projection {expected[code]}%")
 
 
-# Known, intentional name divergences pending reconciliation with the
-# analyst (platform says 'Trust the Science Pragmatists' / 'Health
-# Futurists'; the dashboard ships 'Trust-the-Science Pragmatists' /
-# 'Health Futurist'). This test pins the CURRENT divergence so any NEW
-# drift fails loudly; shrink this dict as names get reconciled.
-KNOWN_NAME_DIVERGENCES = {
-    "TSP": ("Trust the Science Pragmatists", "Trust-the-Science Pragmatists"),
-    "HF":  ("Health Futurists", "Health Futurist"),
-}
+# Name reconciliation complete (analyst decision, Jun 2026): platform
+# spellings are canonical everywhere. Keep the mechanism in case a
+# future study needs a temporary pinned divergence.
+KNOWN_NAME_DIVERGENCES = {}
 
 
 def test_names_match_package_except_known_divergences(registry):

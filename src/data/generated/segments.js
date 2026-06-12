@@ -6,10 +6,10 @@
 // ═══════════════════════════════════════════════════════════════
 
 export const SEGMENTS = [
-  { id: 1, code: "TSP", name: "Trust-the-Science Pragmatists", party: "GOP", pop: 2, popShare: 0.02 },
+  { id: 1, code: "TSP", name: "Trust the Science Pragmatists", party: "GOP", pop: 2, popShare: 0.02 },
   { id: 2, code: "CEC", name: "Consumer Empowerment Champions", party: "GOP", pop: 7, popShare: 0.07 },
   { id: 3, code: "TC", name: "Traditional Conservatives", party: "GOP", pop: 6, popShare: 0.06 },
-  { id: 4, code: "HF", name: "Health Futurist", party: "GOP", pop: 2, popShare: 0.02 },
+  { id: 4, code: "HF", name: "Health Futurists", party: "GOP", pop: 2, popShare: 0.02 },
   { id: 5, code: "PP", name: "Price Populists", party: "GOP", pop: 3, popShare: 0.03 },
   { id: 6, code: "WE", name: "Wellness Evangelists", party: "GOP", pop: 9, popShare: 0.09 },
   { id: 7, code: "PFF", name: "Paleo Freedom Fighters", party: "GOP", pop: 4, popShare: 0.04 },

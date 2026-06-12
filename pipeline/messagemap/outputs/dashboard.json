@@ -24,7 +24,7 @@
     {
       "id": 1,
       "code": "TSP",
-      "label": "Trust-the-Science Pragmatists",
+      "label": "Trust the Science Pragmatists",
       "party": "R",
       "priority_tier": null,
       "n": 208
@@ -48,7 +48,7 @@
     {
       "id": 4,
       "code": "HF",
-      "label": "Health Futurist",
+      "label": "Health Futurists",
       "party": "R",
       "priority_tier": null,
       "n": 171

@@ -255,10 +255,10 @@ output:
 # single source for population weighting and display pops everywhere.
 # priority_tier lives above in segments.priority_tier_in_study.
 segment_registry:
-  - {id:  1, code: TSP, name: "Trust-the-Science Pragmatists", party: GOP, pop_share: 0.02}
+  - {id:  1, code: TSP, name: "Trust the Science Pragmatists", party: GOP, pop_share: 0.02}
   - {id:  2, code: CEC, name: "Consumer Empowerment Champions", party: GOP, pop_share: 0.07}
   - {id:  3, code: TC , name: "Traditional Conservatives", party: GOP, pop_share: 0.06}
-  - {id:  4, code: HF , name: "Health Futurist", party: GOP, pop_share: 0.02}
+  - {id:  4, code: HF , name: "Health Futurists", party: GOP, pop_share: 0.02}
   - {id:  5, code: PP , name: "Price Populists", party: GOP, pop_share: 0.03}
   - {id:  6, code: WE , name: "Wellness Evangelists", party: GOP, pop_share: 0.09}
   - {id:  7, code: PFF, name: "Paleo Freedom Fighters", party: GOP, pop_share: 0.04}

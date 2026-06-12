@@ -10,7 +10,7 @@ const DATA = {
     {
       "id": 1,
       "code": "TSP",
-      "name": "Trust-the-Science Pragmatists",
+      "name": "Trust the Science Pragmatists",
       "party": "GOP",
       "pop": 2
     },
@@ -31,7 +31,7 @@ const DATA = {
     {
       "id": 4,
       "code": "HF",
-      "name": "Health Futurist",
+      "name": "Health Futurists",
       "party": "GOP",
       "pop": 2
     },
@@ -125,7 +125,7 @@ const DATA = {
       {
         "id": 1,
         "code": "TSP",
-        "name": "Trust-the-Science Pragmatists",
+        "name": "Trust the Science Pragmatists",
         "party": "GOP",
         "pop": 2,
         "roi": 1.0236,
@@ -275,7 +275,7 @@ const DATA = {
       {
         "id": 4,
         "code": "HF",
-        "name": "Health Futurist",
+        "name": "Health Futurists",
         "party": "GOP",
         "pop": 2,
         "roi": 1.0796,
