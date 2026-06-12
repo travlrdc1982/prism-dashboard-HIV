@@ -270,17 +270,28 @@ export default function MessageMap() {
     };
   };
 
-  // The proof-token values present for a message in the cell data, in
-  // order. Token value v maps to messages[].proofs[v-1] for its label
-  // (survey variant 1 = the base/no-proof wording; see step3 exposure
-  // notes); the 5 no-proof messages carry a single token value 0.
+  // The proof-token values present for a message in the cell data.
+  // Order rule: every "no proof point" row (token v=0, or v≥1 whose
+  // proofs[v-1] is the base placeholder) sits FIRST; real proof points
+  // follow in their natural authoring order (proofs[] index). We never
+  // sort by lift or value — the survey design order is preserved.
   const proofValuesFor = (msgId) => {
+    const m = MESSAGES.find(x => x.id === msgId);
     const vals = new Set();
     for (const key of proofIndex.keys()) {
-      const [m, , , p] = key.split("|");
-      if (+m === msgId) vals.add(+p);
+      const [mk, , , p] = key.split("|");
+      if (+mk === msgId) vals.add(+p);
     }
-    return [...vals].sort((a, b) => a - b);
+    const ascending = [...vals].sort((a, b) => a - b);
+    const noProof = [];
+    const real = [];
+    for (const v of ascending) {
+      if (v === 0) { noProof.push(v); continue; }
+      const p = m?.proofs?.[v - 1];
+      if (!p || p.short_label === "base") noProof.push(v);
+      else real.push(v);
+    }
+    return [...noProof, ...real];
   };
   const proofLabel = (m, v) => {
     if (v === 0) return "no proof point";
