@@ -1,20 +1,25 @@
 // Message Map building block — the split segment cell (the "cube" face).
 //
-// Horizontal grammar (always on): CORE (left) | PERSONA-TUNED (right).
-// The persona half carries a structural cue INDEPENDENT of value color
+// Horizontal grammar: CORE (left) | PERSONA-TUNED (right). The persona
+// half carries a structural cue INDEPENDENT of value color
 // (analyst: "border or shadow, because color stays tied to value"):
 // an inset blue frame + corner notch. Background color on both halves
-// remains the shared value ramp, now rendered as a subtle gradient for
+// remains the shared value ramp, rendered as a subtle gradient for
 // texture.
 //
-// Per-proof (expanded) cells add: significance outline when the 95% CI
+// CORE is the resting state: the persona half stays folded behind a
+// thin blue tab until `personaOpen` slides it open (the cube unfold).
+// `coreTitle` / `tunedTitle` carry the exact respondent-facing wording
+// for hover, per arm.
+//
+// Per-proof (expanded) cells add: significance dot when the 95% CI
 // excludes zero, and the low-confidence fade when shrinkage dominates.
 import { MONO } from "../../data/theme";
 import { rampColor } from "./liftScale";
 
 const PERSONA_FRAME = "rgba(125,179,250,0.85)";
 
-function Half({ cell, side, fadeBelow, compact }) {
+function Half({ cell, side, fadeBelow, compact, title }) {
   if (!cell) {
     return (
       <div style={{
@@ -36,7 +41,7 @@ function Half({ cell, side, fadeBelow, compact }) {
   if (side === "persona") frames.push(`inset 0 0 0 1px ${PERSONA_FRAME}`);
   if (sig) frames.push("inset 0 0 0 1.5px rgba(241,245,249,0.85)");
   return (
-    <div style={{
+    <div title={title || undefined} style={{
       flex: 1, position: "relative",
       display: "flex", alignItems: "center", justifyContent: "center",
       backgroundImage: sheen, backgroundColor: bg,
@@ -68,38 +73,25 @@ function Half({ cell, side, fadeBelow, compact }) {
 
 export default function SplitCell({
   core, tuned, fadeBelow = 0.6, height = 24,
-  onClick, dim = false, compact = true,
-  personaOpen = false, group = false,
+  onClick, compact = true,
+  personaOpen = false, coreTitle, tunedTitle,
 }) {
   // CORE is the resting state. The persona half stays folded (width 0)
-  // behind a thin blue tab on the right edge; clicking the cell (the
-  // cube unfold) slides it open. Matches the architecture widget.
-  //
-  // `group`: the focal set (main cell + its proof sub-cells) each wrap
-  // in a light-grey border so the stack reads as one grouped set
-  // (analyst reference screenshot).
+  // behind a thin blue tab on the right edge; `personaOpen` (the cube
+  // unfold) slides it open. Matches the architecture widget.
   return (
     <div
       onClick={onClick}
       style={{
         display: "flex", height, margin: "0 1px",
-        borderRadius: group ? 3 : 2, overflow: "hidden",
-        border: group
-          ? "2px solid rgba(241,245,249,0.95)"
-          : "1px solid rgba(30,41,59,0.7)",
+        borderRadius: 2, overflow: "hidden",
+        border: "1px solid rgba(30,41,59,0.7)",
         cursor: onClick ? "pointer" : "default",
-        opacity: dim ? 0.15 : 1,
-        // Grouped (focal-set) cells get an intense glow + elevation so
-        // the set unmistakably lifts off the dark grid.
-        boxShadow: group
-          ? "0 0 0 1px rgba(241,245,249,0.45), 0 0 14px rgba(203,213,225,0.4), 0 6px 18px rgba(0,0,0,0.65)"
-          : "none",
-        position: group ? "relative" : "static",
-        zIndex: group ? 3 : "auto",
-        transition: "opacity 0.25s, border-color 0.2s, box-shadow 0.2s, height 0.3s",
+        transition: "border-color 0.2s, height 0.3s",
       }}
     >
-      <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact} />
+      <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact}
+            title={coreTitle} />
       {personaOpen ? (
         <>
           {/* 8px divider lane: thin centered violet line marks the
@@ -111,7 +103,8 @@ export default function SplitCell({
             <div style={{ width: 1, background: "rgba(127,119,221,0.3)" }} />
           </div>
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-            <Half cell={tuned} side="persona" fadeBelow={fadeBelow} compact={compact} />
+            <Half cell={tuned} side="persona" fadeBelow={fadeBelow}
+                  compact={compact} title={tunedTitle} />
           </div>
         </>
       ) : (

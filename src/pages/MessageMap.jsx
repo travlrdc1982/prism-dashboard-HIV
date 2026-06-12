@@ -25,7 +25,7 @@
 // basket reorganization, and the variant-universe data still land
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -39,7 +39,7 @@ import {
   LiftRamp,
   VariantUniverseLegend,
   SplitCell,
-  CubeCard,
+  CubePair,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -104,11 +104,13 @@ export default function MessageMap() {
   const [metric, setMetric] = useState(defaultMetric);
   const [basket, setBasket] = useState(UI.default_basket || "total");
 
-  // CUBE — the focal intersection. Clicking any cell swaps it IN PLACE
-  // for the expanded mini-grid (CubeCard): the segment column widens,
-  // the row grows taller, and everything outside the focal row/column
-  // dims (spotlight). Clicking the cube (or the same cell again) folds
-  // it back up. No popup — the mini-grid IS the focal point.
+  // CUBE — the focal intersection. Clicking ANY cell of an intersection
+  // (the aggregated cell or any proof cell) unfolds its mini-grid IN
+  // the grid: the focal row regroups into one grid so the cube rows
+  // align with their proof labels in the first column and the cube
+  // sits under its segment circle. While focal, everything except the
+  // headers and the focal row's labels fades out — the mini-grid is
+  // the only focal point. Clicking the mini-grid folds it back.
   // {msgId, segId} | null
   const [focal, setFocal] = useState(null);          // {msgId, segId}
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
@@ -311,11 +313,11 @@ export default function MessageMap() {
   );
 
   // CUBE — the shared column template. The focal segment column widens
-  // far enough to host the in-place mini-grid; everything else keeps
-  // its share. Header + every row use this same template so the whole
-  // COLUMN expands together (segment circles included).
+  // to host the in-place mini-grid; everything else keeps its share.
+  // Header + every row use this same template so the whole COLUMN
+  // expands together (segment circles included).
   const gridTemplate = orderedSegments.map(seg =>
-    focal && focal.segId === seg.id ? "minmax(360px, 3fr)" : "minmax(56px, 1fr)"
+    focal && focal.segId === seg.id ? "minmax(180px, 3fr)" : "minmax(56px, 1fr)"
   ).join(" ");
   const rowTemplate = `36px 220px 150px ${gridTemplate}`;
 
@@ -533,19 +535,237 @@ export default function MessageMap() {
           </div>
         </div>
 
-        {/* Body — the cube grid. Click any cell and the mini-grid takes
-            its place: the column widens, the row grows, everything else
-            dims. Chevron = proof accordion only. */}
+        {/* Body — the cube grid. Clicking any cell of an intersection
+            unfolds its mini-grid in place; while focal, everything
+            except headers + the focal row's labels fades out.
+            Chevron = proof accordion only. */}
         <div>
           {MESSAGES.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
             const isOpen = openRows.has(m.id);
             const rowDim = focal ? !isFocalRow : false;
             const proofVals = isOpen ? proofValuesFor(m.id) : [];
+            const groupBorder = i < MESSAGES.length - 1
+              ? `1px solid ${C.cardBorder}` : "none";
+
+            // ── FOCAL ROW GROUP — one grid, so every cube row aligns
+            // with its proof label in the first column and the cube
+            // columns sit under their segment circle. Two spanning divs
+            // draw the chrome behind the cells: the violet persona-
+            // column bracket (whole column) and the white cube outline
+            // (token rows — the mini-grid box). No labels inside the
+            // cube itself.
+            if (isFocalRow) {
+              const tokens = tokensByMsg.get(m.id) || [];
+              const vals = proofValuesFor(m.id);
+              const focalIdx = orderedSegments.findIndex(s => s.id === focal.segId);
+              return (
+                <div key={m.id} style={{ borderBottom: groupBorder }}>
+                  <div style={{
+                    display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
+                    padding: "8px 12px", alignItems: "center",
+                    background: "rgba(96,165,250,0.04)",
+                    transition: "grid-template-columns 0.3s",
+                  }}>
+                    {/* row 1 — chevron + message label stay lit (they
+                        label the cube); the B6 strip fades */}
+                    <div
+                      onClick={() => toggleRow(m.id)}
+                      style={{
+                        gridRow: 1, gridColumn: 1,
+                        fontFamily: MONO, fontSize: 10, color: C.violet,
+                        textAlign: "center", cursor: "pointer",
+                        transform: "rotate(90deg)",
+                      }}>▸</div>
+                    <div style={{
+                      gridRow: 1, gridColumn: 2,
+                      display: "flex", alignItems: "center", gap: 8,
+                      paddingRight: 10, cursor: "pointer",
+                    }} onClick={() => toggleRow(m.id)}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{
+                          fontFamily: MONO, fontSize: 9, color: C.textDim,
+                          letterSpacing: 0.5,
+                        }}>MSG {String(m.id).padStart(2, "0")}</div>
+                        <div style={{
+                          fontFamily: FONT, fontSize: 14.3, fontWeight: 700,
+                          color: C.text, overflow: "hidden",
+                          textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>{m.theme_label}</div>
+                      </div>
+                    </div>
+                    <div style={{
+                      gridRow: 1, gridColumn: 3,
+                      marginRight: 10, height: 22,
+                      background: "rgba(167,139,250,0.05)",
+                      border: `1px dashed rgba(167,139,250,0.3)`,
+                      borderRadius: 2,
+                      display: "flex", alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: MONO, fontSize: 8, color: C.textDim,
+                      letterSpacing: 0.5, opacity: 0.15,
+                    }}>B6</div>
+
+                    {/* THE VIOLET COLUMN BRACKET — one container around
+                        the persona-open column (separate element from
+                        the cube outline inside it) */}
+                    <div style={{
+                      gridRow: `1 / span ${2 + vals.length}`,
+                      gridColumn: focalIdx + 4,
+                      alignSelf: "stretch", justifySelf: "stretch",
+                      margin: "-6px -5px",
+                      border: "1.5px solid #7F77DD",
+                      borderRadius: 5,
+                      background: "rgba(127,119,221,0.05)",
+                      zIndex: 1, pointerEvents: "none",
+                    }} />
+                    {/* THE CUBE OUTLINE — one white box around the
+                        mini-grid (the focal column's token rows) */}
+                    {vals.length > 0 && (
+                      <div style={{
+                        gridRow: `3 / span ${vals.length}`,
+                        gridColumn: focalIdx + 4,
+                        alignSelf: "stretch", justifySelf: "stretch",
+                        margin: "-4px -2px",
+                        background: "#0c1322",
+                        border: "1.5px solid rgba(203,213,225,0.9)",
+                        borderRadius: 6,
+                        boxShadow: "0 0 0 1px rgba(241,245,249,0.25), 0 0 22px rgba(203,213,225,0.2), 0 14px 36px rgba(0,0,0,0.7)",
+                        zIndex: 2, pointerEvents: "none",
+                      }} />
+                    )}
+
+                    {/* row 1 — aggregated cells; only the focal column
+                        stays lit (the box IS the focal point) */}
+                    {orderedSegments.map((seg, j) => {
+                      const isFocalCol = seg.id === focal.segId;
+                      return (
+                        <div key={seg.id} style={{
+                          gridRow: 1, gridColumn: j + 4,
+                          position: "relative",
+                          zIndex: isFocalCol ? 3 : "auto",
+                          opacity: isFocalCol ? 1 : 0.15,
+                          transition: "opacity 0.12s",
+                        }}>
+                          {isFocalCol && (
+                            <div style={{
+                              position: "absolute", top: -23, left: 0, right: 0,
+                              display: "flex", justifyContent: "center",
+                              zIndex: 7, pointerEvents: "none",
+                            }}>
+                              <PersonaIcon />
+                            </div>
+                          )}
+                          <SplitCell
+                            core={getHalf(m.id, seg.id, 2)}
+                            tuned={getHalf(m.id, seg.id, 1)}
+                            fadeBelow={FADE_BELOW}
+                            height={isFocalCol ? 30 : 24}
+                            compact={!isFocalCol}
+                            personaOpen={isFocalCol}
+                            coreTitle={isFocalCol
+                              ? coreTextByMsg.get(m.id) : undefined}
+                            tunedTitle={isFocalCol
+                              ? tokens[0]?.text_by_persona?.[seg.code]
+                              : undefined}
+                            onClick={() => toggleFocal(m.id, seg.id)}
+                          />
+                        </div>
+                      );
+                    })}
+
+                    {/* row 2 — core wording (lit: it labels the cube's
+                        base row) */}
+                    <div
+                      title={coreTextByMsg.get(m.id) || ""}
+                      style={{
+                        gridRow: 2, gridColumn: "2 / span 2",
+                        paddingRight: 16,
+                        fontFamily: "'Lora', Georgia, serif",
+                        fontSize: 16, fontStyle: "italic", lineHeight: 1.45,
+                        color: "#cbd5e1",
+                        borderLeft: `2px solid ${C.violet}`,
+                        paddingLeft: 10, marginLeft: 2, marginTop: 4,
+                        display: "-webkit-box", WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical", overflow: "hidden",
+                        cursor: "help",
+                      }}>
+                      “{coreTextByMsg.get(m.id) || "(core wording unavailable)"}”
+                      <span style={{
+                        display: "block", marginTop: 3,
+                        fontFamily: MONO, fontSize: 7.5, fontStyle: "normal",
+                        color: C.textDim, letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}>Core message — exact wording shown to respondents</span>
+                    </div>
+
+                    {/* token rows — proof labels in the first column
+                        (lit), CubePairs in the focal column, all other
+                        segments faded */}
+                    {vals.map((v, k) => {
+                      const tok = tokens[Math.max(v - 1, 0)] || {};
+                      const isBase = proofLabel(m, v) === "no proof point";
+                      return (
+                        <Fragment key={v}>
+                          <div style={{
+                            gridRow: 3 + k, gridColumn: 1,
+                            textAlign: "center", fontFamily: MONO,
+                            fontSize: 8, color: C.textDim,
+                          }}>·</div>
+                          <div style={{
+                            gridRow: 3 + k, gridColumn: 2,
+                            paddingLeft: 22, paddingRight: 10,
+                            fontFamily: "'Lora', Georgia, serif",
+                            fontSize: 18, fontWeight: 500,
+                            color: isBase ? C.textDim : "#e2e8f0",
+                            fontStyle: isBase ? "italic" : "normal",
+                            overflow: "hidden", textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}>↳ {proofLabel(m, v)}</div>
+                          {orderedSegments.map((seg, j) => {
+                            const isFocalCol = seg.id === focal.segId;
+                            return (
+                              <div key={seg.id} style={{
+                                gridRow: 3 + k, gridColumn: j + 4,
+                                position: "relative",
+                                zIndex: isFocalCol ? 3 : "auto",
+                                opacity: isFocalCol ? 1 : 0.15,
+                                transition: "opacity 0.12s",
+                              }}>
+                                {isFocalCol ? (
+                                  <CubePair
+                                    core={getProofHalf(m.id, seg.id, 2, v)}
+                                    tuned={getProofHalf(m.id, seg.id, 1, v)}
+                                    fadeBelow={FADE_BELOW}
+                                    coreText={tok.text_core || ""}
+                                    personaText={tok.text_by_persona?.[seg.code] || ""}
+                                    onClick={() => toggleFocal(m.id, seg.id)}
+                                  />
+                                ) : (
+                                  <SplitCell
+                                    core={getProofHalf(m.id, seg.id, 2, v)}
+                                    tuned={getProofHalf(m.id, seg.id, 1, v)}
+                                    fadeBelow={FADE_BELOW}
+                                    height={20}
+                                    personaOpen
+                                    onClick={() => toggleFocal(m.id, seg.id)}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            // ── Standard row (+ chevron accordion) — while a focal box
+            // is open elsewhere, everything here fades out.
             return (
-              <div key={m.id} style={{
-                borderBottom: i < MESSAGES.length - 1 ? `1px solid ${C.cardBorder}` : "none",
-              }}>
+              <div key={m.id} style={{ borderBottom: groupBorder }}>
                 {/* ── Main (aggregated) row ── */}
                 <div style={{
                   display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
@@ -562,7 +782,7 @@ export default function MessageMap() {
                       transform: isOpen ? "rotate(90deg)" : "none",
                       transition: "transform 0.2s, opacity 0.12s",
                       opacity: rowDim
-                        ? 0.25
+                        ? 0.15
                         : (!focal && hoverMsg !== null && m.id !== hoverMsg)
                           ? 0.15 : 1,
                     }}>▸</div>
@@ -570,7 +790,7 @@ export default function MessageMap() {
                     display: "flex", alignItems: "center", gap: 8,
                     paddingRight: 10,
                     opacity: rowDim
-                      ? 0.25
+                      ? 0.15
                       : (!focal && hoverMsg !== null && m.id !== hoverMsg)
                         ? 0.15 : 1,
                     transition: "opacity 0.12s", cursor: "pointer",
@@ -594,13 +814,11 @@ export default function MessageMap() {
                     borderRadius: 2,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
-                    opacity: rowDim ? 0.25 : 1, transition: "opacity 0.25s",
+                    opacity: rowDim ? 0.15 : 1, transition: "opacity 0.25s",
                   }}>B6</div>
                   {orderedSegments.map(seg => {
-                    const isFocalCol = focal?.segId === seg.id;
-                    const isFocalCell = isFocalRow && isFocalCol;
                     const cross = focal
-                      ? 1
+                      ? 0.15
                       : (hoverMsg !== null || hoverSeg !== null)
                         ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
                         : 1;
@@ -610,56 +828,16 @@ export default function MessageMap() {
                         onMouseEnter={() => { setHoverMsg(m.id); setHoverSeg(seg.id); }}
                         onMouseLeave={() => { setHoverMsg(null); setHoverSeg(null); }}
                         style={{
-                          position: "relative",
                           opacity: cross,
                           transition: "opacity 0.12s",
                         }}>
-                        {isFocalCell && (
-                          <div style={{
-                            position: "absolute", top: -21, left: 0, right: 0,
-                            display: "flex", justifyContent: "center",
-                            zIndex: 7, pointerEvents: "none",
-                          }}>
-                            <PersonaIcon />
-                          </div>
-                        )}
-                        {isFocalCell ? (() => {
-                          // THE CUBE — the mini-grid replaces the cell in
-                          // place: full possibility space of this spec.
-                          const tokens = tokensByMsg.get(m.id) || [];
-                          const cubeRows = proofValuesFor(m.id).map(v => {
-                            // token value v ↔ tokens[max(v-1, 0)]
-                            // (variant 1 = base)
-                            const tok = tokens[Math.max(v - 1, 0)] || {};
-                            const label = proofLabel(m, v);
-                            return {
-                              isBase: label === "no proof point",
-                              label,
-                              core: getProofHalf(m.id, seg.id, 2, v),
-                              tuned: getProofHalf(m.id, seg.id, 1, v),
-                              coreText: tok.text_core || "",
-                              personaText: tok.text_by_persona?.[seg.code] || "",
-                            };
-                          });
-                          return (
-                            <CubeCard
-                              rows={cubeRows}
-                              fadeBelow={FADE_BELOW}
-                              onClose={() => setFocal(null)}
-                            />
-                          );
-                        })() : (
-                          <SplitCell
-                            core={getHalf(m.id, seg.id, 2)}
-                            tuned={getHalf(m.id, seg.id, 1)}
-                            fadeBelow={FADE_BELOW}
-                            height={24}
-                            compact={!isFocalCol}
-                            dim={focal ? !(isFocalRow || isFocalCol) : false}
-                            personaOpen={!!focal && (isFocalRow || isFocalCol)}
-                            onClick={() => toggleFocal(m.id, seg.id)}
-                          />
-                        )}
+                        <SplitCell
+                          core={getHalf(m.id, seg.id, 2)}
+                          tuned={getHalf(m.id, seg.id, 1)}
+                          fadeBelow={FADE_BELOW}
+                          height={24}
+                          onClick={() => toggleFocal(m.id, seg.id)}
+                        />
                       </div>
                     );
                   })}
@@ -668,7 +846,8 @@ export default function MessageMap() {
                 {/* ── Accordion: core wording + per-proof sub-rows ── */}
                 <div style={{
                   maxHeight: isOpen ? 600 : 0, overflow: "hidden",
-                  transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                  opacity: focal ? 0.15 : 1,
+                  transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s",
                 }}>
                   {isOpen && (
                     <>
@@ -726,11 +905,10 @@ export default function MessageMap() {
                           }}>↳ {proofLabel(m, v)}</div>
                           <div />
                           {orderedSegments.map(seg => {
-                            const cross = focal
-                              ? 1
-                              : (hoverMsg !== null || hoverSeg !== null)
-                                ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
-                                : 1;
+                            const cross = (!focal
+                              && (hoverMsg !== null || hoverSeg !== null)
+                              && !(m.id === hoverMsg || seg.id === hoverSeg))
+                              ? 0.15 : 1;
                             return (
                               <div
                                 key={seg.id}
@@ -742,10 +920,8 @@ export default function MessageMap() {
                                   tuned={getProofHalf(m.id, seg.id, 1, v)}
                                   fadeBelow={FADE_BELOW}
                                   height={20}
-                                  compact={focal?.segId !== seg.id}
-                                  group={focal?.segId === seg.id && focal?.msgId === m.id}
-                                  dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
                                   personaOpen
+                                  onClick={() => toggleFocal(m.id, seg.id)}
                                 />
                               </div>
                             );
