@@ -649,7 +649,8 @@ export default function MessageMap() {
                         }}>
                           {isFocalCol && (
                             <div style={{
-                              position: "absolute", top: -23, left: 0, right: 0,
+                              position: "absolute", top: -23,
+                              left: "50%", right: 0,
                               display: "flex", justifyContent: "center",
                               zIndex: 7, pointerEvents: "none",
                             }}>

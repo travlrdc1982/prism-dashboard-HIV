@@ -21,7 +21,7 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
   if (!cell) {
     return (
       <div style={{
-        height: 40, display: "flex", alignItems: "center",
+        height: 28, display: "flex", alignItems: "center",
         justifyContent: "center", borderRadius: 3,
         background: "rgba(148,163,184,0.06)",
         border: "1px solid rgba(51,65,85,0.6)",
@@ -35,7 +35,7 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
     <div
       title={wording || undefined}
       style={{
-        height: 40, position: "relative",
+        height: 28, position: "relative",
         display: "flex", alignItems: "center", justifyContent: "center",
         borderRadius: 3,
         backgroundColor: bg,
@@ -45,7 +45,7 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
         border: side === "persona"
           ? `1.5px solid ${PERSONA_BLUE}`
           : "1px solid rgba(148,163,184,0.5)",
-        color: text, fontFamily: MONO, fontSize: 16, fontWeight: 700,
+        color: text, fontFamily: MONO, fontSize: 10, fontWeight: 700,
         opacity: faded ? 0.5 : 1,
         cursor: "pointer",
       }}
