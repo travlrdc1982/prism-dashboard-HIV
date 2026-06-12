@@ -572,7 +572,7 @@ export default function MessageMap() {
                         <div />
                         <div style={{
                           gridColumn: "2 / span 2", paddingRight: 16,
-                          fontFamily: "'Lora', Georgia, serif",
+                          fontFamily: FONT,
                           fontSize: 11.5, fontStyle: "italic", lineHeight: 1.55,
                           color: "#cbd5e1",
                           borderLeft: `2px solid ${C.violet}`,
