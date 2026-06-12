@@ -19,7 +19,7 @@ import { rampColor } from "./liftScale";
 
 const PERSONA_FRAME = "rgba(125,179,250,0.85)";
 
-function Half({ cell, side, fadeBelow, compact, title }) {
+function Half({ cell, side, fadeBelow, compact, title, onHover }) {
   if (!cell) {
     return (
       <div style={{
@@ -44,7 +44,10 @@ function Half({ cell, side, fadeBelow, compact, title }) {
   if (side === "persona") frames.push(`inset 0 0 0 1px ${PERSONA_FRAME}`);
   if (sig) frames.push("inset 0 0 0 1.5px rgba(241,245,249,0.85)");
   return (
-    <div title={title || undefined} style={{
+    <div title={title || undefined}
+         onMouseEnter={() => onHover?.(cell.lift)}
+         onMouseLeave={() => onHover?.(null)}
+         style={{
       flex: 1, position: "relative",
       display: "flex", alignItems: "center", justifyContent: "center",
       backgroundImage: skin, backgroundColor: bg,
@@ -77,7 +80,7 @@ function Half({ cell, side, fadeBelow, compact, title }) {
 export default function SplitCell({
   core, tuned, fadeBelow = 0.6, height = 24,
   onClick, compact = true,
-  personaOpen = false, coreTitle, tunedTitle,
+  personaOpen = false, coreTitle, tunedTitle, onCellHover,
 }) {
   // CORE is the resting state. The persona half stays folded (width 0)
   // behind a thin blue tab on the right edge; `personaOpen` (the cube
@@ -94,7 +97,7 @@ export default function SplitCell({
       }}
     >
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact}
-            title={coreTitle} />
+            title={coreTitle} onHover={onCellHover} />
       {personaOpen ? (
         <>
           {/* 8px divider lane: thin centered violet line marks the
@@ -107,7 +110,8 @@ export default function SplitCell({
           </div>
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
             <Half cell={tuned} side="persona" fadeBelow={fadeBelow}
-                  compact={compact} title={tunedTitle} />
+                  compact={compact} title={tunedTitle}
+                  onHover={onCellHover} />
           </div>
         </>
       ) : (

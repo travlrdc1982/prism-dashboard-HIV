@@ -869,34 +869,26 @@ export default function MessageMap() {
                               <div />
                               <span style={{ color: "#7F77DD" }}>PERSONA</span>
                             </div>
-                            <div
-                              onMouseEnter={() => {
-                                const c = getHalf(m.id, seg.id, 2);
-                                const t = getHalf(m.id, seg.id, 1);
-                                const lifts = [c?.lift, t?.lift]
-                                  .filter(x => x != null);
-                                if (lifts.length > 0) {
-                                  setHoverLift(lifts.reduce((s, x) => s + x, 0)
-                                    / lifts.length);
+                            <SplitCell
+                              core={getHalf(m.id, seg.id, 2)}
+                              tuned={getHalf(m.id, seg.id, 1)}
+                              fadeBelow={FADE_BELOW}
+                              height={50}
+                              compact={false}
+                              personaOpen
+                              coreTitle={coreTextByMsg.get(m.id)}
+                              tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
+                              onCellHover={(lift) => {
+                                if (lift == null) {
+                                  setHoverLift(null);
+                                  setHoverLiftMsg(null);
+                                } else {
+                                  setHoverLift(lift);
                                   setHoverLiftMsg(m.id);
                                 }
                               }}
-                              onMouseLeave={() => {
-                                setHoverLift(null);
-                                setHoverLiftMsg(null);
-                              }}>
-                              <SplitCell
-                                core={getHalf(m.id, seg.id, 2)}
-                                tuned={getHalf(m.id, seg.id, 1)}
-                                fadeBelow={FADE_BELOW}
-                                height={50}
-                                compact={false}
-                                personaOpen
-                                coreTitle={coreTextByMsg.get(m.id)}
-                                tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
-                                onClick={() => toggleFocal(m.id, seg.id)}
-                              />
-                            </div>
+                              onClick={() => toggleFocal(m.id, seg.id)}
+                            />
                           </div>
                         );
                       }
