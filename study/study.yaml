@@ -205,6 +205,31 @@ topline:
   bootstrap_ci: true
   bootstrap_n_iter: 300
 
+  # ── BAYESIAN TOPLINE ──────────────────────────────────────────────
+  # New (R5+). Replaces the bootstrap softmax SoP and the seg-local
+  # min-max Utility with Bayesian posteriors. See
+  # pipeline/messagemap/src/prism_topline_bayes.py.
+  bayes:
+    enabled: true
+    n_draws: 4000
+    rng_seed: 42
+    sop:
+      # Flat baseline prior added to every message, plus a
+      # hierarchical anchor toward the total-sample posterior mean.
+      # α_m  =  prior_alpha + hierarchical_K · global_share_m
+      # hierarchical_K = effective sample size of the hierarchical
+      # prior (one trial of borrow per cell when set to n_messages).
+      prior_alpha: 1.0
+      hierarchical_K: 17
+    utility:
+      # Posterior shrinkage of bw_norm toward 0 (B-W zero-sum within
+      # MaxDiff). σ_w and τ² are estimated from the data; the
+      # 0..100 secondary scale uses these fixed end-points so cross-
+      # segment comparisons are valid. Leave null to auto-fit to the
+      # pooled 1st/99th percentiles of bw_norm.
+      scale_min: null
+      scale_max: null
+
 # ── SIMPLE SoP PLOT ─────────────────────────────────────────────────────
 sop_simple:
   enabled: true
