@@ -77,11 +77,18 @@ export default function SplitCell({
         display: "flex", height, margin: "0 1px",
         borderRadius: group ? 3 : 2, overflow: "hidden",
         border: group
-          ? "1.5px solid rgba(203,213,225,0.85)"
+          ? "2px solid rgba(241,245,249,0.95)"
           : "1px solid rgba(30,41,59,0.7)",
         cursor: onClick ? "pointer" : "default",
         opacity: dim ? 0.15 : 1,
-        transition: "opacity 0.25s, border-color 0.2s, height 0.3s",
+        // Grouped (focal-set) cells get an intense glow + elevation so
+        // the set unmistakably lifts off the dark grid.
+        boxShadow: group
+          ? "0 0 0 1px rgba(241,245,249,0.45), 0 0 14px rgba(203,213,225,0.4), 0 6px 18px rgba(0,0,0,0.65)"
+          : "none",
+        position: group ? "relative" : "static",
+        zIndex: group ? 3 : "auto",
+        transition: "opacity 0.25s, border-color 0.2s, box-shadow 0.2s, height 0.3s",
       }}
     >
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact} />
