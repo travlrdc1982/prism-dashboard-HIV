@@ -37,7 +37,7 @@ get_population("voters_v1")            # Stage-1 rake target (DEM/GOP)
 | `benchmarks/populations` | ✅ voters_v1 real; us_adults / seniors_ma / pregnant_parents are guarded placeholders |
 | `quality/` (DQ flags) | ✅ byte-reproduces the reference flags |
 | `composites/` | ✅ byte-equivalent to the frozen prototype; Decipher audit encoded |
-| `activation/` | ⏳ |
+| `activation/` | ✅ outcomes prototype-equivalent; per-study fit runs on HIV Wave 1 |
 | `weighting/` (joint-convergence rake) | ⏳ |
 | `studies/` + YAML schema | ⏳ |
 | `pipeline.py` + CLI | ⏳ |
