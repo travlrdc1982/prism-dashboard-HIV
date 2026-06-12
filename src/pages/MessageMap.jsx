@@ -242,6 +242,33 @@ export default function MessageMap() {
   // base (matches the strong-color callouts in the description).
   const universeColor = metric === "base_messaging" ? "#60a5fa" : "#34d399";
 
+  // Per-(msg, seg) n-weighted lift (both arms, all proofs). Drives the
+  // hover-following live tick on the Variant Universe bar: hovering a
+  // cell in MSG M × SEG S moves M's tick to that intersection's
+  // aggregated lift. When nothing is hovered the tick falls back to
+  // the basket aggregate.
+  const msgSegLift = useMemo(() => {
+    const cells = dashboard.message_map_cells?.[metric] || [];
+    const acc = new Map();
+    for (const c of cells) {
+      const key = `${c.message}|${c.segment}`;
+      let a = acc.get(key);
+      if (!a) { a = { sl: 0, sn: 0 }; acc.set(key, a); }
+      a.sl += c.lift_shrunk * c.n;
+      a.sn += c.n;
+    }
+    const out = new Map();
+    for (const [k, a] of acc) out.set(k, a.sn > 0 ? a.sl / a.sn : null);
+    return out;
+  }, [metric]);
+  const liveFor = (msgId) => {
+    if (hoverMsg === msgId && hoverSeg !== null) {
+      const hov = msgSegLift.get(`${msgId}|${hoverSeg}`);
+      if (hov != null) return hov;
+    }
+    return universeByMsg.get(msgId)?.live;
+  };
+
   // CUBE — full token records per message id (core + per-persona text).
   const tokensByMsg = useMemo(() => {
     const out = new Map();
@@ -746,7 +773,9 @@ export default function MessageMap() {
                       opacity: 0.15,
                     }}>
                       <VariantUniverseBar
-                        stats={universeByMsg.get(m.id)}
+                        stats={universeByMsg.get(m.id)
+                          ? { ...universeByMsg.get(m.id), live: liveFor(m.id) }
+                          : null}
                         colorScale={colorScale}
                         color={universeColor}
                       />
@@ -1000,7 +1029,9 @@ export default function MessageMap() {
                     transition: "opacity 0.25s",
                   }}>
                     <VariantUniverseBar
-                      stats={universeByMsg.get(m.id)}
+                      stats={universeByMsg.get(m.id)
+                        ? { ...universeByMsg.get(m.id), live: liveFor(m.id) }
+                        : null}
                       colorScale={colorScale}
                       color={universeColor}
                     />
