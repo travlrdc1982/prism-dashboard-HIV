@@ -526,9 +526,9 @@ export default function MessageMap() {
           {MESSAGES.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
             const isOpen = openRows.has(m.id);
-            // SPOTLIGHT — while a cube is open, everything except the
-            // headers and the cube itself fades, focal row/col included.
-            const rowDim = !!focal;
+            // SPOTLIGHT — non-focal rows dim; the focal row's first-column
+            // labels (chevron, message, proof points) stay fully visible.
+            const rowDim = focal ? !isFocalRow : false;
             const proofVals = isOpen ? proofValuesFor(m.id) : [];
             return (
               <div key={m.id} style={{
@@ -659,7 +659,7 @@ export default function MessageMap() {
                           title={coreTextByMsg.get(m.id) || ""}
                           style={{
                           gridColumn: "2 / span 2", paddingRight: 16,
-                          opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
+                          opacity: (focal && !isFocalRow) ? 0.15 : 1, transition: "opacity 0.12s",
                           // Lora (serif) for respondent-facing wording;
                           // 16px, clamped to 2 lines — hover (title)
                           // carries the full text.
@@ -689,11 +689,11 @@ export default function MessageMap() {
                           <div style={{
                             textAlign: "center", fontFamily: MONO,
                             fontSize: 8, color: C.textDim,
-                            opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
+                            opacity: (focal && !isFocalRow) ? 0.15 : 1, transition: "opacity 0.12s",
                           }}>·</div>
                           <div style={{
                             paddingLeft: 22, paddingRight: 10,
-                            opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
+                            opacity: (focal && !isFocalRow) ? 0.15 : 1, transition: "opacity 0.12s",
                             // Lora — proof-point label IS respondent-facing
                             // wording (the appended proof statement)
                             // Analyst direction: proof-point wording 1.5x (12 → 18)
