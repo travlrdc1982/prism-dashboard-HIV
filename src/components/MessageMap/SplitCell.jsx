@@ -61,7 +61,11 @@ function Half({ cell, side, fadeBelow, compact }) {
 export default function SplitCell({
   core, tuned, fadeBelow = 0.6, height = 24,
   onClick, focal = false, dim = false, compact = true,
+  personaOpen = false,
 }) {
+  // CORE is the resting state. The persona half stays folded (width 0)
+  // behind a thin blue tab on the right edge; clicking the cell (the
+  // cube unfold) slides it open. Matches the architecture widget.
   return (
     <div
       onClick={onClick}
@@ -76,8 +80,20 @@ export default function SplitCell({
       }}
     >
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact} />
-      <div style={{ width: 1, background: "rgba(96,165,250,0.55)", flexShrink: 0 }} />
-      <Half cell={tuned} side="persona" fadeBelow={fadeBelow} compact={compact} />
+      {personaOpen ? (
+        <>
+          <div style={{ width: 1, background: "rgba(96,165,250,0.55)", flexShrink: 0 }} />
+          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            <Half cell={tuned} side="persona" fadeBelow={fadeBelow} compact={compact} />
+          </div>
+        </>
+      ) : (
+        // Folded persona: a slim blue tab hinting the cell unfolds.
+        <div style={{
+          width: 5, flexShrink: 0,
+          background: "linear-gradient(180deg, rgba(125,179,250,0.75), rgba(96,165,250,0.35))",
+        }} />
+      )}
     </div>
   );
 }

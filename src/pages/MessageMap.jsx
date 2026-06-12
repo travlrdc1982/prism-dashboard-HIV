@@ -521,10 +521,10 @@ export default function MessageMap() {
                   }} onClick={() => toggleRow(m.id)}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{
-                        fontFamily: MONO, fontSize: 9, color: C.textDim, letterSpacing: 0.5,
+                        fontFamily: MONO, fontSize: 18, color: C.textDim, letterSpacing: 0.5,
                       }}>MSG {String(m.id).padStart(2, "0")}</div>
                       <div style={{
-                        fontFamily: FONT, fontSize: 11, fontWeight: 700, color: C.text,
+                        fontFamily: FONT, fontSize: 22, fontWeight: 700, color: C.text,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{m.theme_label}</div>
                     </div>
@@ -552,6 +552,7 @@ export default function MessageMap() {
                         compact={!isFocalCol}
                         focal={isFocalCell}
                         dim={focal ? !(isFocalRow || isFocalCol) : false}
+                        personaOpen={!!focal && (isFocalRow || isFocalCol)}
                         onClick={() => toggleFocal(m.id, seg.id)}
                       />
                     );
@@ -622,6 +623,7 @@ export default function MessageMap() {
                               height={20}
                               compact={focal?.segId !== seg.id}
                               dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
+                              personaOpen
                             />
                           ))}
                         </div>
