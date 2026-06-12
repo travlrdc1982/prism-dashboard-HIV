@@ -748,41 +748,71 @@ export default function MessageMap() {
                         the CORE | PERSONA pair sits centered next to
                         the core wording — visually the focal point —
                         and the proof-point cube rows below read as
-                        add-ons stacking under it. */}
+                        add-ons stacking under it. The focal column
+                        also carries its own CORE | PERSONA mini
+                        header just above the cell, and the persona
+                        silhouette icon riding the bracket's top
+                        border. */}
                     {orderedSegments.map((seg, j) => {
                       const isFocalCol = seg.id === focal.segId;
-                      return (
-                        <div key={seg.id} style={{
-                          gridRow: isFocalCol ? "1 / span 2" : 1,
-                          gridColumn: j + 4,
-                          position: "relative",
-                          alignSelf: isFocalCol ? "center" : undefined,
-                          zIndex: isFocalCol ? 3 : "auto",
-                          opacity: isFocalCol ? 1 : 0.15,
-                          transition: "opacity 0.12s",
-                        }}>
-                          {isFocalCol && (
+                      if (isFocalCol) {
+                        return (
+                          <div key={seg.id} style={{
+                            gridRow: "1 / span 2",
+                            gridColumn: j + 4,
+                            position: "relative",
+                            alignSelf: "center",
+                            display: "flex", flexDirection: "column",
+                            gap: 3, zIndex: 3,
+                          }}>
+                            {/* Persona icon — sits atop the violet
+                                bracket's top border */}
                             <div style={{
-                              position: "absolute", top: -2,
+                              position: "absolute", top: -34,
                               left: "50%", right: 0,
                               display: "flex", justifyContent: "center",
                               zIndex: 7, pointerEvents: "none",
                             }}>
                               <PersonaIcon />
                             </div>
-                          )}
+                            {/* CORE | PERSONA mini header — labels
+                                the two arms right above the cells */}
+                            <div style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 8px 1fr",
+                              fontFamily: MONO, fontSize: 8,
+                              fontWeight: 700, letterSpacing: 1.5,
+                              textAlign: "center",
+                            }}>
+                              <span style={{ color: "#cbd5e1" }}>CORE</span>
+                              <div />
+                              <span style={{ color: "#7F77DD" }}>PERSONA</span>
+                            </div>
+                            <SplitCell
+                              core={getHalf(m.id, seg.id, 2)}
+                              tuned={getHalf(m.id, seg.id, 1)}
+                              fadeBelow={FADE_BELOW}
+                              height={50}
+                              compact={false}
+                              personaOpen
+                              coreTitle={coreTextByMsg.get(m.id)}
+                              tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
+                              onClick={() => toggleFocal(m.id, seg.id)}
+                            />
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={seg.id} style={{
+                          gridRow: 1, gridColumn: j + 4,
+                          opacity: 0.15, transition: "opacity 0.12s",
+                        }}>
                           <SplitCell
                             core={getHalf(m.id, seg.id, 2)}
                             tuned={getHalf(m.id, seg.id, 1)}
                             fadeBelow={FADE_BELOW}
-                            height={isFocalCol ? 64 : 24}
-                            compact={!isFocalCol}
-                            personaOpen={isFocalCol}
-                            coreTitle={isFocalCol
-                              ? coreTextByMsg.get(m.id) : undefined}
-                            tunedTitle={isFocalCol
-                              ? tokens[0]?.text_by_persona?.[seg.code]
-                              : undefined}
+                            height={24}
+                            compact
                             onClick={() => toggleFocal(m.id, seg.id)}
                           />
                         </div>
