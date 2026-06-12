@@ -25,7 +25,7 @@
 // basket reorganization, and the variant-universe data still land
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -77,17 +77,18 @@ const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
 });
 
 // PersonaIcon — generic person silhouette in a circle. Sits above the
-// segment header circle when that column's persona half is unfolded;
-// labels the right side of the cube as the persona-tuned variant.
+// focal cube column's PERSONA half to label the right side of the cube
+// as the persona-tuned variant. Violet (matches the column bracket +
+// cube divider); 1.5× the original size.
 function PersonaIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+    <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden>
       <circle cx="12" cy="12" r="11" fill="none"
-              stroke="#7db3fa" strokeWidth="1.5" />
+              stroke="#7F77DD" strokeWidth="1.5" />
       <circle cx="12" cy="9.5" r="2.6" fill="none"
-              stroke="#7db3fa" strokeWidth="1.5" />
+              stroke="#7F77DD" strokeWidth="1.5" />
       <path d="M5.5 19 Q12 14 18.5 19" fill="none"
-            stroke="#7db3fa" strokeWidth="1.5" strokeLinecap="round" />
+            stroke="#7F77DD" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -113,6 +114,10 @@ export default function MessageMap() {
   // the only focal point. Clicking the mini-grid folds it back.
   // {msgId, segId} | null
   const [focal, setFocal] = useState(null);          // {msgId, segId}
+  // Column-only spotlight — click a segment header to lift its whole
+  // column into a violet rounded rectangle (header + body). Mutually
+  // exclusive with focal: opening a cube clears it, and vice versa.
+  const [colFocus, setColFocus] = useState(null);    // segId
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
   const [openRows, setOpenRows] = useState(() => new Set());
   // CROSSHAIR — hover any cell to light up its full row + column;
@@ -216,13 +221,36 @@ export default function MessageMap() {
   };
 
   const toggleFocal = (msgId, segId) => {
-    // Same cell again → fold the cube back up.
+    // Same cell again → fold the cube back up. Opening clears any
+    // segment-column spotlight (the two are mutually exclusive).
+    setColFocus(null);
     setFocal(prev =>
       prev && prev.msgId === msgId && prev.segId === segId
         ? null
         : { msgId, segId }
     );
   };
+  const toggleColFocus = (segId) => {
+    setFocal(null);
+    setColFocus(prev => prev === segId ? null : segId);
+  };
+
+  // Click-outside-to-close: a mousedown anywhere outside the active
+  // spotlight closes it. Focal cube → ref on the focal-row grid.
+  // Column spotlight → ref on the segment header band.
+  const focalRef = useRef(null);
+  const segBandRef = useRef(null);
+  useEffect(() => {
+    if (!focal && colFocus === null) return;
+    const onDown = (e) => {
+      if (focal && focalRef.current?.contains(e.target)) return;
+      if (colFocus !== null && segBandRef.current?.contains(e.target)) return;
+      setFocal(null);
+      setColFocus(null);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [focal, colFocus]);
   const toggleRow = (msgId) => {
     if (focal?.msgId === msgId) { setFocal(null); return; }
     setOpenRows(prev => {
@@ -434,6 +462,34 @@ export default function MessageMap() {
         background: C.card, border: `1px solid ${C.cardBorder}`,
         borderRadius: 6, overflow: "visible", position: "relative",
       }}>
+        {/* Column spotlight — segment header click lifts the whole
+            column (header + every body cell) into one rounded violet
+            rectangle. Spans the frame; pointer-events off so cells
+            below stay clickable. */}
+        {colFocus !== null && (() => {
+          const idx = orderedSegments.findIndex(s => s.id === colFocus);
+          if (idx < 0) return null;
+          return (
+            <div style={{
+              position: "absolute",
+              top: 32, bottom: 6, left: 12, right: 12,
+              display: "grid",
+              gridTemplateColumns: rowTemplate,
+              gap: 3,
+              pointerEvents: "none", zIndex: 4,
+            }}>
+              <div style={{ gridColumn: idx + 4, margin: "-4px -4px" }}>
+                <div style={{
+                  width: "100%", height: "100%",
+                  border: "1.5px solid #7F77DD",
+                  borderRadius: 8,
+                  background: "linear-gradient(to right, transparent 0%, transparent 38%, rgba(127,119,221,0.10) 55%, rgba(127,119,221,0.20) 100%)",
+                  boxShadow: "0 0 18px rgba(127,119,221,0.25), 0 8px 24px rgba(0,0,0,0.45)",
+                }} />
+              </div>
+            </div>
+          );
+        })()}
         {/* Header row */}
         <div style={{
           display: "grid",
@@ -499,7 +555,7 @@ export default function MessageMap() {
           {/* 16 PRISM SEGMENTS — group label spans all segment columns,
               circle row sits underneath. Label + InfoDot sit OUTSIDE
               the message column. */}
-          <div style={{
+          <div ref={segBandRef} style={{
             gridColumn: `4 / span ${orderedSegments.length}`,
             display: "grid",
             // Same tracks + gap as the body rows, so the circles track
@@ -522,16 +578,25 @@ export default function MessageMap() {
             {/* Segment-circle column headers. When the column is the focal
                 (persona-open) column, a small persona icon appears above the
                 circle to label the unfolded side. */}
-            {orderedSegments.map(seg => (
-              <div key={seg.id} style={{
-                display: "flex", justifyContent: "center",
-                opacity: (!focal && hoverSeg !== null && seg.id !== hoverSeg)
-                  ? 0.15 : 1,
-                transition: "opacity 0.12s",
-              }}>
-                <SegmentCircle seg={seg} />
-              </div>
-            ))}
+            {orderedSegments.map(seg => {
+              const spot = focal?.segId ?? colFocus;
+              const lit = spot === null
+                ? (hoverSeg === null || seg.id === hoverSeg)
+                : seg.id === spot;
+              return (
+                <div key={seg.id}
+                  onClick={() => toggleColFocus(seg.id)}
+                  style={{
+                    display: "flex", justifyContent: "center",
+                    opacity: lit ? 1 : 0.15,
+                    transition: "opacity 0.12s",
+                    cursor: "pointer",
+                    position: "relative", zIndex: 5,
+                  }}>
+                  <SegmentCircle seg={seg} />
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -561,7 +626,7 @@ export default function MessageMap() {
               const focalIdx = orderedSegments.findIndex(s => s.id === focal.segId);
               return (
                 <div key={m.id} style={{ borderBottom: groupBorder }}>
-                  <div style={{
+                  <div ref={focalRef} style={{
                     display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                     padding: "8px 12px", alignItems: "center",
                     background: "rgba(96,165,250,0.04)",
@@ -607,8 +672,10 @@ export default function MessageMap() {
                     }}>B6</div>
 
                     {/* THE VIOLET COLUMN BRACKET — one container around
-                        the persona-open column (separate element from
-                        the cube outline inside it) */}
+                        the persona-open column. Gradient fill: clear
+                        on the CORE (left) side, violet on the PERSONA
+                        (right) side, so the column itself signals
+                        which arm is which. */}
                     <div style={{
                       gridRow: `1 / span ${2 + vals.length}`,
                       gridColumn: focalIdx + 4,
@@ -616,7 +683,7 @@ export default function MessageMap() {
                       margin: "-6px -5px",
                       border: "1.5px solid #7F77DD",
                       borderRadius: 5,
-                      background: "rgba(127,119,221,0.05)",
+                      background: "linear-gradient(to right, transparent 0%, transparent 40%, rgba(127,119,221,0.10) 55%, rgba(127,119,221,0.20) 100%)",
                       zIndex: 1, pointerEvents: "none",
                     }} />
                     {/* THE CUBE OUTLINE — one white box around the
@@ -649,7 +716,7 @@ export default function MessageMap() {
                         }}>
                           {isFocalCol && (
                             <div style={{
-                              position: "absolute", top: -23,
+                              position: "absolute", top: -30,
                               left: "50%", right: 0,
                               display: "flex", justifyContent: "center",
                               zIndex: 7, pointerEvents: "none",
@@ -717,7 +784,7 @@ export default function MessageMap() {
                             gridRow: 3 + k, gridColumn: 2,
                             paddingLeft: 22, paddingRight: 10,
                             fontFamily: "'Lora', Georgia, serif",
-                            fontSize: 18, fontWeight: 500,
+                            fontSize: 16, fontWeight: 500,
                             color: isBase ? C.textDim : "#e2e8f0",
                             fontStyle: isBase ? "italic" : "normal",
                             overflow: "hidden", textOverflow: "ellipsis",
@@ -820,9 +887,11 @@ export default function MessageMap() {
                   {orderedSegments.map(seg => {
                     const cross = focal
                       ? 0.15
-                      : (hoverMsg !== null || hoverSeg !== null)
-                        ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
-                        : 1;
+                      : colFocus !== null
+                        ? (seg.id === colFocus ? 1 : 0.15)
+                        : (hoverMsg !== null || hoverSeg !== null)
+                          ? (m.id === hoverMsg || seg.id === hoverSeg ? 1 : 0.15)
+                          : 1;
                     return (
                       <div
                         key={seg.id}
@@ -897,7 +966,7 @@ export default function MessageMap() {
                             // wording (the appended proof statement)
                             // Analyst direction: proof-point wording 1.5x (12 → 18)
                             fontFamily: "'Lora', Georgia, serif",
-                            fontSize: 18, fontWeight: 500,
+                            fontSize: 16, fontWeight: 500,
                             color: v === 0 || proofLabel(m, v) === "no proof point"
                               ? C.textDim : "#e2e8f0",
                             fontStyle: proofLabel(m, v) === "no proof point" ? "italic" : "normal",
