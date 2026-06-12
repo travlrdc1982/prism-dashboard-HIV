@@ -572,8 +572,12 @@ export default function MessageMap() {
                         <div />
                         <div style={{
                           gridColumn: "2 / span 2", paddingRight: 16,
-                          fontFamily: FONT,
-                          fontSize: 11.5, fontStyle: "italic", lineHeight: 1.55,
+                          // Lora (serif) for respondent-facing wording —
+                          // analyst direction: question wording labels AND
+                          // hover tooltips read in the editorial serif;
+                          // admin labels (MSG ##, theme labels) stay Nunito.
+                          fontFamily: "'Lora', Georgia, serif",
+                          fontSize: 13, fontStyle: "italic", lineHeight: 1.55,
                           color: "#cbd5e1",
                           borderLeft: `2px solid ${C.violet}`,
                           paddingLeft: 10, marginLeft: 2,
@@ -598,9 +602,12 @@ export default function MessageMap() {
                           }}>·</div>
                           <div style={{
                             paddingLeft: 22, paddingRight: 10,
-                            fontFamily: FONT, fontSize: 10, fontWeight: 600,
+                            // Lora — proof-point label IS respondent-facing
+                            // wording (the appended proof statement)
+                            fontFamily: "'Lora', Georgia, serif",
+                            fontSize: 12, fontWeight: 500,
                             color: v === 0 || proofLabel(m, v) === "no proof point"
-                              ? C.textDim : C.textMuted,
+                              ? C.textDim : "#e2e8f0",
                             fontStyle: proofLabel(m, v) === "no proof point" ? "italic" : "normal",
                             overflow: "hidden", textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
