@@ -17,7 +17,7 @@ import { rampColor } from "./liftScale";
 const PERSONA_BLUE = "#7db3fa";
 const DIVIDER = "rgba(127,119,221,0.45)";
 
-export function MiniCell({ cell, side, fadeBelow, wording }) {
+export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
   if (!cell) {
     return (
       <div style={{
@@ -40,6 +40,8 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
   return (
     <div
       title={wording || undefined}
+      onMouseEnter={() => onHover?.(cell.lift)}
+      onMouseLeave={() => onHover?.(null)}
       style={{
         height: 30, position: "relative",
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -67,7 +69,7 @@ export function MiniCell({ cell, side, fadeBelow, wording }) {
 }
 
 export default function CubePair({
-  core, tuned, fadeBelow, coreText, personaText, onClick,
+  core, tuned, fadeBelow, coreText, personaText, onClick, onCellHover,
 }) {
   // Grow-out-of-the-cell animation (all pairs mount together, so the
   // whole mini-grid grows as one).
@@ -89,12 +91,12 @@ export default function CubePair({
       }}
     >
       <MiniCell cell={core} side="core" fadeBelow={fadeBelow}
-                wording={coreText} />
+                wording={coreText} onHover={onCellHover} />
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ width: 1, background: DIVIDER }} />
       </div>
       <MiniCell cell={tuned} side="persona" fadeBelow={fadeBelow}
-                wording={personaText} />
+                wording={personaText} onHover={onCellHover} />
     </div>
   );
 }

@@ -125,6 +125,13 @@ export default function MessageMap() {
   // suppressed while a focal cell is active (focal logic wins).
   const [hoverMsg, setHoverMsg] = useState(null);
   const [hoverSeg, setHoverSeg] = useState(null);
+  // VARIANT-UNIVERSE override — a per-cell raw lift that wins over
+  // both the basket aggregate and the msg×seg aggregate. Set when the
+  // mouse is inside a cube MiniCell so the focal row's bar tick can
+  // point at the specific (arm × proof × seg) variant under the
+  // cursor instead of an aggregate.
+  const [hoverLift, setHoverLift] = useState(null);
+  const [hoverLiftMsg, setHoverLiftMsg] = useState(null);
 
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
@@ -262,6 +269,7 @@ export default function MessageMap() {
     return out;
   }, [metric]);
   const liveFor = (msgId) => {
+    if (hoverLiftMsg === msgId && hoverLift != null) return hoverLift;
     if (hoverMsg === msgId && hoverSeg !== null) {
       const hov = msgSegLift.get(`${msgId}|${hoverSeg}`);
       if (hov != null) return hov;
@@ -767,10 +775,13 @@ export default function MessageMap() {
                         }}>{m.theme_label}</div>
                       </div>
                     </div>
+                    {/* Variant Universe strip stays SPOTLIT in focal
+                        mode — it's the at-a-glance summary for the
+                        message the cube is dissecting. Cube hovers
+                        drive its tick through hoverLift / hoverLiftMsg. */}
                     <div style={{
                       gridRow: 1, gridColumn: 3, marginRight: 10,
                       display: "flex", alignItems: "center",
-                      opacity: 0.15,
                     }}>
                       <VariantUniverseBar
                         stats={universeByMsg.get(m.id)
@@ -858,17 +869,34 @@ export default function MessageMap() {
                               <div />
                               <span style={{ color: "#7F77DD" }}>PERSONA</span>
                             </div>
-                            <SplitCell
-                              core={getHalf(m.id, seg.id, 2)}
-                              tuned={getHalf(m.id, seg.id, 1)}
-                              fadeBelow={FADE_BELOW}
-                              height={50}
-                              compact={false}
-                              personaOpen
-                              coreTitle={coreTextByMsg.get(m.id)}
-                              tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
-                              onClick={() => toggleFocal(m.id, seg.id)}
-                            />
+                            <div
+                              onMouseEnter={() => {
+                                const c = getHalf(m.id, seg.id, 2);
+                                const t = getHalf(m.id, seg.id, 1);
+                                const lifts = [c?.lift, t?.lift]
+                                  .filter(x => x != null);
+                                if (lifts.length > 0) {
+                                  setHoverLift(lifts.reduce((s, x) => s + x, 0)
+                                    / lifts.length);
+                                  setHoverLiftMsg(m.id);
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                setHoverLift(null);
+                                setHoverLiftMsg(null);
+                              }}>
+                              <SplitCell
+                                core={getHalf(m.id, seg.id, 2)}
+                                tuned={getHalf(m.id, seg.id, 1)}
+                                fadeBelow={FADE_BELOW}
+                                height={50}
+                                compact={false}
+                                personaOpen
+                                coreTitle={coreTextByMsg.get(m.id)}
+                                tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
+                                onClick={() => toggleFocal(m.id, seg.id)}
+                              />
+                            </div>
                           </div>
                         );
                       }
@@ -954,6 +982,15 @@ export default function MessageMap() {
                                     fadeBelow={FADE_BELOW}
                                     coreText={tok.text_core || ""}
                                     personaText={tok.text_by_persona?.[seg.code] || ""}
+                                    onCellHover={(lift) => {
+                                      if (lift == null) {
+                                        setHoverLift(null);
+                                        setHoverLiftMsg(null);
+                                      } else {
+                                        setHoverLift(lift);
+                                        setHoverLiftMsg(m.id);
+                                      }
+                                    }}
                                     onClick={() => toggleFocal(m.id, seg.id)}
                                   />
                                 ) : (
