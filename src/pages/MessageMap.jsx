@@ -76,22 +76,6 @@ const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
   return (STUDY_METRICS[cb]?.roi || 0) - (STUDY_METRICS[ca]?.roi || 0);
 });
 
-// PersonaIcon — generic person silhouette in a circle. Sits above the
-// segment header circle when that column's persona half is unfolded;
-// labels the right side of the cube as the persona-tuned variant.
-function PersonaIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-      <circle cx="12" cy="12" r="11" fill="none"
-              stroke="#7db3fa" strokeWidth="1.5" />
-      <circle cx="12" cy="9.5" r="2.6" fill="none"
-              stroke="#7db3fa" strokeWidth="1.5" />
-      <path d="M5.5 19 Q12 14 18.5 19" fill="none"
-            stroke="#7db3fa" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // ═══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
@@ -104,11 +88,13 @@ export default function MessageMap() {
   const [metric, setMetric] = useState(defaultMetric);
   const [basket, setBasket] = useState(UI.default_basket || "total");
 
-  // CUBE — the focal intersection. Clicking any cell swaps it IN PLACE
-  // for the expanded mini-grid (CubeCard): the segment column widens,
-  // the row grows taller, and everything outside the focal row/column
-  // dims (spotlight). Clicking the cube (or the same cell again) folds
-  // it back up. No popup — the mini-grid IS the focal point.
+  // CUBE — the focal intersection. Clicking any cell (main row OR a
+  // proof-point sub-row) swaps the intersection IN PLACE for the
+  // expanded mini-grid (CubeCard): the segment column widens, the row
+  // grows taller, and EVERYTHING except the headers dims (spotlight —
+  // the focal row/column get no special highlight). Clicking the cube
+  // (or the same cell again) folds it back up. No popup — the
+  // mini-grid IS the focal point.
   // {msgId, segId} | null
   const [focal, setFocal] = useState(null);          // {msgId, segId}
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
@@ -540,7 +526,9 @@ export default function MessageMap() {
           {MESSAGES.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
             const isOpen = openRows.has(m.id);
-            const rowDim = focal ? !isFocalRow : false;
+            // SPOTLIGHT — while a cube is open, everything except the
+            // headers and the cube itself fades, focal row/col included.
+            const rowDim = !!focal;
             const proofVals = isOpen ? proofValuesFor(m.id) : [];
             return (
               <div key={m.id} style={{
@@ -550,8 +538,7 @@ export default function MessageMap() {
                 <div style={{
                   display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                   padding: "8px 12px", alignItems: "center", minHeight: 38,
-                  background: isFocalRow ? "rgba(96,165,250,0.04)" : "transparent",
-                  transition: "background 0.25s, grid-template-columns 0.3s",
+                  transition: "grid-template-columns 0.3s",
                 }}>
                   <div
                     onClick={() => toggleRow(m.id)}
@@ -562,16 +549,16 @@ export default function MessageMap() {
                       transform: isOpen ? "rotate(90deg)" : "none",
                       transition: "transform 0.2s, opacity 0.12s",
                       opacity: rowDim
-                        ? 0.25
-                        : (!focal && hoverMsg !== null && m.id !== hoverMsg)
+                        ? 0.15
+                        : (hoverMsg !== null && m.id !== hoverMsg)
                           ? 0.15 : 1,
                     }}>▸</div>
                   <div style={{
                     display: "flex", alignItems: "center", gap: 8,
                     paddingRight: 10,
                     opacity: rowDim
-                      ? 0.25
-                      : (!focal && hoverMsg !== null && m.id !== hoverMsg)
+                      ? 0.15
+                      : (hoverMsg !== null && m.id !== hoverMsg)
                         ? 0.15 : 1,
                     transition: "opacity 0.12s", cursor: "pointer",
                   }} onClick={() => toggleRow(m.id)}>
@@ -594,7 +581,7 @@ export default function MessageMap() {
                     borderRadius: 2,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
-                    opacity: rowDim ? 0.25 : 1, transition: "opacity 0.25s",
+                    opacity: rowDim ? 0.15 : 1, transition: "opacity 0.25s",
                   }}>B6</div>
                   {orderedSegments.map(seg => {
                     const isFocalCol = focal?.segId === seg.id;
@@ -614,15 +601,6 @@ export default function MessageMap() {
                           opacity: cross,
                           transition: "opacity 0.12s",
                         }}>
-                        {isFocalCell && (
-                          <div style={{
-                            position: "absolute", top: -21, left: 0, right: 0,
-                            display: "flex", justifyContent: "center",
-                            zIndex: 7, pointerEvents: "none",
-                          }}>
-                            <PersonaIcon />
-                          </div>
-                        )}
                         {isFocalCell ? (() => {
                           // THE CUBE — the mini-grid replaces the cell in
                           // place: full possibility space of this spec.
@@ -655,8 +633,8 @@ export default function MessageMap() {
                             fadeBelow={FADE_BELOW}
                             height={24}
                             compact={!isFocalCol}
-                            dim={focal ? !(isFocalRow || isFocalCol) : false}
-                            personaOpen={!!focal && (isFocalRow || isFocalCol)}
+                            dim={!!focal}
+                            personaOpen={isFocalCol}
                             onClick={() => toggleFocal(m.id, seg.id)}
                           />
                         )}
@@ -681,6 +659,7 @@ export default function MessageMap() {
                           title={coreTextByMsg.get(m.id) || ""}
                           style={{
                           gridColumn: "2 / span 2", paddingRight: 16,
+                          opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
                           // Lora (serif) for respondent-facing wording;
                           // 16px, clamped to 2 lines — hover (title)
                           // carries the full text.
@@ -710,9 +689,11 @@ export default function MessageMap() {
                           <div style={{
                             textAlign: "center", fontFamily: MONO,
                             fontSize: 8, color: C.textDim,
+                            opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
                           }}>·</div>
                           <div style={{
                             paddingLeft: 22, paddingRight: 10,
+                            opacity: focal ? 0.15 : 1, transition: "opacity 0.12s",
                             // Lora — proof-point label IS respondent-facing
                             // wording (the appended proof statement)
                             // Analyst direction: proof-point wording 1.5x (12 → 18)
@@ -743,9 +724,9 @@ export default function MessageMap() {
                                   fadeBelow={FADE_BELOW}
                                   height={20}
                                   compact={focal?.segId !== seg.id}
-                                  group={focal?.segId === seg.id && focal?.msgId === m.id}
-                                  dim={focal ? focal.segId !== seg.id && focal.msgId !== m.id : false}
+                                  dim={!!focal}
                                   personaOpen
+                                  onClick={() => toggleFocal(m.id, seg.id)}
                                 />
                               </div>
                             );

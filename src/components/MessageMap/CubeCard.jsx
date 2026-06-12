@@ -4,10 +4,12 @@
 // for this mini-grid: the segment column widens, the row grows taller,
 // and the full possibility space of the spec unfolds inside the cell —
 //
-//          CORE          |  ⊙ PERSONA
 //   core message only  [v]|[v]   ← just the core / translated to persona
 //   + proof point A    [v]|[v]   ← proof variants stack downward
 //   + proof point B    [v]|[v]
+//
+// Unlabeled: left value column = CORE, right (blue-framed) = PERSONA;
+// proof points stay labeled in the first column.
 //
 // Values use the shared ramp; significance dots and shrinkage fades
 // carry over. Hovering any mini-cell shows the exact wording that
@@ -90,33 +92,9 @@ export default function CubeCard({ rows, fadeBelow, onClose }) {
         transition: "transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s",
       }}
     >
-      {/* Column headers: CORE | persona icon + PERSONA */}
-      <div style={{
-        display: "grid", gridTemplateColumns: COLS,
-        gap: 3, marginBottom: 4, alignItems: "end",
-      }}>
-        <div />
-        <div style={{
-          textAlign: "center", fontFamily: MONO, fontSize: 9,
-          fontWeight: 700, letterSpacing: 1.5, color: "#cbd5e1",
-        }}>CORE</div>
-        <div />
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          gap: 5, fontFamily: MONO, fontSize: 9, fontWeight: 700,
-          letterSpacing: 1.5, color: PERSONA_BLUE,
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
-            <circle cx="12" cy="12" r="11" fill="none" stroke={PERSONA_BLUE} strokeWidth="2" />
-            <circle cx="12" cy="9.5" r="2.6" fill="none" stroke={PERSONA_BLUE} strokeWidth="2" />
-            <path d="M5.5 19 Q12 14 18.5 19" fill="none" stroke={PERSONA_BLUE}
-                  strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          PERSONA
-        </div>
-      </div>
-
-      {/* The matrix: one row per token, divider lane between the arms */}
+      {/* The matrix: one row per token, divider lane between the arms.
+          No column-header labels — the persona arm is identified by its
+          blue frame; the COLS template keeps rows/columns aligned. */}
       {rows.map((r, i) => (
         <div key={i} style={{
           display: "grid", gridTemplateColumns: COLS,
