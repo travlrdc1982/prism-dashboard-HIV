@@ -742,21 +742,28 @@ export default function MessageMap() {
                       }} />
                     )}
 
-                    {/* row 1 — aggregated cells; only the focal column
-                        stays lit (the box IS the focal point) */}
+                    {/* row 1 — aggregated cells. The FOCAL column's
+                        aggregated cell spans rows 1+2 (the message
+                        header row AND the question-wording row), so
+                        the CORE | PERSONA pair sits centered next to
+                        the core wording — visually the focal point —
+                        and the proof-point cube rows below read as
+                        add-ons stacking under it. */}
                     {orderedSegments.map((seg, j) => {
                       const isFocalCol = seg.id === focal.segId;
                       return (
                         <div key={seg.id} style={{
-                          gridRow: 1, gridColumn: j + 4,
+                          gridRow: isFocalCol ? "1 / span 2" : 1,
+                          gridColumn: j + 4,
                           position: "relative",
+                          alignSelf: isFocalCol ? "center" : undefined,
                           zIndex: isFocalCol ? 3 : "auto",
                           opacity: isFocalCol ? 1 : 0.15,
                           transition: "opacity 0.12s",
                         }}>
                           {isFocalCol && (
                             <div style={{
-                              position: "absolute", top: -30,
+                              position: "absolute", top: -2,
                               left: "50%", right: 0,
                               display: "flex", justifyContent: "center",
                               zIndex: 7, pointerEvents: "none",
@@ -768,7 +775,7 @@ export default function MessageMap() {
                             core={getHalf(m.id, seg.id, 2)}
                             tuned={getHalf(m.id, seg.id, 1)}
                             fadeBelow={FADE_BELOW}
-                            height={isFocalCol ? 30 : 24}
+                            height={isFocalCol ? 64 : 24}
                             compact={!isFocalCol}
                             personaOpen={isFocalCol}
                             coreTitle={isFocalCol
