@@ -25,7 +25,7 @@
 // basket reorganization, and the variant-universe data still land
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -39,6 +39,7 @@ import {
   LiftRamp,
   VariantUniverseLegend,
   SplitCell,
+  CubeCard,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -108,7 +109,9 @@ export default function MessageMap() {
   // everything outside the focal row/column dims (spotlight). Clicking
   // the same cell (or the chevron of its row) folds it back up.
   // {msgId, segId} | null
-  const [focal, setFocal] = useState(null);
+  const [focal, setFocal] = useState(null);          // {msgId, segId}
+  const [anchor, setAnchor] = useState(null);        // {left, top} in frame
+  const frameRef = useRef(null);
   // Chevron-expanded rows (no zoom/spotlight — just the accordion).
   const [openRows, setOpenRows] = useState(() => new Set());
   // CROSSHAIR — hover any cell to light up its full row + column;
@@ -164,6 +167,16 @@ export default function MessageMap() {
     return out;
   }, []);
 
+  // CUBE — full token records per message id (core + per-persona text).
+  const tokensByMsg = useMemo(() => {
+    const out = new Map();
+    for (const m of dashboard.variants?.messages || []) {
+      const id = parseInt(String(m.msg_id).split("_").pop(), 10);
+      out.set(id, m.tokens || []);
+    }
+    return out;
+  }, []);
+
   const colorScale = activeMetric?.color_scale;
   // arm encoding from the survey: 1 = PERSONA-tuned, 2 = CORE
   const getHalf = (msgId, segId, arm) => {
@@ -201,9 +214,22 @@ export default function MessageMap() {
     return p.short_label;
   };
 
-  const toggleFocal = (msgId, segId) => {
-    setFocal(f => (f && f.msgId === msgId && f.segId === segId)
-      ? null : { msgId, segId });
+  const toggleFocal = (msgId, segId, evt) => {
+    setFocal(f => {
+      if (f && f.msgId === msgId && f.segId === segId) return null;
+      // Anchor the cube card to the clicked cell, clamped to the frame
+      if (evt && frameRef.current) {
+        const frame = frameRef.current.getBoundingClientRect();
+        const cell = evt.currentTarget.getBoundingClientRect();
+        const CARD_W = 430;
+        setAnchor({
+          left: Math.max(8, Math.min(cell.left - frame.left,
+                                     frame.width - CARD_W - 8)),
+          top: cell.bottom - frame.top + 6,
+        });
+      }
+      return { msgId, segId };
+    });
   };
   const toggleRow = (msgId) => {
     if (focal?.msgId === msgId) { setFocal(null); return; }
@@ -411,10 +437,41 @@ export default function MessageMap() {
               chevron · Message · Variant Universe · 16 segment columns
           Variant Universe moved LEFT per analyst feedback.
       */}
-      <div style={{
+      <div ref={frameRef} style={{
         background: C.card, border: `1px solid ${C.cardBorder}`,
-        borderRadius: 6, overflow: "hidden",
+        borderRadius: 6, overflow: "visible", position: "relative",
       }}>
+        {/* CUBE CARD — grows out of the clicked intersection */}
+        {focal && anchor && (() => {
+          const m = MESSAGES.find(x => x.id === focal.msgId);
+          const seg = SEGMENTS.find(x => x.id === focal.segId);
+          if (!m || !seg) return null;
+          const tokens = tokensByMsg.get(m.id) || [];
+          const rows = proofValuesFor(m.id).map(v => {
+            // token value v ↔ tokens[max(v-1, 0)] (variant 1 = base)
+            const tok = tokens[Math.max(v - 1, 0)] || {};
+            const label = proofLabel(m, v);
+            return {
+              isBase: label === "no proof point",
+              label,
+              core: getProofHalf(m.id, seg.id, 2, v),
+              tuned: getProofHalf(m.id, seg.id, 1, v),
+              coreText: tok.text_core || "",
+              personaText: tok.text_by_persona?.[seg.code] || "",
+            };
+          });
+          return (
+            <CubeCard
+              message={m}
+              seg={seg}
+              segColor={seg.party === "GOP" ? "#ef4444" : "#3b82f6"}
+              rows={rows}
+              fadeBelow={FADE_BELOW}
+              anchor={anchor}
+              onClose={() => setFocal(null)}
+            />
+          );
+        })()}
         {/* Header row */}
         <div style={{
           display: "grid",
@@ -518,7 +575,7 @@ export default function MessageMap() {
         <div>
           {MESSAGES.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
-            const isOpen = isFocalRow || openRows.has(m.id);
+            const isOpen = openRows.has(m.id);
             const rowDim = focal ? !isFocalRow : false;
             const proofVals = isOpen ? proofValuesFor(m.id) : [];
             return (
@@ -611,7 +668,7 @@ export default function MessageMap() {
                           group={isFocalCell}
                           dim={focal ? !(isFocalRow || isFocalCol) : false}
                           personaOpen={!!focal && (isFocalRow || isFocalCol)}
-                          onClick={() => toggleFocal(m.id, seg.id)}
+                          onClick={(e) => toggleFocal(m.id, seg.id, e)}
                         />
                       </div>
                     );
