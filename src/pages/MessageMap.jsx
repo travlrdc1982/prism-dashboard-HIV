@@ -605,18 +605,21 @@ export default function MessageMap() {
                         padding: "2px 12px 6px",
                       }}>
                         <div />
-                        <div style={{
+                        <div
+                          title={coreTextByMsg.get(m.id) || ""}
+                          style={{
                           gridColumn: "2 / span 2", paddingRight: 16,
-                          // Lora (serif) for respondent-facing wording —
-                          // analyst direction: question wording labels AND
-                          // hover tooltips read in the editorial serif;
-                          // admin labels (MSG ##, theme labels) stay Nunito.
-                          // Analyst direction: question wording 1.5x (13 → 19.5)
+                          // Lora (serif) for respondent-facing wording;
+                          // 16px, clamped to 2 lines — hover (title)
+                          // carries the full text.
                           fontFamily: "'Lora', Georgia, serif",
-                          fontSize: 19.5, fontStyle: "italic", lineHeight: 1.5,
+                          fontSize: 16, fontStyle: "italic", lineHeight: 1.45,
                           color: "#cbd5e1",
                           borderLeft: `2px solid ${C.violet}`,
                           paddingLeft: 10, marginLeft: 2,
+                          display: "-webkit-box", WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical", overflow: "hidden",
+                          cursor: "help",
                         }}>
                           “{coreTextByMsg.get(m.id) || "(core wording unavailable)"}”
                           <span style={{

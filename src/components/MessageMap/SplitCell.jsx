@@ -60,28 +60,28 @@ function Half({ cell, side, fadeBelow, compact }) {
 
 export default function SplitCell({
   core, tuned, fadeBelow = 0.6, height = 24,
-  onClick, focal = false, dim = false, compact = true,
-  personaOpen = false,
+  onClick, dim = false, compact = true,
+  personaOpen = false, group = false,
 }) {
   // CORE is the resting state. The persona half stays folded (width 0)
   // behind a thin blue tab on the right edge; clicking the cell (the
   // cube unfold) slides it open. Matches the architecture widget.
+  //
+  // `group`: the focal set (main cell + its proof sub-cells) each wrap
+  // in a light-grey border so the stack reads as one grouped set
+  // (analyst reference screenshot).
   return (
     <div
       onClick={onClick}
       style={{
         display: "flex", height, margin: "0 1px",
-        borderRadius: 2, overflow: "hidden",
-        border: "1px solid rgba(30,41,59,0.7)",
-        cursor: onClick ? "zoom-in" : "default",
+        borderRadius: group ? 3 : 2, overflow: "hidden",
+        border: group
+          ? "1.5px solid rgba(203,213,225,0.85)"
+          : "1px solid rgba(30,41,59,0.7)",
+        cursor: onClick ? "pointer" : "default",
         opacity: dim ? 0.15 : 1,
-        // The spotlighted cell reads as one cohesive square (analyst):
-        // a thin light-grey border wraps the WHOLE cell when focal,
-        // outside the cuts.
-        boxShadow: focal
-          ? "0 0 0 1.5px rgba(203,213,225,0.95), 0 0 0 2.5px rgba(241,245,249,0.35)"
-          : "none",
-        transition: "opacity 0.25s, box-shadow 0.2s, height 0.3s",
+        transition: "opacity 0.25s, border-color 0.2s, height 0.3s",
       }}
     >
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact} />
