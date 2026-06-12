@@ -1116,3 +1116,278 @@ topline_config:
       design_note: Forced-choice instrumental outcome. High = pro-innovation.
     metric_label: '% PRO-INNOVATION — Forced Choice (Access vs. Innovation)'
     metric_label_scale: Top-3 Box (5-7) of 7-pt semantic differential (high = innovation pole)
+  demographics:
+  - id: gender
+    var: QGENDER
+    block_label: Demographics — Gender
+    wording: Which of the following best describes your gender?
+    style: radio
+    weight_relevant: true
+    options:
+    - - 1
+      - Male
+    - - 2
+      - Female
+    - - 3
+      - Other
+  - id: age
+    var: QAGECAT5
+    block_label: Demographics — Age
+    wording: What is your age?
+    style: numeric
+    weight_relevant: true
+    options:
+    - - 1
+      - 18-29
+    - - 2
+      - 30-44
+    - - 3
+      - 45-54
+    - - 4
+      - 55-64
+    - - 5
+      - 65+
+    pane_meta:
+      continuous_var: QAGE
+      show_mean_median: true
+      pane_subtitle: Tell us how old you are. (We won't tell)
+    pane_extra:
+      numeric_boxes: 2
+  - id: race_ethnic
+    var: QRACE_ETHNIC
+    block_label: Demographics — Race & Ethnicity
+    wording: Race / Ethnicity (Hispanic + Race, collapsed)
+    style: radio
+    weight_relevant: true
+    options:
+    - - 1
+      - White (non-Hispanic)
+    - - 2
+      - Black (non-Hispanic)
+    - - 3
+      - Asian (non-Hispanic)
+    - - 4
+      - Other (non-Hispanic)
+    - - 5
+      - Hispanic
+    pane_extra:
+      stacked_questions:
+      - wording: Are you, yourself, of Hispanic or Latino background? Such as Mexican, Puerto Rican, Cuban, or some
+          other Spanish background.
+        style: buttonselect
+        options:
+        - - 1
+          - 'Yes'
+        - - 2
+          - 'No'
+      - wording: Which of the following best describes your race?
+        style: radio
+        options:
+        - - 1
+          - White
+        - - 2
+          - Black
+        - - 3
+          - Asian
+        - - 4
+          - Other
+  - id: region
+    var: XQREGION
+    block_label: Demographics — Census Region
+    wording: Census Region (derived from QZIP → XQDIVISION → XQREGION)
+    style: derived
+    weight_relevant: true
+    derived_from: QZIP → XQDIVISION (9 divisions) → XQREGION (4 regions)
+    options:
+    - - 1
+      - Northeast
+    - - 2
+      - Midwest
+    - - 3
+      - South
+    - - 4
+      - West
+    pane_extra:
+      derived_note: Census Region is computed from the respondent's ZIP code. Pane shows the source ZIP-entry screen.
+      pane_shows_var: QZIP
+      pane_subtitle: Census Region is derived from QZIP via the 9-level Census Division (XQDIVISION) and rolled up
+        to the 4-level Census Region.
+  - id: ruca
+    var: XQPrimaryRUCA
+    block_label: Demographics — Urban / Suburban / Rural
+    wording: Rural-Urban Commuting Area (RUCA, collapsed to 5 levels)
+    style: derived
+    weight_relevant: false
+    derived_from: 'QZIP → XQPrimaryRUCA (10-level), collapsed: Urban=1, Suburban=2-3, Exurban=4-6, Small Town Rural=7-9,
+      Rural=10'
+    recode:
+      ruca_collapse: true
+    options:
+    - - urban
+      - Urban (RUCA 1)
+    - - suburban
+      - Suburban (RUCA 2-3)
+    - - exurban
+      - Exurban (RUCA 4-6)
+    - - smalltown
+      - Small Town Rural (RUCA 7-9)
+    - - rural
+      - Rural (RUCA 10)
+    pane_extra:
+      derived_note: RUCA is computed from the respondent's ZIP code. Pane shows the source ZIP-entry screen.
+      pane_shows_var: QZIP
+      pane_subtitle: 'Rural-Urban Commuting Area is derived from QZIP. 10-level primary code collapsed to 5 levels:
+        Urban (1), Suburban (2-3), Exurban (4-6), Small Town Rural (7-9), Rural (10).'
+  - id: education
+    var: XEDU_CAT
+    block_label: Demographics — Education
+    wording: Please indicate the highest level of school you completed or the highest degree you have received.
+    style: buttongrid
+    weight_relevant: false
+    options:
+    - - 1
+      - High school or GED
+    - - 2
+      - Some college, no degree
+    - - 3
+      - Associate's
+    - - 4
+      - Bachelor's
+    - - 5
+      - Graduate / Professional
+    pane_extra:
+      options_for_pane:
+      - Did not finish high school
+      - High school diploma or GED
+      - Some college credit, no degree
+      - Trade / technical / vocational
+      - Associate's degree
+      - Bachelor's degree
+      - Master's degree
+      - Professional degree (JD, MD)
+      - Doctorate (PhD)
+  - id: vet
+    var: QVET
+    block_label: Demographics — Military Service
+    wording: Have you ever served on active duty in the U.S. Armed Forces, Reserves, or National Guard?
+    style: buttonselect
+    weight_relevant: false
+    options:
+    - - 1
+      - Yes — currently serving
+    - - 2
+      - Yes — retired or inactive
+    - - 3
+      - 'No'
+  - id: union
+    var: QUNION
+    block_label: Demographics — Union Membership
+    wording: Are you currently, or have you ever been, part of a labor union?
+    style: buttonselect
+    weight_relevant: false
+    options:
+    - - 1
+      - 'Yes'
+    pane_extra:
+      options_for_pane:
+      - 'Yes'
+      - 'No'
+    recode:
+      show_only_yes: true
+  - id: religion
+    var: QREL_CAT
+    block_label: Demographics — Religion
+    wording: What is your present religion, if any?
+    style: dropdown
+    weight_relevant: false
+    options:
+    - - 1
+      - White Evangelical
+    - - 2
+      - Black Protestant
+    - - 3
+      - White Mainline Protestant
+    - - 4
+      - Catholic
+    - - 5
+      - Jewish
+    - - 6
+      - Other
+    - - 7
+      - None / Unaffiliated
+    pane_extra:
+      options_for_pane:
+      - Protestant
+      - Roman Catholic
+      - LDS/Mormon
+      - Orthodox
+      - Jewish
+      - Muslim
+      - Buddhist
+      - Hindu
+      - Atheist
+      - Agnostic
+      - Something else
+      - Nothing in particular
+      highlight_mode: true
+  - id: income
+    var: QD23A
+    block_label: Demographics — Household Income
+    wording: Last year — that is, in 2025 — what was your total family income from all sources, before taxes?
+    style: dropdown
+    weight_relevant: false
+    options:
+    - - 1
+      - Less than $20K
+    - - 2
+      - $20K - $50K
+    - - 3
+      - $50K - $100K
+    - - 4
+      - $100K - $150K
+    - - 5
+      - $150K or more
+    pane_extra:
+      options_for_pane:
+      - Less than $10,000
+      - $10,000 - $19,999
+      - $20,000 - $29,999
+      - $30,000 - $39,999
+      - $40,000 - $49,999
+      - $50,000 - $59,999
+      - $60,000 - $69,999
+      - $70,000 - $79,999
+      - $80,000 - $89,999
+      - $90,000 - $99,999
+      - $100,000 - $124,999
+      - $125,000 - $149,999
+      - $150,000 - $199,999
+      - $200,000 - $499,999
+      - $500,000 or more
+      highlight_mode: true
+  - id: contact
+    block_label: Demographics — Personal Contact
+    wording: The following questions ask about people you may know personally. Please answer as honestly as you can
+      — there are no right or wrong answers, and all responses are completely confidential.
+    style: binary_set
+    weight_relevant: false
+    items:
+    - var: QCON_LGBr1
+      code: CON_LGB
+      wording: Do you personally know anyone who is gay, lesbian, or bisexual?
+      category: substantive
+    - var: QCON_LGBr2
+      code: CON_HIV
+      wording: Do you personally know anyone who is HIV-positive or living with AIDS?
+      category: substantive
+    - var: QCON_LGBr3
+      code: CON_CANCER
+      wording: Do you personally know anyone who has been diagnosed with cancer?
+      category: control
+    - var: QCON_LGBr4
+      code: CON_ADDICT
+      wording: Do you personally know anyone who has struggled with alcohol or drug addiction?
+      category: control
+    pane_extra:
+      pane_subtitle: 4-item binary battery. r1 and r2 are substantive (contact with LGB and HIV+ communities). r3
+        and r4 are matched controls (high-prevalence low-stigma condition; moderately-stigmatized condition).

@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════════
+# TEMPLATE — non-voter population study (DO NOT RUN AS-IS)
+# ═══════════════════════════════════════════════════════════════════════
+# Demonstrates the configuration pattern for a study whose universe is
+# general U.S. adults rather than voters. us_adults_v1 carries
+# PLACEHOLDER benchmark values; the weighting orchestrator refuses to
+# run against it until real values are loaded (placeholder=False).
+# Copy this file, rename, fill in every <ANGLE-BRACKET> value.
+
+study:
+  id: <new_study_id>
+  title: "<Study Title>"
+  platform_version: "1.0"
+  client: "<Client>"
+  fielded: "<YYYY-MM>"
+
+survey_population: us_adults_v1     # non-cluster-aware
+segment_benchmark: prism_segments_v1
+
+composites:
+  priority_rank_pre: <QPRE_1r1 or null if no priority rank>
+  priority_rank_post: <QPOST_1r1>
+  rank_scale_size: 7
+  reverse_coded: {<QPRE_6>: <XQPRE_6R>, <QPOST_6>: <XPOST_6R>}
+  pre_items:  [<seven canonical pre items>]
+  post_items: [<seven canonical post items>]
+  trap_var: <QSM2r3>
+  trap_expected: <3>
+  overclaim_var: <XSMr1>
+  ars_items: {QP1: <QP1>, QP2: <QP2>, QP3: <QP3>}
+  bcs_var: <XSMr4>
+
+roi:                       # recalibrate per issue; HIV values shown
+  highest_actprob: 0.50
+  highest_post: 5.0
+  strong_actprob: 0.25
+  strong_post: 4.5
+
+activation:
+  optin_var: <OPTIN>
+  optin_positive_value: 1
+  behavioral_cost_fields:
+    - {var: <OPTIN_1r1>, label: email}
+    - {var: <OPTIN_1r2>, label: phone}
+  eligible_filter: null
+  calibration_mode: fit
+  fitted_coefficients: {intercept: null, ars_slope: null, bcs_slope: null}
+
+weighting:
+  rake_dimensions: [sex, age, race, education, region]
+  variable_mapping:
+    sex:       {var: <QGENDER>,      recode: {1: Male, 2: Female}}
+    age:       {var: <QAGECAT5>,     recode: {1: "18-29", 2: "30-44", 3: "45-64", 4: "45-64", 5: "65+"}}
+    race:      {var: <QRACE_ETHNIC>, recode: {1: White, 2: Black, 3: Other, 4: Other, 5: Hispanic}}
+    education: {var: <XEDU_CAT>,     recode: {1: Non-College, 2: Non-College, 3: Non-College, 4: College, 5: College}}
+    region:    {var: <XQREGION>,     recode: {1: Northeast, 2: Midwest, 3: South, 4: West}}
+  segment_id_to_code:
+    1: TSP
+    2: CEC
+    3: TC
+    4: HF
+    5: PP
+    6: WE
+    7: PFF
+    8: HHN
+    9: MFL
+    10: VS
+    11: UCP
+    12: FJP
+    13: HCP
+    14: HAD
+    15: HCI
+    16: GHI
+  sex_other_handling: random_split   # Wave 2+ convention
+  sex_other_seed: <fixed seed>
+
+quality:
+  qtime_var: <qtime>
+  overclaim_var: <XSMr1>
+  maxdiff_timer_var: <maxdiff timer var>
+  straightline_pre_items:  [<pre items 2-7, raw>]
+  straightline_post_items: [<post items 2-7, raw>]
+  noise_pre_items:  [<pre items 2-7, raw>]
+  noise_post_items: [<post items 2-7, raw>]
+  exclusion_policy: none

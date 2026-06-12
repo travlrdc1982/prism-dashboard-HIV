@@ -102,6 +102,7 @@ BATTERIES         = _tl['batteries']
 INFLUENCER_BLOCKS = _tl['influencer_blocks']
 ITEMS             = _tl['items']
 PRE_POST          = _tl['pre_post']
+DEMOGRAPHICS      = _tl['demographics']
 SEGMENTS          = _segments_topline(_cfg)   # [[id, code, name, party], ...]
 
 

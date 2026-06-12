@@ -18,7 +18,14 @@ SAV this package emits.
 
 ```bash
 pip install -e .[dev]
-pytest                       # benchmark + chain tests
+pytest                       # 58 tests: units, prototype equivalence,
+                             # reference reproduction, dashboard chain
+
+prism validate prism/studies/hiv_wave1.yaml
+prism run prism/studies/hiv_wave1.yaml data/INPUT.sav --dry-run
+prism run prism/studies/hiv_wave1.yaml data/INPUT.sav --output out/
+# → weighted SAV (WEIGHT column) + weights CSV + DQ flags CSV
+#   + Decipher audit CSV + provenance-stamped diagnostics markdown
 ```
 
 ```python
@@ -39,8 +46,8 @@ get_population("voters_v1")            # Stage-1 rake target (DEM/GOP)
 | `composites/` | ✅ byte-equivalent to the frozen prototype; Decipher audit encoded |
 | `activation/` | ✅ outcomes prototype-equivalent; per-study fit runs on HIV Wave 1 |
 | `weighting/` (joint-convergence rake) | ✅ vectorized IPF; both margin sets enforced; trim-limited residuals reported |
-| `studies/` + YAML schema | ⏳ |
-| `pipeline.py` + CLI | ⏳ |
+| `studies/` + YAML schema | ✅ hiv_wave1.yaml canonical; fail-case suite; non-voter template |
+| `pipeline.py` + CLI | ✅ run/validate/diagnose + --dry-run; provenance-stamped outputs; CHAIN test into the dashboard topline |
 
 The locked build decisions from the analyst review are recorded in
 `prism/__init__.py`'s docstring.

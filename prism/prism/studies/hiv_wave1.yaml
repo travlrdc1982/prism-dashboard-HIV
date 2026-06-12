@@ -1,0 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════════
+# PRISM STUDY — hiv_wave1 (the canonical first study)
+# ═══════════════════════════════════════════════════════════════════════
+# Instrument-specific + issue-calibrated + per-study-estimated parameters
+# ONLY. Platform-locked values (coalition cuts, ARS weights, DK recode,
+# penalty, grading, segment shares, rake structure) live in the package.
+
+study:
+  id: hiv_wave1
+  title: "PRISM HIV Wave 1"
+  platform_version: "1.0"
+  client: "Gilead Sciences"
+  fielded: "2026-04"
+
+survey_population: voters_v1
+segment_benchmark: prism_segments_v1
+
+# ── Composites (instrument-specific) ────────────────────────────────────
+composites:
+  priority_rank_pre: QPRE_1r1
+  priority_rank_post: QPOST_1r1
+  rank_scale_size: 7
+  reverse_coded:
+    QPRE_6: XQPRE_6R
+    QPOST_6: XPOST_6R
+  pre_items:  [XQPRE_1r1, QPRE_2, QPRE_3, QPRE_4, QPRE_5, XQPRE_6R, QPRE_7r1]
+  post_items: [XPOST_1r1, QPOST_2, QPOST_3, QPOST_4, QPOST_5, XPOST_6R, QPOST_7r1]
+  trap_var: QSM2r3
+  trap_expected: 3
+  overclaim_var: XSMr1
+  ars_items: {QP1: QP1, QP2: QP2, QP3: QP3}
+  bcs_var: XSMr4
+
+# ── ROI thresholds (issue-calibrated for HIV) ───────────────────────────
+roi:
+  highest_actprob: 0.50
+  highest_post: 5.0
+  strong_actprob: 0.25
+  strong_post: 4.5
+
+# ── Activation (model form platform-locked; coefficients fit per study) ─
+activation:
+  optin_var: OPTIN
+  optin_positive_value: 1
+  behavioral_cost_fields:
+    - {var: OPTIN_1r1, label: email}
+    - {var: OPTIN_1r2, label: phone}
+  eligible_filter: null            # full sample
+  calibration_mode: fit            # Wave 1 fits; Wave 2+ flips to 'apply'
+  fitted_coefficients:             # populated by the first pipeline run;
+    intercept: null                # locked thereafter
+    ars_slope: null
+    bcs_slope: null
+
+# ── Weighting (instrument bindings; algorithm is platform-locked) ───────
+weighting:
+  rake_dimensions: [sex, age, race, education, region]
+  variable_mapping:
+    sex:
+      var: QGENDER
+      recode: {1: Male, 2: Female}
+    age:
+      var: QAGECAT5
+      recode: {1: "18-29", 2: "30-44", 3: "45-64", 4: "45-64", 5: "65+"}
+    race:
+      var: QRACE_ETHNIC
+      recode: {1: White, 2: Black, 3: Other, 4: Other, 5: Hispanic}
+    education:
+      var: XEDU_CAT
+      recode: {1: Non-College, 2: Non-College, 3: Non-College,
+               4: College, 5: College}
+    region:
+      var: XQREGION
+      recode: {1: Northeast, 2: Midwest, 3: South, 4: West}
+  segment_id_to_code:
+    1: TSP
+    2: CEC
+    3: TC
+    4: HF
+    5: PP
+    6: WE
+    7: PFF
+    8: HHN
+    9: MFL
+    10: VS
+    11: UCP
+    12: FJP
+    13: HCP
+    14: HAD
+    15: HCI
+    16: GHI
+  sex_other_source_value: 3
+  sex_other_handling: fold         # Wave 1 convention; Wave 2+: random_split
+  sex_other_fold_to: Female
+  trim_low: 0.25
+  trim_high: 5.0
+
+# ── Data quality (thresholds issue-calibrated; rules platform-locked) ───
+quality:
+  qtime_var: qtime
+  overclaim_var: XSMr1
+  maxdiff_timer_var: QHIV_Timer
+  straightline_pre_items:  [QPRE_2, QPRE_3, QPRE_4, QPRE_5, QPRE_6, QPRE_7r1]
+  straightline_post_items: [QPOST_2, QPOST_3, QPOST_4, QPOST_5, QPOST_6, QPOST_7r1]
+  noise_pre_items:  [QPRE_2, QPRE_3, QPRE_4, QPRE_5, QPRE_6, QPRE_7r1]
+  noise_post_items: [QPOST_2, QPOST_3, QPOST_4, QPOST_5, QPOST_6, QPOST_7r1]
+  maxdiff_speed_sec: 1.0
+  straightline_std_threshold: 0.5
+  prepost_noise_threshold: 2.5
+  removal_recommendation: 2
+  exclusion_policy: none           # analyst ruling: loosest loss of sample
