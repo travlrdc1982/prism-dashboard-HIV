@@ -14,15 +14,12 @@
 //
 // Per-proof (expanded) cells add: significance dot when the 95% CI
 // excludes zero, and the low-confidence fade when shrinkage dominates.
-import { useState } from "react";
 import { MONO } from "../../data/theme";
 import { rampColor } from "./liftScale";
-import { VariantTooltip } from "./CubePair";
 
 const PERSONA_FRAME = "rgba(125,179,250,0.85)";
 
 function Half({ cell, side, fadeBelow, compact, title, onHover }) {
-  const [tipOpen, setTipOpen] = useState(false);
   if (!cell) {
     return (
       <div style={{
@@ -47,14 +44,8 @@ function Half({ cell, side, fadeBelow, compact, title, onHover }) {
   if (side === "persona") frames.push(`inset 0 0 0 1px ${PERSONA_FRAME}`);
   if (sig) frames.push("inset 0 0 0 1.5px rgba(241,245,249,0.85)");
   return (
-    <div onMouseEnter={() => {
-           onHover?.(cell.lift);
-           if (title) setTipOpen(true);
-         }}
-         onMouseLeave={() => {
-           onHover?.(null);
-           setTipOpen(false);
-         }}
+    <div onMouseEnter={() => onHover?.({ lift: cell.lift, wording: title, side })}
+         onMouseLeave={() => onHover?.(null)}
          style={{
       flex: 1, position: "relative",
       display: "flex", alignItems: "center", justifyContent: "center",
@@ -80,9 +71,6 @@ function Half({ cell, side, fadeBelow, compact, title, onHover }) {
           borderTop: `5px solid ${PERSONA_FRAME}`,
           borderLeft: "5px solid transparent",
         }} />
-      )}
-      {tipOpen && title && (
-        <VariantTooltip wording={title} side={side} />
       )}
     </div>
   );

@@ -73,18 +73,20 @@ export default function InfoDot({
           {title && (
             <span style={{
               display: "block",
-              fontSize: 11, fontWeight: 600, color: "#a78bfa",
-              fontFamily: "'Lora', Georgia, serif",
+              fontFamily: "'Nunito', sans-serif",
+              fontSize: 9, fontWeight: 700,
+              color: "#a78bfa",
+              textTransform: "none", letterSpacing: 0,
               marginBottom: 4, lineHeight: 1.3,
             }}>{title}</span>
           )}
           <span style={{
             display: "block",
-            fontSize: 11, color: "#cbd5e1",
-            // Editorial serif for hover reading copy (analyst request;
-            // "Nunito Serif" doesn't exist as a face — Lora is the
-            // pairing serif, loaded in Shell.jsx).
-            fontFamily: "'Lora', Georgia, serif", lineHeight: 1.6,
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: 9, fontWeight: 400,
+            color: "#cbd5e1",
+            textTransform: "none", letterSpacing: 0,
+            lineHeight: 1.55,
           }}>{children}</span>
         </span>
       )}

@@ -11,3 +11,4 @@ export { default as VariantUniverseBar } from './VariantUniverseBar';
 export { default as SplitCell } from './SplitCell';
 export { scaleLift, rampColor } from './liftScale';
 export { default as CubePair, MiniCell } from './CubePair';
+export { default as WordingPreview } from './WordingPreview';

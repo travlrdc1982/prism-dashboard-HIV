@@ -11,14 +11,13 @@
 // variant's respondents read (title). Clicking anywhere on the pair
 // toggles the focal point.
 import { useEffect, useState } from "react";
-import { C, MONO } from "../../data/theme";
+import { MONO } from "../../data/theme";
 import { rampColor } from "./liftScale";
 
 const PERSONA_BLUE = "#7db3fa";
 const DIVIDER = "rgba(127,119,221,0.45)";
 
 export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
-  const [tipOpen, setTipOpen] = useState(false);
   if (!cell) {
     return (
       <div style={{
@@ -40,14 +39,8 @@ export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
     : "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(0,0,0,0.14))";
   return (
     <div
-      onMouseEnter={() => {
-        onHover?.(cell.lift);
-        if (wording) setTipOpen(true);
-      }}
-      onMouseLeave={() => {
-        onHover?.(null);
-        setTipOpen(false);
-      }}
+      onMouseEnter={() => onHover?.({ lift: cell.lift, wording, side })}
+      onMouseLeave={() => onHover?.(null)}
       style={{
         height: 30, position: "relative",
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -70,50 +63,12 @@ export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
           background: "rgba(255,255,255,0.85)",
         }} />
       )}
-      {tipOpen && wording && (
-        <VariantTooltip wording={wording} side={side} />
-      )}
     </div>
   );
 }
 
-// VariantTooltip — small serif quote box showing the exact wording the
-// respondent in this (arm × proof) variant was shown. Rendered above
-// the hovered cell; pointer-events off so it never steals hover.
-export function VariantTooltip({ wording, side, placement = "above" }) {
-  const v = placement === "above"
-    ? { bottom: "calc(100% + 8px)" }
-    : { top: "calc(100% + 8px)" };
-  return (
-    <div style={{
-      position: "absolute", ...v,
-      left: "50%", transform: "translateX(-50%)",
-      minWidth: 260, maxWidth: 380,
-      background: "#0c1322",
-      border: `1px solid ${side === "persona" ? "#7F77DD" : "#334155"}`,
-      borderRadius: 6,
-      padding: "10px 12px",
-      boxShadow: "0 10px 28px rgba(0,0,0,0.6)",
-      zIndex: 100, pointerEvents: "none",
-    }}>
-      <div style={{
-        fontFamily: "'Lora', Georgia, serif",
-        fontSize: 11, lineHeight: 1.55, fontStyle: "italic",
-        color: "#e2e8f0",
-      }}>“{wording}”</div>
-      <div style={{
-        marginTop: 6,
-        fontFamily: MONO, fontSize: 7.5, fontWeight: 700,
-        letterSpacing: 1.2, textTransform: "uppercase",
-        color: side === "persona" ? "#7F77DD" : C.textMuted,
-      }}>
-        {side === "persona"
-          ? "Persona-tuned variant"
-          : "Core (untuned) variant"}
-      </div>
-    </div>
-  );
-}
+// Variant wording is shown by the dashboard-level Wording Preview
+// strip above the grid, not by a per-cell popover.
 
 export default function CubePair({
   core, tuned, fadeBelow, coreText, personaText, onClick, onCellHover,

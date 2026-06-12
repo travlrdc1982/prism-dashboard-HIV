@@ -41,6 +41,7 @@ import {
   SplitCell,
   CubePair,
   VariantUniverseBar,
+  WordingPreview,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -132,6 +133,34 @@ export default function MessageMap() {
   // cursor instead of an aggregate.
   const [hoverLift, setHoverLift] = useState(null);
   const [hoverLiftMsg, setHoverLiftMsg] = useState(null);
+  // VARIANT WORDING preview — populated as you hover any cell. Drives
+  // the WordingPreview strip above the grid (outside the cube). All
+  // wording text below comes straight from the variants workbook;
+  // captions are dashboard chrome.
+  const [hoverWording, setHoverWording] = useState(null);
+  // Shared hover-payload handler: cells fire either null (mouse-leave)
+  // or { lift, wording, side }. We translate that into the three
+  // hover states (tick override + wording preview).
+  const cellHoverHandler = (m, seg, proofLbl) => (info) => {
+    if (info == null) {
+      setHoverLift(null);
+      setHoverLiftMsg(null);
+      setHoverWording(null);
+      return;
+    }
+    if (info.lift != null) {
+      setHoverLift(info.lift);
+      setHoverLiftMsg(m.id);
+    }
+    setHoverWording({
+      wording: info.wording || "",
+      side: info.side,
+      messageLabel: m.theme_label,
+      segName: seg?.name,
+      segCode: seg?.code,
+      proofLabel: proofLbl,
+    });
+  };
 
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
@@ -490,6 +519,9 @@ export default function MessageMap() {
             {N_MESSAGES} MESSAGES{" · "}
             {N_PROOF_TOKENS} PROOF POINT TOKENS{" · "}
             {N_TOTAL_VARIANTS.toLocaleString()} TOTAL MESSAGE VARIANTS
+            {dashboard.study?.n_total ? (
+              <>{" · "}{dashboard.study.n_total.toLocaleString()} RESPONDENTS</>
+            ) : null}
           </div>
         </div>
 
@@ -561,6 +593,12 @@ export default function MessageMap() {
           in the survey design; the order does not reflect importance or ranking.</em>
         </span>
       </div>
+
+      {/* ─── WORDING PREVIEW STRIP — lives OUTSIDE the grid so it
+          never hides the cube/matrix. Updates live as you hover any
+          cell. Wording text is pulled straight from the variants
+          workbook (text_core / text_by_persona[seg.code]). ─── */}
+      <WordingPreview hover={hoverWording} />
 
       {/* ─── GRID FRAME ─── */}
       {/*
@@ -878,15 +916,7 @@ export default function MessageMap() {
                               personaOpen
                               coreTitle={coreTextByMsg.get(m.id)}
                               tunedTitle={tokens[0]?.text_by_persona?.[seg.code]}
-                              onCellHover={(lift) => {
-                                if (lift == null) {
-                                  setHoverLift(null);
-                                  setHoverLiftMsg(null);
-                                } else {
-                                  setHoverLift(lift);
-                                  setHoverLiftMsg(m.id);
-                                }
-                              }}
+                              onCellHover={cellHoverHandler(m, seg, null)}
                               onClick={() => toggleFocal(m.id, seg.id)}
                             />
                           </div>
@@ -906,6 +936,7 @@ export default function MessageMap() {
                             coreTitle={coreTextByMsg.get(m.id)}
                             tunedTitle={tokensByMsg.get(m.id)?.[0]
                               ?.text_by_persona?.[seg.code]}
+                            onCellHover={cellHoverHandler(m, seg, null)}
                             onClick={() => toggleFocal(m.id, seg.id)}
                           />
                         </div>
@@ -977,15 +1008,8 @@ export default function MessageMap() {
                                     fadeBelow={FADE_BELOW}
                                     coreText={tok.text_core || ""}
                                     personaText={tok.text_by_persona?.[seg.code] || ""}
-                                    onCellHover={(lift) => {
-                                      if (lift == null) {
-                                        setHoverLift(null);
-                                        setHoverLiftMsg(null);
-                                      } else {
-                                        setHoverLift(lift);
-                                        setHoverLiftMsg(m.id);
-                                      }
-                                    }}
+                                    onCellHover={cellHoverHandler(m, seg,
+                                      proofLabel(m, v))}
                                     onClick={() => toggleFocal(m.id, seg.id)}
                                   />
                                 ) : (
@@ -995,6 +1019,10 @@ export default function MessageMap() {
                                     fadeBelow={FADE_BELOW}
                                     height={20}
                                     personaOpen
+                                    coreTitle={tok.text_core}
+                                    tunedTitle={tok.text_by_persona?.[seg.code]}
+                                    onCellHover={cellHoverHandler(m, seg,
+                                      proofLabel(m, v))}
                                     onClick={() => toggleFocal(m.id, seg.id)}
                                   />
                                 )}
@@ -1095,6 +1123,7 @@ export default function MessageMap() {
                           coreTitle={coreTextByMsg.get(m.id)}
                           tunedTitle={tokensByMsg.get(m.id)?.[0]
                             ?.text_by_persona?.[seg.code]}
+                          onCellHover={cellHoverHandler(m, seg, null)}
                           onClick={() => toggleFocal(m.id, seg.id)}
                         />
                       </div>
@@ -1190,6 +1219,8 @@ export default function MessageMap() {
                                   personaOpen={open}
                                   coreTitle={tok.text_core}
                                   tunedTitle={tok.text_by_persona?.[seg.code]}
+                                  onCellHover={cellHoverHandler(m, seg,
+                                    proofLabel(m, v))}
                                   onClick={() => toggleFocal(m.id, seg.id)}
                                 />
                               </div>
