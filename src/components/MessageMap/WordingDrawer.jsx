@@ -57,7 +57,7 @@ export default function WordingDrawer({ hover }) {
       </div>
       <div style={{
         fontFamily: "'Lora', Georgia, serif",
-        fontSize: 12, lineHeight: 1.4, fontStyle: "italic",
+        fontSize: 14, lineHeight: 1.45, fontStyle: "italic",
         color: "#e2e8f0",
         overflow: "hidden",
         display: "-webkit-box", WebkitLineClamp: 4,
