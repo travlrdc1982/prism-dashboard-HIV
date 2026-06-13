@@ -23,11 +23,17 @@ import { C, FONT, MONO } from "../../data/theme";
 import SegmentCircle from "./SegmentCircle";
 import { divergingBinColor } from "./liftScale";
 
+// Per-(msg × seg) utility lookup. Reads utility_signed (the Bayesian
+// posterior mean from hierarchical_utility) and falls back to bw_mean
+// for any cell missing the posterior field (graceful degrade if the
+// patch hasn't been run yet for a study).
 const PER_MSG_SEG_LOOKUP = (() => {
   const out = new Map();
   for (const m of (dashboard.message_topline || [])) {
     for (const code in (m.by_segment || {})) {
-      out.set(`${m.message}|${code}`, m.by_segment[code]?.bw_mean);
+      const cell = m.by_segment[code] || {};
+      const v = cell.utility_signed != null ? cell.utility_signed : cell.bw_mean;
+      out.set(`${m.message}|${code}`, v);
     }
   }
   return out;

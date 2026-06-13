@@ -89,13 +89,12 @@ function rangeOfTopline(field) {
   return Number.isFinite(mn) ? { min: mn, max: mx } : null;
 }
 const SOP_RANGE = rangeOfTopline("sop_pct");
-// UTILITY uses the SIGNED bw_mean (the raw B-W score) so the diverging
-// visual is symmetric about 0. The unsigned 'utility' 0-100 field in
-// dashboard.json is the legacy per-segment min-max rescale and isn't
-// comparable across segments; we'll switch to the Bayesian utility_signed
-// field once the new pipeline runs (prism_topline_bayes.py). Same code
-// path either way — the range memo just gets bigger numbers.
-const UTILITY_RANGE = rangeOfTopline("bw_mean");
+// UTILITY = the Bayesian posterior signed score (utility_signed),
+// produced by hierarchical_utility in prism_topline_bayes.py and
+// surgically merged into message_topline by scripts/patch_bayes_utility.py.
+// Symmetric about 0 by construction (B-W is zero-sum within a respondent's
+// MaxDiff task), so the diverging visual reads the actual posterior range.
+const UTILITY_RANGE = rangeOfTopline("utility_signed");
 
 // Priority basket → segment IDs ordered by ROI desc.
 const PRIORITY_BASKET = (BASKETS.find(b => b.id === "priority_all") || { segments: [] }).segments;
