@@ -72,6 +72,25 @@ const N_TOTAL_VARIANTS = MESSAGES.reduce(
   0
 );
 
+// ─── Outcome scale ranges (computed from data, never hardcoded) ───
+// SoP and Utility ranges differ by study, so the SCALE legend reads
+// the ACTUAL min/max from message_topline rather than any fixed
+// 0–100. Persuasion/Base are indexed 0–100 by construction (scaleLift
+// clamps), so they use the shared red→white→green ramp.
+const MSG_TOPLINE = dashboard.message_topline || [];
+function rangeOfTopline(field) {
+  let mn = Infinity, mx = -Infinity;
+  for (const m of MSG_TOPLINE) {
+    for (const code in (m.by_segment || {})) {
+      const v = m.by_segment[code][field];
+      if (typeof v === "number") { if (v < mn) mn = v; if (v > mx) mx = v; }
+    }
+  }
+  return Number.isFinite(mn) ? { min: mn, max: mx } : null;
+}
+const SOP_RANGE = rangeOfTopline("sop_pct");
+const UTILITY_RANGE = rangeOfTopline("utility");
+
 // Priority basket → segment IDs ordered by ROI desc.
 const PRIORITY_BASKET = (BASKETS.find(b => b.id === "priority_all") || { segments: [] }).segments;
 const PRIORITY_ORDERED_BY_ROI = [...PRIORITY_BASKET].sort((a, b) => {
@@ -579,7 +598,8 @@ export default function MessageMap() {
            scale legend + verbatim definition. Renders for ALL FOUR
            outcomes (the SCALE block is the one consistent piece
            across views). ─── */}
-      <ScaleBlock outcome={outcome} />
+      <ScaleBlock outcome={outcome}
+        sopRange={SOP_RANGE} utilityRange={UTILITY_RANGE} />
 
       {/* ── LIFT VIEWS (Persuasion / Base) render the cube grid.
            SoP / Utility render their own views — built in the next

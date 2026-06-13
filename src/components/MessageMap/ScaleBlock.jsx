@@ -57,66 +57,73 @@ function Pill({ label, active, accent }) {
   );
 }
 
-// ── 0–100 RAMP — used for SoP, Persuasion, Base ───────────────────
-// Five chips 0/25/50/75/100. The high-end chip is tinted with the
-// active outcome's accent so the eye reads the scale + the color
-// association in one glance. Mirrors LiftRamp's visual idiom (chip
-// width 28, height 16, MONO labels).
-function ZeroToHundredRamp({ accent, suffix = "" }) {
-  const stops = [0, 25, 50, 75, 100];
+// ── RANGE BAR — data-driven legend for SoP and Utility ────────────
+// Reads the ACTUAL {min, max} from the data (ranges differ by study).
+// If the range straddles zero (e.g. signed Utility), it renders a
+// diverging red→grey→green bar with a 0 tick at the true position;
+// otherwise a sequential low→accent bar. Labels are the real numbers.
+function RangeBar({ range, unit = "", accent = "#22d3ee" }) {
+  if (!range || !Number.isFinite(range.min) || !Number.isFinite(range.max)) {
+    return (
+      <span style={{
+        fontFamily: MONO, fontSize: 8, color: C.textDim,
+        letterSpacing: 0.5,
+      }}>no data</span>
+    );
+  }
+  const W = 180, H = 16;
+  const { min, max } = range;
+  const span = (max - min) || 1;
+  const straddles = min < 0 && max > 0;
+  const zeroFrac = straddles ? (0 - min) / span : null;
+  const dec = (Math.abs(max) >= 10 || Math.abs(min) >= 10) ? 0 : 1;
+  const fmt = v => `${v.toFixed(dec)}${unit}`;
+  const gid = `rb-${straddles ? "div" : "seq"}-${accent.replace("#", "")}`;
   return (
-    <div style={{ display: "flex", gap: 2 }}>
-      {stops.map(v => {
-        // Linear ramp from cardBorder → accent across the five stops.
-        const t = v / 100;
-        const bg = t === 0
-          ? "rgba(148,163,184,0.10)"
-          : `${accent}${Math.round(0x22 + t * (0xee - 0x22)).toString(16).padStart(2, "0")}`;
-        const textColor = t >= 0.5 ? "#0f1520" : C.textMuted;
-        return (
-          <div key={v} style={{
-            width: 30, height: 16, background: bg,
-            border: `1px solid ${C.cardBorder}`, borderRadius: 2,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 7, color: textColor, fontFamily: MONO, fontWeight: 700,
-          }}>{v}{suffix}</div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── DIVERGING BAR — used for Utility ──────────────────────────────
-// Red (left, most negative) → grey (0) → green (right, most positive).
-// Placeholder labels "−X / 0 / +X" until the messagemap pipeline
-// emits real bounds.
-function DivergingBar() {
-  const W = 170, H = 16;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2,
+                  position: "relative", width: W }}>
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
         <defs>
-          <linearGradient id="util-grad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"  stopColor="#f87171" />
-            <stop offset="50%" stopColor="#64748b" />
-            <stop offset="100%" stopColor="#34d399" />
+          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="0">
+            {straddles ? (
+              <>
+                <stop offset="0%"   stopColor="#f87171" />
+                <stop offset={`${zeroFrac * 100}%`} stopColor="#64748b" />
+                <stop offset="100%" stopColor="#34d399" />
+              </>
+            ) : (
+              <>
+                <stop offset="0%"   stopColor="rgba(148,163,184,0.18)" />
+                <stop offset="100%" stopColor={accent} />
+              </>
+            )}
           </linearGradient>
         </defs>
         <rect x="0" y="2" width={W} height={H - 4}
-              fill="url(#util-grad)" rx="2"
+              fill={`url(#${gid})`} rx="2"
               stroke={C.cardBorder} strokeWidth="0.8" />
-        {/* Zero center tick */}
-        <line x1={W / 2} y1="0" x2={W / 2} y2={H}
-              stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2,2" />
+        {straddles && (
+          <line x1={zeroFrac * W} y1="0" x2={zeroFrac * W} y2={H}
+                stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2,2" />
+        )}
       </svg>
-      <div style={{
-        display: "flex", justifyContent: "space-between",
-        fontFamily: MONO, fontSize: 7, color: C.textMuted,
-        letterSpacing: 0.5, fontWeight: 700,
-      }}>
-        <span>−X</span>
-        <span>0</span>
-        <span>+X</span>
+      {/* labels: min (left), max (right), 0 at its true position if straddled */}
+      <div style={{ position: "relative", height: 10 }}>
+        <span style={{
+          position: "absolute", left: 0, top: 0,
+          fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
+        }}>{fmt(min)}</span>
+        {straddles && (
+          <span style={{
+            position: "absolute", left: `${zeroFrac * 100}%`, top: 0,
+            transform: "translateX(-50%)",
+            fontFamily: MONO, fontSize: 7, fontWeight: 700, color: "#cbd5e1",
+          }}>0</span>
+        )}
+        <span style={{
+          position: "absolute", right: 0, top: 0,
+          fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
+        }}>{fmt(max)}</span>
       </div>
     </div>
   );
@@ -146,17 +153,18 @@ function LiftRampLegend() {
 }
 
 // ── SCALE LEGEND — chooses the right legend for the active outcome ─
-function ScaleLegend({ outcome, accent }) {
-  if (outcome === "sop")      return <ZeroToHundredRamp accent={accent} suffix="%" />;
-  if (outcome === "utility")  return <DivergingBar />;
-  // persuasion_messaging | base_messaging — reuse the cells' own ramp
+// SoP / Utility read their REAL data range (sopRange / utilityRange);
+// Persuasion / Base reuse the cells' own 0–100 red→white→green ramp.
+function ScaleLegend({ outcome, accent, sopRange, utilityRange }) {
+  if (outcome === "sop")      return <RangeBar range={sopRange} unit="%" accent={accent} />;
+  if (outcome === "utility")  return <RangeBar range={utilityRange} accent={accent} />;
   return <LiftRampLegend />;
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // ScaleBlock — the exported block.
 // ═══════════════════════════════════════════════════════════════════
-export default function ScaleBlock({ outcome }) {
+export default function ScaleBlock({ outcome, sopRange, utilityRange }) {
   const active = OUTCOMES.find(o => o.id === outcome) || OUTCOMES[0];
   const def = DEFINITIONS[active.id];
 
@@ -188,7 +196,8 @@ export default function ScaleBlock({ outcome }) {
         borderLeft: `1px solid ${C.cardBorder}`,
         borderRight: `1px solid ${C.cardBorder}`,
       }}>
-        <ScaleLegend outcome={active.id} accent={active.accent} />
+        <ScaleLegend outcome={active.id} accent={active.accent}
+          sopRange={sopRange} utilityRange={utilityRange} />
       </div>
 
       {/* (3) DEFINITION — verbatim analyst copy, in serif italic */}
