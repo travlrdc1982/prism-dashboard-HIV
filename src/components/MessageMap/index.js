@@ -18,3 +18,4 @@ export { default as ScaleBlock } from './ScaleBlock';
 export { default as ViewOptions } from './ViewOptions';
 export { default as SopGrid } from './SopGrid';
 export { default as UtilityGrid } from './UtilityGrid';
+export { default as MethodologyFootnote } from './MethodologyFootnote';

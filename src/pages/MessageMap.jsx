@@ -43,6 +43,7 @@ import {
   ViewOptions,
   SopGrid,
   UtilityGrid,
+  MethodologyFootnote,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -1376,160 +1377,13 @@ export default function MessageMap() {
       </>
       )}
 
-      {/* ─── METHODOLOGY FOOTNOTE ─── */}
-      <details style={{
-        marginTop: 14,
-        background: C.card, border: `1px solid ${C.cardBorder}`,
-        borderRadius: 6, fontFamily: FONT,
-      }}>
-        <summary style={{
-          padding: "10px 14px", cursor: "pointer",
-          fontSize: 11, color: C.textMuted, fontWeight: 600,
-          fontFamily: MONO, letterSpacing: 1, textTransform: "uppercase",
-        }}>Methodology · how each cell is computed</summary>
-        <div style={{
-          padding: "0 18px 14px", fontSize: 11, color: C.textMuted, lineHeight: 1.65,
-        }}>
-          <p>
-            The Message Map is a cell-level analytical surface. Each cell
-            estimates the persuasion lift produced by a specific combination of
-            four dimensions: <strong>message theme</strong> (one of the
-            substantive messages tested in this study),{" "}
-            <strong>audience segment</strong> (one of the 16 PRISM segments
-            derived from cultural-ideological clustering),{" "}
-            <strong>persona framing arm</strong> (PERSONA, meaning the message
-            was tuned to the segment's worldview; vs. CORE, the untuned baseline
-            version), and <strong>proof token</strong> (token 0 = base message;
-            tokens 1+ = the same message with one of several specific
-            statistical proof points appended). The cell space dimensions vary
-            by study (number of messages, number of tokens per message, framing
-            arms used); the dashboard displays the cells that the study's
-            design populated.
-          </p>
-
-          <h4 style={{ color: C.text, fontSize: 12, marginTop: 14, marginBottom: 4 }}>
-            The two outcomes (toggle)
-          </h4>
-          <p>
-            <strong style={{ color: "#34d399" }}>PERSUASION MESSAGING.</strong>{" "}
-            Cell value = engagement-weighted residualized attitudinal shift.
-            This measures how much exposure to a specific (message × framing ×
-            proof) combination produced movement in attitudinal alignment,
-            above what the respondent's baseline and segment would have
-            predicted. Use this view for paid media targeting decisions (where
-            will spending budget produce attitudinal movement).
-          </p>
-          <p>
-            <strong style={{ color: "#60a5fa" }}>BASE MESSAGING.</strong>{" "}
-            Cell value = engagement-weighted within-segment alignment deviation.
-            This measures whether the audience that engages with a specific
-            variant is already more aligned than their segment's baseline. Use
-            this view for owned-channel content decisions (what to put in
-            supporter emails, fundraising appeals, and content that reinforces
-            the base without alienating it).
-          </p>
-          <p style={{ color: C.textDim }}>
-            The two outcomes typically correlate weakly across cells, confirming
-            they measure operationally distinct phenomena.
-          </p>
-
-          <h4 style={{ color: C.text, fontSize: 12, marginTop: 14, marginBottom: 4 }}>
-            How each cell value is computed
-          </h4>
-          <p>
-            <strong>Step 1: engagement-weighted mean.</strong> Among
-            respondents assigned to <code>(s, a, t)</code> who saw message{" "}
-            <code>m</code>:
-            {" "}<code style={{ color: C.violet, fontFamily: MONO }}>
-              lift_raw = Σ (outcome_i × bw_score_im) / Σ |bw_score_im|
-            </code>{" "}where <code>bw_score_im</code> is respondent <code>i</code>'s
-            Best-Worst differential for message <code>m</code>. Signed B-W in
-            the numerator = engagement direction × outcome direction. Absolute
-            B-W in the denominator = engagement intensity regardless of
-            direction.
-          </p>
-          <p>
-            <strong>Step 2: empirical Bayes shrinkage.</strong> Cells with
-            small <em>n</em> are pulled toward the message's overall marginal:
-            {" "}<code style={{ color: C.violet, fontFamily: MONO }}>
-              w = (n/σ²<sub>within</sub>) / (n/σ²<sub>within</sub> + 1/σ²<sub>between</sub>)
-            </code>{" "}and{" "}<code style={{ color: C.violet, fontFamily: MONO }}>
-              lift_shrunk = w·lift_raw + (1−w)·message_marginal
-            </code>. Large stable cells retain raw; small/noisy cells move
-            toward the message average. The shrinkage weight per cell is in
-            tooltips for diagnostic transparency.
-          </p>
-          <p>
-            <strong>Step 3: bootstrap confidence intervals.</strong>{" "}
-            Respondent-level resampling with replacement, 500 iterations, fixed
-            seed for reproducibility. The reported 95% CI is the 2.5th and
-            97.5th percentiles of the cell's bootstrap distribution. A cell is
-            statistically significant if its CI strictly excludes zero.
-          </p>
-
-          <h4 style={{ color: C.text, fontSize: 12, marginTop: 14, marginBottom: 4 }}>
-            Interpretation conventions
-          </h4>
-          <p>
-            <strong>+0.20 under PERSUASION:</strong> respondents in this cell
-            shifted +0.20 points on the composite scale above what their
-            baseline and segment predicted. Effect sizes in well-designed
-            message tests typically range from 0.05 to 0.30. Values above 0.40
-            warrant outlier scrutiny; values below 0.05 are within sampling
-            noise.
-          </p>
-          <p>
-            <strong>+0.20 under BASE:</strong> respondents who engaged with
-            this variant were 0.20 points more aligned at baseline than their
-            segment's average. This is a selection signal, not a causal claim.
-          </p>
-
-          <h4 style={{ color: C.text, fontSize: 12, marginTop: 14, marginBottom: 4 }}>
-            Methodological limitations
-          </h4>
-          <p>
-            <strong>Cell sample sizes vary.</strong> Priority segments are
-            typically oversampled to support more reliable cell estimates;
-            non-priority segments are smaller. Shrinkage handles this honestly
-            but reduces resolution on thin cells.
-          </p>
-          <p>
-            <strong>Multiple testing.</strong> With many cells per outcome,
-            raw significance at α=0.05 would produce a non-trivial number of
-            false positives. No correction applied — operational decisions
-            should rely on patterns across a message-token family, not on
-            individual cell p-values. Treat single-cell significance as
-            exploratory.
-          </p>
-          <p>
-            <strong>Reverse causality.</strong> Positive lift indicates
-            engagement is associated with attitudinal movement. Pre-post timing
-            plus residualization on pre-composite mitigates but does not
-            eliminate the possibility that movement preceded engagement.
-          </p>
-          <p>
-            <strong>Sample composition.</strong> Results apply to the survey
-            panel's representation of the population sampled. Generalization to
-            specific subpopulations (registered voters, specific media
-            audiences) requires weighting or re-fielding.
-          </p>
-        </div>
-      </details>
-
-      {/* ─── PROVENANCE FOOTER ─── */}
-      <div style={{
-        marginTop: 12, padding: "10px 14px",
-        fontSize: 10, color: C.textDim, fontFamily: MONO, letterSpacing: 0.5,
-        background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
-      }}>
-        <strong style={{ color: C.textMuted }}>{dashboard.study?.id}</strong>{" "}
-        · {dashboard.study?.version} · Analyst: {dashboard.study?.analyst} ·
-        N={dashboard.study?.n_total || "—"} ·
-        Active basket: <span style={{ color: C.text }}>{activeBasket?.name}</span>{" "}
-        ({activeBasket?.segments?.length} segments) ·
-        Outcome: <span style={{ color: C.text }}>{activeMetric?.label}</span>{" "}
-        (σ<sub>within</sub>={activeMetric?.sigma_within?.toFixed(3)})
-      </div>
+      {/* ─── METHODOLOGY + PROVENANCE — outcome-aware ─── */}
+      <MethodologyFootnote
+        outcome={outcome}
+        study={dashboard.study}
+        activeBasket={activeBasket}
+        activeMetric={activeMetric}
+      />
     </div>
   );
 }
