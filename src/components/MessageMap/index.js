@@ -13,3 +13,4 @@ export { scaleLift, rampColor } from './liftScale';
 export { default as CubePair, MiniCell } from './CubePair';
 export { default as WordingPreview } from './WordingPreview';
 export { default as WordingDrawer } from './WordingDrawer';
+export { default as OutcomeCards } from './OutcomeCards';

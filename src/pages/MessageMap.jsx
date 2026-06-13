@@ -42,6 +42,7 @@ import {
   CubePair,
   VariantUniverseBar,
   WordingDrawer,
+  OutcomeCards,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -104,7 +105,16 @@ export default function MessageMap() {
     && Object.keys(dashboard.message_map_cells).length > 0;
 
   const defaultMetric = UI.default_outcome || METRICS[0]?.name || "persuasion_messaging";
-  const [metric, setMetric] = useState(defaultMetric);
+  // OUTCOME — the measurement selector (4 cards). Values:
+  //   'sop' | 'utility'            → their own views (built next)
+  //   'persuasion_messaging' | 'base_messaging' → the lift cube (now)
+  const [outcome, setOutcome] = useState(defaultMetric);
+  const isLiftView = outcome === "persuasion_messaging"
+    || outcome === "base_messaging";
+  // The cube's data hooks always read a valid lift metric; for the
+  // SoP/Utility cards we fall back to the default so the memos below
+  // never see an unknown metric (the grid itself is gated on isLiftView).
+  const metric = isLiftView ? outcome : defaultMetric;
   const [basket, setBasket] = useState(UI.default_basket || "total");
 
   // CUBE — the focal intersection. Clicking ANY cell of an intersection
@@ -430,17 +440,6 @@ export default function MessageMap() {
 
 
   // ─── Tooltip copy (title + body, radar-style) ───
-  const OUTCOME_INFO = (
-    <>
-      Two views of the same cells.{" "}
-      <strong style={{ color: "#34d399" }}>PERSUASION</strong> = messages that
-      predict opinion movement for the audiences (persuasion messaging to
-      strengthen and grow coalition).{" "}
-      <strong style={{ color: "#60a5fa" }}>BASE</strong> = messages that
-      predict support among the audiences that are already aligned (use for
-      galvanizing support and activating base). Toggle to compare.
-    </>
-  );
   const FILTER_INFO = (
     <>
       Filter a specific group. Baskets are study-specific groupings of segments
@@ -506,15 +505,14 @@ export default function MessageMap() {
             fontSize: 12, color: C.textMuted, maxWidth: 980, lineHeight: 1.6,
             marginBottom: 8,
           }}>
-            <strong style={{ color: C.text }}>Message Map shows which message moves which audiences.</strong>{" "}
-            Each cell estimates how much a specific message, in a specific
-            persona framing, with a specific proof point, has the most impact
-            with a specific audience segment, relative to what would have
-            happened without that exposure. Message impact is measured as both
-            how likely it will persuade/move attitudes{" "}
-            <strong style={{ color: "#34d399" }}>(Persuasion Messaging)</strong>{" "}
-            or how well it explains existing support{" "}
-            <strong style={{ color: "#60a5fa" }}>(Base Messaging)</strong>.
+            <strong style={{ color: C.text }}>The PRISM Message Map maps which messages work best with each audience.</strong>{" "}
+            The map also shows the impact customizing the language to the
+            segment persona{" "}
+            <strong style={{ color: "#7F77DD" }}>(persona-tuned variant)</strong>{" "}
+            and / or including specific facts or other proof points{" "}
+            <strong style={{ color: C.text }}>(tokens)</strong>{" "}
+            has on message impact. Message impact can be measured and used in
+            several ways:
           </div>
 
           {/* Configurable counts strip */}
@@ -522,7 +520,6 @@ export default function MessageMap() {
             fontSize: 9, color: C.textDim, fontFamily: MONO,
             letterSpacing: 1, textTransform: "uppercase",
           }}>
-            {N_SEGMENTS} PRISM SEGMENTS{" · "}
             {N_MESSAGES} MESSAGES{" · "}
             {N_PROOF_TOKENS} PROOF POINT TOKENS{" · "}
             {N_TOTAL_VARIANTS.toLocaleString()} TOTAL MESSAGE VARIANTS
@@ -535,6 +532,11 @@ export default function MessageMap() {
         <CellArchitectureWidget />
       </div>
 
+      {/* ─── OUTCOME SELECTOR — 4 measurement cards ─── */}
+      <div style={{ marginBottom: 12 }}>
+        <OutcomeCards value={outcome} onChange={setOutcome} />
+      </div>
+
       {/* ─── CONTROLS BAR ─── */}
       <div style={{
         display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap",
@@ -542,14 +544,6 @@ export default function MessageMap() {
         background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
         marginBottom: 12,
       }}>
-        <ControlSelect
-          label="Outcome"
-          infoTitle="Outcome"
-          value={metric}
-          onChange={setMetric}
-          options={METRICS.map(m => ({ value: m.name, label: m.label }))}
-          info={OUTCOME_INFO}
-        />
         <ControlSelect
           label="Filter (Basket)"
           infoTitle="Filter (basket)"
@@ -580,6 +574,28 @@ export default function MessageMap() {
         </div>
       </div>
 
+      {/* ── LIFT VIEWS (Persuasion / Base) render the cube grid.
+           SoP / Utility render their own views — built in the next
+           steps; until then a clear placeholder stands in. ── */}
+      {!isLiftView ? (
+        <div style={{
+          background: C.card, border: `1px dashed ${C.cardBorder}`,
+          borderRadius: 6, padding: "40px 24px", textAlign: "center",
+          marginBottom: 12,
+        }}>
+          <div style={{
+            fontFamily: MONO, fontSize: 11, letterSpacing: 1.5,
+            textTransform: "uppercase", color: C.violet, marginBottom: 8,
+          }}>
+            {outcome === "sop" ? "Share of Preference" : "Message Utility"} view
+          </div>
+          <div style={{ fontSize: 12, color: C.textMuted, maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
+            This view is being built next. The Persuasion and Base
+            Messaging cards above show the live lift map.
+          </div>
+        </div>
+      ) : (
+      <>
       {/* ─── PROOF POINTS ORIENTATION STRIP ─── */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
@@ -1246,6 +1262,8 @@ export default function MessageMap() {
           })}
         </div>
       </div>
+      </>
+      )}
 
       {/* ─── METHODOLOGY FOOTNOTE ─── */}
       <details style={{
