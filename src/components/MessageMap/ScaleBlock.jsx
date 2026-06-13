@@ -22,6 +22,7 @@
 // Read-only on math: no data invented. The Utility "-X / +X" labels
 // are intentional until the messagemap pipeline emits real bounds.
 import { C, FONT, MONO } from "../../data/theme";
+import LiftRamp from "./LiftRamp";
 
 // Pill labels (display) keyed by outcome id.
 const OUTCOMES = [
@@ -121,12 +122,35 @@ function DivergingBar() {
   );
 }
 
+// ── PERSUASION / BASE RAMP — the EXACT legend the cells use ────────
+// Persuasion and Base cells are colored by the shared red→white→green
+// diverging ramp (liftScale.rampColor), via LiftRamp. The scale block
+// must show that same ramp, not a single-hue accent ramp, so the
+// legend matches what's actually on the grid. A tiny caption names
+// the diverging poles.
+function LiftRampLegend() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <LiftRamp />
+      <div style={{
+        display: "flex", justifyContent: "space-between",
+        fontFamily: MONO, fontSize: 6.5, letterSpacing: 0.5,
+        color: C.textDim, textTransform: "uppercase",
+      }}>
+        <span style={{ color: "#f87171" }}>backfire</span>
+        <span>neutral</span>
+        <span style={{ color: "#34d399" }}>lift</span>
+      </div>
+    </div>
+  );
+}
+
 // ── SCALE LEGEND — chooses the right legend for the active outcome ─
 function ScaleLegend({ outcome, accent }) {
   if (outcome === "sop")      return <ZeroToHundredRamp accent={accent} suffix="%" />;
   if (outcome === "utility")  return <DivergingBar />;
-  // persuasion_messaging | base_messaging
-  return <ZeroToHundredRamp accent={accent} />;
+  // persuasion_messaging | base_messaging — reuse the cells' own ramp
+  return <LiftRampLegend />;
 }
 
 // ═══════════════════════════════════════════════════════════════════
