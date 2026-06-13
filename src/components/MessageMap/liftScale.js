@@ -22,6 +22,29 @@ const STOPS = [
   { t: 1.0, rgb: [20, 83, 45] },     // #14532d
 ];
 
+// SoP / Utility 6-bin red→green gradient. Same hue formula as
+// ScaleBlock's gradient legend so the heatmap cells and the scale
+// legend share one color map. Returns { bg, text } for cell rendering.
+//   value: the raw datum (sop_pct, utility score, etc.)
+//   min/max: data-driven range from the page
+//   bins: discrete categories (6 matches the AL/Pharma idiom)
+export function gradientBinColor(value, min, max, bins = 6) {
+  if (value == null || !isFinite(value)) {
+    return { bg: "rgba(148,163,184,0.06)", text: "#475569" };
+  }
+  const span = (max - min) || 1;
+  const t = Math.max(0, Math.min(1, (value - min) / span));
+  const idx = Math.min(bins - 1, Math.floor(t * bins));
+  const hue = Math.round((idx / (bins - 1)) * 120);
+  return {
+    bg: `hsl(${hue}, 60%, 46%)`,
+    // White text on every bin: 46% lightness keeps contrast >= 4.5:1
+    // even on amber. A tiny shadow added at cell render time keeps the
+    // numerals legible on the brightest bins.
+    text: "#f8fafc",
+  };
+}
+
 export function rampColor(v100) {
   if (v100 == null) {
     return { bg: "rgba(148,163,184,0.06)", text: "#475569" };

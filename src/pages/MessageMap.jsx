@@ -41,6 +41,7 @@ import {
   OutcomeCards,
   ScaleBlock,
   ViewOptions,
+  SopGrid,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -624,7 +625,33 @@ export default function MessageMap() {
       {/* ── LIFT VIEWS (Persuasion / Base) render the cube grid.
            SoP / Utility render their own views — built in the next
            steps; until then a clear placeholder stands in. ── */}
-      {!isLiftView ? (
+      {outcome === "sop" ? (
+        <SopGrid
+          messages={sortedMessages}
+          segments={orderedSegments}
+          basket={basket}
+          range={SOP_RANGE}
+          dragSegId={dragSegId}
+          onSegDragStart={(e, segId) => {
+            setDragSegId(segId);
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", String(segId));
+          }}
+          onSegDragEnd={() => setDragSegId(null)}
+          onSegDragOver={(e) => {
+            if (dragSegId == null || dragSegId === undefined) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+          }}
+          onSegDrop={(e, segId) => {
+            e.preventDefault();
+            moveSegment(dragSegId, segId);
+            setDragSegId(null);
+          }}
+          tier1Dim={tier1Dim}
+          onSegmentClick={toggleColFocus}
+        />
+      ) : outcome === "utility" ? (
         <div style={{
           background: C.card, border: `1px dashed ${C.cardBorder}`,
           borderRadius: 6, padding: "40px 24px", textAlign: "center",
@@ -634,11 +661,12 @@ export default function MessageMap() {
             fontFamily: MONO, fontSize: 11, letterSpacing: 1.5,
             textTransform: "uppercase", color: C.violet, marginBottom: 8,
           }}>
-            {outcome === "sop" ? "Share of Preference" : "Message Utility"} view
+            Message Utility view
           </div>
           <div style={{ fontSize: 12, color: C.textMuted, maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
             This view is being built next. The Persuasion and Base
-            Messaging cards above show the live lift map.
+            Messaging cards above show the live lift map; the SoP card
+            shows the Share-of-Preference heatmap.
           </div>
         </div>
       ) : (
