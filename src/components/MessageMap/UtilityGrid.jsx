@@ -50,16 +50,19 @@ function CellBox({ value, maxAbs, spotlit = false, opacity = 1 }) {
   return (
     <div title={value != null ? value.toFixed(3) : "no data"}
       style={{
-        height: 28, borderRadius: 2,
+        height: spotlit ? 38 : 28, borderRadius: 2,
         background: bg, color: text,
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: MONO, fontSize: 10, fontWeight: 700,
+        fontFamily: MONO,
+        fontSize: spotlit ? 16 : 10,
+        fontWeight: 700,
         border: spotlit
           ? "1.5px solid #7F77DD"
           : "1px solid rgba(15,21,32,0.35)",
         boxShadow: spotlit ? "0 0 0 1px rgba(127,119,221,0.35)" : "none",
         textShadow: value != null ? "0 1px 0 rgba(15,21,32,0.45)" : "none",
-        opacity, transition: "opacity 0.12s",
+        opacity,
+        transition: "opacity 0.12s, height 0.18s, font-size 0.18s",
       }}>
       {value != null ? value.toFixed(2) : "—"}
     </div>
@@ -166,8 +169,15 @@ export default function UtilityGrid({
   }, [messages, segments, colFocus, totals]);
 
   const dim = tier1Dim || (() => 1);
-  const gridTemplate =
-    `28px 220px 280px ${segments.map(() => "minmax(56px, 1fr)").join(" ")}`;
+  // When a column is spotlit, IT widens; all other segment columns
+  // (and the TOTAL bar) fade out so the spotlit column dominates.
+  const colDim = (segId) =>
+    (colFocus != null && colFocus !== segId) ? 0.15 : 1;
+  const totalDim = colFocus != null ? 0.15 : 1;
+  const segCols = segments.map(seg =>
+    colFocus === seg.id ? "minmax(180px, 3fr)" : "minmax(56px, 1fr)"
+  ).join(" ");
+  const gridTemplate = `28px 220px 280px ${segCols}`;
 
   return (
     <div style={{
@@ -182,6 +192,7 @@ export default function UtilityGrid({
         borderBottom: `1px solid ${C.cardBorder}`,
         background: C.bg,
         alignItems: "flex-start",
+        transition: "grid-template-columns 0.25s",
       }}>
         <div />
         <div style={{
@@ -207,7 +218,7 @@ export default function UtilityGrid({
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 gap: 2,
-                opacity: dim(seg.id),
+                opacity: dim(seg.id) * colDim(seg.id),
                 cursor: dragSegId === seg.id ? "grabbing" : "pointer",
                 transition: "opacity 0.12s",
                 position: "relative",
@@ -237,6 +248,7 @@ export default function UtilityGrid({
                 display: "grid", gridTemplateColumns: gridTemplate, gap: 3,
                 padding: "8px 12px", alignItems: "center", minHeight: 40,
                 borderBottom: (last && !isOpen) ? "none" : `1px solid ${C.cardBorder}`,
+                transition: "grid-template-columns 0.25s",
               }}>
                 {/* Chevron */}
                 <div onClick={() => onToggleRow?.(m.id)} style={{
@@ -261,19 +273,24 @@ export default function UtilityGrid({
                   }}>{m.theme_label}</div>
                 </div>
 
-                {/* TOTAL column — the horizontal diverging bar */}
-                <div style={COL_DIVIDER}>
+                {/* TOTAL column — the horizontal diverging bar
+                    (fades when any column is spotlit). */}
+                <div style={{ ...COL_DIVIDER, opacity: totalDim,
+                              transition: "opacity 0.18s" }}>
                   <DivergingBar value={total} maxAbs={maxAbs} />
                 </div>
 
                 {/* Per-segment cells */}
                 {segments.map(seg => (
-                  <div key={seg.id} style={COL_DIVIDER}>
+                  <div key={seg.id} style={{
+                    ...COL_DIVIDER,
+                    opacity: dim(seg.id) * colDim(seg.id),
+                    transition: "opacity 0.18s",
+                  }}>
                     <CellBox
                       value={PER_MSG_SEG_LOOKUP.get(`${m.id}|${seg.code}`)}
                       maxAbs={maxAbs}
-                      spotlit={colFocus === seg.id}
-                      opacity={dim(seg.id)} />
+                      spotlit={colFocus === seg.id} />
                   </div>
                 ))}
               </div>

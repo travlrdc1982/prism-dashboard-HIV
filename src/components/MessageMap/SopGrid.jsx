@@ -51,17 +51,19 @@ function ValueCell({ value, min, max, height = 28, fontSize = 10,
   return (
     <div title={value != null ? `${value.toFixed(2)}%` : "no data"}
       style={{
-        height, borderRadius: 2,
+        height: spotlit ? height + 8 : height, borderRadius: 2,
         background: bg, color: text,
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: MONO, fontSize, fontWeight: 700,
+        fontFamily: MONO,
+        fontSize: spotlit ? fontSize + 6 : fontSize,
+        fontWeight: 700,
         border: spotlit
           ? "1.5px solid #7F77DD"
           : "1px solid rgba(15,21,32,0.35)",
         boxShadow: spotlit ? "0 0 0 1px rgba(127,119,221,0.35)" : "none",
         textShadow: value != null
           ? "0 1px 0 rgba(15,21,32,0.45)" : "none",
-        opacity, transition: "opacity 0.12s",
+        opacity, transition: "opacity 0.12s, height 0.18s, font-size 0.18s",
       }}>
       {value != null ? value.toFixed(1) : "—"}
     </div>
@@ -98,8 +100,16 @@ export default function SopGrid({
   const { min, max } = range || { min: 0, max: 100 };
   const dim = tier1Dim || (() => 1);
 
-  const gridTemplate =
-    `28px 220px 90px ${segments.map(() => "minmax(56px, 1fr)").join(" ")}`;
+  // When a column is spotlit, IT widens (minmax 180px / 3fr) and all
+  // other segment columns fade out. Effective opacity per column is
+  // the multiplication of the tier-1 dim and the focal dim.
+  const colDim = (segId) =>
+    (colFocus != null && colFocus !== segId) ? 0.15 : 1;
+  const totalDim = colFocus != null ? 0.15 : 1;
+  const segCols = segments.map(seg =>
+    colFocus === seg.id ? "minmax(180px, 3fr)" : "minmax(56px, 1fr)"
+  ).join(" ");
+  const gridTemplate = `28px 220px 90px ${segCols}`;
 
   return (
     <div style={{
@@ -114,6 +124,7 @@ export default function SopGrid({
         borderBottom: `1px solid ${C.cardBorder}`,
         background: C.bg,
         alignItems: "flex-start",  // top-align per analyst direction
+        transition: "grid-template-columns 0.25s",
       }}>
         <div /> {/* chevron gutter */}
         <div style={{
@@ -139,7 +150,7 @@ export default function SopGrid({
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 gap: 2,
-                opacity: dim(seg.id),
+                opacity: dim(seg.id) * colDim(seg.id),
                 cursor: dragSegId === seg.id ? "grabbing" : "pointer",
                 transition: "opacity 0.12s",
                 position: "relative",
@@ -171,6 +182,7 @@ export default function SopGrid({
                 display: "grid", gridTemplateColumns: gridTemplate, gap: 3,
                 padding: "8px 12px", alignItems: "center", minHeight: 40,
                 borderBottom: (last && !isOpen) ? "none" : `1px solid ${C.cardBorder}`,
+                transition: "grid-template-columns 0.25s",
               }}>
                 {/* Chevron — expands the row to show the core wording */}
                 <div
@@ -197,20 +209,25 @@ export default function SopGrid({
                   }}>{m.theme_label}</div>
                 </div>
 
-                {/* Total SoP — basket aggregate */}
-                <div style={COL_DIVIDER}>
+                {/* Total SoP — basket aggregate (fades when any
+                    column is spotlit so the spotlit column dominates). */}
+                <div style={{ ...COL_DIVIDER, opacity: totalDim,
+                              transition: "opacity 0.18s" }}>
                   <ValueCell value={total} min={min} max={max}
                     height={30} fontSize={11} />
                 </div>
 
                 {/* Per-segment SoP cells */}
                 {segments.map(seg => (
-                  <div key={seg.id} style={COL_DIVIDER}>
+                  <div key={seg.id} style={{
+                    ...COL_DIVIDER,
+                    opacity: dim(seg.id) * colDim(seg.id),
+                    transition: "opacity 0.18s",
+                  }}>
                     <ValueCell
                       value={PER_MSG_SEG_LOOKUP.get(`${m.id}|${seg.code}`)}
                       min={min} max={max}
-                      spotlit={colFocus === seg.id}
-                      opacity={dim(seg.id)} />
+                      spotlit={colFocus === seg.id} />
                   </div>
                 ))}
               </div>
