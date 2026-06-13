@@ -32,7 +32,6 @@ import { STUDY_METRICS } from "../data/study";
 import PageHeader from "../components/PageHeader";
 import InfoDot from "../components/InfoDot";
 import {
-  CellArchitectureWidget,
   SegmentCircle,
   VariantUniverseLegend,
   SplitCell,
@@ -548,9 +547,16 @@ export default function MessageMap() {
   return (
     <div style={{ color: C.text, fontFamily: FONT, maxWidth: 1800, margin: "0 auto" }}>
 
-      {/* ─── HEADER + DESCRIPTION + INTERACTIVE CELL WIDGET ─── */}
-      <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
+      {/* ─── HEADER (title + description + counts) on the LEFT,
+           OUTCOME CARDS (4 measurement options, 2×2) on the RIGHT.
+           Both sides flex; the left side compresses first via
+           minWidth:0 + a softer flex-basis so the cards stay legible
+           as the viewport shrinks before the title text wraps. ─── */}
+      <div style={{
+        display: "flex", gap: 24, alignItems: "flex-start",
+        marginBottom: 14, flexWrap: "wrap",
+      }}>
+        <div style={{ flex: "1 1 360px", minWidth: 0 }}>
           <PageHeader title="Message Map" />
           <div style={{
             fontSize: 12, color: C.textMuted, maxWidth: 980, lineHeight: 1.6,
@@ -580,12 +586,16 @@ export default function MessageMap() {
           </div>
         </div>
 
-        <CellArchitectureWidget />
-      </div>
-
-      {/* ─── OUTCOME SELECTOR — 4 measurement cards ─── */}
-      <div style={{ marginBottom: 12 }}>
-        <OutcomeCards value={outcome} onChange={setOutcome} />
+        {/* OUTCOME cards on the right — locked to 2×2 (the cards'
+            inner auto-fit grid at 230px min lands on 2 columns inside
+            this 520px-capped wrapper). flex-basis 480px keeps the
+            cards from squeezing before the title block compresses;
+            below the wrap point they sit under the title still 2×2. */}
+        <div style={{
+          flex: "0 1 520px", width: 520, maxWidth: "100%",
+        }}>
+          <OutcomeCards value={outcome} onChange={setOutcome} />
+        </div>
       </div>
 
       {/* ─── VIEW OPTIONS — filter + columns + persona + sort + proofs ─── */}
