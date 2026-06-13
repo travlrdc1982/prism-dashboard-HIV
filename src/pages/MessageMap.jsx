@@ -43,6 +43,7 @@ import {
   VariantUniverseBar,
   WordingDrawer,
   OutcomeCards,
+  ScaleBlock,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -574,6 +575,12 @@ export default function MessageMap() {
         </div>
       </div>
 
+      {/* ─── SCALE / MEASUREMENT block — active outcome's pillbox +
+           scale legend + verbatim definition. Renders for ALL FOUR
+           outcomes (the SCALE block is the one consistent piece
+           across views). ─── */}
+      <ScaleBlock outcome={outcome} />
+
       {/* ── LIFT VIEWS (Persuasion / Base) render the cube grid.
            SoP / Utility render their own views — built in the next
            steps; until then a clear placeholder stands in. ── */}
@@ -996,12 +1003,14 @@ export default function MessageMap() {
                       }}>Core message — exact wording shown to respondents</span>
                     </div>
 
-                    {/* token rows — proof labels in the first column
-                        (lit), CubePairs in the focal column, all other
-                        segments faded */}
+                    {/* token rows — proof labels span col 2 + 3 (like
+                        the core wording above), so long proof labels
+                        get the same horizontal runway as the question
+                        wording. Hover surfaces the full label. */}
                     {vals.map((v, k) => {
                       const tok = tokens[Math.max(v - 1, 0)] || {};
                       const isBase = proofLabel(m, v) === "no proof point";
+                      const fullLabel = proofLabel(m, v);
                       return (
                         <Fragment key={v}>
                           <div style={{
@@ -1009,16 +1018,19 @@ export default function MessageMap() {
                             textAlign: "center", fontFamily: MONO,
                             fontSize: 8, color: C.textDim,
                           }}>·</div>
-                          <div style={{
-                            gridRow: 3 + k, gridColumn: 2,
-                            paddingLeft: 22, paddingRight: 10,
-                            fontFamily: "'Lora', Georgia, serif",
-                            fontSize: 16, fontWeight: 500,
-                            color: isBase ? C.textDim : "#e2e8f0",
-                            fontStyle: isBase ? "italic" : "normal",
-                            overflow: "hidden", textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}>↳ {proofLabel(m, v)}</div>
+                          <div
+                            title={fullLabel}
+                            style={{
+                              gridRow: 3 + k, gridColumn: "2 / span 2",
+                              paddingLeft: 22, paddingRight: 16,
+                              fontFamily: "'Lora', Georgia, serif",
+                              fontSize: 16, fontWeight: 500,
+                              color: isBase ? C.textDim : "#e2e8f0",
+                              fontStyle: isBase ? "italic" : "normal",
+                              display: "-webkit-box", WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical", overflow: "hidden",
+                              cursor: "help", lineHeight: 1.3,
+                            }}>↳ {fullLabel}</div>
                           {orderedSegments.map((seg, j) => {
                             const isFocalCol = seg.id === focal.segId;
                             return (
@@ -1198,6 +1210,8 @@ export default function MessageMap() {
                       {proofVals.map(v => {
                         const tok = tokensByMsg.get(m.id)
                           ?.[Math.max(v - 1, 0)] || {};
+                        const fullLabel = proofLabel(m, v);
+                        const isBase = fullLabel === "no proof point";
                         return (
                         <div key={v} style={{
                           display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
@@ -1207,20 +1221,24 @@ export default function MessageMap() {
                             textAlign: "center", fontFamily: MONO,
                             fontSize: 8, color: C.textDim,
                           }}>·</div>
-                          <div style={{
-                            paddingLeft: 22, paddingRight: 10,
-                            // Lora — proof-point label IS respondent-facing
-                            // wording (the appended proof statement)
-                            // Analyst direction: proof-point wording 1.5x (12 → 18)
-                            fontFamily: "'Lora', Georgia, serif",
-                            fontSize: 16, fontWeight: 500,
-                            color: v === 0 || proofLabel(m, v) === "no proof point"
-                              ? C.textDim : "#e2e8f0",
-                            fontStyle: proofLabel(m, v) === "no proof point" ? "italic" : "normal",
-                            overflow: "hidden", textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}>↳ {proofLabel(m, v)}</div>
-                          <div />
+                          {/* Proof label spans col 2 + 3 (Message +
+                              Variant Universe) — matches the core-
+                              wording row above and gives long labels
+                              real runway. Hover surfaces the full
+                              label so a 2-line clamp never hides it. */}
+                          <div
+                            title={fullLabel}
+                            style={{
+                              gridColumn: "2 / span 2",
+                              paddingLeft: 22, paddingRight: 16,
+                              fontFamily: "'Lora', Georgia, serif",
+                              fontSize: 16, fontWeight: 500,
+                              color: isBase ? C.textDim : "#e2e8f0",
+                              fontStyle: isBase ? "italic" : "normal",
+                              display: "-webkit-box", WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical", overflow: "hidden",
+                              cursor: "help", lineHeight: 1.3,
+                            }}>↳ {fullLabel}</div>
                           {orderedSegments.map(seg => {
                             // Crosshair removed; cells stay at full
                             // opacity unless a focal cube / colFocus
