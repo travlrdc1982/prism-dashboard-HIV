@@ -81571,6 +81571,47 @@
       "context_segments": "collapsed",
       "show_data_confidence_flag": true
     },
-    "fade_shrink_weight_below": 0.6
+    "fade_shrink_weight_below": 0.6,
+    "segment_summary": {
+      "copy": {
+        "cards": {
+          "lead": {
+            "title": "LEAD WITH",
+            "subtitle": "Universal, non-polarizing — highest utility among broadly accepted messages",
+            "action_chip": "→ Utility",
+            "override_badge": "PINNED",
+            "sigma_tied_note": "Multiple themes within σ={sigma} on SoP — utility chose the winner"
+          },
+          "avoid": {
+            "title": "AVOID",
+            "subtitle": "Backfires or polarizes — drag on persuasion outweighs upside",
+            "action_chip": "→ Utility",
+            "override_badge": "PINNED",
+            "owned_channel_note": "Still works for owned-channel base reinforcement (lift {base_lift})"
+          },
+          "persuade": {
+            "title": "PERSUADE WITH",
+            "subtitle": "Top variants for moving uncommitted (best persona × proof per theme)",
+            "action_chip": "→ Persuasion",
+            "override_badge": "PINNED"
+          },
+          "reinforce": {
+            "title": "REINFORCE SUPPORT",
+            "subtitle": "Top variants for owned-channel base activation (best persona × proof per theme)",
+            "action_chip": "→ Base",
+            "override_badge": "PINNED"
+          }
+        },
+        "message_box": {
+          "empty": "No qualifying message",
+          "persona_arm": "PERSONA",
+          "core_arm": "CORE",
+          "no_proof_label": "no proof",
+          "proof_prefix": "+ proof: ",
+          "sig_label": "sig"
+        }
+      },
+      "overrides": {}
+    }
   }
 }

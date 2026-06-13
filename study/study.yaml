@@ -266,6 +266,58 @@ dashboard:
     context_segments: collapsed
     show_data_confidence_flag: true
 
+  # ── SEGMENT SUMMARY DRAWER ────────────────────────────────────────────
+  # Editorial copy + per-segment overrides for the per-audience strategic
+  # brief that opens from the Message Map (click any segment header).
+  # The drawer renders NOTHING for any key that is missing — the analyst
+  # owns the voice. Patched into dashboard.json by:
+  #   python scripts/patch_segment_summary.py
+  segment_summary:
+    # Editorial copy. Tokens: {sigma}, {base_lift} are filled at render time.
+    copy:
+      cards:
+        lead:
+          title: "LEAD WITH"
+          subtitle: "Universal, non-polarizing — highest utility among broadly accepted messages"
+          action_chip: "→ Utility"
+          override_badge: "PINNED"
+          sigma_tied_note: "Multiple themes within σ={sigma} on SoP — utility chose the winner"
+        avoid:
+          title: "AVOID"
+          subtitle: "Backfires or polarizes — drag on persuasion outweighs upside"
+          action_chip: "→ Utility"
+          override_badge: "PINNED"
+          owned_channel_note: "Still works for owned-channel base reinforcement (lift {base_lift})"
+        persuade:
+          title: "PERSUADE WITH"
+          subtitle: "Top variants for moving uncommitted (best persona × proof per theme)"
+          action_chip: "→ Persuasion"
+          override_badge: "PINNED"
+        reinforce:
+          title: "REINFORCE SUPPORT"
+          subtitle: "Top variants for owned-channel base activation (best persona × proof per theme)"
+          action_chip: "→ Base"
+          override_badge: "PINNED"
+      message_box:
+        empty: "No qualifying message"
+        persona_arm: "PERSONA"
+        core_arm: "CORE"
+        no_proof_label: "no proof"
+        proof_prefix: "+ proof: "
+        sig_label: "sig"
+
+    # Per-segment overrides. Pin a message into a slot by setting:
+    #   <SEG_CODE>:
+    #     lead: <msg_id>          # single int
+    #     avoid: <msg_id>         # single int
+    #     persuade: [<m>, <m>]    # list, in display order
+    #     reinforce: [<m>, <m>]   # list, in display order
+    # Any slot you omit auto-derives from the rules baked into the drawer
+    # (lead = max signed utility among SoP-median+; avoid = min signed
+    # utility ≤ −0.05; persuade/reinforce = top-3 positive-lift cells,
+    # best variant per theme, AVOID message excluded).
+    overrides: {}
+
 # ── OUTPUT ──────────────────────────────────────────────────────────────
 output:
   dashboard_json: outputs/dashboard.json
