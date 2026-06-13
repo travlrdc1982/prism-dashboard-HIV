@@ -584,6 +584,22 @@ export default function MessageMap() {
               <>{" · "}{dashboard.study.n_total.toLocaleString()} RESPONDENTS</>
             ) : null}
           </div>
+
+          {/* VIEW OPTIONS sits beneath the title block on the left,
+              matching its width (per the wireframe). filter +
+              columns + persona + sort + proofs. */}
+          <div style={{ marginTop: 12 }}>
+            <ViewOptions
+              basket={basket} onBasket={setBasket} baskets={BASKETS}
+              filterInfo={FILTER_INFO}
+              columnMode={columnMode} onColumnMode={setColumnMode}
+              personaAll={personaAll} onPersonaAll={setPersonaAll}
+              sortMode={sortMode} onSortMode={setSortMode}
+              proofsAllOpen={openRows.size === MESSAGES.length && MESSAGES.length > 0}
+              onProofsExpand={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))}
+              onProofsCollapse={() => { setOpenRows(new Set()); setFocal(null); }}
+            />
+          </div>
         </div>
 
         {/* OUTCOME cards on the right — locked to 2×2 (the cards'
@@ -596,20 +612,6 @@ export default function MessageMap() {
         }}>
           <OutcomeCards value={outcome} onChange={setOutcome} />
         </div>
-      </div>
-
-      {/* ─── VIEW OPTIONS — filter + columns + persona + sort + proofs ─── */}
-      <div style={{ marginBottom: 12 }}>
-        <ViewOptions
-          basket={basket} onBasket={setBasket} baskets={BASKETS}
-          filterInfo={FILTER_INFO}
-          columnMode={columnMode} onColumnMode={setColumnMode}
-          personaAll={personaAll} onPersonaAll={setPersonaAll}
-          sortMode={sortMode} onSortMode={setSortMode}
-          proofsAllOpen={openRows.size === MESSAGES.length && MESSAGES.length > 0}
-          onProofsExpand={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))}
-          onProofsCollapse={() => { setOpenRows(new Set()); setFocal(null); }}
-        />
       </div>
 
       {/* ─── SCALE / MEASUREMENT block — active outcome's pillbox +
