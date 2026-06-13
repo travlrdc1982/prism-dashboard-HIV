@@ -46,9 +46,9 @@ function Card({ outcome, active, onSelect }) {
     <button
       onClick={() => onSelect(outcome.id)}
       style={{
-        flex: 1, minWidth: 0, textAlign: "left",
-        display: "flex", flexDirection: "column", gap: 5,
-        padding: "11px 13px 12px",
+        minWidth: 0, textAlign: "left",
+        display: "flex", flexDirection: "column", gap: 6,
+        padding: "13px 15px 14px",
         borderRadius: 7, cursor: "pointer",
         background: active ? `${a}14` : C.card,
         border: `1.5px solid ${active ? a : C.cardBorder}`,
@@ -59,26 +59,26 @@ function Card({ outcome, active, onSelect }) {
       }}
     >
       {/* Accent dot + title */}
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
-          width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-          background: a, boxShadow: active ? `0 0 6px ${a}` : "none",
+          width: 10, height: 10, borderRadius: "50%", flexShrink: 0,
+          background: a, boxShadow: active ? `0 0 8px ${a}` : "none",
         }} />
         <span style={{
-          fontFamily: FONT, fontSize: 12, fontWeight: 800,
+          fontFamily: FONT, fontSize: 15, fontWeight: 800,
           color: active ? "#f1f5f9" : C.text, lineHeight: 1.2,
         }}>{outcome.title}</span>
       </div>
       {/* Body */}
       <span style={{
-        fontFamily: FONT, fontSize: 9.5, lineHeight: 1.45,
+        fontFamily: FONT, fontSize: 12, lineHeight: 1.5,
         color: active ? C.textMuted : C.textDim,
       }}>{outcome.body}</span>
       {/* Strategic question */}
       <span style={{
         marginTop: "auto",
-        fontFamily: "'Lora', Georgia, serif", fontSize: 11,
-        fontStyle: "italic", lineHeight: 1.35,
+        fontFamily: "'Lora', Georgia, serif", fontSize: 14,
+        fontStyle: "italic", lineHeight: 1.4,
         color: active ? a : C.textDim,
       }}>{outcome.question}</span>
     </button>
@@ -94,7 +94,13 @@ export default function OutcomeCards({ value, onChange }) {
       }}>
         Measurement · how message impact is measured and used
       </div>
-      <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+      {/* Responsive: 4-across on wide screens, 2×2 on medium, 1-col
+          on narrow — auto-fit collapses columns as width shrinks. */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+        gap: 10, alignItems: "stretch",
+      }}>
         {OUTCOMES.map(o => (
           <Card key={o.id} outcome={o}
             active={value === o.id} onSelect={onChange} />
