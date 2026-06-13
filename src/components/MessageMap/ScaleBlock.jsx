@@ -23,7 +23,7 @@
 // are intentional until the messagemap pipeline emits real bounds.
 import { C, FONT, MONO } from "../../data/theme";
 import LiftRamp from "./LiftRamp";
-import { GRADIENT_BINS_6 } from "./liftScale";
+import { GRADIENT_BINS_6, DIVERGING_BINS_7 } from "./liftScale";
 
 // Pill labels (display) keyed by outcome id.
 const OUTCOMES = [
@@ -134,9 +134,53 @@ function LiftRampLegend() {
 // ── SCALE LEGEND — chooses the right legend for the active outcome ─
 // SoP / Utility read their REAL data range (sopRange / utilityRange);
 // Persuasion / Base reuse the cells' own 0–100 red→white→green ramp.
+// Utility uses the diverging palette (red ←→ green centered at 0).
+// Range from data; labels = signed −maxAbs / 0 / +maxAbs.
+function DivergingLegend({ range }) {
+  if (!range || !Number.isFinite(range.min) || !Number.isFinite(range.max)) {
+    return (
+      <span style={{
+        fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
+      }}>no data</span>
+    );
+  }
+  const maxAbs = Math.max(Math.abs(range.min), Math.abs(range.max));
+  const dec = maxAbs >= 10 ? 0 : maxAbs >= 1 ? 1 : 2;
+  const fmt = v => v.toFixed(dec);
+  const chips = DIVERGING_BINS_7.map(b => b.bg);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, width: 186 }}>
+      <div style={{ display: "flex", gap: 1 }}>
+        {chips.map((bg, i) => (
+          <div key={i} style={{
+            flex: 1, height: 16, background: bg,
+            borderTop: `1px solid ${C.cardBorder}`,
+            borderBottom: `1px solid ${C.cardBorder}`,
+            borderLeft: i === 0 ? `1px solid ${C.cardBorder}` : "none",
+            borderRight: i === chips.length - 1 ? `1px solid ${C.cardBorder}` : "none",
+            borderTopLeftRadius: i === 0 ? 2 : 0,
+            borderBottomLeftRadius: i === 0 ? 2 : 0,
+            borderTopRightRadius: i === chips.length - 1 ? 2 : 0,
+            borderBottomRightRadius: i === chips.length - 1 ? 2 : 0,
+          }} />
+        ))}
+      </div>
+      <div style={{
+        display: "flex", justifyContent: "space-between",
+        fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
+        letterSpacing: 0.5,
+      }}>
+        <span>−{fmt(maxAbs)}</span>
+        <span style={{ color: C.textDim }}>0</span>
+        <span>+{fmt(maxAbs)}</span>
+      </div>
+    </div>
+  );
+}
+
 function ScaleLegend({ outcome, sopRange, utilityRange }) {
   if (outcome === "sop")      return <GradientLegend range={sopRange} unit="%" />;
-  if (outcome === "utility")  return <GradientLegend range={utilityRange} />;
+  if (outcome === "utility")  return <DivergingLegend range={utilityRange} />;
   return <LiftRampLegend />;
 }
 

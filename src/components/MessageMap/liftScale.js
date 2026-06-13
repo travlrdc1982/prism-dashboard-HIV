@@ -35,6 +35,39 @@ export const GRADIENT_BINS_6 = [
   { bg: "#22c55e", text: "#0f1520" },  // 5  bright green
 ];
 
+// 7-bin diverging palette for the Utility view — centered at 0, red
+// for negative magnitudes, green for positive, neutral grey at zero.
+// Same idiom the SCALE block legend shows so legend chips and cell
+// colors agree. Used by UtilityGrid + the Utility leg of ScaleBlock.
+export const DIVERGING_BINS_7 = [
+  { bg: "#7f1d1d", text: "#fff5f5" },             // -3  strongest negative
+  { bg: "#dc2626", text: "#fff5f5" },             // -2  negative
+  { bg: "#f59e0b", text: "#0f1520" },             // -1  mild negative (amber)
+  { bg: "rgba(148,163,184,0.18)", text: "#cbd5e1" }, // 0   neutral
+  { bg: "#84cc16", text: "#0f1520" },             // +1  mild positive (lime)
+  { bg: "#16a34a", text: "#ecfdf5" },             // +2  positive
+  { bg: "#22c55e", text: "#0f1520" },             // +3  strongest positive
+];
+
+// Diverging color for a signed value relative to its data range. Use
+// maxAbs = max(|x|) across all cells so the scale is symmetric about
+// zero and comparable across cells.
+//   t = value / maxAbs, clamped to [-1, 1]
+//   bin = round((t + 1) / 2 * (bins - 1)) — t = -1 → bin 0, t = 0 →
+//   center, t = +1 → last bin.
+export function divergingBinColor(value, maxAbs, bins = 7) {
+  if (value == null || !isFinite(value)) {
+    return { bg: "rgba(148,163,184,0.06)", text: "#475569" };
+  }
+  const limit = Math.max(Math.abs(maxAbs) || 0, 1e-9);
+  const t = Math.max(-1, Math.min(1, value / limit));
+  const idx = Math.max(0, Math.min(bins - 1,
+    Math.round(((t + 1) / 2) * (bins - 1))));
+  if (bins === 7) return DIVERGING_BINS_7[idx];
+  // Fallback (no current consumer).
+  return DIVERGING_BINS_7[Math.min(6, idx)];
+}
+
 export function gradientBinColor(value, min, max, bins = 6) {
   if (value == null || !isFinite(value)) {
     return { bg: "rgba(148,163,184,0.06)", text: "#475569" };

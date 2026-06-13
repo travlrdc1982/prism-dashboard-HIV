@@ -42,6 +42,7 @@ import {
   ScaleBlock,
   ViewOptions,
   SopGrid,
+  UtilityGrid,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -87,7 +88,13 @@ function rangeOfTopline(field) {
   return Number.isFinite(mn) ? { min: mn, max: mx } : null;
 }
 const SOP_RANGE = rangeOfTopline("sop_pct");
-const UTILITY_RANGE = rangeOfTopline("utility");
+// UTILITY uses the SIGNED bw_mean (the raw B-W score) so the diverging
+// visual is symmetric about 0. The unsigned 'utility' 0-100 field in
+// dashboard.json is the legacy per-segment min-max rescale and isn't
+// comparable across segments; we'll switch to the Bayesian utility_signed
+// field once the new pipeline runs (prism_topline_bayes.py). Same code
+// path either way — the range memo just gets bigger numbers.
+const UTILITY_RANGE = rangeOfTopline("bw_mean");
 
 // Priority basket → segment IDs ordered by ROI desc.
 const PRIORITY_BASKET = (BASKETS.find(b => b.id === "priority_all") || { segments: [] }).segments;
@@ -657,23 +664,34 @@ export default function MessageMap() {
           onToggleRow={toggleRow}
         />
       ) : outcome === "utility" ? (
-        <div style={{
-          background: C.card, border: `1px dashed ${C.cardBorder}`,
-          borderRadius: 6, padding: "40px 24px", textAlign: "center",
-          marginBottom: 12,
-        }}>
-          <div style={{
-            fontFamily: MONO, fontSize: 11, letterSpacing: 1.5,
-            textTransform: "uppercase", color: C.violet, marginBottom: 8,
-          }}>
-            Message Utility view
-          </div>
-          <div style={{ fontSize: 12, color: C.textMuted, maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
-            This view is being built next. The Persuasion and Base
-            Messaging cards above show the live lift map; the SoP card
-            shows the Share-of-Preference heatmap.
-          </div>
-        </div>
+        <UtilityGrid
+          messages={sortedMessages}
+          segments={orderedSegments}
+          basket={basket}
+          range={UTILITY_RANGE}
+          dragSegId={dragSegId}
+          onSegDragStart={(e, segId) => {
+            setDragSegId(segId);
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", String(segId));
+          }}
+          onSegDragEnd={() => setDragSegId(null)}
+          onSegDragOver={(e) => {
+            if (dragSegId == null || dragSegId === undefined) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+          }}
+          onSegDrop={(e, segId) => {
+            e.preventDefault();
+            moveSegment(dragSegId, segId);
+            setDragSegId(null);
+          }}
+          tier1Dim={tier1Dim}
+          colFocus={colFocus}
+          onSegmentClick={toggleColFocus}
+          openRows={openRows}
+          onToggleRow={toggleRow}
+        />
       ) : (
       <>
       {/* ─── PROOF POINTS ORIENTATION STRIP ─── */}
