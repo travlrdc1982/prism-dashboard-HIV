@@ -568,7 +568,7 @@ export default function MessageMap() {
         <div style={{ flex: "1 1 360px", minWidth: 0 }}>
           <PageHeader title="Message Map" />
           <div style={{
-            fontSize: 12, color: C.textMuted, maxWidth: 980, lineHeight: 1.6,
+            fontSize: 15, color: C.textMuted, maxWidth: 980, lineHeight: 1.55,
             marginBottom: 8,
           }}>
             <strong style={{ color: C.text }}>The PRISM Message Map maps which messages work best with each audience.</strong>{" "}
@@ -904,9 +904,6 @@ export default function MessageMap() {
                 <div key={m.id} style={{
                   borderBottom: groupBorder, position: "relative",
                 }}>
-                  {hoverWording?.msgId === m.id && (
-                    <WordingDrawer hover={hoverWording} />
-                  )}
                   <div ref={focalRef} style={{
                     display: "grid", gridTemplateColumns: rowTemplate, gap: 3,
                     padding: "8px 12px", alignItems: "center",
@@ -1115,9 +1112,13 @@ export default function MessageMap() {
                             style={{
                               gridRow: 3 + k, gridColumn: "2 / span 2",
                               paddingLeft: 22, paddingRight: 16,
-                              fontFamily: "'Lora', Georgia, serif",
-                              fontSize: 16, fontWeight: 500,
-                              color: isBase ? C.textDim : "#e2e8f0",
+                              // Proof labels in MONO (analyst direction)
+                              // — match the wording row's size, not its
+                              // serif. White/slate per base vs real proof.
+                              fontFamily: MONO,
+                              fontSize: 14, fontWeight: 600,
+                              letterSpacing: 0.2,
+                              color: isBase ? C.textDim : "#f1f5f9",
                               fontStyle: isBase ? "italic" : "normal",
                               display: "-webkit-box", WebkitLineClamp: 2,
                               WebkitBoxOrient: "vertical", overflow: "hidden",
@@ -1164,6 +1165,26 @@ export default function MessageMap() {
                         </Fragment>
                       );
                     })}
+
+                    {/* ─── Wording drawer slot — slides DOWN from the
+                         bottom of the cube. Lives INSIDE the focal
+                         grid as a row right below the last proof row,
+                         spans 4 columns starting at the focal column
+                         so it has enough horizontal runway without
+                         covering the cube or the variant-universe
+                         bar. ─── */}
+                    {hoverWording?.msgId === m.id && (
+                      <div style={{
+                        gridRow: 3 + vals.length,
+                        gridColumn: `${focalIdx + 4} / span ${
+                          Math.min(4, orderedSegments.length - focalIdx)
+                        }`,
+                        marginTop: 8,
+                      }}>
+                        <WordingDrawer hover={hoverWording}
+                          placement="below-cube" />
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -1324,9 +1345,13 @@ export default function MessageMap() {
                             style={{
                               gridColumn: "2 / span 2",
                               paddingLeft: 22, paddingRight: 16,
-                              fontFamily: "'Lora', Georgia, serif",
-                              fontSize: 16, fontWeight: 500,
-                              color: isBase ? C.textDim : "#e2e8f0",
+                              // Proof labels in MONO (analyst direction)
+                              // — match the wording row's size, not its
+                              // serif. White/slate per base vs real proof.
+                              fontFamily: MONO,
+                              fontSize: 14, fontWeight: 600,
+                              letterSpacing: 0.2,
+                              color: isBase ? C.textDim : "#f1f5f9",
                               fontStyle: isBase ? "italic" : "normal",
                               display: "-webkit-box", WebkitLineClamp: 2,
                               WebkitBoxOrient: "vertical", overflow: "hidden",
