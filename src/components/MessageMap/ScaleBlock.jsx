@@ -57,73 +57,54 @@ function Pill({ label, active, accent }) {
   );
 }
 
-// ── RANGE BAR — data-driven legend for SoP and Utility ────────────
-// Reads the ACTUAL {min, max} from the data (ranges differ by study).
-// If the range straddles zero (e.g. signed Utility), it renders a
-// diverging red→grey→green bar with a 0 tick at the true position;
-// otherwise a sequential low→accent bar. Labels are the real numbers.
-function RangeBar({ range, unit = "", accent = "#22d3ee" }) {
+// ── GRADIENT LEGEND — data-driven 6-bin red→green ramp ────────────
+// Matches the AL/Pharma study idiom: the value range (which differs
+// by study) is split into N discrete categories shaded red (low) →
+// green (high) along an HSL hue sweep. Reads the ACTUAL {min, max}
+// from the data; the same binned ramp colors the SoP / Utility
+// heatmap cells, so legend and cells agree.
+function gradientBins(n) {
+  // hue 0° (red) → 120° (green), through amber, at fixed sat/lightness.
+  return Array.from({ length: n }, (_, i) =>
+    `hsl(${Math.round((i / (n - 1)) * 120)}, 60%, 46%)`);
+}
+function GradientLegend({ range, unit = "", bins = 6 }) {
   if (!range || !Number.isFinite(range.min) || !Number.isFinite(range.max)) {
     return (
       <span style={{
-        fontFamily: MONO, fontSize: 8, color: C.textDim,
-        letterSpacing: 0.5,
+        fontFamily: MONO, fontSize: 8, color: C.textDim, letterSpacing: 0.5,
       }}>no data</span>
     );
   }
-  const W = 180, H = 16;
   const { min, max } = range;
-  const span = (max - min) || 1;
-  const straddles = min < 0 && max > 0;
-  const zeroFrac = straddles ? (0 - min) / span : null;
   const dec = (Math.abs(max) >= 10 || Math.abs(min) >= 10) ? 0 : 1;
   const fmt = v => `${v.toFixed(dec)}${unit}`;
-  const gid = `rb-${straddles ? "div" : "seq"}-${accent.replace("#", "")}`;
+  const chips = gradientBins(bins);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2,
-                  position: "relative", width: W }}>
-      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
-        <defs>
-          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="0">
-            {straddles ? (
-              <>
-                <stop offset="0%"   stopColor="#f87171" />
-                <stop offset={`${zeroFrac * 100}%`} stopColor="#64748b" />
-                <stop offset="100%" stopColor="#34d399" />
-              </>
-            ) : (
-              <>
-                <stop offset="0%"   stopColor="rgba(148,163,184,0.18)" />
-                <stop offset="100%" stopColor={accent} />
-              </>
-            )}
-          </linearGradient>
-        </defs>
-        <rect x="0" y="2" width={W} height={H - 4}
-              fill={`url(#${gid})`} rx="2"
-              stroke={C.cardBorder} strokeWidth="0.8" />
-        {straddles && (
-          <line x1={zeroFrac * W} y1="0" x2={zeroFrac * W} y2={H}
-                stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2,2" />
-        )}
-      </svg>
-      {/* labels: min (left), max (right), 0 at its true position if straddled */}
-      <div style={{ position: "relative", height: 10 }}>
-        <span style={{
-          position: "absolute", left: 0, top: 0,
-          fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
-        }}>{fmt(min)}</span>
-        {straddles && (
-          <span style={{
-            position: "absolute", left: `${zeroFrac * 100}%`, top: 0,
-            transform: "translateX(-50%)",
-            fontFamily: MONO, fontSize: 7, fontWeight: 700, color: "#cbd5e1",
-          }}>0</span>
-        )}
-        <span style={{
-          position: "absolute", right: 0, top: 0,
-          fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
-        }}>{fmt(max)}</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, width: 186 }}>
+      <div style={{ display: "flex", gap: 1 }}>
+        {chips.map((c, i) => (
+          <div key={i} style={{
+            flex: 1, height: 16, background: c,
+            borderTop: `1px solid ${C.cardBorder}`,
+            borderBottom: `1px solid ${C.cardBorder}`,
+            borderLeft: i === 0 ? `1px solid ${C.cardBorder}` : "none",
+            borderRight: i === chips.length - 1 ? `1px solid ${C.cardBorder}` : "none",
+            borderTopLeftRadius: i === 0 ? 2 : 0,
+            borderBottomLeftRadius: i === 0 ? 2 : 0,
+            borderTopRightRadius: i === chips.length - 1 ? 2 : 0,
+            borderBottomRightRadius: i === chips.length - 1 ? 2 : 0,
+          }} />
+        ))}
+      </div>
+      <div style={{
+        display: "flex", justifyContent: "space-between",
+        fontFamily: MONO, fontSize: 7, fontWeight: 700, color: C.textMuted,
+        letterSpacing: 0.5,
+      }}>
+        <span>{fmt(min)}</span>
+        <span style={{ color: C.textDim }}>lower → higher</span>
+        <span>{fmt(max)}</span>
       </div>
     </div>
   );
@@ -155,9 +136,9 @@ function LiftRampLegend() {
 // ── SCALE LEGEND — chooses the right legend for the active outcome ─
 // SoP / Utility read their REAL data range (sopRange / utilityRange);
 // Persuasion / Base reuse the cells' own 0–100 red→white→green ramp.
-function ScaleLegend({ outcome, accent, sopRange, utilityRange }) {
-  if (outcome === "sop")      return <RangeBar range={sopRange} unit="%" accent={accent} />;
-  if (outcome === "utility")  return <RangeBar range={utilityRange} accent={accent} />;
+function ScaleLegend({ outcome, sopRange, utilityRange }) {
+  if (outcome === "sop")      return <GradientLegend range={sopRange} unit="%" />;
+  if (outcome === "utility")  return <GradientLegend range={utilityRange} />;
   return <LiftRampLegend />;
 }
 
@@ -196,7 +177,7 @@ export default function ScaleBlock({ outcome, sopRange, utilityRange }) {
         borderLeft: `1px solid ${C.cardBorder}`,
         borderRight: `1px solid ${C.cardBorder}`,
       }}>
-        <ScaleLegend outcome={active.id} accent={active.accent}
+        <ScaleLegend outcome={active.id}
           sopRange={sopRange} utilityRange={utilityRange} />
       </div>
 
