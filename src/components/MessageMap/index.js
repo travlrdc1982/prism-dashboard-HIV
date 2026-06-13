@@ -15,3 +15,4 @@ export { default as WordingPreview } from './WordingPreview';
 export { default as WordingDrawer } from './WordingDrawer';
 export { default as OutcomeCards } from './OutcomeCards';
 export { default as ScaleBlock } from './ScaleBlock';
+export { default as ViewOptions } from './ViewOptions';

@@ -34,9 +34,6 @@ import InfoDot from "../components/InfoDot";
 import {
   CellArchitectureWidget,
   SegmentCircle,
-  ControlSelect,
-  ActionBtn,
-  LiftRamp,
   VariantUniverseLegend,
   SplitCell,
   CubePair,
@@ -44,6 +41,7 @@ import {
   WordingDrawer,
   OutcomeCards,
   ScaleBlock,
+  ViewOptions,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -202,17 +200,46 @@ export default function MessageMap() {
   const activeBasket = BASKETS.find(b => b.id === basket) || BASKETS[0];
   const activeMetric = METRICS.find(m => m.name === metric) || METRICS[0];
 
+  // ── VIEW OPTIONS state ──────────────────────────────────────────
+  // columnMode: 'all' canonical | 'tier1' tier-1 first by ROI (others
+  //             remain but render dimmed / unspotlighted)
+  // personaAll: slide every column's persona half open
+  // sortMode:   'survey' design order | 'sop' total Share-of-Pref desc
+  const [columnMode, setColumnMode] = useState("all");
+  const [personaAll, setPersonaAll] = useState(false);
+  const [sortMode, setSortMode] = useState("survey");
+
+  // Tier-1 segment ids (from the generated study metrics).
+  const tier1Set = useMemo(
+    () => new Set(SEGMENTS.filter(s => STUDY_METRICS[s.code]?.tier === 1)
+                          .map(s => s.id)),
+    []
+  );
+
   // Segment column order — drag a segment circle to reorder. Initial
   // order matches the data; the user can rearrange the 16 columns.
   const [segmentOrder, setSegmentOrder] = useState(
     () => SEGMENTS.map(s => s.id)
   );
-  const orderedSegments = useMemo(
-    () => segmentOrder
+  const orderedSegments = useMemo(() => {
+    const base = segmentOrder
       .map(id => SEGMENTS.find(s => s.id === id))
-      .filter(Boolean),
-    [segmentOrder]
-  );
+      .filter(Boolean);
+    if (columnMode !== "tier1") return base;
+    // Tier-1 first, ordered by ROI desc; the rest keep their order.
+    const roi = (s) => STUDY_METRICS[s.code]?.roi || 0;
+    const t1 = base.filter(s => tier1Set.has(s.id))
+                   .sort((a, b) => roi(b) - roi(a));
+    const rest = base.filter(s => !tier1Set.has(s.id));
+    return [...t1, ...rest];
+  }, [segmentOrder, columnMode, tier1Set]);
+  // In tier-1 mode, non-tier-1 columns are always "unspotlighted"
+  // (dimmed) unless a cube / column spotlight is actively driving the
+  // dim state.
+  const tier1Dim = (segId) =>
+    (columnMode === "tier1" && !focal && colFocus === null
+      && !tier1Set.has(segId)) ? 0.4 : 1;
+
   const [dragSegId, setDragSegId] = useState(null);
   const moveSegment = (sourceId, targetId) => {
     if (sourceId == null || sourceId === targetId) return;
@@ -223,6 +250,18 @@ export default function MessageMap() {
       return next;
     });
   };
+
+  // Message row order. 'survey' = design order (as authored); 'sop' =
+  // by total Share of Preference for the active basket, descending
+  // (rank from the pipeline's sop_simple).
+  const sortedMessages = useMemo(() => {
+    if (sortMode !== "sop") return MESSAGES;
+    const rows = dashboard.sop_simple?.[basket]?.messages || [];
+    const rank = new Map(rows.map(r => [r.message, r.rank]));
+    return [...MESSAGES].sort(
+      (a, b) => (rank.get(a.id) ?? 99) - (rank.get(b.id) ?? 99)
+    );
+  }, [sortMode, basket]);
 
   // ── Cell aggregation ──────────────────────────────────────────────
   // The artifact carries one cell per (message × segment × arm × proof).
@@ -468,14 +507,6 @@ export default function MessageMap() {
       strategic frame). TOTAL shows the full sample without basket restriction.
     </>
   );
-  const COLOR_INFO = (
-    <>
-      Greener cells indicate stronger positive lift; redder cells indicate the
-      message backfires (leads to negative shifts in opinion); white cells
-      indicate negligible effect. Cell values depict how much each message
-      variant moves attitudinal alignment above baseline, on a 0–100 scale.
-    </>
-  );
   const MESSAGE_INFO = (
     <>
       The substantive message themes using PRISM's "message grammar"
@@ -557,41 +588,18 @@ export default function MessageMap() {
         <OutcomeCards value={outcome} onChange={setOutcome} />
       </div>
 
-      {/* ─── CONTROLS BAR ─── */}
-      <div style={{
-        display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap",
-        padding: "10px 14px",
-        background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 6,
-        marginBottom: 12,
-      }}>
-        <ControlSelect
-          label="Filter (Basket)"
-          infoTitle="Filter (basket)"
-          value={basket}
-          onChange={setBasket}
-          options={BASKETS.map(b => ({ value: b.id, label: b.name }))}
-          info={FILTER_INFO}
+      {/* ─── VIEW OPTIONS — filter + columns + persona + sort + proofs ─── */}
+      <div style={{ marginBottom: 12 }}>
+        <ViewOptions
+          basket={basket} onBasket={setBasket} baskets={BASKETS}
+          filterInfo={FILTER_INFO}
+          columnMode={columnMode} onColumnMode={setColumnMode}
+          personaAll={personaAll} onPersonaAll={setPersonaAll}
+          sortMode={sortMode} onSortMode={setSortMode}
+          proofsAllOpen={openRows.size === MESSAGES.length && MESSAGES.length > 0}
+          onProofsExpand={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))}
+          onProofsCollapse={() => { setOpenRows(new Set()); setFocal(null); }}
         />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <span style={{
-            fontFamily: MONO, fontSize: 7, color: C.textDim,
-            letterSpacing: 1.5, textTransform: "uppercase",
-            display: "flex", alignItems: "center",
-          }}>
-            Lift Scale (0–100)
-            <InfoDot title="Lift scale">{COLOR_INFO}</InfoDot>
-          </span>
-          <LiftRamp />
-        </div>
-
-        <div style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
-          <ActionBtn label="Expand all"
-            onClick={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))} />
-          <ActionBtn label="Collapse all"
-            onClick={() => { setOpenRows(new Set()); setFocal(null); }} />
-          <ActionBtn label="Unpin all" disabled />
-        </div>
       </div>
 
       {/* ─── SCALE / MEASUREMENT block — active outcome's pillbox +
@@ -791,7 +799,7 @@ export default function MessageMap() {
                   onClick={() => toggleColFocus(seg.id)}
                   style={{
                     display: "flex", justifyContent: "center",
-                    opacity: lit ? 1 : 0.15,
+                    opacity: (lit ? 1 : 0.15) * tier1Dim(seg.id),
                     transition: "opacity 0.12s",
                     cursor: isDragging ? "grabbing" : "grab",
                     position: "relative", zIndex: 5,
@@ -809,12 +817,12 @@ export default function MessageMap() {
             except headers + the focal row's labels fades out.
             Chevron = proof accordion only. */}
         <div>
-          {MESSAGES.map((m, i) => {
+          {sortedMessages.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
             const isOpen = openRows.has(m.id);
             const rowDim = focal ? !isFocalRow : false;
             const proofVals = isOpen ? proofValuesFor(m.id) : [];
-            const groupBorder = i < MESSAGES.length - 1
+            const groupBorder = i < sortedMessages.length - 1
               ? `1px solid ${C.cardBorder}` : "none";
 
             // ── FOCAL ROW GROUP — one grid, so every cube row aligns
@@ -1157,11 +1165,12 @@ export default function MessageMap() {
                   {orderedSegments.map(seg => {
                     // Only column spotlight or focal cube dims the rest;
                     // hover no longer drives a crosshair.
-                    const cross = focal
+                    const cross = (focal
                       ? 0.15
                       : colFocus !== null
                         ? (seg.id === colFocus ? 1 : 0.15)
-                        : 1;
+                        : 1) * tier1Dim(seg.id);
+                    const cellPersonaOpen = colFocus === seg.id || personaAll;
                     return (
                       <div
                         key={seg.id}
@@ -1177,7 +1186,7 @@ export default function MessageMap() {
                           fadeBelow={FADE_BELOW}
                           height={colFocus === seg.id ? 30 : 24}
                           compact={colFocus !== seg.id}
-                          personaOpen={colFocus === seg.id}
+                          personaOpen={cellPersonaOpen}
                           coreTitle={coreTextByMsg.get(m.id)}
                           tunedTitle={tokensByMsg.get(m.id)?.[0]
                             ?.text_by_persona?.[seg.code]}
@@ -1263,10 +1272,11 @@ export default function MessageMap() {
                             // Crosshair removed; cells stay at full
                             // opacity unless a focal cube / colFocus
                             // owns the dim state above.
-                            // Persona × proof cells only render when
-                            // the persona column is actually expanded
-                            // (a colFocus spotlight in this column).
-                            const open = colFocus === seg.id;
+                            // Persona × proof cells render when the
+                            // persona column is expanded — either this
+                            // column's spotlight or the global
+                            // "expand all persona" toggle.
+                            const open = colFocus === seg.id || personaAll;
                             return (
                               <div
                                 key={seg.id}
