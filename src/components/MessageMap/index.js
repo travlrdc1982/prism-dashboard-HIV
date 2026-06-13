@@ -19,3 +19,4 @@ export { default as ViewOptions } from './ViewOptions';
 export { default as SopGrid } from './SopGrid';
 export { default as UtilityGrid } from './UtilityGrid';
 export { default as MethodologyFootnote } from './MethodologyFootnote';
+export { default as SegmentSummaryDrawer } from './SegmentSummaryDrawer';

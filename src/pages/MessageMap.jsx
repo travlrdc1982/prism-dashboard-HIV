@@ -44,6 +44,7 @@ import {
   SopGrid,
   UtilityGrid,
   MethodologyFootnote,
+  SegmentSummaryDrawer,
 } from "../components/MessageMap";
 import { scaleLift } from "../components/MessageMap/liftScale";
 
@@ -1400,6 +1401,25 @@ export default function MessageMap() {
       </div>
       </>
       )}
+
+      {/* ─── SEGMENT SUMMARY DRAWER — same brief in every view.
+           Triggered by the universal colFocus state (click any
+           segment circle in any view). Action chips flip the
+           outcome card AND focus the chosen message × segment in
+           the destination view (cube focal or column spotlight). ─── */}
+      <SegmentSummaryDrawer
+        segId={colFocus}
+        onClose={() => setColFocus(null)}
+        onChip={(targetOutcome, targetMsgId) => {
+          setOutcome(targetOutcome);
+          if ((targetOutcome === "persuasion_messaging"
+                || targetOutcome === "base_messaging") && targetMsgId != null) {
+            // Drop the cube focal on (this msg × this seg) in the
+            // destination Persuasion/Base view.
+            setFocal({ msgId: targetMsgId, segId: colFocus });
+          }
+        }}
+      />
 
       {/* ─── METHODOLOGY + PROVENANCE — outcome-aware ─── */}
       <MethodologyFootnote
