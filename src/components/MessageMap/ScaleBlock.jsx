@@ -23,6 +23,7 @@
 // are intentional until the messagemap pipeline emits real bounds.
 import { C, FONT, MONO } from "../../data/theme";
 import LiftRamp from "./LiftRamp";
+import { GRADIENT_BINS_6 } from "./liftScale";
 
 // Pill labels (display) keyed by outcome id.
 const OUTCOMES = [
@@ -63,12 +64,7 @@ function Pill({ label, active, accent }) {
 // green (high) along an HSL hue sweep. Reads the ACTUAL {min, max}
 // from the data; the same binned ramp colors the SoP / Utility
 // heatmap cells, so legend and cells agree.
-function gradientBins(n) {
-  // hue 0° (red) → 120° (green), through amber, at fixed sat/lightness.
-  return Array.from({ length: n }, (_, i) =>
-    `hsl(${Math.round((i / (n - 1)) * 120)}, 60%, 46%)`);
-}
-function GradientLegend({ range, unit = "", bins = 6 }) {
+function GradientLegend({ range, unit = "" }) {
   if (!range || !Number.isFinite(range.min) || !Number.isFinite(range.max)) {
     return (
       <span style={{
@@ -79,7 +75,9 @@ function GradientLegend({ range, unit = "", bins = 6 }) {
   const { min, max } = range;
   const dec = (Math.abs(max) >= 10 || Math.abs(min) >= 10) ? 0 : 1;
   const fmt = v => `${v.toFixed(dec)}${unit}`;
-  const chips = gradientBins(bins);
+  // Use the SAME 6-bin palette the cells use (from liftScale.js) so
+  // the legend and the heatmap can never disagree.
+  const chips = GRADIENT_BINS_6.map(b => b.bg);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2, width: 186 }}>
       <div style={{ display: "flex", gap: 1 }}>

@@ -22,12 +22,19 @@ const STOPS = [
   { t: 1.0, rgb: [20, 83, 45] },     // #14532d
 ];
 
-// SoP / Utility 6-bin red→green gradient. Same hue formula as
-// ScaleBlock's gradient legend so the heatmap cells and the scale
-// legend share one color map. Returns { bg, text } for cell rendering.
-//   value: the raw datum (sop_pct, utility score, etc.)
-//   min/max: data-driven range from the page
-//   bins: discrete categories (6 matches the AL/Pharma idiom)
+// SoP / Utility 6-bin red→green palette — curated to match the
+// AL/Pharma study look (no lemon-lime middle). Same map used by the
+// SCALE block's gradient chips, so the legend and the heatmap cells
+// always agree.
+export const GRADIENT_BINS_6 = [
+  { bg: "#6b1a1a", text: "#fde6e6" },  // 0  very dark red
+  { bg: "#b91c1c", text: "#fff5f5" },  // 1  red
+  { bg: "#92400e", text: "#fff7ed" },  // 2  burnt amber / dark
+  { bg: "#166534", text: "#ecfdf5" },  // 3  dark green
+  { bg: "#15803d", text: "#ecfdf5" },  // 4  medium green
+  { bg: "#22c55e", text: "#0f1520" },  // 5  bright green
+];
+
 export function gradientBinColor(value, min, max, bins = 6) {
   if (value == null || !isFinite(value)) {
     return { bg: "rgba(148,163,184,0.06)", text: "#475569" };
@@ -35,14 +42,10 @@ export function gradientBinColor(value, min, max, bins = 6) {
   const span = (max - min) || 1;
   const t = Math.max(0, Math.min(1, (value - min) / span));
   const idx = Math.min(bins - 1, Math.floor(t * bins));
+  if (bins === 6) return GRADIENT_BINS_6[idx];
+  // Other bin counts still get a hue sweep (no current consumer).
   const hue = Math.round((idx / (bins - 1)) * 120);
-  return {
-    bg: `hsl(${hue}, 60%, 46%)`,
-    // White text on every bin: 46% lightness keeps contrast >= 4.5:1
-    // even on amber. A tiny shadow added at cell render time keeps the
-    // numerals legible on the brightest bins.
-    text: "#f8fafc",
-  };
+  return { bg: `hsl(${hue}, 60%, 46%)`, text: "#f8fafc" };
 }
 
 export function rampColor(v100) {

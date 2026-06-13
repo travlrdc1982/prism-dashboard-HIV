@@ -599,6 +599,8 @@ export default function MessageMap() {
               proofsAllOpen={openRows.size === MESSAGES.length && MESSAGES.length > 0}
               onProofsExpand={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))}
               onProofsCollapse={() => { setOpenRows(new Set()); setFocal(null); }}
+              personaDisabled={!isLiftView}
+              proofsDisabled={!isLiftView}
             />
           </div>
         </div>
@@ -649,7 +651,10 @@ export default function MessageMap() {
             setDragSegId(null);
           }}
           tier1Dim={tier1Dim}
+          colFocus={colFocus}
           onSegmentClick={toggleColFocus}
+          openRows={openRows}
+          onToggleRow={toggleRow}
         />
       ) : outcome === "utility" ? (
         <div style={{

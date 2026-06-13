@@ -20,22 +20,26 @@ function GroupLabel({ children }) {
   );
 }
 
-function Segmented({ options, value, onChange }) {
+function Segmented({ options, value, onChange, disabled = false }) {
   return (
     <div style={{
       display: "inline-flex", borderRadius: 4, overflow: "hidden",
       border: `1px solid ${C.cardBorder}`,
+      opacity: disabled ? 0.4 : 1,
     }}>
       {options.map((o, i) => {
         const active = o.value === value;
         return (
           <button key={o.value}
-            onClick={() => onChange(o.value)}
-            title={o.title || undefined}
+            onClick={disabled ? undefined : () => onChange(o.value)}
+            title={disabled ? "Not applicable for this measurement"
+                            : (o.title || undefined)}
+            disabled={disabled}
             style={{
               fontFamily: MONO, fontSize: 9, fontWeight: 700,
               letterSpacing: 0.8, textTransform: "uppercase",
-              padding: "5px 9px", cursor: "pointer",
+              padding: "5px 9px",
+              cursor: disabled ? "not-allowed" : "pointer",
               border: "none",
               borderLeft: i === 0 ? "none" : `1px solid ${C.cardBorder}`,
               background: active ? (o.accent || C.violet) : "transparent",
@@ -48,9 +52,12 @@ function Segmented({ options, value, onChange }) {
   );
 }
 
-function Group({ label, children, note }) {
+function Group({ label, children, note, disabled = false }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    <div style={{
+      display: "flex", flexDirection: "column", gap: 4,
+      opacity: disabled ? 0.55 : 1,
+    }}>
       <GroupLabel>{label}</GroupLabel>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {children}
@@ -70,6 +77,10 @@ export default function ViewOptions({
   personaAll, onPersonaAll,
   sortMode, onSortMode,
   onProofsExpand, onProofsCollapse, proofsAllOpen,
+  // SoP / Utility don't have persona arms or proof tokens, so those
+  // two control groups are greyed out (visible but non-interactive).
+  personaDisabled = false,
+  proofsDisabled = false,
 }) {
   return (
     <div style={{
@@ -111,10 +122,12 @@ export default function ViewOptions({
         </Group>
 
         {/* PERSONA VARIANT */}
-        <Group label="Persona Variant">
+        <Group label="Persona Variant" disabled={personaDisabled}
+          note={personaDisabled ? "Not applicable for this measurement." : undefined}>
           <Segmented
             value={personaAll ? "expand" : "collapse"}
             onChange={(v) => onPersonaAll(v === "expand")}
+            disabled={personaDisabled}
             options={[
               { value: "collapse", label: "Collapse" },
               { value: "expand", label: "Expand All",
@@ -137,10 +150,12 @@ export default function ViewOptions({
         </Group>
 
         {/* PROOF POINT ROWS */}
-        <Group label="Proof Point Rows">
+        <Group label="Proof Point Rows" disabled={proofsDisabled}
+          note={proofsDisabled ? "Not applicable for this measurement." : undefined}>
           <Segmented
             value={proofsAllOpen ? "expand" : "collapse"}
             onChange={(v) => v === "expand" ? onProofsExpand() : onProofsCollapse()}
+            disabled={proofsDisabled}
             options={[
               { value: "collapse", label: "Collapse All" },
               { value: "expand", label: "Expand All" },
