@@ -1071,30 +1071,90 @@ def build_topline(df, out_dir='.', weight_var=None):
         print(f"Computed HIV Stigma extras: Knowledge {len(knowledge_block['items'])} items, Composites {len(composites_block['items'])} items")
 
     # ── ROI module ─────────────────────────────────────────────────
-    # The /roi page renders its scorecard from the workbook (analyst-edited
-    # values in HIV_Study_Template.xlsx) — not from this pipeline. The
-    # topline ROI section uses a static SVG template
-    # (src/components/Topline/utils/roi-template.svg) with workbook values
-    # patched in at render time via applyRoiOverrides.js, so the pipeline
-    # no longer needs to emit anything for ROI.
+    # Per-segment ROI numerics computed from the .sav (requires that
+    # the PRISM preflight has run — ACTPROB, XROI_cat, XQARS are
+    # produced by prism/prism/pipeline.py). The workbook is layered
+    # on top as analyst overrides (tier, supporters, influence).
+    #
+    # Fields per segment:
+    #   n, n_wgt              raw and weighted segment counts
+    #   activation_prob       weighted mean of ACTPROB × 100 (percent)
+    #   pct_highest           weighted % XROI_cat == 1 (Highest-ROI bucket)
+    #   pct_strong            weighted % XROI_cat == 2 (Strong-ROI bucket)
+    #   pct_softer            weighted % XROI_cat == 3 (Softer bucket)
+    #   ars_mean              weighted mean of XQARS
+    #
+    # Workbook (_apply_workbook_roi_overrides) layers on top:
+    #   priority_tier, coalition_support, activation_prob, influence_pct
     roi_data = {}
+    _w = df['WGT']
+    for sid, code, name, party in SEGMENTS:
+        mask = df['SEG'] == code
+        n_raw = int(mask.sum())
+        if n_raw == 0:
+            continue
+        sw = _w[mask]
+        n_wgt = float(sw.sum())
+        cell = {
+            'n': n_raw,
+            'n_wgt': round(n_wgt, 1),
+        }
+        if 'ACTPROB' in df.columns:
+            actp = pd.to_numeric(df.loc[mask, 'ACTPROB'], errors='coerce')
+            ok = actp.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                wm = float((actp[ok] * sw[ok]).sum() / sw[ok].sum())
+                cell['activation_prob'] = round(wm * 100.0, 1)
+        if 'XQARS' in df.columns:
+            ars = pd.to_numeric(df.loc[mask, 'XQARS'], errors='coerce')
+            ok = ars.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                cell['ars_mean'] = round(
+                    float((ars[ok] * sw[ok]).sum() / sw[ok].sum()), 3)
+        if 'XROI_cat' in df.columns:
+            cat = pd.to_numeric(df.loc[mask, 'XROI_cat'], errors='coerce')
+            ok = cat.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                wsum = sw[ok].sum()
+                for bucket, label in ((1, 'pct_highest'),
+                                      (2, 'pct_strong'),
+                                      (3, 'pct_softer')):
+                    cell[label] = round(
+                        float(((cat[ok] == bucket) * sw[ok]).sum() / wsum * 100.0),
+                        1)
+        roi_data[code] = cell
+
+    # Apply workbook overrides on top of the computed values (analyst
+    # judgment for tier / coalition_support / influence_pct; workbook
+    # activation_prob will overwrite the computed one if set).
+    try:
+        _apply_workbook_roi_overrides(roi_data)
+    except Exception as e:
+        print(f"WARNING: workbook ROI overrides not applied: {e}")
 
     # ── Compute field_dates from SPSS 'date' variable (Completion timestamp) ──
-    # SPSS internal date format = seconds since 1582-10-14. Some exports
-    # (newer SPSS versions / certain field vendors) store the value in
-    # microseconds instead, which overflows pd.to_timedelta(unit='s').
-    # Detect by magnitude and convert accordingly.
+    # Date column has two common shapes depending on the writer:
+    #   (a) Already parsed by pyreadstat as datetime64 — use directly.
+    #       This is what pyreadstat returns when the .sav came back through
+    #       a pandas roundtrip (e.g. PRISM preflight's pyreadstat.write_sav).
+    #   (b) Raw numeric seconds-since-1582-10-14 (legacy Decipher exports).
+    #       Some vendors store microseconds; autodetect by magnitude.
     field_dates_str = STUDY.get('field_dates', 'TBD')
     if 'date' in df.columns:
         try:
-            d = pd.to_numeric(df['date'], errors='coerce').dropna()
-            if len(d) > 0:
-                # ~3.2e10 seconds covers years 1582-2600. Anything larger is
-                # almost certainly microseconds (or smaller time unit) since
-                # the same epoch.
+            ser = df['date']
+            if pd.api.types.is_datetime64_any_dtype(ser):
+                dates = ser.dropna()
+            else:
+                d = pd.to_numeric(ser, errors='coerce').dropna()
+                if len(d) == 0:
+                    raise ValueError("no parseable values in 'date'")
+                # ~3.2e10 seconds covers years 1582-2600. Anything larger
+                # is almost certainly microseconds since the same epoch.
                 unit = 's' if d.max() < 3.2e10 else 'us'
                 base = pd.Timestamp('1582-10-14')
                 dates = base + pd.to_timedelta(d, unit=unit)
+            if len(dates) > 0:
                 first = dates.min().strftime('%b %d, %Y')
                 last  = dates.max().strftime('%b %d, %Y')
                 field_dates_str = f"{first} – {last}" if first != last else first

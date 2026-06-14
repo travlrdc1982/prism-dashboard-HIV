@@ -62,6 +62,13 @@ PIPELINE_DIR = REPO / 'pipeline' / 'topline'
 TOPLINE_DASHBOARD_OUT = PIPELINE_DIR / 'dashboard.json'
 TOPLINE_DASHBOARD_DEST = REPO / 'src' / 'data' / 'topline' / 'dashboard.json'
 
+# PRISM preflight (two-stage rake) — turns a raw Decipher .sav into a
+# weighted .sav with WEIGHT, ACTPROB, ROI components, and DQ flags.
+PRISM_DIR = REPO / 'prism'
+PRISM_STUDY_YAML = PRISM_DIR / 'prism' / 'studies' / 'hiv_wave1.yaml'
+PRISM_OUT_DIR = PRISM_DIR / 'out'
+PRISM_WEIGHTED_SAV = PRISM_OUT_DIR / 'hiv_wave1_weighted.sav'
+
 MESSAGEMAP_DIR = REPO / 'pipeline' / 'messagemap'
 MESSAGEMAP_VARIANTS_PARSER = MESSAGEMAP_DIR / 'src' / 'prism_variants_parser.py'
 MESSAGEMAP_BUILDER         = MESSAGEMAP_DIR / 'src' / 'prism_build_dashboard.py'
@@ -133,12 +140,51 @@ def main():
                     help='Skip the .sav→dashboard.json pipeline (re-run derivations only)')
     ap.add_argument('--skip-messagemap', action='store_true',
                     help='Skip the messagemap step (module 05 will show placeholder)')
+    ap.add_argument('--skip-preflight', action='store_true',
+                    help='Skip the prism preflight (use .sav as-is, even if WEIGHT missing)')
+    ap.add_argument('--force-preflight', action='store_true',
+                    help='Always rerun the prism preflight, even if WEIGHT is already in the .sav')
     ap.add_argument('--commit', action='store_true',
                     help='git add + commit + push after refresh')
     args = ap.parse_args()
 
     sav = Path(args.sav)
     workbook = Path(args.workbook)
+
+    # ── 0. PRISM preflight (always weight) ─────────────────────────
+    # The dashboard ALWAYS reads a weighted .sav. If the file the
+    # analyst dropped in doesn't have WEIGHT yet (raw Decipher export),
+    # run the two-stage rake first and swap in the weighted version.
+    # --force-preflight always reruns the rake; --skip-preflight skips
+    # it entirely (debugging only — the topline step will fail loudly
+    # if WEIGHT isn't there).
+    if not args.skip_preflight and sav.exists():
+        has_weight = False
+        try:
+            import pyreadstat
+            _df, _meta = pyreadstat.read_sav(str(sav), metadataonly=True)
+            has_weight = args.weight in _meta.column_names
+        except Exception as e:
+            print(f"  (couldn't probe .sav for WEIGHT — running preflight to be safe: {e})")
+
+        need_preflight = args.force_preflight or not has_weight
+        if need_preflight:
+            step("0/5  PRISM preflight (two-stage rake → WEIGHT, ACTPROB, ROI)")
+            if not PRISM_STUDY_YAML.exists():
+                sys.exit(f"  ✗ PRISM study config not found: {PRISM_STUDY_YAML}")
+            PRISM_OUT_DIR.mkdir(parents=True, exist_ok=True)
+            run([sys.executable, '-c',
+                 'from prism.cli import main; main()',
+                 'run', str(PRISM_STUDY_YAML), str(sav),
+                 '--output', str(PRISM_OUT_DIR)],
+                cwd=PRISM_DIR)
+            if not PRISM_WEIGHTED_SAV.exists():
+                sys.exit(f"  ✗ Preflight did not produce {PRISM_WEIGHTED_SAV}.")
+            shutil.copy2(PRISM_WEIGHTED_SAV, sav)
+            print(f"  ✓ Weighted .sav installed at {sav}")
+        else:
+            step(f"0/5  PRISM preflight — SKIPPED ({args.weight} already in .sav; "
+                 f"pass --force-preflight to rerun)")
 
     # ── 1. Topline pipeline (.sav → dashboard.json) ────────────────
     if not args.skip_pipeline:
