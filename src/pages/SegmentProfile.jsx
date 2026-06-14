@@ -2011,9 +2011,11 @@ export default function SegmentProfile() {
                   <div style={{ textAlign:"center", padding:"4px 0", borderBottom:"1px solid #1e293b", marginBottom:5 }}>
                     <div style={{ fontSize:24, fontWeight:800, color:studyTc, fontFamily:"'Nunito',sans-serif" }}>{d.roi.toFixed(2)}</div>
                   </div>
+                  {/* Donut colors match /audience-roi palette so the
+                      4-lever read is visually consistent across pages. */}
                   <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.persuadable} size={30} color={studyTc} />
+                      <MiniDonut value={d.persuadable} size={30} color="#5b93c7" />
                       <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Persuadable</div></div>
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
@@ -2021,11 +2023,11 @@ export default function SegmentProfile() {
                       <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Supporters</div></div>
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.activation} size={30} color="#34d399" />
+                      <MiniDonut value={d.activation} size={30} color="#a78bfa" />
                       <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Activation</div></div>
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.influence} size={30} color="#fbbf24" />
+                      <MiniDonut value={d.influence} size={30} color="#818cf8" />
                       <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5 }}>360</sup> Score</div></div>
                     </div>
                   </div>
