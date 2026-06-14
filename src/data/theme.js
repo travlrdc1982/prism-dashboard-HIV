@@ -35,7 +35,7 @@ export const C = {
   corpAmber: "#f59e0b",
 };
 
-export const FONT = "'Nunito Sans', -apple-system, sans-serif";
+export const FONT = "'Inter', -apple-system, sans-serif";
 export const MONO = "'JetBrains Mono', 'Fira Code', monospace";
 
 // Party color helper
