@@ -23,6 +23,7 @@ K (number of pre-post items) is auto-detected from the workbook.
 Usage:  python pipeline/extract_study.py   (from the repo root)
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -252,9 +253,35 @@ def _overlay_dashboard_roi(sm):
         print(f"  (dashboard.json.roi_data is empty; using workbook values)")
         return sm
 
+    # prePost from pp_results — STUDY_METRICS.prePost is EXACTLY the
+    # topline pre/post composite percentages, per analyst direction.
+    # PP{N} → item{N}; each value is [pre_top3, post_top3] per segment.
+    pp_results = dash.get('pp_results') or {}
+    n_pp = 0
+    for pp_key, pp_block in pp_results.items():
+        m = re.match(r'PP(\d+)$', pp_key)
+        if not m:
+            continue
+        item_key = f"item{m.group(1)}"
+        pre_seg = (pp_block.get('pre') or {})
+        post_seg = (pp_block.get('post') or {})
+        for code in sm.keys():
+            pre_v = (pre_seg.get(code) or {}).get('top3')
+            post_v = (post_seg.get(code) or {}).get('top3')
+            if pre_v is None and post_v is None:
+                continue
+            sm[code].setdefault('prePost', {})
+            sm[code]['prePost'][item_key] = [
+                round(float(pre_v), 1) if pre_v is not None else None,
+                round(float(post_v), 1) if post_v is not None else None,
+            ]
+            n_pp += 1
+    if n_pp:
+        print(f"Overlaid {n_pp} prePost values from dashboard.json.pp_results")
+
     mapping = (
         ('composite_roi',     'roi',          lambda v: round(float(v), 4)),
-        ('pct_highest_roi',   'highRoi',      lambda v: round(float(v))),
+        ('pct_high_roi',      'highRoi',      lambda v: round(float(v))),
         ('coalition_support', 'supporters',   lambda v: round(float(v))),
         ('activation_prob',   'activation',   lambda v: round(float(v))),
         ('influence_pct',     'influence',    lambda v: round(float(v))),

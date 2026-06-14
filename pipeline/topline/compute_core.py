@@ -1179,11 +1179,10 @@ def build_topline(df, out_dir='.', weight_var=None):
                     round(pct[5]), round(pct[4]), round(pct[3]),
                     round(pct[2]), round(pct[1]),
                 ]
-                # highRoi = % HIGHEST ROI (cat=5) — was previously
-                # mislabeled as pct_highest mapped to cat=1 (BACKFIRE).
-                cell['pct_highest'] = pct[5]
-                cell['pct_strong']  = pct[4]
-                cell['pct_softer']  = pct[3]
+                # high_roi_pct = % STRONG ROI (cat=4) + % HIGHEST ROI
+                # (cat=5). This is the field the workbook stores as
+                # "highRoi" and the /audience-roi page surfaces.
+                cell['pct_high_roi'] = round(pct[4] + pct[5], 1)
         # MOVE (signed) — input to composite_roi_test persuasion term
         if 'XALIGN_MOVE' in df.columns:
             mv = pd.to_numeric(df.loc[mask, 'XALIGN_MOVE'], errors='coerce')
