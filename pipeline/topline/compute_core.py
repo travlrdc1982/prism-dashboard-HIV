@@ -1189,6 +1189,16 @@ def build_topline(df, out_dir='.', weight_var=None):
                 # (cat=5). This is the field the workbook stores as
                 # "highRoi" and the /audience-roi page surfaces.
                 cell['pct_high_roi'] = round(pct[4] + pct[5], 1)
+        # coalition_support = weighted % XCOALITION > 3 (Supporters +
+        # Champions on the platform-locked PRISM cut). Computed from
+        # .sav; workbook can't clobber (re-stamped after the workbook
+        # overlay, same pattern as influence_pct).
+        if 'XCOALITION' in df.columns:
+            coal = pd.to_numeric(df.loc[mask, 'XCOALITION'], errors='coerce')
+            ok = coal.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                cell['coalition_support_computed'] = round(
+                    float(((coal[ok] > 3) * sw[ok]).sum() / sw[ok].sum() * 100.0))
         # MOVE (signed) — input to composite_roi_test persuasion term
         if 'XALIGN_MOVE' in df.columns:
             mv = pd.to_numeric(df.loc[mask, 'XALIGN_MOVE'], errors='coerce')
@@ -1213,14 +1223,31 @@ def build_topline(df, out_dir='.', weight_var=None):
     except Exception as e:
         print(f"WARNING: workbook ROI overrides not applied: {e}")
 
-    # influence_pct gets re-stamped from BCS (XSMr4) × 100 AFTER the
-    # workbook overlay — INFLUENCE is a measured field, not an analyst
-    # judgment, so it refreshes with each .sav. YAML overrides further
-    # below can still pin a manual value.
+    # Re-stamp three computed fields AFTER the workbook overlay so the
+    # workbook can't silently clobber values that came from the .sav.
+    # All three are measured composites, not analyst judgments:
+    #   influence_pct       = BCS (XSMr4) × 100
+    #   coalition_support   = % XCOALITION > 3 (Supporters + Champions)
+    #   activation_prob     = ACTPROB (XROIr5) × 100
+    # YAML overrides further below can still pin a manual value.
     for code, cell in roi_data.items():
         bcs = cell.get('bcs_mean')
         if bcs is not None:
             cell['influence_pct'] = round(float(bcs) * 100)
+        coal_computed = cell.get('coalition_support_computed')
+        if coal_computed is not None:
+            cell['coalition_support'] = coal_computed
+        # activation_prob was first stamped from ACTPROB inside the loop
+        # above; the workbook overlay may have overwritten it. Re-stamp
+        # from the .sav-derived value by recomputing here.
+        mask = df['SEG'] == code
+        sw = df.loc[mask, 'WGT']
+        if 'ACTPROB' in df.columns:
+            actp = pd.to_numeric(df.loc[mask, 'ACTPROB'], errors='coerce')
+            ok = actp.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                cell['activation_prob'] = round(
+                    float((actp[ok] * sw[ok]).sum() / sw[ok].sum()) * 100.0, 1)
 
     # Then apply YAML overrides (study.yaml → dashboard.roi.overrides).
     # YAML wins over workbook so the analyst can change a tier
