@@ -16,3 +16,8 @@ pipeline/topline/dashboard.json
 pipeline/topline/results_long.csv
 pipeline/topline/dashboard.html
 prism/prism_platform.egg-info/
+
+# PRISM preflight outputs (weighted .sav + diagnostics) — regenerated
+# per run; the weighted .sav is the input to refresh.py, not an artifact
+# to ship.
+prism/out/
