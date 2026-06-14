@@ -1158,12 +1158,32 @@ def build_topline(df, out_dir='.', weight_var=None):
             ok = cat.notna() & sw.notna() & (sw > 0)
             if ok.any():
                 wsum = sw[ok].sum()
-                for bucket, label in ((1, 'pct_highest'),
-                                      (2, 'pct_strong'),
-                                      (3, 'pct_softer')):
-                    cell[label] = round(
-                        float(((cat[ok] == bucket) * sw[ok]).sum() / wsum * 100.0),
-                        1)
+                # XROI_cat per prism canonical README:
+                #   1 = BACKFIRE        (Strong oppose)
+                #   2 = NO PERSUASION   (Lean oppose)
+                #   3 = PERSUADABLE     (Persuadable)
+                #   4 = STRONG ROI      (Lean support)
+                #   5 = HIGHEST ROI     (Strong support)
+                pct = {}
+                for c in (1, 2, 3, 4, 5):
+                    pct[c] = round(
+                        float(((cat[ok] == c) * sw[ok]).sum() / wsum * 100.0), 1)
+                cell['pct_backfire']      = pct[1]
+                cell['pct_no_persuasion'] = pct[2]
+                cell['pct_persuadable']   = pct[3]
+                cell['pct_strong_roi']    = pct[4]
+                cell['pct_highest_roi']   = pct[5]
+                # Display-order array for STUDY_METRICS.persuadability:
+                # [Strong sup, Lean sup, Persuadable, Lean opp, Strong opp]
+                cell['persuadability'] = [
+                    round(pct[5]), round(pct[4]), round(pct[3]),
+                    round(pct[2]), round(pct[1]),
+                ]
+                # highRoi = % HIGHEST ROI (cat=5) — was previously
+                # mislabeled as pct_highest mapped to cat=1 (BACKFIRE).
+                cell['pct_highest'] = pct[5]
+                cell['pct_strong']  = pct[4]
+                cell['pct_softer']  = pct[3]
         # MOVE (signed) — input to composite_roi_test persuasion term
         if 'XALIGN_MOVE' in df.columns:
             mv = pd.to_numeric(df.loc[mask, 'XALIGN_MOVE'], errors='coerce')

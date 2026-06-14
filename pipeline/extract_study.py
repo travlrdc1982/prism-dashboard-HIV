@@ -253,12 +253,16 @@ def _overlay_dashboard_roi(sm):
         return sm
 
     mapping = (
-        ('composite_roi',     'roi',         lambda v: round(float(v), 4)),
-        ('pct_highest',       'highRoi',     lambda v: round(float(v))),
-        ('coalition_support', 'supporters',  lambda v: round(float(v))),
-        ('activation_prob',   'activation',  lambda v: round(float(v))),
-        ('influence_pct',     'influence',   lambda v: round(float(v))),
-        ('priority_tier',     'tier',        lambda v: int(v)),
+        ('composite_roi',     'roi',          lambda v: round(float(v), 4)),
+        ('pct_highest_roi',   'highRoi',      lambda v: round(float(v))),
+        ('coalition_support', 'supporters',   lambda v: round(float(v))),
+        ('activation_prob',   'activation',   lambda v: round(float(v))),
+        ('influence_pct',     'influence',    lambda v: round(float(v))),
+        ('priority_tier',     'tier',         lambda v: int(v)),
+        # Persuadability bar chart on /audience-roi reads this 5-bucket
+        # array; display order [Strong sup, Lean sup, Persuadable,
+        # Lean opp, Strong opp] sourced from XROI_cat 5..1.
+        ('persuadability',    'persuadability', lambda v: [int(round(x)) for x in v]),
     )
     n_overlaid = 0
     for code, cell in roi_data.items():
