@@ -217,11 +217,44 @@ def write_generated_segments_js():
     print(f"Wrote src/data/generated/segments.js ({len(out)} bytes)")
 
 
+def _apply_yaml_overrides(sm):
+    """Apply study.yaml → dashboard.roi.overrides on top of the
+    workbook-derived SegmentMetrics. Same precedence as compute_core.py:
+    YAML wins over workbook. Workbook field name → JS-side name:
+      priority_tier    → tier
+      coalition_support → supporters
+      activation_prob  → activation
+      influence_pct    → influence
+    """
+    yaml_overrides = ((_cfg.get('dashboard') or {}).get('roi') or {}).get('overrides') or {}
+    if not yaml_overrides:
+        return sm
+    field_map = {
+        'priority_tier': 'tier',
+        'coalition_support': 'supporters',
+        'activation_prob': 'activation',
+        'influence_pct': 'influence',
+    }
+    n_overrides = 0
+    for code, fields in yaml_overrides.items():
+        if code not in sm or not isinstance(fields, dict):
+            continue
+        for yaml_key, js_key in field_map.items():
+            if yaml_key in fields:
+                sm[code][js_key] = fields[yaml_key]
+                n_overrides += 1
+    if n_overrides:
+        print(f"Applied {n_overrides} YAML ROI overrides from study.yaml")
+    return sm
+
+
 def main():
     wb = wbmod.load(WORKBOOK)
     messages = wbmod.read_messages(wb)
     sm, prepost_labels, K = wbmod.read_segment_metrics(wb)
     print(f"Detected K={K} pre-post items.")
+
+    sm = _apply_yaml_overrides(sm)
 
     write_study_js(messages, sm, prepost_labels, K)
     write_study_data_js(messages, sm, prepost_labels)
