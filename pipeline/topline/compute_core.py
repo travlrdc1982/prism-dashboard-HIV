@@ -86,7 +86,8 @@ import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from study_config import (load_config as _load_config,
                           segments_topline as _segments_topline,
-                          topline_study as _topline_study)
+                          topline_study as _topline_study,
+                          pop_share_by_code as _pop_share_by_code)
 
 _cfg = _load_config()
 _tl = _cfg['topline_config']
@@ -104,6 +105,7 @@ ITEMS             = _tl['items']
 PRE_POST          = _tl['pre_post']
 DEMOGRAPHICS      = _tl['demographics']
 SEGMENTS          = _segments_topline(_cfg)   # [[id, code, name, party], ...]
+POP_SHARE_BY_CODE = _pop_share_by_code(_cfg)  # {code: pop_share fraction}
 
 
 def ztest_prop_vs_rest(seg_count, seg_n, total_count, total_n):
@@ -1081,7 +1083,23 @@ def build_topline(df, out_dir='.', weight_var=None):
     #   composite_roi         weighted mean of XROIr7 ÷ grand weighted
     #                         mean of XROIr7 — the "1.33 for UCP / 1.01
     #                         for HHN" total ROI score (lift vs sample
-    #                         average, where 1.0 = average ROI).
+    #                         average, where 1.0 = average ROI). This
+    #                         is the Decipher-rooted composite preserved
+    #                         for this study's back-compat with the
+    #                         workbook + roi-template SVG; the formula
+    #                         lives in prism/composites/core.py.
+    #   composite_roi_test    PRISM-native candidate composite, signed
+    #                         and reach-normalized:
+    #                           num = (LoS · MOVE) + (ACTPROB · BCS)
+    #                           ROI = num / pop_share
+    #                         where:
+    #                           LoS  = workbook coalition_support / 100
+    #                           MOVE = weighted mean of XALIGN_MOVE (signed)
+    #                           ACTPROB = weighted mean of ACTPROB
+    #                           BCS  = weighted mean of XSMr4 (0-1)
+    #                           pop_share from study.yaml segment_registry
+    #                         Also normalized to 1.0-centered lift in
+    #                         composite_roi_test_lift.
     #   roi_raw               weighted mean of XROIr7 (0-100 scale before
     #                         normalization) — keep for diagnostics
     #   activation_prob       weighted mean of ACTPROB × 100 (percent)
@@ -1089,6 +1107,8 @@ def build_topline(df, out_dir='.', weight_var=None):
     #   pct_strong            weighted % XROI_cat == 2 (Strong-ROI bucket)
     #   pct_softer            weighted % XROI_cat == 3 (Softer bucket)
     #   ars_mean              weighted mean of XQARS
+    #   bcs_mean              weighted mean of XSMr4 (BCS, 0-1)
+    #   move_mean             weighted mean of XALIGN_MOVE (signed)
     #
     # Workbook (_apply_workbook_roi_overrides) layers on top:
     #   priority_tier, coalition_support, activation_prob, influence_pct
@@ -1144,6 +1164,20 @@ def build_topline(df, out_dir='.', weight_var=None):
                     cell[label] = round(
                         float(((cat[ok] == bucket) * sw[ok]).sum() / wsum * 100.0),
                         1)
+        # MOVE (signed) — input to composite_roi_test persuasion term
+        if 'XALIGN_MOVE' in df.columns:
+            mv = pd.to_numeric(df.loc[mask, 'XALIGN_MOVE'], errors='coerce')
+            ok = mv.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                cell['move_mean'] = round(
+                    float((mv[ok] * sw[ok]).sum() / sw[ok].sum()), 4)
+        # BCS (XSMr4) — input to composite_roi_test influence term
+        if 'XSMr4' in df.columns:
+            bcs = pd.to_numeric(df.loc[mask, 'XSMr4'], errors='coerce')
+            ok = bcs.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                cell['bcs_mean'] = round(
+                    float((bcs[ok] * sw[ok]).sum() / sw[ok].sum()), 4)
         roi_data[code] = cell
 
     # Apply workbook overrides on top of the computed values (analyst
@@ -1153,6 +1187,31 @@ def build_topline(df, out_dir='.', weight_var=None):
         _apply_workbook_roi_overrides(roi_data)
     except Exception as e:
         print(f"WARNING: workbook ROI overrides not applied: {e}")
+
+    # ── PRISM-native candidate composite (composite_roi_test) ─────
+    # Computed AFTER workbook overrides because the LoS term reads
+    # the workbook-supplied coalition_support. Stamped as a separate
+    # field so this study's deliverable (composite_roi from XROIr7)
+    # is untouched. Two pieces written:
+    #   composite_roi_test       raw value (numerator / pop_share)
+    #   composite_roi_test_lift  same, normalized to grand mean ≈ 1.0
+    test_raw = {}
+    for code, cell in roi_data.items():
+        los = (cell.get('coalition_support') or 0) / 100.0
+        move = cell.get('move_mean')
+        act = (cell.get('activation_prob') or 0) / 100.0
+        bcs = cell.get('bcs_mean')
+        pop = POP_SHARE_BY_CODE.get(code)
+        if None in (move, bcs) or not pop:
+            continue
+        num = (los * move) + (act * bcs)
+        test_raw[code] = num / pop
+    if test_raw:
+        grand = sum(test_raw.values()) / len(test_raw)
+        for code, score in test_raw.items():
+            roi_data[code]['composite_roi_test'] = round(score, 4)
+            if grand:
+                roi_data[code]['composite_roi_test_lift'] = round(score / grand, 3)
 
     # ── Compute field_dates from SPSS 'date' variable (Completion timestamp) ──
     # Date column has two common shapes depending on the writer:
