@@ -11,7 +11,7 @@ export default function PageHeader({ title, accentColor = "#a78bfa" }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{
-        fontFamily: "'Nunito',sans-serif",
+        fontFamily: "'Nunito Sans',sans-serif",
         fontSize: 9, letterSpacing: 3, color: "#475569",
         marginBottom: 3,
       }}>RESERVOIR HEALTH PRISM</div>
