@@ -166,8 +166,9 @@ const RELIGION_OVERINDEX = {
 // refreshes with each .sav (same source as /audience-roi).
 const STUDY_ROI = Object.fromEntries(
   Object.entries(STUDY_METRICS).map(([code, m]) => [code, { HIV: {
-    roi: m.roi, highRoi: m.highRoi, supporters: m.supporters,
-    activation: m.activation, influence: m.influence,
+    roi: m.roi, highRoi: m.highRoi, persuadable: m.persuadable,
+    supporters: m.supporters, activation: m.activation,
+    influence: m.influence,
   } }])
 );
 
@@ -2012,8 +2013,8 @@ export default function SegmentProfile() {
                   </div>
                   <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.highRoi} size={30} color={studyTc} />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% High ROI</div></div>
+                      <MiniDonut value={d.persuadable} size={30} color={studyTc} />
+                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Persuadable</div></div>
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                       <MiniDonut value={d.supporters} size={30} color="#3b82f6" />
@@ -2021,11 +2022,11 @@ export default function SegmentProfile() {
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                       <MiniDonut value={d.activation} size={30} color="#34d399" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Activation</div></div>
+                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Activation</div></div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, paddingTop:3, borderTop:"1px solid #1e293b" }}>
-                      <div style={{ width:30, textAlign:"center" }}><div style={{ fontSize:12, fontWeight:800, color:d.influence>=10?"#fbbf24":"#64748b", fontFamily:"'Nunito',sans-serif" }}>{d.influence}%</div></div>
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5 }}>360</sup></div></div>
+                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                      <MiniDonut value={d.influence} size={30} color="#fbbf24" />
+                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5 }}>360</sup> Score</div></div>
                     </div>
                   </div>
                 </div>
