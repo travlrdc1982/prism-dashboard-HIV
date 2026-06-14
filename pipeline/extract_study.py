@@ -217,34 +217,64 @@ def write_generated_segments_js():
     print(f"Wrote src/data/generated/segments.js ({len(out)} bytes)")
 
 
-def _apply_yaml_overrides(sm):
-    """Apply study.yaml → dashboard.roi.overrides on top of the
-    workbook-derived SegmentMetrics. Same precedence as compute_core.py:
-    YAML wins over workbook. Workbook field name → JS-side name:
-      priority_tier    → tier
-      coalition_support → supporters
-      activation_prob  → activation
-      influence_pct    → influence
+def _overlay_dashboard_roi(sm):
+    """Overlay fresh per-segment ROI values from src/data/topline/
+    dashboard.json (computed by compute_core.py from the .sav, with
+    workbook + study.yaml overrides already applied) on top of the
+    workbook-cached SegmentMetrics.
+
+    This is what makes the /audience-roi page reflect each .sav refresh:
+    workbook provides the structural fields (persuadability buckets,
+    prePost item series), dashboard.json.roi_data provides the live
+    numeric fields. dashboard.json wins.
+
+    Mapping (dashboard.json.roi_data → JS-side study.js):
+      composite_roi      → roi          (Decipher-rooted composite)
+      pct_highest        → highRoi      (% of seg in XROI_cat=Highest)
+      coalition_support  → supporters   (workbook judgment, passed through)
+      activation_prob    → activation   (workbook overrides computed)
+      influence_pct      → influence    (workbook judgment, passed through)
+      priority_tier      → tier         (YAML > workbook)
     """
-    yaml_overrides = ((_cfg.get('dashboard') or {}).get('roi') or {}).get('overrides') or {}
-    if not yaml_overrides:
+    import json as _json
+    dash_path = Path(__file__).resolve().parent.parent / 'src' / 'data' / 'topline' / 'dashboard.json'
+    if not dash_path.exists():
+        print(f"  (no dashboard.json yet at {dash_path}; using workbook values)")
         return sm
-    field_map = {
-        'priority_tier': 'tier',
-        'coalition_support': 'supporters',
-        'activation_prob': 'activation',
-        'influence_pct': 'influence',
-    }
-    n_overrides = 0
-    for code, fields in yaml_overrides.items():
-        if code not in sm or not isinstance(fields, dict):
+    try:
+        with open(dash_path, encoding='utf-8') as f:
+            dash = _json.load(f)
+    except Exception as e:
+        print(f"  WARNING: couldn't load dashboard.json: {e}; using workbook values")
+        return sm
+    roi_data = dash.get('roi_data') or {}
+    if not roi_data:
+        print(f"  (dashboard.json.roi_data is empty; using workbook values)")
+        return sm
+
+    mapping = (
+        ('composite_roi',     'roi',         lambda v: round(float(v), 4)),
+        ('pct_highest',       'highRoi',     lambda v: round(float(v))),
+        ('coalition_support', 'supporters',  lambda v: round(float(v))),
+        ('activation_prob',   'activation',  lambda v: round(float(v))),
+        ('influence_pct',     'influence',   lambda v: round(float(v))),
+        ('priority_tier',     'tier',        lambda v: int(v)),
+    )
+    n_overlaid = 0
+    for code, cell in roi_data.items():
+        if code not in sm:
             continue
-        for yaml_key, js_key in field_map.items():
-            if yaml_key in fields:
-                sm[code][js_key] = fields[yaml_key]
-                n_overrides += 1
-    if n_overrides:
-        print(f"Applied {n_overrides} YAML ROI overrides from study.yaml")
+        for dash_key, js_key, conv in mapping:
+            v = cell.get(dash_key)
+            if v is None:
+                continue
+            try:
+                sm[code][js_key] = conv(v)
+                n_overlaid += 1
+            except Exception:
+                pass
+    print(f"Overlaid {n_overlaid} fields from dashboard.json.roi_data "
+          f"onto {len(roi_data)} segments")
     return sm
 
 
@@ -254,7 +284,7 @@ def main():
     sm, prepost_labels, K = wbmod.read_segment_metrics(wb)
     print(f"Detected K={K} pre-post items.")
 
-    sm = _apply_yaml_overrides(sm)
+    sm = _overlay_dashboard_roi(sm)
 
     write_study_js(messages, sm, prepost_labels, K)
     write_study_data_js(messages, sm, prepost_labels)
