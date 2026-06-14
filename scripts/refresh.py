@@ -14,6 +14,14 @@ this script rebuilds every data file the dashboard reads:
                                                   │       (msg_map_cells, msg_topline, sop_simple,
                                                   │        variants, messages, baskets, lift_variants)
                                                   │
+                                                  ├──►  patch_bayes_utility.py    (additive)
+                                                  │       (utility_signed, utility_0_100, CIs,
+                                                  │        shrink_weight per msg × seg)
+                                                  │
+                                                  ├──►  patch_segment_summary.py  (YAML → ui)
+                                                  │       (drawer copy + per-seg overrides
+                                                  │        from study/study.yaml)
+                                                  │
                                                   ├──►  derive_hiv_seg_data.py
                                                   │       └──►  src/data/hiv/*.json
                                                   │
@@ -186,6 +194,15 @@ def main():
             sys.exit(f"  ✗ Messagemap did not produce {MESSAGEMAP_DASHBOARD_OUT}.")
         merge_messagemap_into_topline(MESSAGEMAP_DASHBOARD_OUT, TOPLINE_DASHBOARD_DEST)
         print(f"  ✓ Merged into {TOPLINE_DASHBOARD_DEST}")
+
+        # 3d. Surgical patches that ride on top of the cube without
+        #     recomputing it. Order matters only in the sense that both
+        #     touch ui / message_topline AFTER the messagemap merge.
+        step("3b/5  Bayesian utility — patch_bayes_utility (additive)")
+        run([sys.executable, 'scripts/patch_bayes_utility.py'], cwd=REPO)
+
+        step("3c/5  Segment summary copy — patch_segment_summary (YAML → ui)")
+        run([sys.executable, 'scripts/patch_segment_summary.py'], cwd=REPO)
 
     # ── 4. HIV-tab data derivation ────────────────────────────────
     step("4/5  HIV-tab data (derive_hiv_seg_data)")
