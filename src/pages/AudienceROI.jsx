@@ -8,11 +8,15 @@ import PageHeader from "../components/PageHeader";
 // ─── Build segment data by merging shared 16-segment skeleton with study-specific metrics ───
 const HIV_SEGMENTS = DATA.segments.map(seg => {
   const m = STUDY_METRICS[seg.code];
-  if (!m) return { ...seg, roi:0, highRoi:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{}, tier:3 };
+  if (!m) return { ...seg, roi:0, highRoi:0, persuadable:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{}, tier:3 };
+  // persuadable = XROI_cat = 3 (PERSUADABLE bucket only) — feeds the
+  // PERSUASION donut on /audience-roi per analyst direction.
+  // persuadability[2] is the Persuadable slot in the 5-bucket array.
   return {
     ...seg,
     roi: m.roi,
     highRoi: m.highRoi,
+    persuadable: m.persuadability?.[2] ?? 0,
     supporters: m.supporters,
     activation: m.activation,
     influence: m.influence,
@@ -248,8 +252,8 @@ function SegmentColumn({ seg, expanded, onNav }) {
         width: "100%", display: "flex", flexDirection: "column", alignItems: "center",
         gap: 6, height: H.persuasion, justifyContent: "center"
       }}>
-        <MiniDonut value={seg.highRoi} size={38} color={C.persuasion} />
-        <div style={{ fontSize: 6, color: C.text3, fontFamily: "'JetBrains Mono',monospace" }}>% HIGH ROI</div>
+        <MiniDonut value={seg.persuadable} size={38} color={C.persuasion} />
+        <div style={{ fontSize: 6, color: C.text3, fontFamily: "'JetBrains Mono',monospace" }}>% PERSUADABLE</div>
         <PBar data={seg.persuadability} h={120} />
       </div>
 
