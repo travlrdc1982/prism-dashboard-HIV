@@ -94,7 +94,8 @@ def write_study_js(messages, sm, prepost_labels, K):
         m = sm[code]
         prepost_str = ",".join(f"{k}:{json.dumps(v)}" for k, v in m["prePost"].items())
         tier = m["tier"] if m["tier"] is not None else "null"
-        L.append(f"  {code}: {{ tier:{tier}, roi:{m['roi']}, highRoi:{m['highRoi']}, supporters:{m['supporters']}, activation:{m['activation']}, influence:{m['influence']}, persuadability:{json.dumps(m['persuadability'])}, prePost:{{{prepost_str}}} }},")
+        persuadable_val = m.get('persuadable', 0)
+        L.append(f"  {code}: {{ tier:{tier}, roi:{m['roi']}, highRoi:{m['highRoi']}, persuadable:{persuadable_val}, supporters:{m['supporters']}, activation:{m['activation']}, influence:{m['influence']}, persuadability:{json.dumps(m['persuadability'])}, prePost:{{{prepost_str}}} }},")
     L.append("};")
     L.append("")
     L.append(f"// ─── PRE/POST METRIC DEFINITIONS (K={K} items) ───")
@@ -282,6 +283,7 @@ def _overlay_dashboard_roi(sm):
     mapping = (
         ('composite_roi',     'roi',          lambda v: round(float(v), 4)),
         ('pct_high_roi',      'highRoi',      lambda v: round(float(v))),
+        ('pct_movable',       'persuadable',  lambda v: round(float(v))),
         ('coalition_support', 'supporters',   lambda v: round(float(v))),
         ('activation_prob',   'activation',   lambda v: round(float(v))),
         ('influence_pct',     'influence',    lambda v: round(float(v))),

@@ -1199,13 +1199,20 @@ def build_topline(df, out_dir='.', weight_var=None):
             if ok.any():
                 cell['coalition_support_computed'] = round(
                     float(((coal[ok] > 3) * sw[ok]).sum() / sw[ok].sum() * 100.0))
-        # MOVE (signed) — input to composite_roi_test persuasion term
+        # MOVE (signed) — input to composite_roi_test persuasion term.
+        # Also drives pct_movable = % XALIGN_MOVE > 0 (the PERSUADABLE
+        # donut on /audience-roi). Computed from MOVE directly so
+        # respondents with NaN actprob/post (who would drop out of
+        # XROI_cat) still count if they have a measured MOVE > 0.
         if 'XALIGN_MOVE' in df.columns:
             mv = pd.to_numeric(df.loc[mask, 'XALIGN_MOVE'], errors='coerce')
             ok = mv.notna() & sw.notna() & (sw > 0)
             if ok.any():
                 cell['move_mean'] = round(
                     float((mv[ok] * sw[ok]).sum() / sw[ok].sum()), 4)
+                cell['pct_movable'] = round(
+                    float(((mv[ok] > 0) * sw[ok]).sum() / sw[ok].sum() * 100.0),
+                    1)
         # BCS (XSMr4) — input to composite_roi_test influence term
         if 'XSMr4' in df.columns:
             bcs = pd.to_numeric(df.loc[mask, 'XSMr4'], errors='coerce')

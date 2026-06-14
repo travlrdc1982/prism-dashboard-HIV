@@ -9,14 +9,13 @@ import PageHeader from "../components/PageHeader";
 const HIV_SEGMENTS = DATA.segments.map(seg => {
   const m = STUDY_METRICS[seg.code];
   if (!m) return { ...seg, roi:0, highRoi:0, persuadable:0, persuadability:[0,0,0,0,0], supporters:0, activation:0, influence:0, prePost:{}, tier:3 };
-  // persuadable = XROI_cat = 3 (PERSUADABLE bucket only) — feeds the
-  // PERSUASION donut on /audience-roi per analyst direction.
-  // persuadability[2] is the Persuadable slot in the 5-bucket array.
+  // persuadable = % XALIGN_MOVE > 0 (computed directly from .sav,
+  // not via XROI_cat). This is the PERSUASION donut on /audience-roi.
   return {
     ...seg,
     roi: m.roi,
     highRoi: m.highRoi,
-    persuadable: m.persuadability?.[2] ?? 0,
+    persuadable: m.persuadable ?? 0,
     supporters: m.supporters,
     activation: m.activation,
     influence: m.influence,
