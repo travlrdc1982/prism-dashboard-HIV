@@ -1078,6 +1078,12 @@ def build_topline(df, out_dir='.', weight_var=None):
     #
     # Fields per segment:
     #   n, n_wgt              raw and weighted segment counts
+    #   composite_roi         weighted mean of XROIr7 ÷ grand weighted
+    #                         mean of XROIr7 — the "1.33 for UCP / 1.01
+    #                         for HHN" total ROI score (lift vs sample
+    #                         average, where 1.0 = average ROI).
+    #   roi_raw               weighted mean of XROIr7 (0-100 scale before
+    #                         normalization) — keep for diagnostics
     #   activation_prob       weighted mean of ACTPROB × 100 (percent)
     #   pct_highest           weighted % XROI_cat == 1 (Highest-ROI bucket)
     #   pct_strong            weighted % XROI_cat == 2 (Strong-ROI bucket)
@@ -1088,6 +1094,15 @@ def build_topline(df, out_dir='.', weight_var=None):
     #   priority_tier, coalition_support, activation_prob, influence_pct
     roi_data = {}
     _w = df['WGT']
+
+    # Grand weighted mean of XROIr7 (denominator of composite_roi)
+    grand_xroir7 = None
+    if 'XROIr7' in df.columns:
+        r7 = pd.to_numeric(df['XROIr7'], errors='coerce')
+        ok = r7.notna() & _w.notna() & (_w > 0)
+        if ok.any():
+            grand_xroir7 = float((r7[ok] * _w[ok]).sum() / _w[ok].sum())
+
     for sid, code, name, party in SEGMENTS:
         mask = df['SEG'] == code
         n_raw = int(mask.sum())
@@ -1099,6 +1114,13 @@ def build_topline(df, out_dir='.', weight_var=None):
             'n': n_raw,
             'n_wgt': round(n_wgt, 1),
         }
+        if 'XROIr7' in df.columns and grand_xroir7:
+            r7 = pd.to_numeric(df.loc[mask, 'XROIr7'], errors='coerce')
+            ok = r7.notna() & sw.notna() & (sw > 0)
+            if ok.any():
+                wm = float((r7[ok] * sw[ok]).sum() / sw[ok].sum())
+                cell['roi_raw'] = round(wm, 3)
+                cell['composite_roi'] = round(wm / grand_xroir7, 3)
         if 'ACTPROB' in df.columns:
             actp = pd.to_numeric(df.loc[mask, 'ACTPROB'], errors='coerce')
             ok = actp.notna() & sw.notna() & (sw > 0)

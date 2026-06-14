@@ -45305,6 +45305,8 @@
     "TSP": {
       "n": 318,
       "n_wgt": 83.1,
+      "roi_raw": 35.163,
+      "composite_roi": 0.987,
       "activation_prob": 32,
       "ars_mean": 0.506,
       "pct_highest": 39.6,
@@ -45317,6 +45319,8 @@
     "CEC": {
       "n": 152,
       "n_wgt": 200.5,
+      "roi_raw": 34.457,
+      "composite_roi": 0.967,
       "activation_prob": 16,
       "ars_mean": 0.407,
       "pct_highest": 35.9,
@@ -45329,6 +45333,8 @@
     "TC": {
       "n": 69,
       "n_wgt": 174.9,
+      "roi_raw": 25.808,
+      "composite_roi": 0.724,
       "activation_prob": 16,
       "ars_mean": 0.274,
       "pct_highest": 36.6,
@@ -45341,6 +45347,8 @@
     "HF": {
       "n": 243,
       "n_wgt": 73.1,
+      "roi_raw": 38.583,
+      "composite_roi": 1.083,
       "activation_prob": 32,
       "ars_mean": 0.541,
       "pct_highest": 35.1,
@@ -45353,6 +45361,8 @@
     "PP": {
       "n": 63,
       "n_wgt": 75.7,
+      "roi_raw": 25.812,
+      "composite_roi": 0.724,
       "activation_prob": 18,
       "ars_mean": 0.35,
       "pct_highest": 51.7,
@@ -45365,6 +45375,8 @@
     "WE": {
       "n": 74,
       "n_wgt": 279.2,
+      "roi_raw": 22.73,
+      "composite_roi": 0.638,
       "activation_prob": 16,
       "ars_mean": 0.3,
       "pct_highest": 50.4,
@@ -45377,6 +45389,8 @@
     "PFF": {
       "n": 61,
       "n_wgt": 131.0,
+      "roi_raw": 26.369,
+      "composite_roi": 0.74,
       "activation_prob": 21,
       "ars_mean": 0.284,
       "pct_highest": 42.5,
@@ -45389,6 +45403,8 @@
     "HHN": {
       "n": 354,
       "n_wgt": 92.2,
+      "roi_raw": 35.827,
+      "composite_roi": 1.005,
       "activation_prob": 29,
       "ars_mean": 0.517,
       "pct_highest": 37.1,
@@ -45401,6 +45417,8 @@
     "MFL": {
       "n": 154,
       "n_wgt": 155.9,
+      "roi_raw": 34.081,
+      "composite_roi": 0.956,
       "activation_prob": 17,
       "ars_mean": 0.44,
       "pct_highest": 37.2,
@@ -45413,6 +45431,8 @@
     "VS": {
       "n": 68,
       "n_wgt": 153.3,
+      "roi_raw": 26.76,
+      "composite_roi": 0.751,
       "activation_prob": 20,
       "ars_mean": 0.366,
       "pct_highest": 40.0,
@@ -45425,6 +45445,8 @@
     "UCP": {
       "n": 346,
       "n_wgt": 337.2,
+      "roi_raw": 45.947,
+      "composite_roi": 1.289,
       "activation_prob": 34,
       "ars_mean": 0.581,
       "pct_highest": 21.0,
@@ -45437,6 +45459,8 @@
     "FJP": {
       "n": 354,
       "n_wgt": 315.3,
+      "roi_raw": 44.556,
+      "composite_roi": 1.25,
       "activation_prob": 34,
       "ars_mean": 0.618,
       "pct_highest": 27.5,
@@ -45449,6 +45473,8 @@
     "HCP": {
       "n": 354,
       "n_wgt": 241.0,
+      "roi_raw": 42.557,
+      "composite_roi": 1.194,
       "activation_prob": 31,
       "ars_mean": 0.545,
       "pct_highest": 25.8,
@@ -45461,6 +45487,8 @@
     "HAD": {
       "n": 71,
       "n_wgt": 256.1,
+      "roi_raw": 32.931,
+      "composite_roi": 0.924,
       "activation_prob": 31,
       "ars_mean": 0.457,
       "pct_highest": 40.1,
@@ -45473,6 +45501,8 @@
     "HCI": {
       "n": 71,
       "n_wgt": 216.6,
+      "roi_raw": 32.397,
+      "composite_roi": 0.909,
       "activation_prob": 22,
       "ars_mean": 0.356,
       "pct_highest": 37.6,
@@ -45485,6 +45515,8 @@
     "GHI": {
       "n": 350,
       "n_wgt": 316.8,
+      "roi_raw": 43.091,
+      "composite_roi": 1.209,
       "activation_prob": 27,
       "ars_mean": 0.527,
       "pct_highest": 27.6,
