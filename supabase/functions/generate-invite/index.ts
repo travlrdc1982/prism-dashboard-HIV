@@ -6,8 +6,15 @@
 // Slack, secure portal, etc.).
 //
 // Auth: caller must be signed in to this Supabase project AND their email
-// must be in ADMIN_EMAILS below. Keep this list in sync with the client-side
-// allowlist in src/data/admins.js.
+// must be in the ADMIN_EMAILS env var (comma-separated). The matching
+// client-side gate lives in src/data/admins.js — the server check here is
+// the authoritative one; the client copy only hides the /admin UI.
+//
+// Required env vars (set with `supabase secrets set`):
+//   ADMIN_EMAILS       — comma-separated list of admin emails (case-insens.)
+//   REDIRECT_DEFAULT   — fallback redirect URL (e.g. https://hiv.rcghealthprism.app);
+//                        used only if the caller doesn't send redirectTo AND
+//                        no Origin header is present.
 //
 // Link expiry is controlled by the project's auth config
 // (Authentication → Email Templates → "Invite expiry" — bump to 604800
@@ -15,12 +22,10 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const ADMIN_EMAILS = [
-  "bdumont@reservoircg.com",
-  "jholdsworth@reservoircg.com",
-  "vudani@reservoircg.com",
-  "bryangeorgedumont@gmail.com",
-];
+const ADMIN_EMAILS = (Deno.env.get("ADMIN_EMAILS") ?? "")
+  .split(",")
+  .map(s => s.trim().toLowerCase())
+  .filter(Boolean);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,7 +35,7 @@ const corsHeaders = {
 
 const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
 
-const ADMIN_SET = new Set(ADMIN_EMAILS.map(s => s.trim().toLowerCase()));
+const ADMIN_SET = new Set(ADMIN_EMAILS);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -65,7 +70,17 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const email = (body?.email ?? "").trim().toLowerCase();
-    const redirectTo = body?.redirectTo ?? "https://hiv.rcghealthprism.app";
+    // redirectTo precedence: explicit body field > caller's Origin header
+    // (so each dashboard sends users back to its own host) > REDIRECT_DEFAULT
+    // env var (per-deployment fallback). No hardcoded study URL.
+    const redirectTo =
+      body?.redirectTo ||
+      req.headers.get("Origin") ||
+      Deno.env.get("REDIRECT_DEFAULT") ||
+      "";
+    if (!redirectTo) {
+      return new Response(JSON.stringify({ error: "No redirect target available (set REDIRECT_DEFAULT or send Origin)" }), { status: 400, headers: jsonHeaders });
+    }
     if (!email || !email.includes("@")) {
       return new Response(JSON.stringify({ error: "Valid email required" }), { status: 400, headers: jsonHeaders });
     }

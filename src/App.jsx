@@ -11,11 +11,12 @@ import Login from "./pages/Login";
 import SetPassword from "./pages/SetPassword";
 import Admin from "./pages/Admin";
 
-// Auth gate. Set BYPASS_AUTH = true to skip the login screen entirely (used
-// for early-stage review when the dashboard wasn't yet locked down).
-// Production: false — the dashboard requires a valid Supabase session,
-// scoped to the project configured in src/supabaseClient.js.
-const BYPASS_AUTH = false;
+// Auth gate. Set VITE_BYPASS_AUTH=true in the deployment env vars to skip
+// the login screen entirely (used for early-stage review when a study
+// isn't yet locked down). Production: leave unset / false — the dashboard
+// requires a valid Supabase session, scoped to the project configured in
+// src/supabaseClient.js.
+const BYPASS_AUTH = import.meta.env.VITE_BYPASS_AUTH === "true";
 
 // Capture the URL hash at module-load time (synchronously, before
 // supabase-js has a chance to consume it). React render is async in

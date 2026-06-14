@@ -177,15 +177,61 @@ Verify the dashboard renders with the new data before deploying.
 
 ### Step 10 — Auth (if not bypassed)
 
-In `src/App.jsx`:
-```js
-const BYPASS_AUTH = false;  // re-enable login
+Auth is configured entirely by environment variables — no code edits.
+
+**A. To bypass login (early review):** in Vercel project env vars set
+```
+VITE_BYPASS_AUTH=true
+```
+Redeploy. The dashboard renders directly without a session.
+
+**B. To enable login (production):** unset `VITE_BYPASS_AUTH` (or set
+`false`) and provision a Supabase project.
+
+#### B.1 Create the Supabase project
+1. supabase.com → New Project. Choose a region; copy the URL + anon key.
+2. Authentication → Email Templates → Invite expiry → bump to **604800**
+   (7 days), so invite links the analyst hands out don't expire fast.
+3. Vercel project env vars:
+   ```
+   VITE_SUPABASE_URL=https://<your-project>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<your anon key>
+   ```
+   (NO fallback — if either is missing the dashboard refuses to boot.)
+
+#### B.2 Deploy the generate-invite edge function
+The /admin page calls a Supabase Edge Function that mints signed invite
+URLs without using Supabase's email delivery. Each new project needs
+its own deploy of this function.
+
+```bash
+# In the dashboard repo root:
+supabase login
+supabase link --project-ref <your-project-ref>
+supabase functions deploy generate-invite
 ```
 
-If the new study uses the same Supabase project as HIV, existing accounts work. Otherwise:
-1. New Supabase project at supabase.com.
-2. Create user accounts (Auth → Users → Invite User).
-3. Update the `VITE_SUPABASE_*` env vars in Vercel.
+Then set the function's env vars (these are read at runtime by the
+function — they are NOT in source code):
+
+```bash
+supabase secrets set \
+  ADMIN_EMAILS="bdumont@reservoircg.com,jholdsworth@reservoircg.com,vudani@reservoircg.com" \
+  REDIRECT_DEFAULT="https://<study>.rcghealthprism.app"
+```
+
+`ADMIN_EMAILS` is the authoritative server-side allowlist for who can
+generate invites. `REDIRECT_DEFAULT` is the per-deployment fallback the
+function uses when the caller's Origin header is missing.
+
+The client-side allowlist in `src/data/admins.js` controls who sees the
+`/admin` link in the nav. Keep it in sync with `ADMIN_EMAILS` above.
+
+#### B.3 Onboard users
+- Sign in as an admin to the new dashboard.
+- Visit `/admin`, enter the client's email, copy the generated URL.
+- Send it to them through your own channel (signed email, Slack, etc.).
+- They click the link → set their password → land on the dashboard.
 
 ### Step 11 — Handoff to the analyst
 
