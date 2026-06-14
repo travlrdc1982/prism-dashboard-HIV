@@ -17,12 +17,13 @@
 //      any pick by setting dashboard.ui.segment_summary.overrides
 //      (also from study.yaml).
 //
-// RULES (auto-pick; can be overridden per segment):
+// RULES (auto-pick; thresholds in study.yaml; overridable per segment):
 //
-//   LEAD WITH        max utility_signed where util >= +0.03 AND
-//                    sop_pct >= median(sop_pct).
+//   LEAD WITH        max utility_signed where util >= rules.lead_util_min
+//                    AND (if rules.lead_require_sop_above_median) sop_pct
+//                    >= median(sop_pct).
 //
-//   AVOID            min utility_signed where util <= −0.05.
+//   AVOID            min utility_signed where util <= rules.avoid_util_max.
 //
 //   PERSUADE WITH    top 3 cells from message_map_cells.persuasion_messaging,
 //                    POSITIVE LIFT ONLY, dedup'd so the BEST VARIANT PER
@@ -48,6 +49,7 @@ import { C, FONT, MONO } from "../../data/theme";
 const CFG = dashboard.ui?.segment_summary || {};
 const COPY = CFG.copy || {};
 const OVERRIDES = CFG.overrides || {};
+const RULES = CFG.rules || {};
 const slotCopy = (slot) => COPY.cards?.[slot] || {};
 const msgBoxCopy = COPY.message_box || {};
 
@@ -156,6 +158,11 @@ function useSegmentBrief(segId) {
     const sopTop3 = sopVals[sopVals.length - 3] ?? 0;
     const sopTied = (sopTop - sopTop3) < sigma;
 
+    // Analyst-owned thresholds (study.yaml → ui.segment_summary.rules)
+    const leadMin = RULES.lead_util_min ?? 0.03;
+    const leadGateSop = RULES.lead_require_sop_above_median !== false;
+    const avoidMax = RULES.avoid_util_max ?? -0.05;
+
     // 1. LEAD — overridable
     let lead;
     if (ov.lead != null) {
@@ -163,7 +170,9 @@ function useSegmentBrief(segId) {
     }
     if (!lead) {
       const pool = rows
-        .filter(r => r.util != null && r.util >= 0.03 && r.sop >= sopMedian)
+        .filter(r => r.util != null
+                  && r.util >= leadMin
+                  && (!leadGateSop || r.sop >= sopMedian))
         .sort((a, b) => b.util - a.util);
       lead = pool[0] || rows.slice()
         .sort((a, b) => (b.util ?? -Infinity) - (a.util ?? -Infinity))[0];
@@ -176,7 +185,7 @@ function useSegmentBrief(segId) {
     }
     if (!avoid) {
       const pool = rows
-        .filter(r => r.util != null && r.util <= -0.05)
+        .filter(r => r.util != null && r.util <= avoidMax)
         .sort((a, b) => a.util - b.util);
       avoid = pool[0];
     }
@@ -186,12 +195,13 @@ function useSegmentBrief(segId) {
 
     // "Still works for owned channels" diagnostic for AVOID
     let avoidOwnedNote = null;
-    if (avoid) {
+    const ownedLiftMin = RULES.avoid_owned_lift_min;
+    if (avoid && ownedLiftMin != null) {
       const baseCells = (dashboard.message_map_cells?.base_messaging || [])
         .filter(c => c.segment === segId && c.message === avoid.msgId
                   && c.lift_shrunk != null);
       const best = baseCells.sort((a, b) => b.lift_shrunk - a.lift_shrunk)[0];
-      if (best && best.lift_shrunk > 0.25) avoidOwnedNote = best;
+      if (best && best.lift_shrunk > ownedLiftMin) avoidOwnedNote = best;
     }
 
     // 3 & 4. PERSUADE + REINFORCE — overridable; auto with AVOID exclusion

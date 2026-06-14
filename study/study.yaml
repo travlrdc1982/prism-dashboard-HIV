@@ -273,6 +273,23 @@ dashboard:
   # owns the voice. Patched into dashboard.json by:
   #   python scripts/patch_segment_summary.py
   segment_summary:
+    # Editorial-judgment thresholds. The analyst owns these — they
+    # decide what counts as "lead-worthy", "avoid-worthy", and "still
+    # works for base reinforcement".
+    rules:
+      # Min signed utility for a message to qualify as LEAD WITH.
+      lead_util_min: 0.03
+      # Lead requires SoP >= median(SoP); set false to disable the SoP
+      # gate and pick purely on utility.
+      lead_require_sop_above_median: true
+      # Max signed utility for a message to qualify as AVOID (i.e. the
+      # message's utility must be <= this value — typically negative).
+      avoid_util_max: -0.05
+      # Min base-channel lift_shrunk for the "still works for owned-
+      # channel base reinforcement" note to render under AVOID. Set
+      # null to disable the note entirely.
+      avoid_owned_lift_min: 0.25
+
     # Editorial copy. Tokens: {sigma}, {base_lift} are filled at render time.
     copy:
       cards:

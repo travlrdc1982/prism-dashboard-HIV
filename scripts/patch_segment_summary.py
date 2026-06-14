@@ -49,9 +49,12 @@ def main():
         sys.exit("  ✗ dashboard.segment_summary not found in study.yaml")
     copy = block.get("copy") or {}
     overrides = block.get("overrides") or {}
+    rules = block.get("rules") or {}
     n_cards = len((copy.get("cards") or {}))
     n_overrides = len(overrides)
-    print(f"      copy.cards: {n_cards} slots  ·  overrides: {n_overrides} segments")
+    n_rules = len(rules)
+    print(f"      copy.cards: {n_cards} slots  ·  rules: {n_rules}  ·  "
+          f"overrides: {n_overrides} segments")
 
     print("\n[2/3] Reading dashboard.json...")
     with open(DASHBOARD, "r", encoding="utf-8") as f:
@@ -61,6 +64,7 @@ def main():
 
     print("\n[3/3] Writing ui.segment_summary (replacing only that sub-block)...")
     ui["segment_summary"] = {
+        "rules": rules,
         "copy": copy,
         "overrides": overrides,
     }
