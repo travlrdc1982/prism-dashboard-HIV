@@ -376,12 +376,12 @@ function MessageBox({
 // SegmentSummaryDrawer
 // ───────────────────────────────────────────────────────────────────
 export default function SegmentSummaryDrawer({
-  segId, onClose, onChip,
+  segId, onClose, onChip, rootRef,
 }) {
   const brief = useSegmentBrief(segId);
   const open = brief != null;
   return (
-    <div style={{
+    <div ref={rootRef} style={{
       position: "fixed", top: 0, right: 0, bottom: 0,
       width: 460, maxWidth: "92vw",
       background: "#0c1322",

@@ -468,11 +468,13 @@ export default function MessageMap() {
   // Column spotlight → ref on the segment header band.
   const focalRef = useRef(null);
   const segBandRef = useRef(null);
+  const drawerRef = useRef(null);
   useEffect(() => {
     if (!focal && colFocus === null) return;
     const onDown = (e) => {
       if (focal && focalRef.current?.contains(e.target)) return;
       if (colFocus !== null && segBandRef.current?.contains(e.target)) return;
+      if (drawerRef.current?.contains(e.target)) return;
       setFocal(null);
       setColFocus(null);
     };
@@ -1408,6 +1410,7 @@ export default function MessageMap() {
            outcome card AND focus the chosen message × segment in
            the destination view (cube focal or column spotlight). ─── */}
       <SegmentSummaryDrawer
+        rootRef={drawerRef}
         segId={colFocus}
         onClose={() => setColFocus(null)}
         onChip={(targetOutcome, targetMsgId) => {
