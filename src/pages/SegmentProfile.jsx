@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import IdeologyHeatmap from "./IdeologyHeatmap";
 import HIVTab from "./HIVTab";
-import { getAssignedTier, STUDY_META } from "../data/study";
+import { getAssignedTier, STUDY_META, STUDY_METRICS } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
 const SEGMENTS = [
@@ -212,24 +212,15 @@ const PREPOST = {
 // ─── VECTOR DATA ───
 // ─── STUDY-SPECIFIC ROI DATA (HIV) ───
 // HIV study metrics. Tier always sourced from getAssignedTier(code) — analyst-configured in workbook.
-const STUDY_ROI = {
-  "TSP":{ HIV:{roi:1.0236,highRoi:30,supporters:32,activation:32,influence:31} },
-  "CEC":{ HIV:{roi:0.8524,highRoi:16,supporters:11,activation:16,influence:12} },
-  "TC":{  HIV:{roi:0.7189,highRoi:7,supporters:2,activation:16,influence:21} },
-  "HF":{  HIV:{roi:1.0796,highRoi:27,supporters:21,activation:32,influence:46} },
-  "PP":{  HIV:{roi:0.7353,highRoi:9,supporters:6,activation:18,influence:19} },
-  "WE":{  HIV:{roi:0.6176,highRoi:9,supporters:5,activation:16,influence:24} },
-  "PFF":{ HIV:{roi:0.7958,highRoi:13,supporters:13,activation:21,influence:36} },
-  "HHN":{ HIV:{roi:1.0430,highRoi:29,supporters:23,activation:29,influence:30} },
-  "MFL":{ HIV:{roi:0.8055,highRoi:14,supporters:8,activation:17,influence:21} },
-  "VS":{  HIV:{roi:0.7492,highRoi:12,supporters:7,activation:20,influence:25} },
-  "UCP":{ HIV:{roi:1.3316,highRoi:69,supporters:64,activation:34,influence:42} },
-  "FJP":{ HIV:{roi:1.2991,highRoi:56,supporters:57,activation:34,influence:35} },
-  "HCP":{ HIV:{roi:1.1387,highRoi:35,supporters:42,activation:31,influence:26} },
-  "HAD":{ HIV:{roi:1.0605,highRoi:31,supporters:23,activation:31,influence:30} },
-  "HCI":{ HIV:{roi:1.0669,highRoi:29,supporters:34,activation:22,influence:31} },
-  "GHI":{ HIV:{roi:1.0832,highRoi:48,supporters:43,activation:27,influence:29} },
-};
+// STUDY_ROI was a hardcoded mirror of STUDY_METRICS; deleted in favor
+// of reading STUDY_METRICS directly so the segment-profile ROI card
+// refreshes with each .sav (same source as /audience-roi).
+const STUDY_ROI = Object.fromEntries(
+  Object.entries(STUDY_METRICS).map(([code, m]) => [code, { HIV: {
+    roi: m.roi, highRoi: m.highRoi, supporters: m.supporters,
+    activation: m.activation, influence: m.influence,
+  } }])
+);
 
 const GOP_VECTORS = {
   TSP: { trust:0.37, science:0.23, autonomy:-0.20, markets:-0.11 },
