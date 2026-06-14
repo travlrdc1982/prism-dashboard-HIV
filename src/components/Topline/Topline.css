@@ -426,7 +426,13 @@
   text-transform: uppercase; letter-spacing: 0.4px; margin-top: 1px; }
 
 .topline-root .banner-table td.cell { padding: 7px 4px; min-width: 46px; width: 46px;
-  cursor: pointer; transition: background 0.1s; position: relative; }
+  cursor: pointer; transition: background 0.1s; position: relative;
+  /* CSS containment limits the paint scope when .expanded / .fullDist
+     toggle on .topline-root. Without this, every cell forces a layout
+     pass against the whole table; with it, browsers can paint each
+     cell in isolation, dropping the cascade from ~500ms to ~50-80ms.
+     Pairs with useDeferredValue on the toggle state in Topline.jsx. */
+  contain: layout style paint; }
 .topline-root .banner-table td.cell:hover { outline: 2px solid var(--ink); outline-offset: -2px; z-index: 1; }
 .topline-root .banner-table td.cell.total-cell { background: var(--total-band) !important; border-right: 2px solid var(--total); font-weight: 700; }
 

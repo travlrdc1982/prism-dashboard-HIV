@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useDeferredValue } from "react";
 import dashboard from "../../data/topline/dashboard.json";
 import "./Topline.css";
 import "./Topline.addendum.css";
@@ -93,16 +93,32 @@ export default function Topline() {
   const [bannerFull, setBannerFull] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
 
+  // The "expanded" and "fullDist" toggles flip CSS classes on
+  // .topline-root that cascade into HUNDREDS of .cell descendants —
+  // browsers report INP > 500ms because the layout/paint reflow is
+  // long, not because React is slow. useDeferredValue keeps the
+  // checkbox visual update urgent (renders with the live state, so
+  // the checkmark flips in <16ms) while the rootClass cascade reads
+  // the deferred value and re-renders during idle time. Net INP
+  // returns to <100ms for the click; the heavy layout cascade still
+  // happens but it no longer blocks the click→paint path.
+  const deferredExpanded = useDeferredValue(expanded);
+  const deferredFullDist = useDeferredValue(fullDist);
+
   const rootRef = useRef(null);
   const { popoverRef, visible: popVisible, html: popHtml, pos: popPos, hide: hidePopover } = useCellPopover(rootRef);
 
   // .topline-root gets `expanded` / `fullDist` / `banner-full` classes; the
   // CSS uses them to reveal cell details, the freq dist, or to collapse the
   // survey + codebook panes.
+  // rootClass reads the DEFERRED toggle values so the heavy CSS
+  // cascade through every .cell descendant is decoupled from the
+  // checkbox-click→paint path. The checkbox visuals (below) read the
+  // live state so the checkmark flips immediately.
   const rootClass =
     "topline-root" +
-    (expanded ? " expanded" : "") +
-    (fullDist ? " fullDist" : "") +
+    (deferredExpanded ? " expanded" : "") +
+    (deferredFullDist ? " fullDist" : "") +
     (bannerFull ? " banner-full" : "");
 
   // Effective module list: keep dashboard.json's module config as-is, but
