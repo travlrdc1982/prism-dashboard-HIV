@@ -45386,7 +45386,7 @@
       "pct_softer": 30.0,
       "move_mean": 0.0426,
       "bcs_mean": 0.2063,
-      "priority_tier": 2,
+      "priority_tier": 3,
       "coalition_support": 6,
       "influence_pct": 19,
       "composite_roi_test": 1.323,
@@ -45422,7 +45422,7 @@
       "pct_softer": 30.1,
       "move_mean": 0.032,
       "bcs_mean": 0.3405,
-      "priority_tier": 2,
+      "priority_tier": 3,
       "coalition_support": 13,
       "influence_pct": 36,
       "composite_roi_test": 1.8916,
@@ -45476,7 +45476,7 @@
       "pct_softer": 28.9,
       "move_mean": 0.0738,
       "bcs_mean": 0.2494,
-      "priority_tier": 2,
+      "priority_tier": 3,
       "coalition_support": 7,
       "influence_pct": 25,
       "composite_roi_test": 1.1009,
@@ -45584,7 +45584,7 @@
       "pct_softer": 21.7,
       "move_mean": 0.2633,
       "bcs_mean": 0.3242,
-      "priority_tier": 2,
+      "priority_tier": 1,
       "coalition_support": 43,
       "influence_pct": 29,
       "composite_roi_test": 2.0075,
@@ -45619,6 +45619,61 @@
     "segment_display": {
       "context_segments": "collapsed",
       "show_data_confidence_flag": true
+    },
+    "roi": {
+      "composite_scorer": {
+        "active": "decipher"
+      },
+      "overrides": {
+        "TSP": {
+          "priority_tier": 1
+        },
+        "HF": {
+          "priority_tier": 1
+        },
+        "HHN": {
+          "priority_tier": 1
+        },
+        "UCP": {
+          "priority_tier": 1
+        },
+        "FJP": {
+          "priority_tier": 1
+        },
+        "HCP": {
+          "priority_tier": 1
+        },
+        "GHI": {
+          "priority_tier": 1
+        },
+        "CEC": {
+          "priority_tier": 2
+        },
+        "MFL": {
+          "priority_tier": 2
+        },
+        "HAD": {
+          "priority_tier": 2
+        },
+        "HCI": {
+          "priority_tier": 2
+        },
+        "VS": {
+          "priority_tier": 3
+        },
+        "PFF": {
+          "priority_tier": 3
+        },
+        "PP": {
+          "priority_tier": 3
+        },
+        "TC": {
+          "priority_tier": 3
+        },
+        "WE": {
+          "priority_tier": 3
+        }
+      }
     },
     "segment_summary": {
       "rules": {

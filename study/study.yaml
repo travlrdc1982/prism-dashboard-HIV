@@ -266,6 +266,45 @@ dashboard:
     context_segments: collapsed
     show_data_confidence_flag: true
 
+  # ── ROI / PRIORITY-TIER OVERRIDES ─────────────────────────────────────
+  # Final-pass overrides for roi_data fields that the workbook would
+  # otherwise own (priority_tier, coalition_support, activation_prob,
+  # influence_pct). Applied AFTER _apply_workbook_roi_overrides in
+  # compute_core.py — so YAML wins over the workbook, the workbook
+  # wins over the computed values from the .sav.
+  #
+  # Use this for analyst-judgment changes that haven't been folded back
+  # into study/judgments.xlsx yet (the workbook is the long-term home;
+  # this is the express lane).
+  #
+  # Composite ROI scoring (composite_roi vs composite_roi_test):
+  #   active = "decipher"     → composite_roi (XROIr7-based) is the
+  #                             deliverable; composite_roi_test stays
+  #                             computed but unused by the UI.
+  #   active = "prism_native" → composite_roi_test_lift drives tiering
+  #                             and any UI ranking (next study default).
+  roi:
+    composite_scorer:
+      active: decipher
+    # Per-segment overrides. Any key you omit falls back to the workbook.
+    overrides:
+      TSP: { priority_tier: 1 }
+      HF:  { priority_tier: 1 }
+      HHN: { priority_tier: 1 }
+      UCP: { priority_tier: 1 }
+      FJP: { priority_tier: 1 }
+      HCP: { priority_tier: 1 }
+      GHI: { priority_tier: 1 }
+      CEC: { priority_tier: 2 }
+      MFL: { priority_tier: 2 }
+      HAD: { priority_tier: 2 }
+      HCI: { priority_tier: 2 }
+      VS:  { priority_tier: 3 }
+      PFF: { priority_tier: 3 }
+      PP:  { priority_tier: 3 }
+      TC:  { priority_tier: 3 }
+      WE:  { priority_tier: 3 }
+
   # ── SEGMENT SUMMARY DRAWER ────────────────────────────────────────────
   # Editorial copy + per-segment overrides for the per-audience strategic
   # brief that opens from the Message Map (click any segment header).

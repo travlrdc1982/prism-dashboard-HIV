@@ -1188,6 +1188,20 @@ def build_topline(df, out_dir='.', weight_var=None):
     except Exception as e:
         print(f"WARNING: workbook ROI overrides not applied: {e}")
 
+    # Then apply YAML overrides (study.yaml → dashboard.roi.overrides).
+    # YAML wins over workbook so the analyst can change a tier
+    # assignment without round-tripping through xlsx.
+    yaml_overrides = ((_cfg.get('dashboard') or {}).get('roi') or {}).get('overrides') or {}
+    n_yaml = 0
+    for code, fields in yaml_overrides.items():
+        if code not in roi_data or not isinstance(fields, dict):
+            continue
+        for k, v in fields.items():
+            roi_data[code][k] = v
+        n_yaml += 1
+    if n_yaml:
+        print(f"Applied YAML ROI overrides: {n_yaml} segments from study.yaml")
+
     # ── PRISM-native candidate composite (composite_roi_test) ─────
     # Computed AFTER workbook overrides because the LoS term reads
     # the workbook-supplied coalition_support. Stamped as a separate
