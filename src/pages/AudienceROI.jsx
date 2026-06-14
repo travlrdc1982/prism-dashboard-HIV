@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DATA from "../data/studyData";
-import { STUDY_METRICS, PREPOST_METRICS, getAssignedTier } from "../data/study";
+import { STUDY_METRICS, PREPOST_METRICS, PERSUADABILITY_LABELS, getAssignedTier } from "../data/study";
 import PageHeader from "../components/PageHeader";
 // Tier is always the analyst-configured value from the workbook; never derived from ROI.
 
@@ -319,13 +319,16 @@ export default function AudienceROI() {
   const demSegs = SEGMENTS.filter(s => s.party === "DEM");
   const prePostH = H.prePostPad + PRE_POST_METRICS.length * H.prePostRow;
 
-  const persuadLabels = [
-    { label: "Strong support", color: C.persuasion },
-    { label: "Lean support", color: C.accentLight },
-    { label: "Persuadable", color: "#4a5568" },
-    { label: "Lean oppose", color: "#2d3748" },
-    { label: "Strong oppose", color: "#1a202c" },
+  // Labels come from study.js (PERSUADABILITY_LABELS) so the bar
+  // chart legend stays in sync with the XROI_cat categories used to
+  // build the data: [Highest ROI, Strong ROI, Persuadable, No
+  // persuasion, Backfire].
+  const PERSUAD_COLORS = [
+    C.persuasion, C.accentLight, "#4a5568", "#2d3748", "#1a202c",
   ];
+  const persuadLabels = PERSUADABILITY_LABELS.map((label, i) => ({
+    label, color: PERSUAD_COLORS[i],
+  }));
 
   return (
     <div style={{ maxWidth: 1300, margin: "0 auto" }}>

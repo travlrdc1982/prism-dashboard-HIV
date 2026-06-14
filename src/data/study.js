@@ -120,4 +120,4 @@ export function getSopColor(v) {
   return { bg:"#2d1215", t:"#fca5a5" };
 }
 
-export const PERSUADABILITY_LABELS = ["Strong support","Lean support","Persuadable","Lean oppose","Strong oppose"];
+export const PERSUADABILITY_LABELS = ["Highest ROI","Strong ROI","Persuadable","No persuasion","Backfire"];

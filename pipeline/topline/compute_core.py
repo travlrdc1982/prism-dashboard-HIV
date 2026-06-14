@@ -1159,11 +1159,15 @@ def build_topline(df, out_dir='.', weight_var=None):
             if ok.any():
                 wsum = sw[ok].sum()
                 # XROI_cat per prism canonical README:
-                #   1 = BACKFIRE        (Strong oppose)
-                #   2 = NO PERSUASION   (Lean oppose)
-                #   3 = PERSUADABLE     (Persuadable)
-                #   4 = STRONG ROI      (Lean support)
-                #   5 = HIGHEST ROI     (Strong support)
+                #   1 = BACKFIRE
+                #   2 = NO PERSUASION
+                #   3 = PERSUADABLE
+                #   4 = STRONG ROI
+                #   5 = HIGHEST ROI
+                # Persuadability bar chart on /audience-roi displays
+                # in descending order [5, 4, 3, 2, 1] with labels
+                # [Highest ROI, Strong ROI, Persuadable, No persuasion,
+                # Backfire].
                 pct = {}
                 for c in (1, 2, 3, 4, 5):
                     pct[c] = round(
@@ -1175,6 +1179,8 @@ def build_topline(df, out_dir='.', weight_var=None):
                 cell['pct_highest_roi']   = pct[5]
                 # Display-order array for STUDY_METRICS.persuadability:
                 # [Strong sup, Lean sup, Persuadable, Lean opp, Strong opp]
+                # Display order [Highest ROI, Strong ROI, Persuadable,
+                # No persuasion, Backfire] = XROI_cat [5, 4, 3, 2, 1].
                 cell['persuadability'] = [
                     round(pct[5]), round(pct[4]), round(pct[3]),
                     round(pct[2]), round(pct[1]),

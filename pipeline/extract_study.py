@@ -127,7 +127,7 @@ def write_study_js(messages, sm, prepost_labels, K):
     L.append('  return { bg:"#2d1215", t:"#fca5a5" };')
     L.append("}")
     L.append("")
-    L.append('export const PERSUADABILITY_LABELS = ["Strong support","Lean support","Persuadable","Lean oppose","Strong oppose"];')
+    L.append('export const PERSUADABILITY_LABELS = ["Highest ROI","Strong ROI","Persuadable","No persuasion","Backfire"];')
     L.append("")
 
     out = "\n".join(L)
@@ -287,8 +287,8 @@ def _overlay_dashboard_roi(sm):
         ('influence_pct',     'influence',    lambda v: round(float(v))),
         ('priority_tier',     'tier',         lambda v: int(v)),
         # Persuadability bar chart on /audience-roi reads this 5-bucket
-        # array; display order [Strong sup, Lean sup, Persuadable,
-        # Lean opp, Strong opp] sourced from XROI_cat 5..1.
+        # array; display order corresponds to XROI_cat 5..1:
+        #   [Highest ROI, Strong ROI, Persuadable, No persuasion, Backfire]
         ('persuadability',    'persuadability', lambda v: [int(round(x)) for x in v]),
     )
     n_overlaid = 0
