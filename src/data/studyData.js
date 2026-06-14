@@ -140,7 +140,7 @@ const DATA = {
         ],
         "supporters": 32,
         "activation": 32,
-        "influence": 31,
+        "influence": 37,
         "prePost": {
           "item1": [
             20.4,
@@ -190,7 +190,7 @@ const DATA = {
         ],
         "supporters": 11,
         "activation": 16,
-        "influence": 12,
+        "influence": 22,
         "prePost": {
           "item1": [
             2.4,
@@ -240,7 +240,7 @@ const DATA = {
         ],
         "supporters": 2,
         "activation": 16,
-        "influence": 21,
+        "influence": 20,
         "prePost": {
           "item1": [
             3.8,
@@ -290,7 +290,7 @@ const DATA = {
         ],
         "supporters": 21,
         "activation": 32,
-        "influence": 46,
+        "influence": 42,
         "prePost": {
           "item1": [
             19.9,
@@ -340,7 +340,7 @@ const DATA = {
         ],
         "supporters": 6,
         "activation": 18,
-        "influence": 19,
+        "influence": 21,
         "prePost": {
           "item1": [
             8.0,
@@ -390,7 +390,7 @@ const DATA = {
         ],
         "supporters": 5,
         "activation": 16,
-        "influence": 24,
+        "influence": 23,
         "prePost": {
           "item1": [
             2.9,
@@ -440,7 +440,7 @@ const DATA = {
         ],
         "supporters": 13,
         "activation": 21,
-        "influence": 36,
+        "influence": 34,
         "prePost": {
           "item1": [
             10.4,
@@ -490,7 +490,7 @@ const DATA = {
         ],
         "supporters": 23,
         "activation": 29,
-        "influence": 30,
+        "influence": 35,
         "prePost": {
           "item1": [
             0.0,
@@ -540,7 +540,7 @@ const DATA = {
         ],
         "supporters": 8,
         "activation": 17,
-        "influence": 21,
+        "influence": 27,
         "prePost": {
           "item1": [
             4.6,
@@ -640,7 +640,7 @@ const DATA = {
         ],
         "supporters": 64,
         "activation": 34,
-        "influence": 42,
+        "influence": 43,
         "prePost": {
           "item1": [
             13.7,
@@ -690,7 +690,7 @@ const DATA = {
         ],
         "supporters": 57,
         "activation": 34,
-        "influence": 35,
+        "influence": 41,
         "prePost": {
           "item1": [
             13.8,
@@ -740,7 +740,7 @@ const DATA = {
         ],
         "supporters": 42,
         "activation": 31,
-        "influence": 26,
+        "influence": 34,
         "prePost": {
           "item1": [
             2.9,
@@ -790,7 +790,7 @@ const DATA = {
         ],
         "supporters": 23,
         "activation": 31,
-        "influence": 30,
+        "influence": 26,
         "prePost": {
           "item1": [
             13.4,
@@ -840,7 +840,7 @@ const DATA = {
         ],
         "supporters": 34,
         "activation": 22,
-        "influence": 31,
+        "influence": 24,
         "prePost": {
           "item1": [
             20.9,
@@ -890,7 +890,7 @@ const DATA = {
         ],
         "supporters": 43,
         "activation": 27,
-        "influence": 29,
+        "influence": 32,
         "prePost": {
           "item1": [
             6.9,

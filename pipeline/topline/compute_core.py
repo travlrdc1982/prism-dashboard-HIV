@@ -1188,6 +1188,15 @@ def build_topline(df, out_dir='.', weight_var=None):
     except Exception as e:
         print(f"WARNING: workbook ROI overrides not applied: {e}")
 
+    # influence_pct gets re-stamped from BCS (XSMr4) × 100 AFTER the
+    # workbook overlay — INFLUENCE is a measured field, not an analyst
+    # judgment, so it refreshes with each .sav. YAML overrides further
+    # below can still pin a manual value.
+    for code, cell in roi_data.items():
+        bcs = cell.get('bcs_mean')
+        if bcs is not None:
+            cell['influence_pct'] = round(float(bcs) * 100)
+
     # Then apply YAML overrides (study.yaml → dashboard.roi.overrides).
     # YAML wins over workbook so the analyst can change a tier
     # assignment without round-tripping through xlsx.

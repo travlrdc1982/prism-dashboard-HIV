@@ -45316,7 +45316,7 @@
       "bcs_mean": 0.3658,
       "priority_tier": 1,
       "coalition_support": 32,
-      "influence_pct": 31,
+      "influence_pct": 37,
       "composite_roi_test": 6.9424,
       "composite_roi_test_lift": 2.771
     },
@@ -45334,7 +45334,7 @@
       "bcs_mean": 0.2157,
       "priority_tier": 2,
       "coalition_support": 11,
-      "influence_pct": 12,
+      "influence_pct": 22,
       "composite_roi_test": 0.8141,
       "composite_roi_test_lift": 0.325
     },
@@ -45352,7 +45352,7 @@
       "bcs_mean": 0.1982,
       "priority_tier": 3,
       "coalition_support": 2,
-      "influence_pct": 21,
+      "influence_pct": 20,
       "composite_roi_test": 0.5265,
       "composite_roi_test_lift": 0.21
     },
@@ -45370,7 +45370,7 @@
       "bcs_mean": 0.4246,
       "priority_tier": 1,
       "coalition_support": 21,
-      "influence_pct": 46,
+      "influence_pct": 42,
       "composite_roi_test": 8.733,
       "composite_roi_test_lift": 3.486
     },
@@ -45388,7 +45388,7 @@
       "bcs_mean": 0.2063,
       "priority_tier": 3,
       "coalition_support": 6,
-      "influence_pct": 19,
+      "influence_pct": 21,
       "composite_roi_test": 1.323,
       "composite_roi_test_lift": 0.528
     },
@@ -45406,7 +45406,7 @@
       "bcs_mean": 0.2339,
       "priority_tier": 3,
       "coalition_support": 5,
-      "influence_pct": 24,
+      "influence_pct": 23,
       "composite_roi_test": 0.4009,
       "composite_roi_test_lift": 0.16
     },
@@ -45424,7 +45424,7 @@
       "bcs_mean": 0.3405,
       "priority_tier": 3,
       "coalition_support": 13,
-      "influence_pct": 36,
+      "influence_pct": 34,
       "composite_roi_test": 1.8916,
       "composite_roi_test_lift": 0.755
     },
@@ -45442,7 +45442,7 @@
       "bcs_mean": 0.3459,
       "priority_tier": 1,
       "coalition_support": 23,
-      "influence_pct": 30,
+      "influence_pct": 35,
       "composite_roi_test": 4.0774,
       "composite_roi_test_lift": 1.628
     },
@@ -45460,7 +45460,7 @@
       "bcs_mean": 0.2665,
       "priority_tier": 2,
       "coalition_support": 8,
-      "influence_pct": 21,
+      "influence_pct": 27,
       "composite_roi_test": 1.1003,
       "composite_roi_test_lift": 0.439
     },
@@ -45496,7 +45496,7 @@
       "bcs_mean": 0.4344,
       "priority_tier": 1,
       "coalition_support": 64,
-      "influence_pct": 42,
+      "influence_pct": 43,
       "composite_roi_test": 3.194,
       "composite_roi_test_lift": 1.275
     },
@@ -45514,7 +45514,7 @@
       "bcs_mean": 0.4089,
       "priority_tier": 1,
       "coalition_support": 57,
-      "influence_pct": 35,
+      "influence_pct": 41,
       "composite_roi_test": 2.8255,
       "composite_roi_test_lift": 1.128
     },
@@ -45532,7 +45532,7 @@
       "bcs_mean": 0.3397,
       "priority_tier": 1,
       "coalition_support": 42,
-      "influence_pct": 26,
+      "influence_pct": 34,
       "composite_roi_test": 2.8184,
       "composite_roi_test_lift": 1.125
     },
@@ -45550,7 +45550,7 @@
       "bcs_mean": 0.2574,
       "priority_tier": 2,
       "coalition_support": 23,
-      "influence_pct": 30,
+      "influence_pct": 26,
       "composite_roi_test": 1.1495,
       "composite_roi_test_lift": 0.459
     },
@@ -45568,7 +45568,7 @@
       "bcs_mean": 0.2439,
       "priority_tier": 2,
       "coalition_support": 34,
-      "influence_pct": 31,
+      "influence_pct": 24,
       "composite_roi_test": 1.175,
       "composite_roi_test_lift": 0.469
     },
@@ -45586,7 +45586,7 @@
       "bcs_mean": 0.3242,
       "priority_tier": 1,
       "coalition_support": 43,
-      "influence_pct": 29,
+      "influence_pct": 32,
       "composite_roi_test": 2.0075,
       "composite_roi_test_lift": 0.801
     }
