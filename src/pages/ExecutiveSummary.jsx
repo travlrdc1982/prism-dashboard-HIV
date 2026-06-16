@@ -1,7 +1,9 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { C, FONT, MONO } from "../data/theme";
-import { SEGMENTS } from "./SegmentProfile";
+import { STUDY_METRICS } from "../data/study";
+import hivSegData from "../data/hiv/seg_data.json";
+import { CensusDivisionMap, SEGMENTS } from "./SegmentProfile";
 
 const PANEL = C.card;
 const PANEL_DEEP = "#0a0f1a";
@@ -10,12 +12,15 @@ const PERSUADE = "#5b93c7";
 const SUPPORT = C.partyDEM;
 const ACTIVATE = C.violet;
 const INFLUENCE = "#818cf8";
+const SCF_BY_CODE = Object.fromEntries(
+  Object.values(hivSegData).map((segment) => [segment.name, segment.SCF_raw])
+);
 
 function segmentColor(segment) {
   return segment.party === "GOP" ? C.partyGOP : C.partyDEM;
 }
 
-function Donut({ label, size = 72 }) {
+function Donut({ label, value, subLabel, size = 72, valueColor = C.white }) {
   const ring = Math.max(7, Math.round(size * 0.11));
   return (
     <div style={{ display: "grid", justifyItems: "center", gap: 7, minWidth: size + 12 }}>
@@ -39,6 +44,26 @@ function Donut({ label, size = 72 }) {
             boxShadow: "inset 0 0 0 1px rgba(148,163,184,0.08)",
           }}
         />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            textAlign: "center",
+          }}
+        >
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 800, color: valueColor, lineHeight: 1 }}>
+              {value}
+            </div>
+            {subLabel ? (
+              <div style={{ marginTop: 2, fontSize: 8, color: valueColor, fontWeight: 700, lineHeight: 1.2 }}>
+                {subLabel}
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
       <div style={{
         fontFamily: MONO,
@@ -127,10 +152,60 @@ function MessageSlot({ children }) {
   );
 }
 
+function PrePostFinding({ title, metricLabel, pair }) {
+  if (!pair) {
+    return <FindingSlot>[{title}]</FindingSlot>;
+  }
+
+  const [pre, post] = pair;
+  const delta = +(post - pre).toFixed(1);
+  const deltaColor = delta > 0 ? C.green : delta < 0 ? C.red : C.textMuted;
+
+  return (
+    <div
+      style={{
+        minHeight: 76,
+        display: "grid",
+        alignItems: "center",
+        padding: "12px 14px",
+        border: `1px solid ${C.cardBorder}`,
+        borderRadius: 6,
+        background: PANEL_DEEP,
+        gap: 8,
+      }}
+    >
+      <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textMuted, letterSpacing: 0.8, textTransform: "uppercase" }}>
+        {title}
+      </div>
+      {metricLabel ? (
+        <div style={{ marginTop: -2, fontFamily: MONO, fontSize: 9, fontWeight: 700, color: C.textDim, letterSpacing: 0.4 }}>
+          {metricLabel}
+        </div>
+      ) : null}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontFamily: MONO, fontSize: 11, color: C.text }}>{pre.toFixed(1)}</span>
+        <span style={{ fontFamily: MONO, fontSize: 10, color: C.textDim }}>→</span>
+        <span style={{ fontFamily: MONO, fontSize: 11, color: C.white, fontWeight: 700 }}>{post.toFixed(1)}</span>
+        <span style={{ fontFamily: MONO, fontSize: 13, color: deltaColor, fontWeight: 800, marginLeft: "auto" }}>
+          {delta > 0 ? "+" : ""}
+          {delta}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function ExecutiveSummary() {
   const [activeCode, setActiveCode] = useState(SEGMENTS[0]?.code);
   const activeSegment = SEGMENTS.find((segment) => segment.code === activeCode) || SEGMENTS[0];
+  const activeMetrics = STUDY_METRICS[activeSegment.code];
+  const activeScf = SCF_BY_CODE[activeSegment.code];
+  const engagementCategory = activeScf > -0.25 ? "PERSUADE" : "MOBILIZE";
+  const engagementColor = engagementCategory === "PERSUADE" ? C.cyan : C.violet;
   const accent = segmentColor(activeSegment);
+  const maleShare = parseInt(activeSegment.demo.male, 10) || 50;
+  const nonwhiteShare = parseInt(activeSegment.demo.nonwhite, 10) || 0;
+  const whiteShare = 100 - nonwhiteShare;
 
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
@@ -298,7 +373,7 @@ export default function ExecutiveSummary() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
+                  gridTemplateColumns: "minmax(320px, 1.45fr) repeat(2, minmax(84px, 0.4fr)) minmax(300px, 1.5fr)",
                   gap: 16,
                   alignItems: "center",
                 }}
@@ -306,24 +381,40 @@ export default function ExecutiveSummary() {
                 <div style={{ padding: "10px 12px", border: `1px solid ${C.cardBorder}`, borderRadius: 6, background: PANEL_DEEP }}>
                   <Placeholder size={13} italic>{activeSegment.persona.believe}</Placeholder>
                 </div>
-                <Donut label="Age" size={54} />
-                <Donut label="Sex" size={54} />
+                <Donut label="Male" value={activeSegment.demo.male} size={54} valueColor={C.cyan} />
+                <Donut label="White" value={`${whiteShare}%`} size={54} valueColor={C.cyan} />
                 <div
                   style={{
-                    minHeight: 96,
-                    display: "grid",
-                    placeItems: "center",
-                    color: C.text,
-                    fontSize: 13,
-                    fontWeight: 600,
+                    minHeight: 168,
+                    padding: "12px 14px",
                     borderRadius: 6,
-                    border: `1px dashed ${C.cardBorder}`,
-                    background:
-                      "linear-gradient(90deg, rgba(96,165,250,0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(167,139,250,0.06) 1px, transparent 1px)",
-                    backgroundSize: "22px 22px",
+                    border: `1px solid ${C.cardBorder}`,
+                    background: PANEL_DEEP,
                   }}
                 >
-                  [Primary Geography w/ map]
+                  <CensusDivisionMap division={activeSegment.demo.cenDiv} pct={activeSegment.demo.cenPct} party={activeSegment.party} maxHeight={220} />
+                  <div
+                    style={{
+                      marginTop: 10,
+                      paddingTop: 8,
+                      borderTop: `1px solid ${C.cardBorder}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 800, color: C.white, minWidth: 44, textAlign: "center" }}>
+                      {activeSegment.demo.rural}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: C.text, textTransform: "uppercase", letterSpacing: 0.8 }}>
+                        Rural
+                      </div>
+                      <div style={{ fontSize: 8, color: C.textDim, lineHeight: 1.25 }}>
+                        Share residing in rural areas
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -331,8 +422,8 @@ export default function ExecutiveSummary() {
             <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
               <SectionTitle>Key Findings</SectionTitle>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
-                <FindingSlot>[Pre-Post #1]</FindingSlot>
-                <FindingSlot>[Pre-Post #2]</FindingSlot>
+                <PrePostFinding title="Pre-Post 1" metricLabel="QPRE_1r1 / QPOST_1r1" pair={activeMetrics?.prePost?.item1} />
+                <PrePostFinding title="Pre-Post 2" metricLabel="QPRE_5 / QPOST_5" pair={activeMetrics?.prePost?.item5} />
                 <FindingSlot>[Dynamic Field #1]</FindingSlot>
                 <FindingSlot>[Dynamic Field #2]</FindingSlot>
               </div>
@@ -365,14 +456,15 @@ export default function ExecutiveSummary() {
           >
             <div>
               <div style={{ color: C.textMuted, fontFamily: MONO, fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>ROI</div>
-              <div style={{ color: C.green, fontFamily: MONO, fontSize: 28, fontWeight: 800 }}>X.XX</div>
+              <div style={{ color: C.green, fontFamily: MONO, fontSize: 28, fontWeight: 800 }}>
+                {activeMetrics?.roi != null ? activeMetrics.roi.toFixed(2) : "X.XX"}
+              </div>
             </div>
 
             <div>
               <div style={{ color: C.textMuted, fontFamily: MONO, fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>Engagement Category</div>
               <div style={{ fontSize: 14, fontWeight: 900, fontFamily: MONO, marginBottom: 18 }}>
-                <span style={{ color: C.cyan }}>[PERSUADE</span>
-                <span style={{ color: C.violet }}>/MOBILIZE]</span>
+                <span style={{ color: engagementColor }}>[{engagementCategory}]</span>
               </div>
             </div>
 
@@ -385,10 +477,10 @@ export default function ExecutiveSummary() {
                   alignItems: "start",
                 }}
               >
-                <Donut label="Persuadable" size={58} />
-                <Donut label="Supporters" size={58} />
-                <Donut label="Activation" size={58} />
-                <Donut label="Influence360" size={58} />
+                <Donut label="Persuadable" value={activeMetrics?.persuadable != null ? `${activeMetrics.persuadable}%` : "--"} size={58} />
+                <Donut label="Supporters" value={activeMetrics?.supporters != null ? `${activeMetrics.supporters}%` : "--"} size={58} />
+                <Donut label="Activation" value={activeMetrics?.activation != null ? `${activeMetrics.activation}%` : "--"} size={58} />
+                <Donut label="Influence360" value={activeMetrics?.influence != null ? `${activeMetrics.influence}%` : "--"} size={58} />
               </div>
             </div>
           </aside>
