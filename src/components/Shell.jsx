@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { to: "/roi",       label: "AUDIENCE ROI" },
   { to: "/messages",  label: "MESSAGE MAP" },
   { to: "/profile",   label: "AUDIENCE PROFILES" },
-  { to: "/executive-summary", label: "EXECUTIVE SUMMARY" },
   { to: "/topline",   label: "TOPLINE" },
 ];
 
@@ -52,7 +51,7 @@ export default function Shell() {
         </div>
 
         {/* Nav Links */}
-        <nav style={{ display: "flex", gap: 2, flex: 1, minWidth: 0, overflowX: "auto" }}>
+        <nav style={{ display: "flex", gap: 2, flex: 1 }}>
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}

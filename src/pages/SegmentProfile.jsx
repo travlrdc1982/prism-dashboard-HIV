@@ -1,12 +1,11 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { USAMap } from "@mirawision/usa-map-react";
 import IdeologyHeatmap from "./IdeologyHeatmap";
 import HIVTab from "./HIVTab";
 import { getAssignedTier, STUDY_META, STUDY_METRICS } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
-export const SEGMENTS = [
+const SEGMENTS = [
   { id:1, code:"TSP", name:"TRUST THE SCIENCE PRAGMATISTS", party:"GOP", pop:2,
     demo:{male:"53%",medAge:54,nonwhite:"12%",hhi:"$99K",college:"39%",rural:"31%",cenDiv:"West South Central",cenPct:"29%",pharmaTrust:3.71,corpTrust:3.98,govtTrust:4.26,m4a:"24%",vaxAvoid:"18%"},
     persona:{quote:"Free markets work best, but I defer to FDA and CDC experts on safety and innovation. I want solutions to improving access for rural America.",
@@ -380,22 +379,6 @@ const STATE_PATHS = {
 const ALL_STATES = Object.entries(STATE_PATHS).flatMap(([division, paths]) =>
   paths.map(d => ({ d, division }))
 );
-const DIVISION_TO_STATE_ABBREVIATIONS = {
-  "Pacific": ["AK", "CA", "HI", "OR", "WA"],
-  "Mountain": ["AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY"],
-  "West North Central": ["IA", "KS", "MN", "MO", "NE", "ND", "SD"],
-  "East North Central": ["IL", "IN", "MI", "OH", "WI"],
-  "West South Central": ["AR", "LA", "OK", "TX"],
-  "East South Central": ["AL", "KY", "MS", "TN"],
-  "South Atlantic": ["DE", "DC", "FL", "GA", "MD", "NC", "SC", "VA", "WV"],
-  "Mid Atlantic": ["NJ", "NY", "PA"],
-  "New England": ["CT", "ME", "MA", "NH", "RI", "VT"],
-};
-const STATE_ABBREVIATION_TO_DIVISION = Object.fromEntries(
-  Object.entries(DIVISION_TO_STATE_ABBREVIATIONS).flatMap(([division, states]) =>
-    states.map((state) => [state, division])
-  )
-);
 
 // ════════════════════════════════════════════════════════════════
 // SHARED SMALL COMPONENTS
@@ -652,97 +635,46 @@ function VectorBars({ seg }) {
 // ════════════════════════════════════════════════════════════════
 // GEOGRAPHY MAP (from demo-panels)
 // ════════════════════════════════════════════════════════════════
-export function CensusDivisionMap({ division, pct, party = "DEM", maxHeight = 160 }) {
+function CensusDivisionMap({ division, pct }) {
   const [hover, setHover] = useState(null);
-  const activeFill = party === "GOP" ? "#cf4040" : "#4080cf";
-  const activeBadgeBg = party === "GOP" ? "#7f1d1d" : "#1e3a5f";
-  const activeBadgeBorder = party === "GOP" ? "#fca5a5" : "#93c5fd";
   const centers = {
-    "Pacific": [88, 45],
-    "Mountain": [128, 45],
-    "West North Central": [185, 30],
-    "East North Central": [222, 35],
-    "West South Central": [165, 78],
-    "East South Central": [225, 60],
-    "South Atlantic": [250, 60],
-    "Mid Atlantic": [258, 28],
-    "New England": [278, 18],
+    "Pacific":[88,45],"Mountain":[128,45],"West North Central":[185,30],
+    "East North Central":[222,35],"West South Central":[165,78],
+    "East South Central":[225,60],"South Atlantic":[250,60],
+    "Mid Atlantic":[258,28],"New England":[278,18],
   };
-  const customStates = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(STATE_ABBREVIATION_TO_DIVISION).map(([state, stateDivision]) => {
-        const isActive = stateDivision === division;
-        const isHover = hover === stateDivision && !isActive;
-
-        return [
-          state,
-          {
-            fill: isActive ? activeFill : isHover ? "#cbd5e1" : "#fcfcfd",
-            stroke: isActive ? "#ffffff" : isHover ? "#475467" : "#98a2b3",
-            onHover: () => setHover(stateDivision),
-            onLeave: () => setHover(null),
-            label: { enabled: false },
-            tooltip: { enabled: false },
-          },
-        ];
-      })
-    );
-  }, [activeFill, division, hover]);
-
   return (
     <div>
-      <div
-        style={{
-          position: "relative",
-          background: "#0a0f1a",
-          border: "1px solid #1e293b",
-          borderRadius: 6,
-          padding: "10px 12px",
-          overflow: "hidden",
-          minHeight: maxHeight,
-          boxShadow: "inset 0 0 0 1px rgba(148,163,184,0.04)",
-        }}
-      >
-        <USAMap
-          defaultState={{
-            fill: "#132235",
-            stroke: "#4b627b",
-            label: { enabled: false },
-            tooltip: { enabled: false },
-          }}
-          customStates={customStates}
-          mapSettings={{ width: "100%", height: maxHeight, title: "United States map" }}
-        />
-
+      <svg viewBox="10 -2 290 108" width="100%" style={{ maxHeight:160 }}>
+        <rect x="10" y="-2" width="290" height="108" fill={C.bg} rx="4" />
+        {ALL_STATES.map((state, i) => {
+          const isActive = state.division === division;
+          const isHov = hover === state.division && !isActive;
+          return <path key={i} d={state.d}
+            fill={isActive?C.mapActive:isHov?"#2a4a6a":C.mapIdle}
+            stroke={isActive?C.mapActiveBorder:C.mapIdleBorder}
+            strokeWidth={isActive?1.2:0.4}
+            opacity={isActive?1:isHov?0.8:0.5}
+            style={{ transition:"all 0.3s", cursor:"pointer" }}
+            onMouseEnter={()=>setHover(state.division)}
+            onMouseLeave={()=>setHover(null)} />;
+        })}
         {(() => {
           const [cx, cy] = centers[division] || [150, 50];
-          return (
-            <div
-              style={{
-                position: "absolute",
-                left: `${(cx / 290) * 100}%`,
-                top: `${(cy / 108) * 100}%`,
-                transform: "translate(-50%, -50%)",
-                minWidth: 36,
-                height: 16,
-                padding: "0 7px",
-                borderRadius: 3,
-                background: activeBadgeBg,
-                border: `1px solid ${activeBadgeBorder}`,
-                color: "#f8fafc",
-                fontSize: 9,
-                fontWeight: 800,
-                fontFamily: "'Nunito', sans-serif",
-                display: "grid",
-                placeItems: "center",
-                lineHeight: 1,
-                pointerEvents: "none",
-              }}
-            >
-              {pct}
-            </div>
-          );
+          return <g>
+            <rect x={cx-18} y={cy-8} width={36} height={16} rx={3} fill={C.accent} fillOpacity={0.95} stroke={C.accentLight} strokeWidth={0.5} />
+            <text x={cx} y={cy+1} textAnchor="middle" dominantBaseline="central" fontSize={9} fontWeight={800} fill="#fff" fontFamily="'Nunito',sans-serif">{pct}</text>
+          </g>;
         })()}
+      </svg>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:6 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:C.accentLight, fontFamily:"'Nunito',sans-serif" }}>{division}</div>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+            <div style={{ width:8, height:8, borderRadius:2, background:C.mapActive, border:`1px solid ${C.mapActiveBorder}` }} />
+            <span style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif" }}>Dominant</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -804,7 +736,7 @@ function DemographicsPanel({ seg }) {
         {/* Geography */}
         <div style={{ background:C.card, borderRadius:8, padding:18, border:`1px solid ${C.border}` }}>
           <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>GEOGRAPHY</div>
-          <CensusDivisionMap division={seg.demo.cenDiv} pct={seg.demo.cenPct} party={seg.party} />
+          <CensusDivisionMap division={seg.demo.cenDiv} pct={seg.demo.cenPct} />
           <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:14 }}>
             <div style={{ fontSize:24, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", minWidth:52, textAlign:"center" }}>{seg.demo.rural}</div>
             <div>
