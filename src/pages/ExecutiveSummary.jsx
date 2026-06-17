@@ -292,7 +292,23 @@ function buildSegmentSummary(segment, metrics, guidanceMessages) {
   const labels = guidanceMessages.map((item) => item.message?.label).filter(Boolean);
   const labelPhrase = labels.length ? labels.slice(0, 3).join(", ") : "the current message mix";
 
-  return `${segment.code} shows ROI ${roi.toFixed(2)} with ${persuadable}% persuadable and ${supporters}% already in the mobilize lane. The strongest key-finding movement is ${formatSignedDelta(delta1)} on HIV priority and ${formatSignedDelta(delta5)} on program support, so the guidance leans on ${labelPhrase}.`;
+  const intro = `${segment.code} shows ROI ${roi.toFixed(2)} with ${persuadable}% persuadable and ${supporters}% already in the mobilize lane. The strongest key-finding movement is ${formatSignedDelta(delta1)} on HIV priority and ${formatSignedDelta(delta5)} on program support, so the guidance leans on `;
+  return { intro, labelPhrase };
+}
+
+function renderGuidancePhrase(text) {
+  return String(text || "")
+    .split(/(\b[A-Z]{2,}\b)/g)
+    .filter(Boolean)
+    .map((part, index) =>
+      /\b[A-Z]{2,}\b/.test(part) ? (
+        <strong key={index} style={{ fontWeight: 800, color: C.white }}>
+          {part}
+        </strong>
+      ) : (
+        <span key={index}>{part}</span>
+      )
+    );
 }
 
 function segmentColor(segment) {
@@ -984,7 +1000,9 @@ function HksFinding({ score, rank, party }) {
                   background: PANEL_DEEP,
                 }}
               >
-                {segmentSummary}
+                {segmentSummary.intro}
+                {renderGuidancePhrase(segmentSummary.labelPhrase)}
+                .
               </div>
             </div>
 
