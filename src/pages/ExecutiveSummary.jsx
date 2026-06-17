@@ -275,6 +275,26 @@ function pickTopMessageCells(metric, segmentId, segmentCode, excludeMessageIds =
     .slice(0, limit);
 }
 
+function formatSignedDelta(value) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
+}
+
+function buildSegmentSummary(segment, metrics, guidanceMessages) {
+  if (!segment || !metrics) return "";
+
+  const roi = metrics.roi ?? 0;
+  const persuadable = metrics.persuadable ?? 0;
+  const supporters = metrics.supporters ?? 0;
+  const pre1 = metrics.prePost?.item1 || [0, 0];
+  const pre5 = metrics.prePost?.item5 || [0, 0];
+  const delta1 = pre1[1] - pre1[0];
+  const delta5 = pre5[1] - pre5[0];
+  const labels = guidanceMessages.map((item) => item.message?.label).filter(Boolean);
+  const labelPhrase = labels.length ? labels.slice(0, 3).join(", ") : "the current message mix";
+
+  return `${segment.code} shows ROI ${roi.toFixed(2)} with ${persuadable}% persuadable and ${supporters}% already in the mobilize lane. The strongest key-finding movement is ${formatSignedDelta(delta1)} on HIV priority and ${formatSignedDelta(delta5)} on program support, so the guidance leans on ${labelPhrase}.`;
+}
+
 function segmentColor(segment) {
   return segment.party === "GOP" ? C.partyGOP : C.partyDEM;
 }
@@ -764,6 +784,7 @@ function HksFinding({ score, rank, party }) {
           { title: "Top Persuade Message", message: topPersuadeMessage },
           { title: "Top Mobilize Message", message: topReinforceMessage },
         ];
+  const segmentSummary = buildSegmentSummary(activeSegment, activeMetrics, guidanceMessages);
 
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
@@ -806,7 +827,7 @@ function HksFinding({ score, rank, party }) {
                 fontWeight: 800,
                 letterSpacing: 1.5,
                 textTransform: "uppercase",
-                color: C.textDim,
+                color: C.white,
                 padding: "2px 6px 6px",
               }}
             >
@@ -948,21 +969,23 @@ function HksFinding({ score, rank, party }) {
               </div>
             </div>
 
-            <div
-              style={{
-                maxWidth: 820,
-                color: C.text,
-                fontSize: 13,
-                lineHeight: 1.55,
-                fontWeight: 500,
-                marginBottom: 24,
-                padding: "12px 14px",
-                border: `1px solid ${C.cardBorder}`,
-                borderRadius: 6,
-                background: PANEL_DEEP,
-              }}
-            >
-              [Two sentence AI generated synthesis, bound by the information in the “Key Findings,” “ROI,” and Messaging Guidance” sections]
+            <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
+              <SectionTitle>Short Summary</SectionTitle>
+              <div
+                style={{
+                  width: "100%",
+                  color: C.text,
+                  fontSize: 13,
+                  lineHeight: 1.55,
+                  fontWeight: 500,
+                  padding: "12px 14px",
+                  border: `1px solid ${C.cardBorder}`,
+                  borderRadius: 6,
+                  background: PANEL_DEEP,
+                }}
+              >
+                {segmentSummary}
+              </div>
             </div>
 
             <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
