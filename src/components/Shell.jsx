@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/roi",       label: "AUDIENCE ROI" },
   { to: "/messages",  label: "MESSAGE MAP" },
   { to: "/profile",   label: "AUDIENCE PROFILES" },
+  { to: "/executive-summary", label: "EXECUTIVE SUMMARY" },
   { to: "/topline",   label: "TOPLINE" },
 ];
 
@@ -36,7 +37,7 @@ export default function Shell() {
       {/* ─── TOP BAR ─── */}
       <header style={{
         display: "flex", alignItems: "center", gap: 24,
-        padding: "10px 28px",
+        padding: "10px clamp(16px, 3vw, 28px)",
         borderBottom: `1px solid ${C.cardBorder}`,
         background: C.card,
         position: "sticky", top: 0, zIndex: 100,
@@ -51,7 +52,7 @@ export default function Shell() {
         </div>
 
         {/* Nav Links */}
-        <nav style={{ display: "flex", gap: 2, flex: 1 }}>
+        <nav style={{ display: "flex", gap: 2, flex: 1, minWidth: 0, overflowX: "auto" }}>
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
@@ -112,7 +113,7 @@ export default function Shell() {
       </header>
 
       {/* ─── CONTENT AREA ─── */}
-      <main style={{ padding: "24px 28px" }}>
+      <main style={{ padding: "24px clamp(16px, 3vw, 28px)" }}>
         <Outlet />
       </main>
     </div>

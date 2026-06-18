@@ -1,4 +1,4 @@
-                              import { useState } from "react";
+                              import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import { C, FONT, MONO } from "../data/theme";
@@ -41,6 +41,7 @@ const HKS_RANK_BY_CODE = Object.fromEntries(
     .sort(([, a], [, b]) => b - a)
     .map(([code], index) => [code, index + 1])
 );
+const EXEC_SUMMARY_WIDTH = 1560;
 
 function wordingFor(message, proofVariant, arm, segmentCode) {
   const variant = (dashboard.variants?.messages || []).find((item) => {
@@ -749,8 +750,36 @@ function HksFinding({ score, rank, party }) {
 }
  
               export default function ExecutiveSummary() {
+  const viewportRef = useRef(null);
+  const canvasRef = useRef(null);
   const [activeCode, setActiveCode] = useState(SEGMENTS[0]?.code);
   const [tierFilter, setTierFilter] = useState("all");
+  const [canvasScale, setCanvasScale] = useState(1);
+  const [canvasHeight, setCanvasHeight] = useState(0);
+
+  useEffect(() => {
+    const updateLayout = () => {
+      const viewport = viewportRef.current;
+      const canvas = canvasRef.current;
+      if (!viewport || !canvas) return;
+      const nextScale = Math.min(1, viewport.clientWidth / EXEC_SUMMARY_WIDTH);
+      setCanvasScale(nextScale);
+      setCanvasHeight(canvas.scrollHeight * nextScale);
+    };
+
+    updateLayout();
+
+    const resizeObserver = new ResizeObserver(() => updateLayout());
+    if (viewportRef.current) resizeObserver.observe(viewportRef.current);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
+    window.addEventListener("resize", updateLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, [activeCode, tierFilter]);
+
   const filteredSegments = SEGMENTS.filter((segment) => {
     if (tierFilter === "all") return true;
     return STUDY_METRICS[segment.code]?.tier === Number(tierFilter);
@@ -806,28 +835,39 @@ function HksFinding({ score, rank, party }) {
     <div style={{ fontFamily: FONT, color: C.text }}>
       <PageHeader title="Executive Summary" accentColor={C.cyan} />
 
-      <section
+      <div
+        ref={viewportRef}
         style={{
-          maxWidth: 1560,
+          width: "100%",
+          maxWidth: EXEC_SUMMARY_WIDTH,
           margin: "0 auto",
-          padding: "24px 28px 30px",
-          background: C.card,
-          border: `1px solid ${C.cardBorder}`,
-          borderRadius: 8,
+          height: canvasHeight || "auto",
         }}
       >
+        <section
+          ref={canvasRef}
+          style={{
+            width: EXEC_SUMMARY_WIDTH,
+            padding: 28,
+            background: C.card,
+            border: `1px solid ${C.cardBorder}`,
+            borderRadius: 8,
+            overflow: "hidden",
+            transform: `scale(${canvasScale})`,
+            transformOrigin: "top left",
+          }}
+        >
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
+            display: "grid",
+            gridTemplateColumns: "124px minmax(0, 1fr) 270px",
             gap: 18,
-            alignItems: "flex-start",
+            alignItems: "start",
           }}
         >
           <aside
             style={{
               width: 124,
-              flex: "0 0 124px",
               display: "grid",
               gap: 4,
               padding: "8px",
@@ -938,8 +978,8 @@ function HksFinding({ score, rank, party }) {
             })}
           </aside>
 
-          <div style={{ flex: "1 1 980px", minWidth: 0 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", marginBottom: 18 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 18 }}>
               <div
                 style={{
                   width: 86,
@@ -965,7 +1005,7 @@ function HksFinding({ score, rank, party }) {
               <div
                 style={{
                   minHeight: 88,
-                  flex: "1 1 320px",
+                  flex: "1 1 auto",
                   marginLeft: -2,
                   background: PANEL_DEEP,
                   border: `1px solid ${C.cardBorder}`,
@@ -1010,7 +1050,7 @@ function HksFinding({ score, rank, party }) {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(420px, 1.75fr) minmax(260px, 1fr) minmax(300px, 1.5fr)",
+                  gridTemplateColumns: "420px 260px minmax(0, 1fr)",
                   gap: 16,
                   alignItems: "stretch",
                 }}
@@ -1113,7 +1153,7 @@ function HksFinding({ score, rank, party }) {
             </div>
 
             <div style={{ display: "grid", gap: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <SectionTitle>Messaging Guidance</SectionTitle>
                 <Link
                   to={`/messages?segment=${activeSegment.code}`}
@@ -1130,7 +1170,7 @@ function HksFinding({ score, rank, party }) {
                   View Message Map Board
                 </Link>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
                 {guidanceMessages.map((item) => (
                   <MessageSlot key={item.title}>
                     <div style={{ display: "grid", gap: 6 }}>
@@ -1159,11 +1199,9 @@ function HksFinding({ score, rank, party }) {
 
           <aside
             style={{
-              flex: "0 1 250px",
-              maxWidth: 270,
-              minWidth: 0,
+              width: 270,
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
               gap: 18,
               padding: "12px 14px",
               border: `1px solid ${C.cardBorder}`,
@@ -1190,7 +1228,7 @@ function HksFinding({ score, rank, party }) {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(92px, 1fr))",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                   gap: 12,
                   alignItems: "start",
                 }}
@@ -1204,6 +1242,7 @@ function HksFinding({ score, rank, party }) {
           </aside>
         </div>
       </section>
+      </div>
     </div>
   );
 }
