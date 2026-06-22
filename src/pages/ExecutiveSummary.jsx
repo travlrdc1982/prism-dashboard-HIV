@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import ItemSurveyPane from "../components/Topline/components/ItemSurveyPane";
 import "../components/Topline/Topline.css";
@@ -779,7 +778,6 @@ function PrePostFinding({ title, pair }) {
 function TotalPrePostCard({ title, pair }) {
   if (!pair) return null;
 
-  const metric = PREPOST_BY_KEY[title];
   const [pre, post] = pair;
   const delta = +(post - pre).toFixed(1);
   const preDisplay = Math.round(pre);
@@ -820,22 +818,13 @@ function TotalPrePostCard({ title, pair }) {
     },
   }[title];
   const surveyPane = PREPOST_SURVEY_BY_KEY[title];
-  const toplineLinkLabelByTitle = {
-    item1: "Pre-Post 1 Data",
-    item2: "Pre-Post 2 Data",
-    item3: "Pre-Post 3 Data",
-    item4: "Pre-Post 4 Data",
-    item5: "Pre-Post 5 Data",
-    item6: "Pre-Post 6 Data",
-    item7: "Pre-Post 7 Data",
-  };
 
   return (
     <div
       style={{
         minHeight: 220,
         display: "grid",
-        gridTemplateRows: "auto minmax(80px, 1fr) auto auto",
+        gridTemplateRows: "minmax(80px, 1fr) auto auto",
         gap: 12,
         padding: "18px 20px",
         border: `1px solid ${C.cardBorder}`,
@@ -843,39 +832,6 @@ function TotalPrePostCard({ title, pair }) {
         background: PANEL_DEEP,
       }}
     >
-      <div style={{ display: "grid", gap: 6 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.cyan, letterSpacing: 0.9, textTransform: "uppercase" }}>
-            Total Result
-          </div>
-          <Link
-            to={`/topline#prepost-item-${PREPOST_TOPLINE_IDS[title] || title}`}
-            style={{
-              display: "grid",
-              placeItems: "center",
-              minWidth: 92,
-              minHeight: 38,
-              padding: "6px 10px",
-              borderRadius: 8,
-              border: `1px solid ${C.cyan}55`,
-              background: `${C.cyan}10`,
-              fontFamily: MONO,
-              fontSize: 9,
-              fontWeight: 800,
-              color: C.cyan,
-              textDecoration: "none",
-              letterSpacing: 0.6,
-              textTransform: "uppercase",
-              textAlign: "center",
-            }}
-          >
-            {toplineLinkLabelByTitle[title] || "Pre-Post Data"}
-          </Link>
-        </div>
-        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
-          {metric?.label || title}
-        </div>
-      </div>
       {surveyPane ? (
         <div
           style={{
@@ -1746,11 +1702,6 @@ export default function ExecutiveSummary() {
             <div style={{ minWidth: 0 }}>
               {selectedSegmentRow ? (
                 <div style={{ display: "grid", gap: 10, minHeight: 520 }}>
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C.textDim, letterSpacing: 0.5 }}>
-                      Use the segment rail to the left to swap context
-                    </div>
-                  </div>
                   <SegmentRow
                     key={selectedSegmentRow.segment.code}
                     segment={selectedSegmentRow.segment}
