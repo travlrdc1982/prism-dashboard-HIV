@@ -12,7 +12,7 @@ function PrePostItem({ item, segments, study, ppResults }) {
   const res = ppResults[item.id];
   if (!res) {
     return (
-      <div className="item-block">
+      <div id={`prepost-item-${item.id}`} className="item-block prepost-anchor-target">
         <ItemSurveyPane survey={item.survey} />
         <ItemCodebookPane cb={item.codebook} />
         <div className="item-data">
@@ -41,7 +41,7 @@ function PrePostItem({ item, segments, study, ppResults }) {
   }
 
   return (
-    <div className="item-block">
+    <div id={`prepost-item-${item.id}`} className="item-block prepost-anchor-target">
       <ItemSurveyPane survey={item.survey} />
       <ItemCodebookPane cb={item.codebook} />
       <div className="item-data">

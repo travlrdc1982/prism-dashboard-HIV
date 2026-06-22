@@ -19,25 +19,26 @@ function ScaleCircles({ selected = 4 }) {
   );
 }
 
-export default function ItemSurveyPane({ survey, falseFlag = false }) {
+export default function ItemSurveyPane({ survey, falseFlag = false, className = "", style = undefined }) {
   if (!survey) {
     return (
-      <div className="survey-pane">
+      <div className={`survey-pane ${className}`.trim()} style={style}>
         <div className="sp-card">—</div>
       </div>
     );
   }
-  const style = survey.style || "CARDSHUFFLE";
+  const surveyStyle = survey.style || "CARDSHUFFLE";
   const selected = survey.selected_pos || 4;
   const cls =
     "survey-pane" +
-    (style === "SEMANTIC" ? " semantic" : style === "RANKSORT" ? " ranksort" : "");
+    (className ? ` ${className}` : "") +
+    (surveyStyle === "SEMANTIC" ? " semantic" : surveyStyle === "RANKSORT" ? " ranksort" : "");
 
   return (
-    <div className={cls}>
+    <div className={cls} style={style}>
       <div className="sp-header">
         <div className="sp-logo">PRISM</div>
-        <div>STYLE.{style}</div>
+        <div>STYLE.{surveyStyle}</div>
       </div>
       <div className="sp-progress"><div /></div>
       <div className="sp-progress-text">{survey.progress || ""}</div>
@@ -45,7 +46,7 @@ export default function ItemSurveyPane({ survey, falseFlag = false }) {
       <div className="sp-card">
         <div className="sp-stem">{survey.stem || ""}</div>
 
-        {style === "SEMANTIC" && (
+        {surveyStyle === "SEMANTIC" && (
           <>
             <div className="sp-poles">
               <div className="sp-pole left">{survey.pole_left || ""}</div>
@@ -55,7 +56,7 @@ export default function ItemSurveyPane({ survey, falseFlag = false }) {
           </>
         )}
 
-        {style === "RANKSORT" && (
+        {surveyStyle === "RANKSORT" && (
           <div className="sp-rank-list">
             {(survey.items || []).map((it, i) => {
               const focal = it === survey.focal;
@@ -69,7 +70,7 @@ export default function ItemSurveyPane({ survey, falseFlag = false }) {
           </div>
         )}
 
-        {style !== "SEMANTIC" && style !== "RANKSORT" && (
+        {surveyStyle !== "SEMANTIC" && surveyStyle !== "RANKSORT" && (
           <>
             {survey.text && (
               <div className="sp-statement">

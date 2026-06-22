@@ -1,4 +1,5 @@
-import { useState, useRef, useDeferredValue } from "react";
+import { useState, useRef, useDeferredValue, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import dashboard from "../../data/topline/dashboard.json";
 import "./Topline.css";
 import "./Topline.addendum.css";
@@ -84,6 +85,7 @@ const TOGGLE_MODULES = new Set([
 ]);
 
 export default function Topline() {
+  const location = useLocation();
   const { study, modules, segments } = dashboard;
   const [expanded, setExpanded] = useState(false);
   const [fullDist, setFullDist] = useState(false);
@@ -129,6 +131,34 @@ export default function Topline() {
       ? { ...m, active: true }
       : m
   );
+
+  useEffect(() => {
+    if (!location.hash) return undefined;
+
+    let timeoutId;
+    const targetId = location.hash.slice(1);
+
+    const scrollToTarget = () => {
+      const target = document.getElementById(targetId);
+
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => {
+        const retryTarget = document.getElementById(targetId);
+        retryTarget?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+    };
+
+    const frameId = window.requestAnimationFrame(scrollToTarget);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [location.hash]);
 
   return (
     <div ref={rootRef} className={rootClass} style={{ margin: "-24px -28px" }}>

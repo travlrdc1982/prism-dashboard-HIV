@@ -363,6 +363,134 @@ html:has(.topline-root)::-webkit-scrollbar-thumb:hover { background: #475569; }
   border-color: var(--ink);
 }
 
+.topline-root .prepost-anchor-target {
+  scroll-margin-top: 206px;
+}
+
+.topline-root .survey-pane.executive-summary-pane {
+  height: 100%;
+  overflow: hidden;
+  padding: 10px 10px 8px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-header {
+  margin-bottom: 5px;
+  font-size: 8px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-logo {
+  font-size: 10px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-progress {
+  margin-bottom: 4px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-progress-text {
+  font-size: 8px;
+  margin-bottom: 5px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px 9px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-intro {
+  min-height: 40px;
+  max-height: 40px;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 1.25;
+  padding: 5px 7px;
+  margin-bottom: 8px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-stem {
+  min-height: 47px;
+  max-height: 47px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.22;
+  margin-bottom: 6px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-statement,
+.topline-root .survey-pane.executive-summary-pane .sp-rank-list,
+.topline-root .survey-pane.executive-summary-pane .sp-poles {
+  flex: 1;
+  overflow: hidden;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-statement {
+  font-size: 14.5px;
+  line-height: 1.28;
+  padding: 8px 7px;
+  margin: 6px 0;
+}
+
+.topline-root .survey-pane.executive-summary-pane.ranksort .sp-rank-list {
+  gap: 3px;
+  margin: 6px 0 0;
+}
+
+.topline-root .survey-pane.executive-summary-pane.ranksort .sp-rank-item {
+  padding: 3px 5px;
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+.topline-root .survey-pane.executive-summary-pane.ranksort .sp-rank-pos {
+  width: 12px;
+  height: 12px;
+  font-size: 7px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-scale,
+.topline-root .survey-pane.executive-summary-pane .sp-anchors,
+.topline-root .survey-pane.executive-summary-pane .sp-continue,
+.topline-root .survey-pane.executive-summary-pane .sp-footer {
+  flex-shrink: 0;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-scale {
+  margin: 8px 2px 2px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-anchors {
+  font-size: 8px;
+  line-height: 1.05;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-anchors div {
+  width: 52px;
+}
+
+.topline-root .survey-pane.executive-summary-pane.semantic .sp-poles {
+  gap: 5px;
+  margin: 2px 0;
+}
+
+.topline-root .survey-pane.executive-summary-pane.semantic .sp-pole {
+  font-size: 9.5px;
+  line-height: 1.2;
+  padding: 5px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-continue {
+  margin-top: 7px;
+  padding: 3px 10px;
+  font-size: 8px;
+}
+
+.topline-root .survey-pane.executive-summary-pane .sp-footer {
+  padding-top: 6px;
+  font-size: 7px;
+}
+
 /* ── Banner-full mode: collapse survey + codebook panes ────────────── */
 .topline-root.banner-full .item-block {
   grid-template-columns: 1fr !important;
