@@ -2,7 +2,8 @@
 body {
   font-family: 'Inter', -apple-system, sans-serif;
   background: #080c16;
-  color: #cbd5e1;
+  color: #dde6f0;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }

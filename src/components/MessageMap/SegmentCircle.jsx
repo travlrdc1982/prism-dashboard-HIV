@@ -37,9 +37,10 @@ export default function SegmentCircle({
         transition: "width 0.3s, height 0.3s, font-size 0.3s",
       }}>{seg.code}</div>
       <div style={{
-        fontFamily: FONT, fontSize: 8.5, fontWeight: 400,
+        fontFamily: FONT, fontSize: widened ? 10.5 : 9.5, fontWeight: 600,
         textTransform: "uppercase", letterSpacing: 0.4,
-        color: "#cbd5e1", textAlign: "center", lineHeight: 1.2,
+        color: "#fff", textAlign: "center", lineHeight: 1.2,
+        textShadow: "0 0 1px rgba(255,255,255,0.3)",
         display: "-webkit-box", WebkitLineClamp: 3,
         WebkitBoxOrient: "vertical", overflow: "hidden",
         maxWidth: "100%", padding: "0 2px",

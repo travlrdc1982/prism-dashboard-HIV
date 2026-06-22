@@ -1507,6 +1507,29 @@ def build_topline(df, out_dir='.', weight_var=None):
     if trust_out:
         print(f"Computed trust battery: {len(trust_out)} messengers (full 7-pt stats + sig)")
 
+    # ── HIV persona-tab payload (single-source bundle) ────────────
+    # Historically the React HIV tab read separate derived JSON sidecars
+    # under src/data/hiv/*.json. Build the same payload here so the
+    # topline dashboard becomes the direct source of truth.
+    w = pd.to_numeric(df['WGT'], errors='coerce')
+    w_ok = w.notna() & (w > 0)
+    sum_w = float(w[w_ok].sum()) if w_ok.any() else 0.0
+    sum_w2 = float((w[w_ok] ** 2).sum()) if w_ok.any() else 0.0
+    effective_n = (sum_w ** 2 / sum_w2) if sum_w2 else float(STUDY_TOTAL_N)
+    design_effect = (float(STUDY_TOTAL_N) / effective_n) if effective_n else None
+    hiv_manifest = {
+        'study': STUDY.get('title'),
+        'generated_at': _dt.datetime.now().isoformat(timespec='seconds'),
+        'n_raw': STUDY_TOTAL_N,
+        'effective_n': round(effective_n, 6) if effective_n else None,
+        'design_effect': round(design_effect, 6) if design_effect else None,
+        'weight_min': round(float(w[w_ok].min()), 6) if w_ok.any() else None,
+        'weight_mean': round(float(w[w_ok].mean()), 6) if w_ok.any() else None,
+        'weight_max': round(float(w[w_ok].max()), 6) if w_ok.any() else None,
+        'weighted': True,
+        'field_dates': field_dates_str,
+    }
+
     out = {
         'study': {**STUDY,
                   'n_total': STUDY_TOTAL_N,
@@ -1524,6 +1547,11 @@ def build_topline(df, out_dir='.', weight_var=None):
         'trust': trust_out,
         'roi_data': roi_data,
     }
+    try:
+        from derive_hiv_seg_data import build_hiv_tab_payload
+        out['hiv_tab'] = build_hiv_tab_payload(out, manifest=hiv_manifest)
+    except Exception as e:
+        print(f"WARNING: HIV tab payload not attached to dashboard.json: {e}")
     json_path = out_dir / 'dashboard.json'
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(out, f, indent=2, ensure_ascii=False)

@@ -1,22 +1,25 @@
 // Phase B — HIV Persona Profile Tab.
 // Faithful port of HIV_Persona_Profile_Tab/hiv_tab_v5.html. Markup and SVG
-// rendering replicate the prototype; data is sourced from src/data/hiv/*
-// and parameterized by the focal segment (the segment whose profile is
-// being viewed).
+// rendering replicate the prototype; data is sourced from the embedded
+// `hiv_tab` payload inside src/data/topline/dashboard.json and
+// parameterized by the focal segment (the segment whose profile is being
+// viewed).
 
 import { useState, useMemo } from "react";
 import "./HIVTab.css";
-import segData from "../data/hiv/seg_data.json";
-import items from "../data/hiv/items.json";
-import bench from "../data/hiv/bench.json";
-import trust from "../data/hiv/trust.json";
-import manifest from "../data/hiv/manifest.json";
+import dashboard from "../data/topline/dashboard.json";
 import { getAssignedTier } from "../data/study";
 
 const SEG_NAME = {1:"TSP",2:"CEC",3:"TC",4:"HF",5:"PP",6:"WE",7:"PFF",8:"HHN",9:"MFL",10:"VS",11:"UCP",12:"FJP",13:"HCP",14:"HAD",15:"HCI",16:"GHI"};
 const GOP_SEGS = new Set([1,2,3,4,5,6,7,8,9,10]);
 const BENCH_GLYPH = { All: "US", Republicans: "R", Democrats: "D" };
 const BENCH_FULL = { All: "All Americans", Republicans: "Republicans", Democrats: "Democrats" };
+const HIV_TAB = dashboard.hiv_tab || {};
+const segData = HIV_TAB.seg_data || {};
+const items = HIV_TAB.items || { scf: [], stigma: [], know: [], contact: [] };
+const bench = HIV_TAB.bench || {};
+const trust = HIV_TAB.trust || [];
+const manifest = HIV_TAB.manifest || {};
 
 // ─── Bench glyph (SVG <g>) ──────────────────────────────────────────────
 function BenchGlyph({ cx, cy, type, active = true, r = 9 }) {
@@ -704,7 +707,7 @@ export default function HIVTab({ segmentId, segmentCode, segments, currentIdx, o
       </div>
 
       <div className="footer">
-        {manifest.study} · Reservoir Communications Group / HAIG · Confidential · n={manifest.n_raw} (effective {Math.round(manifest.effective_n)})
+        {manifest.study || "PRISM Study"} · Reservoir Communications Group / HAIG · Confidential · n={manifest.n_raw ?? "—"} (effective {manifest.effective_n ? Math.round(manifest.effective_n) : "—"})
       </div>
     </div>
   );

@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { USAMap } from "@mirawision/usa-map-react";
 import IdeologyHeatmap from "./IdeologyHeatmap";
 import HIVTab from "./HIVTab";
 import { getAssignedTier, STUDY_META, STUDY_METRICS } from "../data/study";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
-const SEGMENTS = [
+export const SEGMENTS = [
   { id:1, code:"TSP", name:"TRUST THE SCIENCE PRAGMATISTS", party:"GOP", pop:2,
     demo:{male:"53%",medAge:54,nonwhite:"12%",hhi:"$99K",college:"39%",rural:"31%",cenDiv:"West South Central",cenPct:"29%",pharmaTrust:3.71,corpTrust:3.98,govtTrust:4.26,m4a:"24%",vaxAvoid:"18%"},
     persona:{quote:"Free markets work best, but I defer to FDA and CDC experts on safety and innovation. I want solutions to improving access for rural America.",
@@ -297,7 +298,7 @@ const TIER_LABELS = {1:"TIER 1",2:"TIER 2",3:"TIER 3"};
 // Color palette
 const C = {
   bg:"#080c16", card:"#111620", border:"#1c2433",
-  text1:"#dce4ed", text2:"#7b8da3", text3:"#3e4f63",
+  text1:"#e7edf5", text2:"#96a7ba", text3:"#64748b",
   accent:"#5b93c7", accentLight:"#7eb3e0",
   ring1:"#5b93c7", ring2:"#1c2433",
   mapActive:"#5b93c7", mapActiveBorder:"#7eb3e0",
@@ -379,6 +380,22 @@ const STATE_PATHS = {
 const ALL_STATES = Object.entries(STATE_PATHS).flatMap(([division, paths]) =>
   paths.map(d => ({ d, division }))
 );
+const DIVISION_TO_STATE_ABBREVIATIONS = {
+  "Pacific": ["AK", "CA", "HI", "OR", "WA"],
+  "Mountain": ["AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY"],
+  "West North Central": ["IA", "KS", "MN", "MO", "NE", "ND", "SD"],
+  "East North Central": ["IL", "IN", "MI", "OH", "WI"],
+  "West South Central": ["AR", "LA", "OK", "TX"],
+  "East South Central": ["AL", "KY", "MS", "TN"],
+  "South Atlantic": ["DE", "DC", "FL", "GA", "MD", "NC", "SC", "VA", "WV"],
+  "Mid Atlantic": ["NJ", "NY", "PA"],
+  "New England": ["CT", "ME", "MA", "NH", "RI", "VT"],
+};
+const STATE_ABBREVIATION_TO_DIVISION = Object.fromEntries(
+  Object.entries(DIVISION_TO_STATE_ABBREVIATIONS).flatMap(([division, states]) =>
+    states.map((state) => [state, division])
+  )
+);
 
 // ════════════════════════════════════════════════════════════════
 // SHARED SMALL COMPONENTS
@@ -428,7 +445,7 @@ function SchemaBlock({label,text,color}){return(
     <div style={{width:3,background:color,borderRadius:2,flexShrink:0}}/>
     <div>
       <div style={{fontSize:8,fontWeight:700,color,fontFamily:"'Roboto Slab',serif",textTransform:"uppercase",letterSpacing:0.8,marginBottom:1}}>◆ {label}</div>
-      <div style={{fontSize:10,color:"#94a3b8",lineHeight:1.5}}>{text}</div>
+      <div style={{fontSize:10,color:"#cbd5e1",fontWeight:500,lineHeight:1.5}}>{text}</div>
     </div>
   </div>
 )}
@@ -635,46 +652,97 @@ function VectorBars({ seg }) {
 // ════════════════════════════════════════════════════════════════
 // GEOGRAPHY MAP (from demo-panels)
 // ════════════════════════════════════════════════════════════════
-function CensusDivisionMap({ division, pct }) {
+export function CensusDivisionMap({ division, pct, party = "DEM", maxHeight = 160 }) {
   const [hover, setHover] = useState(null);
+  const activeFill = party === "GOP" ? "#cf4040" : "#4080cf";
+  const activeBadgeBg = party === "GOP" ? "#7f1d1d" : "#1e3a5f";
+  const activeBadgeBorder = party === "GOP" ? "#fca5a5" : "#93c5fd";
   const centers = {
-    "Pacific":[88,45],"Mountain":[128,45],"West North Central":[185,30],
-    "East North Central":[222,35],"West South Central":[165,78],
-    "East South Central":[225,60],"South Atlantic":[250,60],
-    "Mid Atlantic":[258,28],"New England":[278,18],
+    "Pacific": [88, 45],
+    "Mountain": [128, 45],
+    "West North Central": [185, 30],
+    "East North Central": [222, 35],
+    "West South Central": [165, 78],
+    "East South Central": [225, 60],
+    "South Atlantic": [250, 60],
+    "Mid Atlantic": [258, 28],
+    "New England": [278, 18],
   };
+  const customStates = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(STATE_ABBREVIATION_TO_DIVISION).map(([state, stateDivision]) => {
+        const isActive = stateDivision === division;
+        const isHover = hover === stateDivision && !isActive;
+
+        return [
+          state,
+          {
+            fill: isActive ? activeFill : isHover ? "#cbd5e1" : "#fcfcfd",
+            stroke: isActive ? "#ffffff" : isHover ? "#475467" : "#98a2b3",
+            onHover: () => setHover(stateDivision),
+            onLeave: () => setHover(null),
+            label: { enabled: false },
+            tooltip: { enabled: false },
+          },
+        ];
+      })
+    );
+  }, [activeFill, division, hover]);
+
   return (
     <div>
-      <svg viewBox="10 -2 290 108" width="100%" style={{ maxHeight:160 }}>
-        <rect x="10" y="-2" width="290" height="108" fill={C.bg} rx="4" />
-        {ALL_STATES.map((state, i) => {
-          const isActive = state.division === division;
-          const isHov = hover === state.division && !isActive;
-          return <path key={i} d={state.d}
-            fill={isActive?C.mapActive:isHov?"#2a4a6a":C.mapIdle}
-            stroke={isActive?C.mapActiveBorder:C.mapIdleBorder}
-            strokeWidth={isActive?1.2:0.4}
-            opacity={isActive?1:isHov?0.8:0.5}
-            style={{ transition:"all 0.3s", cursor:"pointer" }}
-            onMouseEnter={()=>setHover(state.division)}
-            onMouseLeave={()=>setHover(null)} />;
-        })}
+      <div
+        style={{
+          position: "relative",
+          background: "#0a0f1a",
+          border: "1px solid #1e293b",
+          borderRadius: 6,
+          padding: "10px 12px",
+          overflow: "hidden",
+          minHeight: maxHeight,
+          boxShadow: "inset 0 0 0 1px rgba(148,163,184,0.04)",
+        }}
+      >
+        <USAMap
+          defaultState={{
+            fill: "#132235",
+            stroke: "#4b627b",
+            label: { enabled: false },
+            tooltip: { enabled: false },
+          }}
+          customStates={customStates}
+          mapSettings={{ width: "100%", height: maxHeight, title: "United States map" }}
+        />
+
         {(() => {
           const [cx, cy] = centers[division] || [150, 50];
-          return <g>
-            <rect x={cx-18} y={cy-8} width={36} height={16} rx={3} fill={C.accent} fillOpacity={0.95} stroke={C.accentLight} strokeWidth={0.5} />
-            <text x={cx} y={cy+1} textAnchor="middle" dominantBaseline="central" fontSize={9} fontWeight={800} fill="#fff" fontFamily="'Nunito',sans-serif">{pct}</text>
-          </g>;
+          return (
+            <div
+              style={{
+                position: "absolute",
+                left: `${(cx / 290) * 100}%`,
+                top: `${(cy / 108) * 100}%`,
+                transform: "translate(-50%, -50%)",
+                minWidth: 36,
+                height: 16,
+                padding: "0 7px",
+                borderRadius: 3,
+                background: activeBadgeBg,
+                border: `1px solid ${activeBadgeBorder}`,
+                color: "#f8fafc",
+                fontSize: 9,
+                fontWeight: 800,
+                fontFamily: "'Nunito', sans-serif",
+                display: "grid",
+                placeItems: "center",
+                lineHeight: 1,
+                pointerEvents: "none",
+              }}
+            >
+              {pct}
+            </div>
+          );
         })()}
-      </svg>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:6 }}>
-        <div style={{ fontSize:11, fontWeight:700, color:C.accentLight, fontFamily:"'Nunito',sans-serif" }}>{division}</div>
-        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:3 }}>
-            <div style={{ width:8, height:8, borderRadius:2, background:C.mapActive, border:`1px solid ${C.mapActiveBorder}` }} />
-            <span style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif" }}>Dominant</span>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -716,18 +784,18 @@ function DemographicsPanel({ seg }) {
             ].map((s, i) => (
               <div key={i} style={{ flex:1, textAlign:"center", borderRight:i<2?`1px solid ${C.border}`:"none", padding:"4px 0" }}>
                 <div style={{ fontSize:20, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", lineHeight:1 }}>{s.value}</div>
-                <div style={{ fontSize:7, color:C.text3, fontFamily:"'Nunito',sans-serif", textTransform:"uppercase", letterSpacing:1, marginTop:5 }}>{s.label}</div>
+                <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", textTransform:"uppercase", letterSpacing:1, marginTop:5 }}>{s.label}</div>
               </div>
             ))}
           </div>
           {/* M4A / Vax Avoid */}
           <div style={{ display:"flex", gap:16, marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>
             <div style={{ textAlign:"center", flex:1 }}>
-              <div style={{ fontSize:6, color:"#475569", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>SUPPORT M4A</div>
+              <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>SUPPORT M4A</div>
               <div style={{ fontSize:18, fontWeight:800, color:"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.m4a}</div>
             </div>
             <div style={{ textAlign:"center", flex:1 }}>
-              <div style={{ fontSize:6, color:"#475569", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>VAX AVOIDANT</div>
+              <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>VAX AVOIDANT</div>
               <div style={{ fontSize:18, fontWeight:800, color:parseInt(seg.demo.vaxAvoid)>=30?"#f87171":"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.vaxAvoid}</div>
             </div>
           </div>
@@ -736,12 +804,12 @@ function DemographicsPanel({ seg }) {
         {/* Geography */}
         <div style={{ background:C.card, borderRadius:8, padding:18, border:`1px solid ${C.border}` }}>
           <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>GEOGRAPHY</div>
-          <CensusDivisionMap division={seg.demo.cenDiv} pct={seg.demo.cenPct} />
+          <CensusDivisionMap division={seg.demo.cenDiv} pct={seg.demo.cenPct} party={seg.party} />
           <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:14 }}>
             <div style={{ fontSize:24, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", minWidth:52, textAlign:"center" }}>{seg.demo.rural}</div>
             <div>
               <div style={{ fontSize:9, fontWeight:700, color:C.text1, fontFamily:"'Nunito',sans-serif" }}>Rural</div>
-              <div style={{ fontSize:8, color:C.text3, fontFamily:"'Nunito',sans-serif" }}>Share residing in rural areas</div>
+              <div style={{ fontSize:8, color:C.text2, fontFamily:"'Nunito',sans-serif" }}>Share residing in rural areas</div>
             </div>
           </div>
         </div>
@@ -756,13 +824,13 @@ function DemographicsPanel({ seg }) {
             <div style={{ fontSize:32, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif" }}>
               {Math.round(MILITARY[segIdx])}%
             </div>
-            <div style={{ fontSize:8, color:C.text3, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Active duty or veteran</div>
+            <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Active duty or veteran</div>
           </div>
           <div style={{ marginTop:10, paddingTop:8, borderTop:`1px solid ${C.border}` }}>
             <div style={{ height:6, background:"#0f172a", borderRadius:3, overflow:"hidden" }}>
               <div style={{ width:`${(MILITARY[segIdx]/20)*100}%`, height:"100%", background:"#5b93c7", borderRadius:3, transition:"width 0.5s" }} />
             </div>
-            <div style={{ display:"flex", justifyContent:"space-between", fontSize:6, color:C.text3, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:7, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
               <span>0%</span><span>Pop avg ~9%</span><span>20%</span>
             </div>
           </div>
@@ -775,13 +843,13 @@ function DemographicsPanel({ seg }) {
             <div style={{ fontSize:32, fontWeight:800, color:UNION_HH[segIdx]>=20?"#a78bfa":C.text1, fontFamily:"'Nunito',sans-serif" }}>
               {Math.round(UNION_HH[segIdx])}%
             </div>
-            <div style={{ fontSize:8, color:C.text3, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Union household member</div>
+            <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Union household member</div>
           </div>
           <div style={{ marginTop:10, paddingTop:8, borderTop:`1px solid ${C.border}` }}>
             <div style={{ height:6, background:"#0f172a", borderRadius:3, overflow:"hidden" }}>
               <div style={{ width:`${(UNION_HH[segIdx]/30)*100}%`, height:"100%", background:UNION_HH[segIdx]>=20?"#a78bfa":"#5b93c7", borderRadius:3, transition:"width 0.5s" }} />
             </div>
-            <div style={{ display:"flex", justifyContent:"space-between", fontSize:6, color:C.text3, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:7, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
               <span>0%</span><span>Pop avg ~16%</span><span>30%</span>
             </div>
           </div>
@@ -793,7 +861,7 @@ function DemographicsPanel({ seg }) {
           <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
             {relData.map((r, i) => (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:6 }}>
-                <span style={{ width:90, fontSize:8, color:r.overindex?C.accentLight:C.text2, fontWeight:r.overindex?700:400, fontFamily:"'Nunito',sans-serif", textAlign:"right", flexShrink:0 }}>{r.label}</span>
+                <span style={{ width:90, fontSize:9, color:r.overindex?C.accentLight:"#cbd5e1", fontWeight:r.overindex?700:500, fontFamily:"'Nunito',sans-serif", textAlign:"right", flexShrink:0 }}>{r.label}</span>
                 <div style={{ flex:1, height:14, background:"#0f172a", borderRadius:3, position:"relative", overflow:"hidden" }}>
                   <div style={{ width:`${(r.value/Math.max(maxRel,65))*100}%`, height:"100%", background:r.overindex?"#5b93c7":"#2a4a6a", borderRadius:3, transition:"width 0.5s", border:r.overindex?"1px solid #7eb3e0":"none" }} />
                 </div>
@@ -1916,15 +1984,16 @@ export default function SegmentProfile() {
   const [profileTab, setProfileTab] = useState("demo");
   const seg = SEGMENTS[segIdx];
   const tc = seg.party === "GOP" ? "#ef4444" : "#3b82f6";
+  const profileScale = 1.16;
 
   return (
-    <div style={{ fontFamily:"'Nunito',-apple-system,sans-serif", color:"#e2e8f0" }}>
+    <div style={{ fontFamily:"'Nunito',-apple-system,sans-serif", color:"#edf2f7", zoom: profileScale }}>
       <style>{`
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
         * { font-variant-numeric: tabular-nums; }
       `}</style>
 
-      <div style={{ maxWidth:1400, margin:"0 auto" }}>
+      <div style={{ maxWidth: Math.round(1400 / profileScale), margin:"0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom:14 }}>
           <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:9, letterSpacing:3, color:"#475569", marginBottom:3 }}>RESERVOIR HEALTH PRISM</div>
@@ -1971,7 +2040,7 @@ export default function SegmentProfile() {
 
         {/* Quote */}
         <div style={{ background:"#111827", borderRadius:6, padding:"10px 14px", borderLeft:`3px solid ${tc}`, marginBottom:14 }}>
-          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"#e2e8f0", fontStyle:"italic", lineHeight:1.55 }}>"{seg.persona.quote}"</div>
+          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"#edf2f7", fontStyle:"italic", lineHeight:1.55 }}>"{seg.persona.quote}"</div>
         </div>
 
         {/* ═══ MAIN LAYOUT: Vector Radar + Persona + ROI ═══ */}

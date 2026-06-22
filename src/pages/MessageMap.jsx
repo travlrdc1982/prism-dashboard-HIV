@@ -26,6 +26,7 @@
 // in B2–B6.
 // ═══════════════════════════════════════════════════════════════
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import dashboard from "../data/topline/dashboard.json";
 import { C, FONT, MONO } from "../data/theme";
 import { STUDY_METRICS } from "../data/study";
@@ -126,6 +127,7 @@ function PersonaIcon() {
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
 export default function MessageMap() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const hasData = MESSAGES.length > 0
     && dashboard.message_map_cells
     && Object.keys(dashboard.message_map_cells).length > 0;
@@ -249,6 +251,32 @@ export default function MessageMap() {
       && !tier1Set.has(segId)) ? 0.4 : 1;
 
   const [dragSegId, setDragSegId] = useState(null);
+  useEffect(() => {
+    const code = searchParams.get("segment");
+    if (!code) return;
+    const seg = SEGMENTS.find((item) => item.code === code);
+    if (seg) {
+      setColFocus(seg.id);
+      setFocal(null);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (colFocus == null) {
+      if (next.has("segment")) {
+        next.delete("segment");
+        setSearchParams(next, { replace: true });
+      }
+      return;
+    }
+    const seg = SEGMENTS.find((item) => item.id === colFocus);
+    if (seg && next.get("segment") !== seg.code) {
+      next.set("segment", seg.code);
+      setSearchParams(next, { replace: true });
+    }
+  }, [colFocus, searchParams, setSearchParams]);
+
   const moveSegment = (sourceId, targetId) => {
     if (sourceId == null || sourceId === targetId) return;
     setSegmentOrder(prev => {
@@ -1118,7 +1146,7 @@ export default function MessageMap() {
                               // — match the wording row's size, not its
                               // serif. White/slate per base vs real proof.
                               fontFamily: MONO,
-                              fontSize: 14, fontWeight: 600,
+                              fontSize: 11, fontWeight: 600,
                               letterSpacing: 0.2,
                               color: isBase ? C.textDim : "#f1f5f9",
                               fontStyle: isBase ? "italic" : "normal",
@@ -1351,7 +1379,7 @@ export default function MessageMap() {
                               // — match the wording row's size, not its
                               // serif. White/slate per base vs real proof.
                               fontFamily: MONO,
-                              fontSize: 14, fontWeight: 600,
+                              fontSize: 11, fontWeight: 600,
                               letterSpacing: 0.2,
                               color: isBase ? C.textDim : "#f1f5f9",
                               fontStyle: isBase ? "italic" : "normal",

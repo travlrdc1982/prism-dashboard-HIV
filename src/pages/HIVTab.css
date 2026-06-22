@@ -14,9 +14,9 @@
     --bg-elev: #1A2238;
     --border: #1F2A40;
     --border-soft: #182238;
-    --text-primary: #E8EAED;
-    --text-secondary: #A8B5C5;
-    --text-muted: #6A7488;
+    --text-primary: #F3F7FB;
+    --text-secondary: #C2CEDA;
+    --text-muted: #8FA0B4;
     --accent-magenta: #C44C8E;
     --accent-cyan: #5AC8DC;
     --accent-purple: #8B5CF6;
@@ -37,13 +37,15 @@
 
    .hiv-tab-root *, .hiv-tab-root { box-sizing: border-box; margin: 0; padding: 0; }
 
-   .hiv-tab-root {
+  .hiv-tab-root {
     font-family: 'Inter', sans-serif;
     background: var(--bg-deep);
     color: var(--text-primary);
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.5;
-    width: 1600px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
   .hiv-tab-root .num { font-variant-numeric: tabular-nums; }
@@ -137,8 +139,8 @@
 
   /* ───── CARDS ───── */
   .hiv-tab-root .grid { display: grid; gap: 18px; }
-  .hiv-tab-root .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-  .hiv-tab-root .grid-1-1 { grid-template-columns: 1fr 1fr; }
+  .hiv-tab-root .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hiv-tab-root .grid-1-1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hiv-tab-root .row + .row { margin-top: 28px; }
 
   .hiv-tab-root .card { background: var(--bg-card); border: 1px solid var(--border-soft);

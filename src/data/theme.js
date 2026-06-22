@@ -10,11 +10,11 @@ export const C = {
   dotStrip: "#1a2030",
 
   // Text
-  white:    "#f1f5f9",
-  text:     "#cbd5e1",
-  textMuted:"#94a3b8",
-  textDim:  "#475569",
-  steel:    "#64748b",
+  white:    "#f8fbff",
+  text:     "#dde6f0",
+  textMuted:"#b0bece",
+  textDim:  "#7a8ca1",
+  steel:    "#91a3b6",
 
   // Party
   partyGOP: "#ef4444",

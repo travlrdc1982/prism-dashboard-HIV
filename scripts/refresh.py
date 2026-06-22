@@ -22,8 +22,8 @@ this script rebuilds every data file the dashboard reads:
                                                   │       (drawer copy + per-seg overrides
                                                   │        from study/study.yaml)
                                                   │
-                                                  ├──►  derive_hiv_seg_data.py
-                                                  │       └──►  src/data/hiv/*.json
+                                                  ├──►  hiv_tab payload
+                                                  │       (embedded directly in dashboard.json)
                                                   │
     .xlsx ──►  extract_study.py          ──►  src/data/study.js
                                               src/data/studyData.js HIV block
@@ -169,7 +169,7 @@ def main():
 
         need_preflight = args.force_preflight or not has_weight
         if need_preflight:
-            step("0/5  PRISM preflight (two-stage rake → WEIGHT, ACTPROB, ROI)")
+            step("0/4  PRISM preflight (two-stage rake → WEIGHT, ACTPROB, ROI)")
             if not PRISM_STUDY_YAML.exists():
                 sys.exit(f"  ✗ PRISM study config not found: {PRISM_STUDY_YAML}")
             PRISM_OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -183,12 +183,12 @@ def main():
             shutil.copy2(PRISM_WEIGHTED_SAV, sav)
             print(f"  ✓ Weighted .sav installed at {sav}")
         else:
-            step(f"0/5  PRISM preflight — SKIPPED ({args.weight} already in .sav; "
+            step(f"0/4  PRISM preflight — SKIPPED ({args.weight} already in .sav; "
                  f"pass --force-preflight to rerun)")
 
     # ── 1. Topline pipeline (.sav → dashboard.json) ────────────────
     if not args.skip_pipeline:
-        step("1/5  Topline pipeline (compute_core)")
+        step("1/4  Topline pipeline (compute_core)")
         if not sav.exists():
             sys.exit(f"  ✗ .sav not found: {sav}\n"
                      f"     Drop your SPSS export there, pass --sav PATH, or set PRISM_SAV.")
@@ -201,15 +201,15 @@ def main():
             cwd=PIPELINE_DIR, env=env)
 
         # ── 2. Copy fresh dashboard.json into src/data/topline ──────
-        step("2/5  Copy dashboard.json → src/data/topline/")
+        step("2/4  Copy dashboard.json → src/data/topline/")
         if not TOPLINE_DASHBOARD_OUT.exists():
             sys.exit(f"  ✗ Pipeline did not produce {TOPLINE_DASHBOARD_OUT}.")
         TOPLINE_DASHBOARD_DEST.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(TOPLINE_DASHBOARD_OUT, TOPLINE_DASHBOARD_DEST)
         print(f"  ✓ {TOPLINE_DASHBOARD_DEST}")
     else:
-        step("1/5  Topline pipeline — SKIPPED (--skip-pipeline)")
-        step("2/5  Copy dashboard.json — SKIPPED")
+        step("1/4  Topline pipeline — SKIPPED (--skip-pipeline)")
+        step("2/4  Copy dashboard.json — SKIPPED")
         if not TOPLINE_DASHBOARD_DEST.exists():
             sys.exit(f"  ✗ {TOPLINE_DASHBOARD_DEST} not present; cannot derive.")
 
@@ -221,9 +221,9 @@ def main():
     # changed).
     if args.skip_messagemap or not sav.exists():
         reason = "--skip-messagemap" if args.skip_messagemap else f".sav not found ({sav})"
-        step(f"3/5  Messagemap — SKIPPED ({reason})")
+        step(f"3/4  Messagemap — SKIPPED ({reason})")
     else:
-        step("3/5  Messagemap pipeline (cells + topline + variants → merged)")
+        step("3/4  Messagemap pipeline (cells + topline + variants → merged)")
         if not MESSAGEMAP_VARIANTS_XLSX.exists():
             sys.exit(f"  ✗ Variants workbook not found: {MESSAGEMAP_VARIANTS_XLSX}")
         # 3a. Re-parse variants workbook if it's newer than the cached JSON
@@ -244,18 +244,14 @@ def main():
         # 3d. Surgical patches that ride on top of the cube without
         #     recomputing it. Order matters only in the sense that both
         #     touch ui / message_topline AFTER the messagemap merge.
-        step("3b/5  Bayesian utility — patch_bayes_utility (additive)")
+        step("3b/4  Bayesian utility — patch_bayes_utility (additive)")
         run([sys.executable, 'scripts/patch_bayes_utility.py'], cwd=REPO)
 
-        step("3c/5  Segment summary copy — patch_segment_summary (YAML → ui)")
+        step("3c/4  Segment summary copy — patch_segment_summary (YAML → ui)")
         run([sys.executable, 'scripts/patch_segment_summary.py'], cwd=REPO)
 
-    # ── 4. HIV-tab data derivation ────────────────────────────────
-    step("4/5  HIV-tab data (derive_hiv_seg_data)")
-    run([sys.executable, 'pipeline/derive_hiv_seg_data.py'], cwd=REPO)
-
-    # ── 5. Workbook → study.js + studyData.js HIV block ───────────
-    step("5/5  Workbook → study.js / studyData.js (extract_study)")
+    # ── 4. Workbook → study.js + studyData.js HIV block ───────────
+    step("4/4  Workbook → study.js / studyData.js (extract_study)")
     if not workbook.exists():
         sys.exit(f"  ✗ Workbook not found: {workbook}")
     # extract_study.py reads study/judgments.xlsx (path from study.yaml)
@@ -263,8 +259,7 @@ def main():
 
     print()
     print("═══ Refresh complete ═══")
-    print("  src/data/topline/dashboard.json   ← pipeline output")
-    print("  src/data/hiv/*.json               ← derived from dashboard.json")
+    print("  src/data/topline/dashboard.json   ← pipeline output (+ embedded hiv_tab payload)")
     print("  src/data/study.js                 ← from workbook")
     print("  src/data/studyData.js (HIV block) ← from workbook")
 
@@ -272,7 +267,6 @@ def main():
         step("git commit + push")
         run(['git', 'add',
              'src/data/topline/dashboard.json',
-             'src/data/hiv/',
              'src/data/study.js',
              'src/data/studyData.js'], cwd=REPO)
         # Only commit if there are staged changes

@@ -1,25 +1,19 @@
 #!/usr/bin/env python3
 """
-Derive the HIV-tab data files from the topline dashboard.json so both
-views share a single source (the topline pipeline). Option (b).
+Derive the HIV persona-tab payload from topline dashboard.json.
 
-Regenerates:
-  src/data/hiv/seg_data.json   — per-segment composites + CON + ranks + z
-  src/data/hiv/bench.json      — All (from TOTAL) + Republicans/Democrats
-                                  (population-weighted party means)
-  src/data/hiv/items.json      — scf / stigma / know / contact accordions
-  src/data/hiv/zparams.json    — population mean+SD per composite (for z)
+Primary use:
+  - imported by pipeline/topline/compute_core.py so dashboard.json carries
+    a single-source `hiv_tab` payload directly
 
-Leaves untouched:
-  src/data/hiv/trust.json      — topline has no trust module (wave-2 disabled)
-  src/data/hiv/manifest.json   — study metadata
+Legacy use:
+  - can still regenerate the older src/data/hiv/*.json sidecars for manual
+    inspection or backward compatibility
 
 Polarity note: the topline labels SDS/SCS as "comfort" (higher = less
 stigma). The HIV tab frames them as "avoidance/distance" (higher = more
 stigma). We reverse-code (8 - val) on a 1-7 scale so the HIV tab keeps
 its avoidance framing while sourcing the underlying data from the topline.
-
-Usage: python scripts/derive_hiv_seg_data.py
 """
 import json
 import math
@@ -73,8 +67,8 @@ def pop_weighted_sd(values_by_seg, pops, seg_ids, mean):
 CANONICAL_POP_BY_CODE = _pop_share_by_code(_cfg)
 
 
-def main():
-    dash = json.load(open(DASH, encoding="utf-8"))
+def build_hiv_tab_payload(dash, manifest=None):
+    """Build the HIV tab payload directly from a topline dashboard dict."""
 
     # Segment population shares: canonical PRISM (NOT sample pct_wgt).
     # See CANONICAL_POP_BY_CODE above for rationale.
@@ -291,6 +285,7 @@ def main():
     # regenerate trust.json from it (single source); otherwise we leave the
     # existing persona-pipeline trust.json untouched and warn.
     dash_trust = dash.get("trust")
+    trust_hiv = []
     if dash_trust:
         # dashboard.json trust is full 7-pt banner shape (cuts have
         # n/mean/freq[7]/top3/bot3 + z-test on top-3 vs rest). The HIV tab
@@ -320,34 +315,46 @@ def main():
                 "Republicans": round(rep, 4) if rep is not None else None,
                 "Democrats": round(dem, 4) if dem is not None else None,
             })
-        with open("src/data/hiv/trust.json", "w", encoding="utf-8") as f:
-            json.dump(trust_hiv, f, indent=2, ensure_ascii=False)
-        trust_status = f"REGENERATED from dashboard.json ({len(trust_hiv)} messengers)"
-    else:
-        trust_status = ("UNCHANGED — dashboard.json has no `trust` block yet. "
-                        "Re-run compute_core.py against the .sav (it now emits trust) "
-                        "to make trust single-source.")
+    payload = {
+        "seg_data": seg_data,
+        "bench": bench,
+        "items": items,
+        "zparams": zparams,
+        "trust": trust_hiv,
+        "manifest": manifest or {
+            "study": dash.get("study", {}).get("title", "PRISM Study"),
+            "n_raw": dash.get("study", {}).get("n_total"),
+            "effective_n": dash.get("study", {}).get("n_total_wgt"),
+            "weighted": dash.get("study", {}).get("weighted", True),
+        },
+    }
+    return payload
 
-    # ── Write files ──
+
+def main():
+    dash = json.load(open(DASH, encoding="utf-8"))
+    payload = build_hiv_tab_payload(dash)
+
     with open("src/data/hiv/seg_data.json", "w", encoding="utf-8") as f:
-        json.dump(seg_data, f, indent=2, ensure_ascii=False)
+        json.dump(payload["seg_data"], f, indent=2, ensure_ascii=False)
     with open("src/data/hiv/bench.json", "w", encoding="utf-8") as f:
-        json.dump(bench, f, indent=2, ensure_ascii=False)
+        json.dump(payload["bench"], f, indent=2, ensure_ascii=False)
     with open("src/data/hiv/items.json", "w", encoding="utf-8") as f:
-        json.dump(items, f, indent=2, ensure_ascii=False)
+        json.dump(payload["items"], f, indent=2, ensure_ascii=False)
     with open("src/data/hiv/zparams.json", "w", encoding="utf-8") as f:
-        json.dump(zparams, f, indent=2, ensure_ascii=False)
+        json.dump(payload["zparams"], f, indent=2, ensure_ascii=False)
+    with open("src/data/hiv/trust.json", "w", encoding="utf-8") as f:
+        json.dump(payload["trust"], f, indent=2, ensure_ascii=False)
+    with open("src/data/hiv/manifest.json", "w", encoding="utf-8") as f:
+        json.dump(payload["manifest"], f, indent=2, ensure_ascii=False)
 
-    print("Derived HIV-tab data from dashboard.json:")
-    print(f"  seg_data.json: {len(seg_data)} segments")
+    print("Derived HIV-tab sidecars from dashboard.json:")
+    print(f"  seg_data.json: {len(payload['seg_data'])} segments")
     print(f"  bench.json: All/Republicans/Democrats")
-    print(f"  items.json: scf={len(items['scf'])} stigma={len(items['stigma'])} know={len(items['know'])} contact={len(items['contact'])}")
-    print(f"  zparams.json: {len(zparams)} composites")
-    print(f"  trust.json: {trust_status}")
-    # Spot check
-    print(f"\nSpot check FJP (12): MBS={seg_data['12']['MBS_raw']} SDS={seg_data['12']['SDS_raw']} "
-          f"SCF={seg_data['12']['SCF_raw']} HKS={seg_data['12']['HKS']} "
-          f"CON_HIV={seg_data['12']['CON_HIV']}")
+    print(f"  items.json: scf={len(payload['items']['scf'])} stigma={len(payload['items']['stigma'])} know={len(payload['items']['know'])} contact={len(payload['items']['contact'])}")
+    print(f"  zparams.json: {len(payload['zparams'])} composites")
+    print(f"  trust.json: {len(payload['trust'])} messengers")
+    print(f"  manifest.json: study={payload['manifest'].get('study')}")
 
 
 if __name__ == "__main__":

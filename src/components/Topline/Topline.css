@@ -10,9 +10,9 @@
 
 /* PRISM TOPLINE DASHBOARD — V2 */
 :root {
-  --ink: #0f172a; --ink-soft: #475569; --ink-mute: #94a3b8;
-  --bg: #fff; --bg-alt: #f8fafc; --bg-panel: #f1f5f9;
-  --border: #e2e8f0; --border-strong: #cbd5e1;
+  --ink: #020617; --ink-soft: #334155; --ink-mute: #64748b;
+  --bg: #fff; --bg-alt: #f8fafc; --bg-panel: #eef4f9;
+  --border: #d6e0ea; --border-strong: #bcc9d6;
   --gop: #b91c1c; --gop-band: #fee2e2;
   --dem: #1d4ed8; --dem-band: #dbeafe;
   --total: #334155; --total-band: #e2e8f0;
@@ -36,7 +36,7 @@
  .topline-root {
   margin: 0; padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px; line-height: 1.4; color: var(--ink); background: var(--bg);
+  font-size: 14px; line-height: 1.45; color: var(--ink); background: var(--bg);
   font-feature-settings: "tnum" 1, "kern" 1;
 }
 
@@ -371,18 +371,18 @@
 
 /* CODEBOOK PANE */
 .topline-root .codebook-pane { background: white; border: 1px solid var(--border); border-radius: 6px;
-  padding: 12px; font-size: 10px; line-height: 1.45; }
-.topline-root .codebook-pane .cb-title { font-size: 9px; font-weight: 700; letter-spacing: 0.6px;
+  padding: 12px; font-size: 11px; line-height: 1.5; }
+.topline-root .codebook-pane .cb-title { font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
   color: var(--ink-mute); text-transform: uppercase;
   margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 .topline-root .codebook-pane .cb-row { display: grid; grid-template-columns: 56px 1fr; gap: 4px; margin-bottom: 5px; }
-.topline-root .codebook-pane .cb-row .cb-key { font-size: 9px; color: var(--ink-mute); text-transform: uppercase;
+.topline-root .codebook-pane .cb-row .cb-key { font-size: 10px; color: var(--ink-mute); text-transform: uppercase;
   letter-spacing: 0.3px; font-weight: 600; padding-top: 1px; }
 .topline-root .codebook-pane .cb-row .cb-val { color: var(--ink); }
-.topline-root .codebook-pane .cb-row .cb-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+.topline-root .codebook-pane .cb-row .cb-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
   background: var(--bg-alt); padding: 2px 4px; border-radius: 3px; display: inline-block; }
 .topline-root .codebook-pane .cb-cite { margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border);
-  font-size: 9px; color: var(--ink-mute); line-height: 1.5; }
+  font-size: 10px; color: var(--ink-mute); line-height: 1.5; }
 .topline-root .codebook-pane .cb-note { color: var(--ink-soft); font-style: italic; }
 
 /* BANNER TABLE */
