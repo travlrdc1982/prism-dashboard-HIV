@@ -132,7 +132,7 @@ export default function MessageMap() {
     && dashboard.message_map_cells
     && Object.keys(dashboard.message_map_cells).length > 0;
 
-  const defaultMetric = UI.default_outcome || METRICS[0]?.name || "persuasion_messaging";
+  const defaultMetric = "sop";
   // OUTCOME — the measurement selector (4 cards). Values:
   //   'sop' | 'utility'            → their own views (built next)
   //   'persuasion_messaging' | 'base_messaging' → the lift cube (now)
@@ -638,7 +638,7 @@ export default function MessageMap() {
               onProofsExpand={() => setOpenRows(new Set(MESSAGES.map(m => m.id)))}
               onProofsCollapse={() => { setOpenRows(new Set()); setFocal(null); }}
               personaDisabled={!isLiftView}
-              proofsDisabled={!isLiftView}
+              proofsDisabled={MESSAGES.length === 0}
             />
           </div>
         </div>
@@ -660,7 +660,9 @@ export default function MessageMap() {
            outcomes (the SCALE block is the one consistent piece
            across views). ─── */}
       <ScaleBlock outcome={outcome}
-        sopRange={SOP_RANGE} utilityRange={UTILITY_RANGE} />
+        sopRange={SOP_RANGE}
+        utilityRange={UTILITY_RANGE}
+        onOutcomeChange={setOutcome} />
 
       {/* ── LIFT VIEWS (Persuasion / Base) render the cube grid.
            SoP / Utility render their own views — built in the next
@@ -910,7 +912,27 @@ export default function MessageMap() {
             unfolds its mini-grid in place; while focal, everything
             except headers + the focal row's labels fades out.
             Chevron = proof accordion only. */}
-        <div>
+        <div style={{ position: "relative" }}>
+          <div style={{
+            position: "absolute",
+            inset: "0 12px 0 12px",
+            display: "grid",
+            gridTemplateColumns: rowTemplate,
+            gap: 3,
+            pointerEvents: "none",
+            zIndex: 1,
+          }}>
+            {orderedSegments.map((seg, idx) => (
+              <div key={seg.id} style={{ gridColumn: idx + 4, margin: "0 -2px" }}>
+                <div style={{
+                  width: "100%", height: "100%",
+                  border: `1px solid ${C.cardBorder}`,
+                  borderRadius: 6,
+                  background: "transparent",
+                }} />
+              </div>
+            ))}
+          </div>
           {sortedMessages.map((m, i) => {
             const isFocalRow = focal?.msgId === m.id;
             const isOpen = openRows.has(m.id);
@@ -1302,6 +1324,7 @@ export default function MessageMap() {
                           height={colFocus === seg.id ? 30 : 24}
                           compact={colFocus !== seg.id}
                           personaOpen={cellPersonaOpen}
+                          showLiftDelta
                           coreTitle={coreTextByMsg.get(m.id)}
                           tunedTitle={tokensByMsg.get(m.id)?.[0]
                             ?.text_by_persona?.[seg.code]}
@@ -1409,6 +1432,7 @@ export default function MessageMap() {
                                   height={open ? 26 : 20}
                                   compact={!open}
                                   personaOpen={open}
+                                  showLiftDelta
                                   coreTitle={tok.text_core}
                                   tunedTitle={tok.text_by_persona?.[seg.code]}
                                   onCellHover={cellHoverHandler(m, seg,

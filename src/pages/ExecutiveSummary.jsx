@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import ItemSurveyPane from "../components/Topline/components/ItemSurveyPane";
 import "../components/Topline/Topline.css";
@@ -40,30 +41,40 @@ const DEFAULT_SEGMENT_PREPOST_ITEMS = ["item1", "item6"];
 const EXECUTIVE_SURVEY_CAPTURE_HEIGHT = 372;
 const SEGMENT_SUMMARY_RULES = dashboard.ui?.segment_summary?.rules || {};
 const SCF_COMPOSITE = (dashboard.stigma_extras?.composites?.items || []).find((item) => item.code === "SCF");
+const EXECUTIVE_KEY_OUTCOMES =
+  "Increased urgency around HIV and policy support for access to HIV prevention/treatment.";
 const OVERARCHING_MESSAGES = [
   {
-    id: "access",
-    eyebrow: "Access + Prevention",
-    message: "Effective HIV prevention and treatment tools already exist, but people are still being diagnosed because those tools are not reaching everyone who needs them.",
-    detail:
-      "This synthesis pulls from repeated message-board language around preventable diagnosis, treatment as prevention, and barriers: the failure point is access, coverage, and delivery, not the underlying science.",
-    keywords: ["prevention", "access", "tools", "coverage", "medication", "reach"],
-  },
-  {
-    id: "community",
-    eyebrow: "Community Burden",
-    message: "When HIV care infrastructure is weak, the burden does not stay isolated: it spreads across families, local clinics, rural communities, and the public systems people rely on.",
-    detail:
-      "This message is built from the repeated themes in shared communities, rural health, workforce cost, and all-of-us-affected: HIV infrastructure supports broader community stability, not just HIV patients alone.",
-    keywords: ["communities", "care", "healthcare", "costs", "workforce", "infrastructure"],
-  },
-  {
     id: "finish-line",
-    eyebrow: "End The Epidemic",
-    message: "The country has the tools to control HIV and move toward ending the epidemic, but progress only holds if public attention, investment, and vigilance do not fade.",
+    eyebrow: "Finish Line",
+    message: "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV - the way previous generations ended polio and smallpox.",
     detail:
-      "This combines the repeated language in ongoing epidemic, progress paradox, vigilance, innovation spillover, and the finish line: the opportunity is real, but it is fragile and has to be actively sustained.",
-    keywords: ["progress", "investment", "innovation", "treatment", "public", "epidemic"],
+      "Frames HIV progress as a historic public-health finish line: scientific gains are real, the tools exist, and this generation has a plausible chance to be the one that finally ends the epidemic.",
+    toplineNarrative: "HIV is no longer a death sentence: transmission can be stopped, prevention meds work, and a cure is within reach.",
+  },
+  {
+    id: "vigilance",
+    eyebrow: "Vigilance",
+    message: "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted - because someone loses access, loses insurance, or simply cannot maintain a daily regimen - the virus can develop resistance, become harder to treat, and be passed to others. The progress made is real, but it requires constant vigilance to maintain.",
+    detail:
+      "Centers the fragility of HIV gains: treatment works, but only when access and adherence hold. It makes the case that prevention of interruption is part of prevention itself.",
+    toplineNarrative: "But continued progress requires constant vigilance. If treatment is interrupted patients are at greater risk and virus can be passed on.",
+  },
+  {
+    id: "barriers",
+    eyebrow: "Barriers",
+    message: "Effective HIV prevention medication exists. Millions of Americans who need it don't have it even if their doctor prescribes it - because of coverage restrictions, cost barriers, and gaps in the healthcare system that could be closed if we treated this as the public health priority it is.",
+    detail:
+      "Focuses attention on solvable system failures. The obstacle is not whether prevention exists, but whether people can actually get it consistently and affordably.",
+    toplineNarrative: "Millions who need prevention medicines can't access them. We have the tools to prevent HIV that can keep us moving forward.",
+  },
+  {
+    id: "innovation-spillover",
+    eyebrow: "Innovation Spillover",
+    message: "American investment in HIV research produced scientific discoveries that now extend far beyond HIV - advances in how we understand the immune system, develop antiviral treatments, and fight cancer that benefit millions of Americans who have never been affected by HIV.",
+    detail:
+      "Broadens the value proposition of HIV investment by showing how HIV science has paid dividends across medicine, from immune-system research to antivirals and cancer treatment.",
+    toplineNarrative: "Because of America's innovation leadership and investment in HIV research, new discoveries are made that are helping patients who have never been affected by HIV.",
   },
 ];
 const SCF_BY_CODE = Object.fromEntries(
@@ -614,6 +625,157 @@ function PrePostFinding({ title, pair }) {
       post: "agreed with continued innovation investment after exposure.",
     },
   }[title];
+  const isPriorityRankCard = title === "item1";
+
+  if (isPriorityRankCard) {
+    return (
+      <div
+        style={{
+          minHeight: 132,
+          display: "grid",
+          gridTemplateRows: "auto auto minmax(0, 1fr) auto",
+          gap: 12,
+          padding: "18px 20px",
+          border: `1px solid ${C.cardBorder}`,
+          borderRadius: 8,
+          background: PANEL_DEEP,
+        }}
+      >
+        <div style={{ display: "grid", gap: 6 }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
+            {metric?.label || title}
+          </div>
+        </div>
+        {surveyPane ? (
+          <div
+            style={{
+              borderRadius: 8,
+              overflow: "hidden",
+              height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT,
+            }}
+          >
+            <div className="topline-root" style={{ margin: 0, height: "100%" }}>
+              <ItemSurveyPane
+                survey={surveyPane}
+                className="executive-summary-pane"
+                style={{ height: "100%" }}
+              />
+            </div>
+          </div>
+        ) : null}
+        <div style={{ display: "grid", gap: 14 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 140px",
+              gap: 14,
+              alignItems: "stretch",
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 14,
+                padding: "14px 16px 14px 68px",
+                position: "relative",
+                minHeight: 144,
+                background: "linear-gradient(90deg, rgba(34,197,94,0.08) 0%, rgba(255,255,255,0.02) 28%)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  left: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 30,
+                  height: 30,
+                  borderRadius: 10,
+                  background: `${C.green}18`,
+                  border: `1px solid ${C.green}55`,
+                  display: "grid",
+                  placeItems: "center",
+                  color: C.green,
+                  fontSize: 18,
+                  fontWeight: 800,
+                }}
+              >↑</div>
+              <div style={{ fontSize: 15, lineHeight: 1.45, color: C.textMuted }}>
+                HIV rises <strong style={{ color: C.white }}>two full places</strong> as a top health care issue that policymakers should prioritize.
+              </div>
+            </div>
+            <div
+              style={{
+                width: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 12,
+                background: "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
+                display: "grid",
+                gridTemplateRows: "1fr auto 1fr",
+                alignItems: "center",
+                justifyItems: "center",
+                padding: "24px 10px",
+                minHeight: 144,
+                position: "relative",
+              }}
+            >
+              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "start" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.green, letterSpacing: 0.8 }}>
+                  POST
+                </div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: C.white, lineHeight: 1 }}>5</div>
+              </div>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  border: `2px solid ${C.green}`,
+                  display: "grid",
+                  placeItems: "center",
+                  color: C.green,
+                  background: `${C.green}10`,
+                  boxShadow: `0 0 0 6px ${C.green}10`,
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>↑</div>
+              </div>
+              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "end" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textDim, letterSpacing: 0.8 }}>
+                  PRE
+                </div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: "#94a3b8", lineHeight: 1 }}>7</div>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: 62,
+                  bottom: 38,
+                  width: 2,
+                  transform: "translateX(-50%)",
+                  background: `linear-gradient(180deg, rgba(148,163,184,0.15) 0%, ${C.green}70 50%, rgba(148,163,184,0.15) 100%)`,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "grid", justifyItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: MONO, fontSize: 12, color: deltaColor, fontWeight: 800 }}>
+              PRE RANK 7 → POST RANK 5
+            </span>
+            <span style={{ fontFamily: MONO, fontSize: 12, color: C.green, fontWeight: 800 }}>
+              SHIFT +2 PLACES
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -818,6 +980,151 @@ function TotalPrePostCard({ title, pair }) {
     },
   }[title];
   const surveyPane = PREPOST_SURVEY_BY_KEY[title];
+  const isPriorityRankCard = title === "item1";
+  if (isPriorityRankCard) {
+    return (
+      <div
+        style={{
+          minHeight: 132,
+          display: "grid",
+          gridTemplateRows: "auto minmax(0, 1fr) auto",
+          gap: 12,
+          padding: "18px 20px",
+          border: `1px solid ${C.cardBorder}`,
+          borderRadius: 8,
+          background: PANEL_DEEP,
+        }}
+      >
+        {surveyPane ? (
+          <div
+            style={{
+              borderRadius: 8,
+              overflow: "hidden",
+              height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT,
+            }}
+          >
+            <div className="topline-root" style={{ margin: 0, height: "100%" }}>
+              <ItemSurveyPane
+                survey={surveyPane}
+                className="executive-summary-pane"
+                style={{ height: "100%" }}
+              />
+            </div>
+          </div>
+        ) : null}
+        <div style={{ display: "grid", gap: 14 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 140px",
+              gap: 14,
+              alignItems: "stretch",
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 14,
+                padding: "14px 16px 14px 68px",
+                position: "relative",
+                minHeight: 180,
+                background: "linear-gradient(90deg, rgba(34,197,94,0.08) 0%, rgba(255,255,255,0.02) 28%)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  left: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 30,
+                  height: 30,
+                  borderRadius: 10,
+                  background: `${C.green}18`,
+                  border: `1px solid ${C.green}55`,
+                  display: "grid",
+                  placeItems: "center",
+                  color: C.green,
+                  fontSize: 18,
+                  fontWeight: 800,
+                }}
+              >↑</div>
+              <div style={{ fontSize: 15, lineHeight: 1.45, color: C.textMuted }}>
+                HIV rises <strong style={{ color: C.white }}>two full places</strong> as a top health care issue that policymakers should prioritize.
+              </div>
+            </div>
+            <div
+              style={{
+                width: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 12,
+                background: "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
+                display: "grid",
+                gridTemplateRows: "1fr auto 1fr",
+                alignItems: "center",
+                justifyItems: "center",
+                padding: "24px 10px",
+                minHeight: 144,
+                position: "relative",
+              }}
+            >
+              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "start" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.green, letterSpacing: 0.8 }}>
+                  POST
+                </div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: C.white, lineHeight: 1 }}>5</div>
+              </div>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  border: `2px solid ${C.green}`,
+                  display: "grid",
+                  placeItems: "center",
+                  color: C.green,
+                  background: `${C.green}10`,
+                  boxShadow: `0 0 0 6px ${C.green}10`,
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>↑</div>
+              </div>
+              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "end" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textDim, letterSpacing: 0.8 }}>
+                  PRE
+                </div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: "#94a3b8", lineHeight: 1 }}>7</div>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: 62,
+                  bottom: 38,
+                  width: 2,
+                  transform: "translateX(-50%)",
+                  background: `linear-gradient(180deg, rgba(148,163,184,0.15) 0%, ${C.green}70 50%, rgba(148,163,184,0.15) 100%)`,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "grid", justifyItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: MONO, fontSize: 12, color: deltaColor, fontWeight: 800 }}>
+              PRE RANK 7 → POST RANK 5
+            </span>
+            <span style={{ fontFamily: MONO, fontSize: 12, color: C.green, fontWeight: 800 }}>
+              SHIFT +2 PLACES
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -1079,30 +1386,11 @@ function OverarchingThemeCard({ item }) {
         <div style={{ fontSize: 18, lineHeight: 1.32, color: C.white, fontWeight: 800 }}>
           {item.message}
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.55, color: C.textMuted }}>
-          {item.detail}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {item.keywords.map((keyword) => (
-          <span
-            key={keyword}
-            style={{
-              padding: "5px 9px",
-              borderRadius: 999,
-              border: `1px solid ${C.cardBorder}`,
-              background: `${C.white}08`,
-              color: C.text,
-              fontFamily: MONO,
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: 0.4,
-            }}
-          >
-            {keyword}
-          </span>
-        ))}
+        {item.toplineNarrative && (
+          <div style={{ fontSize: 13, lineHeight: 1.55, color: C.textMuted }}>
+            <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.textDim }}>Topline Narrative: </span>{item.toplineNarrative}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1411,7 +1699,7 @@ function SegmentRow({
         
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginBottom: 8 }}>
       {selectedSegmentPrePostItems.map((itemKey, index) => (
-            <div key={index} style={{ display: "grid", gap: 4 }}>
+            <div key={index} style={{ display: "grid", gap: 4, minWidth: 0 }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
                 Question {index + 1}
               </label>
@@ -1424,6 +1712,8 @@ function SegmentRow({
                   );
                 }}
                 style={{
+                  width: "100%",
+                  minWidth: 0,
                   padding: "8px 10px",
                   background: C.cardBorder,
                   color: C.text,
@@ -1432,11 +1722,14 @@ function SegmentRow({
                   fontFamily: FONT,
                   fontSize: 13,
                   cursor: "pointer",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {PREPOST_METRICS.map((metric) => (
                   <option key={metric.key} value={metric.key}>
-                    {metric.label}
+                    {metric.label}: {metric.question}
                   </option>
                 ))}
               </select>
@@ -1605,6 +1898,21 @@ export default function ExecutiveSummary() {
         }}
       >
         <div style={{ display: "grid", gap: 18 }}>
+          <div
+            style={{
+              display: "grid",
+              gap: 8,
+              padding: "16px 18px",
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: 8,
+              background: PANEL_DEEP,
+            }}
+          >
+            <SectionTitle>Target Outcomes</SectionTitle>
+            <div style={{ fontSize: 16, lineHeight: 1.5, color: C.white, fontWeight: 700 }}>
+              {EXECUTIVE_KEY_OUTCOMES}
+            </div>
+          </div>
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <SectionTitle>Total Pre / Post Results</SectionTitle>
@@ -1635,7 +1943,7 @@ export default function ExecutiveSummary() {
             
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, marginBottom: 8 }}>
               {selectedPrePostItems.map((itemKey, index) => (
-                <div key={index} style={{ display: "grid", gap: 4 }}>
+                <div key={index} style={{ display: "grid", gap: 4, minWidth: 0 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
                     Question {index + 1}
                   </label>
@@ -1648,6 +1956,8 @@ export default function ExecutiveSummary() {
                       );
                     }}
                     style={{
+                      width: "100%",
+                      minWidth: 0,
                       padding: "8px 10px",
                       background: C.cardBorder,
                       color: C.text,
@@ -1656,11 +1966,14 @@ export default function ExecutiveSummary() {
                       fontFamily: FONT,
                       fontSize: 13,
                       cursor: "pointer",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {PREPOST_METRICS.map((metric) => (
                       <option key={metric.key} value={metric.key}>
-                        {metric.label}: {metric.question.substring(0, 60)}...
+                        {metric.label}: {metric.question}
                       </option>
                     ))}
                   </select>
@@ -1678,7 +1991,7 @@ export default function ExecutiveSummary() {
           <div style={{ display: "grid", gap: 12 }}>
             <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0, 1fr)", gap: 18, alignItems: "baseline" }}>
               <SectionTitle>Target Audience</SectionTitle>
-              <SectionTitle>{selectedSegmentRow ? "Selected Segment" : "Three Overarching Messages"}</SectionTitle>
+              <SectionTitle>{selectedSegmentRow ? "Selected Segment" : "Overarching Messages"}</SectionTitle>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0, 1fr)", gap: 18, alignItems: "stretch" }}>
@@ -1723,7 +2036,7 @@ export default function ExecutiveSummary() {
                 </div>
               ) : (
                 <div style={{ display: "grid", gap: 12, minHeight: 520, height: "100%" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, minHeight: 0, height: "100%", gridAutoRows: "1fr" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, minHeight: 0, height: "100%", gridAutoRows: "1fr" }}>
                     {OVERARCHING_MESSAGES.map((item) => (
                       <OverarchingThemeCard key={item.id} item={item} />
                     ))}

@@ -41,10 +41,6 @@ const CORE_TEXT_BY_MSG = (() => {
   return out;
 })();
 
-// Subtle vertical divider between columns — applied to every body
-// cell wrapper and every header slot so they line up across all rows.
-const COL_DIVIDER = { borderRight: "1px solid rgba(148,163,184,0.10)" };
-
 function ValueCell({ value, min, max, height = 28, fontSize = 10,
                      opacity = 1, spotlit = false }) {
   const { bg, text } = gradientBinColor(value, min, max);
@@ -171,7 +167,28 @@ export default function SopGrid({
       </div>
 
       {/* ─── BODY ROWS ─── */}
-      <div>
+      <div style={{ position: "relative" }}>
+        <div style={{
+          position: "absolute",
+          inset: "0 12px 0 12px",
+          display: "grid",
+          gridTemplateColumns: gridTemplate,
+          gap: 3,
+          pointerEvents: "none",
+          zIndex: 1,
+        }}>
+          {segments.map((seg, idx) => (
+            <div key={seg.id} style={{ gridColumn: idx + 4, margin: "0 -2px" }}>
+              <div style={{
+                width: "100%",
+                height: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 6,
+                background: "transparent",
+              }} />
+            </div>
+          ))}
+        </div>
         {orderedMessages.map((m, i) => {
           const total = totals.get(m.id);
           const isOpen = openRows?.has(m.id);
@@ -211,8 +228,7 @@ export default function SopGrid({
 
                 {/* Total SoP — basket aggregate (fades when any
                     column is spotlit so the spotlit column dominates). */}
-                <div style={{ ...COL_DIVIDER, opacity: totalDim,
-                              transition: "opacity 0.18s" }}>
+                <div style={{ opacity: totalDim, transition: "opacity 0.18s" }}>
                   <ValueCell value={total} min={min} max={max}
                     height={30} fontSize={11} />
                 </div>
@@ -220,7 +236,6 @@ export default function SopGrid({
                 {/* Per-segment SoP cells */}
                 {segments.map(seg => (
                   <div key={seg.id} style={{
-                    ...COL_DIVIDER,
                     opacity: dim(seg.id) * colDim(seg.id),
                     transition: "opacity 0.18s",
                   }}>

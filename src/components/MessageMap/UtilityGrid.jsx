@@ -48,8 +48,6 @@ const CORE_TEXT_BY_MSG = (() => {
   return out;
 })();
 
-const COL_DIVIDER = { borderRight: "1px solid rgba(148,163,184,0.10)" };
-
 // ── Per-segment colored value cell ───────────────────────────────
 function CellBox({ value, maxAbs, spotlit = false, opacity = 1 }) {
   const { bg, text } = divergingBinColor(value, maxAbs);
@@ -243,7 +241,28 @@ export default function UtilityGrid({
       </div>
 
       {/* ─── BODY ROWS ─── */}
-      <div>
+      <div style={{ position: "relative" }}>
+        <div style={{
+          position: "absolute",
+          inset: "0 12px 0 12px",
+          display: "grid",
+          gridTemplateColumns: gridTemplate,
+          gap: 3,
+          pointerEvents: "none",
+          zIndex: 1,
+        }}>
+          {segments.map((seg, idx) => (
+            <div key={seg.id} style={{ gridColumn: idx + 4, margin: "0 -2px" }}>
+              <div style={{
+                width: "100%",
+                height: "100%",
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: 6,
+                background: "transparent",
+              }} />
+            </div>
+          ))}
+        </div>
         {orderedMessages.map((m, i) => {
           const total = totals.get(m.id);
           const isOpen = openRows?.has(m.id);
@@ -281,15 +300,13 @@ export default function UtilityGrid({
 
                 {/* TOTAL column — the horizontal diverging bar
                     (fades when any column is spotlit). */}
-                <div style={{ ...COL_DIVIDER, opacity: totalDim,
-                              transition: "opacity 0.18s" }}>
+                <div style={{ opacity: totalDim, transition: "opacity 0.18s" }}>
                   <DivergingBar value={total} maxAbs={maxAbs} />
                 </div>
 
                 {/* Per-segment cells */}
                 {segments.map(seg => (
                   <div key={seg.id} style={{
-                    ...COL_DIVIDER,
                     opacity: dim(seg.id) * colDim(seg.id),
                     transition: "opacity 0.18s",
                   }}>

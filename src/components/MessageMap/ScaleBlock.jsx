@@ -6,9 +6,9 @@
 //
 //   1) PILLBOX (left)         — four small pills (SoP / Utility /
 //      Persuasion / Base) where the active outcome's pill is filled
-//      with that outcome's accent color. NOT clickable — this is a
-//      status indicator. The outcome selector cards remain the
-//      canonical control.
+//      with that outcome's accent color. These also act as a compact
+//      secondary control so the analyst can switch views directly
+//      from the scale block.
 //
 //   2) SCALE LEGEND (middle)  — a small inline visual that matches
 //      the active outcome's measurement scale. SoP and the two lift
@@ -41,20 +41,27 @@ const DEFINITIONS = {
   base_messaging: "Indexed score from 0-100 that depicts the relative, incremental impact each message and message variant has in shaping the opinion of the audience",
 };
 
-// ── PILL — read-only status indicator ─────────────────────────────
-function Pill({ label, active, accent }) {
+// ── PILL — compact view toggle ────────────────────────────────────
+function Pill({ label, active, accent, onClick }) {
   return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", justifyContent: "center",
-      padding: "3px 7px", borderRadius: 3,
-      fontFamily: MONO, fontSize: 9, fontWeight: 700,
-      letterSpacing: 1.2, textTransform: "uppercase",
-      background: active ? accent : "transparent",
-      color: active ? "#0f1520" : C.textMuted,
-      border: `1px solid ${active ? accent : C.cardBorder}`,
-      boxShadow: active ? `0 0 0 1px ${accent}44` : "none",
-      whiteSpace: "nowrap",
-    }}>{label}</span>
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        padding: "3px 7px", borderRadius: 3,
+        fontFamily: MONO, fontSize: 9, fontWeight: 700,
+        letterSpacing: 1.2, textTransform: "uppercase",
+        background: active ? accent : "transparent",
+        color: active ? "#0f1520" : C.textMuted,
+        border: `1px solid ${active ? accent : C.cardBorder}`,
+        boxShadow: active ? `0 0 0 1px ${accent}44` : "none",
+        whiteSpace: "nowrap",
+        cursor: "pointer",
+      }}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -187,7 +194,7 @@ function ScaleLegend({ outcome, sopRange, utilityRange }) {
 // ═══════════════════════════════════════════════════════════════════
 // ScaleBlock — the exported block.
 // ═══════════════════════════════════════════════════════════════════
-export default function ScaleBlock({ outcome, sopRange, utilityRange }) {
+export default function ScaleBlock({ outcome, sopRange, utilityRange, onOutcomeChange }) {
   const active = OUTCOMES.find(o => o.id === outcome) || OUTCOMES[0];
   const def = DEFINITIONS[active.id];
 
@@ -199,7 +206,7 @@ export default function ScaleBlock({ outcome, sopRange, utilityRange }) {
       borderRadius: 6,
       fontFamily: FONT,
     }}>
-      {/* (1) PILLBOX — four read-only status pills */}
+      {/* (1) PILLBOX — four compact view toggles */}
       <div style={{
         display: "flex", gap: 4, flexShrink: 0, alignItems: "center",
       }}>
@@ -207,7 +214,8 @@ export default function ScaleBlock({ outcome, sopRange, utilityRange }) {
           <Pill key={o.id}
             label={o.pill}
             active={o.id === active.id}
-            accent={o.accent} />
+            accent={o.accent}
+            onClick={() => onOutcomeChange?.(o.id)} />
         ))}
       </div>
 

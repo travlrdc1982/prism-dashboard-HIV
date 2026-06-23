@@ -18,8 +18,21 @@ import { MONO } from "../../data/theme";
 import { rampColor } from "./liftScale";
 
 const PERSONA_FRAME = "rgba(125,179,250,0.85)";
+const liftBadgeStyle = (textColor, compact) => ({
+  position: "absolute",
+  left: compact ? 2 : 4,
+  bottom: compact ? 1 : 3,
+  padding: compact ? "1px 2px" : "1px 3px",
+  borderRadius: 2,
+  background: textColor === "#0f172a" ? "rgba(255,255,255,0.72)" : "rgba(15,23,42,0.62)",
+  color: textColor === "#0f172a" ? "#0f172a" : "#f8fafc",
+  fontSize: compact ? 6 : 8,
+  fontWeight: 800,
+  letterSpacing: 0.15,
+  lineHeight: 1,
+});
 
-function Half({ cell, side, fadeBelow, compact, title, onHover }) {
+function Half({ cell, side, fadeBelow, compact, title, onHover, showLiftDelta = false }) {
   if (!cell) {
     return (
       <div style={{
@@ -56,6 +69,11 @@ function Half({ cell, side, fadeBelow, compact, title, onHover }) {
       boxShadow: frames.join(", ") || "none",
     }}>
       {cell.v}
+      {showLiftDelta && cell.lift != null && (
+        <span style={liftBadgeStyle(text, compact)}>
+          Δ{cell.lift >= 0 ? "+" : ""}{cell.lift.toFixed(2)}
+        </span>
+      )}
       {/* Significance dot — bootstrap CI excludes zero */}
       {sig && (
         <span style={{
@@ -80,6 +98,7 @@ export default function SplitCell({
   core, tuned, fadeBelow = 0.6, height = 24,
   onClick, compact = true,
   personaOpen = false, coreTitle, tunedTitle, onCellHover,
+  showLiftDelta = false,
 }) {
   // CORE is the resting state. The persona half stays folded (width 0)
   // behind a thin blue tab on the right edge; `personaOpen` (the cube
@@ -96,7 +115,8 @@ export default function SplitCell({
       }}
     >
       <Half cell={core} side="core" fadeBelow={fadeBelow} compact={compact}
-            title={coreTitle} onHover={onCellHover} />
+            title={coreTitle} onHover={onCellHover}
+            showLiftDelta={showLiftDelta} />
       {personaOpen ? (
         <>
           {/* 8px divider lane: thin centered violet line marks the
@@ -110,7 +130,8 @@ export default function SplitCell({
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
             <Half cell={tuned} side="persona" fadeBelow={fadeBelow}
                   compact={compact} title={tunedTitle}
-                  onHover={onCellHover} />
+                  onHover={onCellHover}
+                  showLiftDelta={showLiftDelta} />
           </div>
         </>
       ) : (

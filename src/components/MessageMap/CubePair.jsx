@@ -16,8 +16,21 @@ import { rampColor } from "./liftScale";
 
 const PERSONA_BLUE = "#7db3fa";
 const DIVIDER = "rgba(127,119,221,0.45)";
+const liftBadgeStyle = (textColor) => ({
+  position: "absolute",
+  left: 4,
+  bottom: 3,
+  padding: "1px 3px",
+  borderRadius: 2,
+  background: textColor === "#0f172a" ? "rgba(255,255,255,0.72)" : "rgba(15,23,42,0.62)",
+  color: textColor === "#0f172a" ? "#0f172a" : "#f8fafc",
+  fontSize: 8,
+  fontWeight: 800,
+  letterSpacing: 0.15,
+  lineHeight: 1,
+});
 
-export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
+export function MiniCell({ cell, side, fadeBelow, wording, onHover, showLiftDelta = true }) {
   if (!cell) {
     return (
       <div style={{
@@ -56,6 +69,11 @@ export function MiniCell({ cell, side, fadeBelow, wording, onHover }) {
       }}
     >
       {cell.v}
+      {showLiftDelta && cell.lift != null && (
+        <span style={liftBadgeStyle(text)}>
+          Δ{cell.lift >= 0 ? "+" : ""}{cell.lift.toFixed(2)}
+        </span>
+      )}
       {cell.sig && (
         <span style={{
           position: "absolute", top: 4, right: 4,
