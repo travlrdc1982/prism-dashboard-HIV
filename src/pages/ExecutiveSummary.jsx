@@ -49,15 +49,6 @@ const EXECUTIVE_KEY_OUTCOMES =
   "Increased urgency around HIV and policy support for access to HIV prevention/treatment.";
 const OVERARCHING_MESSAGES = [
   {
-    id: "finish-line",
-    messageId: 10,
-    eyebrow: "Finish Line",
-    message: "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV - the way previous generations ended polio and smallpox.",
-    detail:
-      "Frames HIV progress as a historic public-health finish line: scientific gains are real, the tools exist, and this generation has a plausible chance to be the one that finally ends the epidemic.",
-    toplineNarrative: "HIV is no longer a death sentence: transmission can be stopped, prevention meds work, and a cure is within reach.",
-  },
-  {
     id: "vigilance",
     messageId: 5,
     eyebrow: "Vigilance",
@@ -65,6 +56,15 @@ const OVERARCHING_MESSAGES = [
     detail:
       "Centers the fragility of HIV gains: treatment works, but only when access and adherence hold. It makes the case that prevention of interruption is part of prevention itself.",
     toplineNarrative: "But continued progress requires constant vigilance. If treatment is interrupted patients are at greater risk and virus can be passed on.",
+  },
+  {
+    id: "finish-line",
+    messageId: 10,
+    eyebrow: "Finish Line",
+    message: "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV - the way previous generations ended polio and smallpox.",
+    detail:
+      "Frames HIV progress as a historic public-health finish line: scientific gains are real, the tools exist, and this generation has a plausible chance to be the one that finally ends the epidemic.",
+    toplineNarrative: "HIV is no longer a death sentence: transmission can be stopped, prevention meds work, and a cure is within reach.",
   },
   {
     id: "barriers",
