@@ -67,6 +67,7 @@ function Half({ cell, side, fadeBelow, compact, title, onHover, showLiftDelta = 
       fontFamily: MONO, fontSize: compact ? 9 : 14, fontWeight: 700,
       opacity: faded ? 0.45 : 1,
       boxShadow: frames.join(", ") || "none",
+      overflow: "hidden",
     }}>
       {cell.v}
       {showLiftDelta && cell.lift != null && (

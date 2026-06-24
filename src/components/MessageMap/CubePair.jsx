@@ -66,6 +66,7 @@ export function MiniCell({ cell, side, fadeBelow, wording, onHover, showLiftDelt
         color: text, fontFamily: MONO, fontSize: 14, fontWeight: 700,
         opacity: faded ? 0.5 : 1,
         cursor: "pointer",
+        overflow: "hidden",
       }}
     >
       {cell.v}

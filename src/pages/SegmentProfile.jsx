@@ -441,11 +441,11 @@ function Donut({ value, label, subLabel, size = 88, strokeW = 9 }) {
 }
 
 function SchemaBlock({label,text,color}){return(
-  <div style={{display:"flex",gap:8,marginBottom:5}}>
+  <div style={{display:"flex",gap:10,marginBottom:5,minHeight:126}}>
     <div style={{width:3,background:color,borderRadius:2,flexShrink:0}}/>
-    <div>
-      <div style={{fontSize:8,fontWeight:700,color,fontFamily:"'Roboto Slab',serif",textTransform:"uppercase",letterSpacing:0.8,marginBottom:1}}>◆ {label}</div>
-      <div style={{fontSize:10,color:"#cbd5e1",fontWeight:500,lineHeight:1.5}}>{text}</div>
+    <div style={{paddingRight:6}}>
+      <div style={{fontSize:8.5,fontWeight:700,color,fontFamily:"'Roboto Slab',serif",textTransform:"uppercase",letterSpacing:0.8,marginBottom:3}}>◆ {label}</div>
+      <div style={{fontSize:11,color:"#cbd5e1",fontWeight:500,lineHeight:1.6}}>{text}</div>
     </div>
   </div>
 )}
@@ -2044,7 +2044,7 @@ export default function SegmentProfile() {
         </div>
 
         {/* ═══ MAIN LAYOUT: Vector Radar + Persona + ROI ═══ */}
-        <div style={{ display:"grid", gridTemplateColumns:"320px 1fr 220px", gap:14, marginBottom:20 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"320px 1fr 236px", gap:14, marginBottom:20 }}>
           {/* Vector Radar Column */}
           <div style={{ background:"#0a0e1a", borderRadius:10, border:`1px solid ${C.border}`, padding:"14px 10px 10px", display:"flex", flexDirection:"column", alignItems:"center" }}>
             <div style={{ fontSize:9, fontWeight:700, color:"#a78bfa", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>VECTOR FINGERPRINT</div>
@@ -2072,32 +2072,38 @@ export default function SegmentProfile() {
               const studyTier = getAssignedTier(seg.code);
               const studyTc = TIER_ACCENT[studyTier];
               return (
-                <div style={{ background:"#111827", borderRadius:8, padding:"8px 10px", border:"1px solid #1e293b" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                    <div style={{ fontSize:7, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>{STUDY_META.name} STUDY ROI</div>
-                    <span style={{ fontSize:7, fontWeight:700, padding:"1px 6px", borderRadius:3, background:TIER_BG[studyTier], color:TIER_TEXT[studyTier], fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{TIER_LABELS[studyTier]}</span>
+                <div style={{
+                  background:"linear-gradient(180deg, #172033 0%, #0b1220 100%)",
+                  borderRadius:10,
+                  padding:"10px 12px",
+                  border:"1px solid #243146",
+                  boxShadow:"0 12px 28px rgba(3, 7, 18, 0.35), inset 0 1px 0 rgba(255,255,255,0.04)"
+                }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                    <div style={{ fontSize:7.5, fontWeight:700, color:"#94a3b8", fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:1.5 }}>{STUDY_META.name} STUDY ROI</div>
+                    <span style={{ fontSize:7.5, fontWeight:700, padding:"2px 6px", borderRadius:3, background:TIER_BG[studyTier], color:TIER_TEXT[studyTier], fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>{TIER_LABELS[studyTier]}</span>
                   </div>
-                  <div style={{ textAlign:"center", padding:"4px 0", borderBottom:"1px solid #1e293b", marginBottom:5 }}>
-                    <div style={{ fontSize:24, fontWeight:800, color:studyTc, fontFamily:"'Nunito',sans-serif" }}>{d.roi.toFixed(2)}</div>
+                  <div style={{ textAlign:"center", padding:"6px 0", borderBottom:"1px solid #243146", marginBottom:8 }}>
+                    <div style={{ fontSize:28, fontWeight:800, color:studyTc, fontFamily:"'Nunito',sans-serif" }}>{d.roi.toFixed(2)}</div>
                   </div>
                   {/* Donut colors match /audience-roi palette so the
                       4-lever read is visually consistent across pages. */}
-                  <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.persuadable} size={30} color="#5b93c7" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Persuadable</div></div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                      <MiniDonut value={d.persuadable} size={34} color="#5b93c7" />
+                      <div><div style={{ fontSize:8.5, color:"#e2e8f0", fontWeight:600 }}>% Persuadable</div></div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.supporters} size={30} color="#3b82f6" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Supporters</div></div>
+                    <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                      <MiniDonut value={d.supporters} size={34} color="#3b82f6" />
+                      <div><div style={{ fontSize:8.5, color:"#e2e8f0", fontWeight:600 }}>% Supporters</div></div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.activation} size={30} color="#a78bfa" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>% Activation</div></div>
+                    <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                      <MiniDonut value={d.activation} size={34} color="#a78bfa" />
+                      <div><div style={{ fontSize:8.5, color:"#e2e8f0", fontWeight:600 }}>% Activation</div></div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <MiniDonut value={d.influence} size={30} color="#818cf8" />
-                      <div><div style={{ fontSize:8, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5 }}>360</sup> Score</div></div>
+                    <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                      <MiniDonut value={d.influence} size={34} color="#818cf8" />
+                      <div><div style={{ fontSize:8.5, color:"#e2e8f0", fontWeight:600 }}>Influence<sup style={{ fontSize:5.5 }}>360</sup> Score</div></div>
                     </div>
                   </div>
                 </div>

@@ -19,6 +19,10 @@ const INFLUENCE = "#818cf8";
 const DASHBOARD_SEGMENTS = dashboard.segments || [];
 const DASHBOARD_MESSAGES = dashboard.messages || [];
 const PREPOST_BY_KEY = Object.fromEntries(PREPOST_METRICS.map((metric) => [metric.key, metric]));
+const DEFAULT_MESSAGE_BASKET = dashboard.ui?.default_basket || "priority_d";
+const MESSAGE_TOTALS_BY_ID = new Map(
+  ((dashboard.sop_simple?.[DEFAULT_MESSAGE_BASKET]?.messages) || []).map((row) => [row.message, row.mean_bw])
+);
 const PREPOST_TOPLINE_IDS = {
   item1: "PP1",
   item2: "PP2",
@@ -46,6 +50,7 @@ const EXECUTIVE_KEY_OUTCOMES =
 const OVERARCHING_MESSAGES = [
   {
     id: "finish-line",
+    messageId: 10,
     eyebrow: "Finish Line",
     message: "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV - the way previous generations ended polio and smallpox.",
     detail:
@@ -54,6 +59,7 @@ const OVERARCHING_MESSAGES = [
   },
   {
     id: "vigilance",
+    messageId: 5,
     eyebrow: "Vigilance",
     message: "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted - because someone loses access, loses insurance, or simply cannot maintain a daily regimen - the virus can develop resistance, become harder to treat, and be passed to others. The progress made is real, but it requires constant vigilance to maintain.",
     detail:
@@ -62,6 +68,7 @@ const OVERARCHING_MESSAGES = [
   },
   {
     id: "barriers",
+    messageId: 9,
     eyebrow: "Barriers",
     message: "Effective HIV prevention medication exists. Millions of Americans who need it don't have it even if their doctor prescribes it - because of coverage restrictions, cost barriers, and gaps in the healthcare system that could be closed if we treated this as the public health priority it is.",
     detail:
@@ -70,6 +77,7 @@ const OVERARCHING_MESSAGES = [
   },
   {
     id: "innovation-spillover",
+    messageId: 11,
     eyebrow: "Innovation Spillover",
     message: "American investment in HIV research produced scientific discoveries that now extend far beyond HIV - advances in how we understand the immune system, develop antiviral treatments, and fight cancer that benefit millions of Americans who have never been affected by HIV.",
     detail:
@@ -232,7 +240,7 @@ function buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage 
       })
       .filter(Boolean)
   );
-  const fullBucketLimit = 3;
+  const fullBucketLimit = 8;
   const persuadeCells = dashboardSegment
     ? pickTopMessageCells("persuasion_messaging", dashboardSegment.id, segment.code, new Set(), fullBucketLimit)
     : [];
@@ -322,7 +330,17 @@ function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "de
             <option value="reinforce">Reinforce</option>
           </select>
           {filteredOptions.length ? (
-            <div style={{ display: "grid", gap: 6 }}>
+            <div
+              style={{
+                display: "grid",
+                gap: 6,
+                maxHeight: "72vh",
+                minHeight: 360,
+                overflowY: "auto",
+                paddingRight: 4,
+                paddingBottom: 10,
+              }}
+            >
               {filteredOptions.map((option) => {
                 const selected = openIds.includes(String(option.id));
                 return (
@@ -578,6 +596,27 @@ function FindingSlot({ children }) {
   );
 }
 
+function getCompressedPrePostScale(pre, post) {
+  const safePre = Math.max(0, Math.min(100, pre || 0));
+  const safePost = Math.max(0, Math.min(100, post || 0));
+  const deltaFromPre = Math.max(-10, Math.min(10, safePost - safePre));
+  const center = 50;
+  const postPosition = center + (deltaFromPre / 20) * 100;
+  const leftEdge = Math.min(center, postPosition);
+  const width = Math.abs(postPosition - center);
+  const axisMinValue = Math.max(0, safePre - 10);
+  const axisMaxValue = Math.min(100, safePre + 10);
+
+  return {
+    axisMinLabel: `${Math.round(axisMinValue)}%`,
+    axisMaxLabel: `${Math.round(axisMaxValue)}%`,
+    preLeft: `${center}%`,
+    postLeft: `${postPosition}%`,
+    swingLeft: `${leftEdge}%`,
+    swingWidth: `${Math.max(0, width)}%`,
+  };
+}
+
 function PrePostFinding({ title, pair }) {
   if (!pair) {
     return <FindingSlot>[{title}]</FindingSlot>;
@@ -589,10 +628,7 @@ function PrePostFinding({ title, pair }) {
   const preDisplay = Math.round(pre);
   const postDisplay = Math.round(post);
   const deltaColor = delta > 0 ? C.green : delta < 0 ? C.red : C.textMuted;
-  const preLeft = `${Math.max(0, Math.min(100, pre))}%`;
-  const postLeft = `${Math.max(0, Math.min(100, post))}%`;
-  const swingLeft = `${Math.max(0, Math.min(100, Math.min(pre, post)))}%`;
-  const swingWidth = `${Math.max(1.5, Math.abs(post - pre))}%`;
+  const { axisMinLabel, axisMaxLabel, preLeft, postLeft, swingLeft, swingWidth } = getCompressedPrePostScale(pre, post);
   const surveyPane = PREPOST_SURVEY_BY_KEY[title];
 
   const valueCopy = {
@@ -894,6 +930,45 @@ function PrePostFinding({ title, pair }) {
             <div
               style={{
                 position: "absolute",
+                left: 12,
+                top: 32,
+                fontFamily: MONO,
+                fontSize: 9,
+                fontWeight: 800,
+                color: C.textDim,
+                letterSpacing: 0.4,
+              }}
+            >
+              {axisMinLabel}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                right: 12,
+                top: 32,
+                fontFamily: MONO,
+                fontSize: 9,
+                fontWeight: 800,
+                color: C.textDim,
+                letterSpacing: 0.4,
+              }}
+            >
+              {axisMaxLabel}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "56%",
+                width: 1,
+                height: 24,
+                transform: "translate(-50%, -50%)",
+                background: `${C.textMuted}55`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
                 left: swingLeft,
                 width: swingWidth,
                 top: "56%",
@@ -945,10 +1020,7 @@ function TotalPrePostCard({ title, pair }) {
   const preDisplay = Math.round(pre);
   const postDisplay = Math.round(post);
   const deltaColor = delta > 0 ? C.green : delta < 0 ? C.red : C.textMuted;
-  const preLeft = `${Math.max(0, Math.min(100, pre))}%`;
-  const postLeft = `${Math.max(0, Math.min(100, post))}%`;
-  const swingLeft = `${Math.max(0, Math.min(100, Math.min(pre, post)))}%`;
-  const swingWidth = `${Math.max(1.5, Math.abs(post - pre))}%`;
+  const { axisMinLabel, axisMaxLabel, preLeft, postLeft, swingLeft, swingWidth } = getCompressedPrePostScale(pre, post);
   const valueCopy = {
     item1: {
       pre: "had HIV/AIDS in their top 3 before exposure.",
@@ -1248,6 +1320,45 @@ function TotalPrePostCard({ title, pair }) {
             <div
               style={{
                 position: "absolute",
+                left: 12,
+                top: 32,
+                fontFamily: MONO,
+                fontSize: 9,
+                fontWeight: 800,
+                color: C.textDim,
+                letterSpacing: 0.4,
+              }}
+            >
+              {axisMinLabel}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                right: 12,
+                top: 32,
+                fontFamily: MONO,
+                fontSize: 9,
+                fontWeight: 800,
+                color: C.textDim,
+                letterSpacing: 0.4,
+              }}
+            >
+              {axisMaxLabel}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "56%",
+                width: 1,
+                height: 24,
+                transform: "translate(-50%, -50%)",
+                background: `${C.textMuted}55`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
                 left: swingLeft,
                 width: swingWidth,
                 top: "56%",
@@ -1308,10 +1419,10 @@ function MessagePreviewBox({ title, message, metricType = "utility", onSwapClick
       <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textMuted, letterSpacing: 0.8, textTransform: "uppercase" }}>
         {title}
       </div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: C.textMuted }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: C.textMuted }}>
         {message?.label || "No message available"}
       </div>
-      <div style={{ fontSize: 13, lineHeight: 1.5, color: C.white, fontStyle: "italic" }}>
+      <div style={{ fontSize: 14, lineHeight: 1.55, color: C.white, fontStyle: "italic" }}>
         {message?.quote ? `"${trimQuote(message.quote, 165)}"` : "No message available"}
       </div>
       {metricType === "utility" && message?.utility != null ? (
@@ -1356,6 +1467,7 @@ function MessagePreviewBox({ title, message, metricType = "utility", onSwapClick
 }
 
 function OverarchingThemeCard({ item }) {
+  const utilityValue = item.messageId != null ? MESSAGE_TOTALS_BY_ID.get(item.messageId) ?? null : null;
   return (
     <div
       style={{
@@ -1391,6 +1503,16 @@ function OverarchingThemeCard({ item }) {
             <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.textDim }}>Topline Narrative: </span>{item.toplineNarrative}
           </div>
         )}
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+        <div style={{ display: "grid", justifyItems: "end", gap: 2 }}>
+          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 800, color: C.green, letterSpacing: 0.7, textTransform: "uppercase" }}>
+            Utility Score
+          </div>
+          <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 800, color: C.green, lineHeight: 1 }}>
+            {utilityValue != null ? `${utilityValue >= 0 ? "+" : ""}${utilityValue.toFixed(2)}` : "—"}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1524,6 +1646,7 @@ function SegmentRow({
     setResetState("resetting");
     resetTimerRef.current = setTimeout(() => {
       setBoxMessages(initialMessages);
+      onSaveMessages?.(initialMessages);
       setActiveSwapSlot(null);
       setRecentlySwappedSlot(null);
       setResetState("reset");
@@ -1547,20 +1670,18 @@ function SegmentRow({
     }, 260);
   };
 
-  useEffect(() => {
-    onSaveMessages?.(boxMessages);
-  }, [boxMessages, onSaveMessages]);
-
   const handleSwap = (nextMessage) => {
     if (!nextMessage) {
       setActiveSwapSlot(null);
       return;
     }
-    setBoxMessages((current) =>
-      current.map((item) =>
+    setBoxMessages((current) => {
+      const nextMessages = current.map((item) =>
         item.bucketKey === activeSwapSlot ? { ...item, message: nextMessage } : item
-      )
-    );
+      );
+      onSaveMessages?.(nextMessages);
+      return nextMessages;
+    });
     if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
     setRecentlySwappedSlot(activeSwapSlot);
     swapTimerRef.current = setTimeout(() => {
@@ -1595,16 +1716,14 @@ function SegmentRow({
     <section
       style={{
         display: "grid",
-        gridTemplateColumns: activeSwapSlot
-          ? "240px minmax(0, 1fr) 320px"
-          : "290px minmax(0, 1fr)",
-        gap: activeSwapSlot ? 20 : 16,
-        padding: activeSwapSlot ? "20px 24px" : "16px 18px",
+        gridTemplateColumns: "290px minmax(0, 1fr)",
+        gap: 16,
+        padding: "16px 18px",
         border: `1px solid ${C.cardBorder}`,
         borderRadius: 8,
         background: PANEL_DEEP,
         alignItems: "start",
-        transition: "grid-template-columns 220ms ease, padding 220ms ease, box-shadow 220ms ease, transform 220ms ease",
+        transition: "box-shadow 220ms ease, transform 220ms ease",
         boxShadow: activeSwapSlot ? `0 18px 40px ${C.cyan}12` : "0 8px 24px rgba(0,0,0,0.12)",
         transform: activeSwapSlot ? "translateY(-2px)" : "translateY(0px)",
       }}
@@ -1742,8 +1861,36 @@ function SegmentRow({
             <PrePostFinding key={`${index}-${itemKey}`} title={itemKey} metricLabel={PREPOST_BY_KEY[itemKey]?.label} pair={metrics?.prePost?.[itemKey]} />
           ))}
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <SectionTitle>Messages</SectionTitle>
+        <div
+          style={{
+            height: 0,
+            borderTop: "2px solid rgba(255,255,255,0.9)",
+            margin: "8px 0 2px -324px",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            paddingLeft: 14,
+            marginLeft: -310,
+            width: "calc(100% + 310px)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 16,
+              fontWeight: 800,
+              letterSpacing: 1.2,
+              textTransform: "uppercase",
+              color: C.white,
+            }}
+          >
+            Recommended Messages
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
               type="button"
@@ -1768,30 +1915,43 @@ function SegmentRow({
             </button>
           </div>
         </div>
-        <div ref={messageGridRef} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, minWidth: 0 }}>
-          {boxMessages.map((item) => (
-            <MessagePreviewBox
-              key={item.title}
-              title={item.title}
-              message={item.message}
-              metricType={item.metricType}
-              isActive={activeSwapSlot === item.bucketKey || recentlySwappedSlot === item.bucketKey}
-              onSwapClick={() => setActiveSwapSlot((current) => (current === item.bucketKey ? null : item.bucketKey))}
-            />
-          ))}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: activeSwapSlot ? "minmax(0, 1fr) 380px" : "minmax(0, 1fr)",
+            gap: activeSwapSlot ? 16 : 0,
+            alignItems: "start",
+            marginLeft: -310,
+            width: "calc(100% + 310px)",
+          }}
+        >
+          <div
+            ref={messageGridRef}
+            style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, minWidth: 0 }}
+          >
+            {boxMessages.map((item) => (
+              <MessagePreviewBox
+                key={item.title}
+                title={item.title}
+                message={item.message}
+                metricType={item.metricType}
+                isActive={activeSwapSlot === item.bucketKey || recentlySwappedSlot === item.bucketKey}
+                onSwapClick={() => setActiveSwapSlot((current) => (current === item.bucketKey ? null : item.bucketKey))}
+              />
+            ))}
+          </div>
+          {activeSwapSlot ? (
+            <div ref={panelRef} style={{ minWidth: 0, alignSelf: "start" }}>
+              <SegmentMessagePicker
+                segmentCode={segment.code}
+                messageBuckets={messageBuckets}
+                initialFilter="default"
+                onSwap={handleSwap}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
-
-      {activeSwapSlot ? (
-        <div ref={panelRef} style={{ minWidth: 0, alignSelf: "start" }}>
-          <SegmentMessagePicker
-            segmentCode={segment.code}
-            messageBuckets={messageBuckets}
-            initialFilter="default"
-            onSwap={handleSwap}
-          />
-        </div>
-      ) : null}
     </section>
   );
 }

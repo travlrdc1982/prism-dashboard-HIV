@@ -3,7 +3,7 @@
 // Groups every "how do I look at the grid" control in one card:
 //   FILTER (basket) · COLUMNS (all vs tier-1) · PERSONA VARIANT
 //   (expand/collapse all) · MESSAGE SORT (survey vs total SoP) ·
-//   PROOF POINT ROWS (expand/collapse all).
+//   ROW DETAILS (expand/collapse all).
 //
 // Pure presentation — all state lives in the page; this just renders
 // the controls and calls back. Segmented buttons show the active
@@ -77,8 +77,8 @@ export default function ViewOptions({
   personaAll, onPersonaAll,
   sortMode, onSortMode,
   onProofsExpand, onProofsCollapse, proofsAllOpen,
-  // SoP / Utility don't have persona arms or proof tokens, so those
-  // two control groups are greyed out (visible but non-interactive).
+  // SoP / Utility don't have persona arms, so that control group is
+  // greyed out there. Row expansion works across all message views.
   personaDisabled = false,
   proofsDisabled = false,
 }) {
@@ -149,8 +149,8 @@ export default function ViewOptions({
           />
         </Group>
 
-        {/* PROOF POINT ROWS */}
-        <Group label="Proof Point Rows" disabled={proofsDisabled}
+        {/* ROW DETAILS */}
+        <Group label="Row Details" disabled={proofsDisabled}
           note={proofsDisabled ? "Not applicable for this measurement." : undefined}>
           <Segmented
             value={proofsAllOpen ? "expand" : "collapse"}

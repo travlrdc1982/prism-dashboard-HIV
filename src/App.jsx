@@ -6,6 +6,7 @@ import SegmentMap from "./pages/SegmentMap";
 import AudienceROI from "./pages/AudienceROI";
 import MessageMap from "./pages/MessageMap";
 import SegmentProfile from "./pages/SegmentProfile";
+import ExecutiveSummary from "./pages/ExecutiveSummary";
 import Topline from "./components/Topline/Topline";
 import Login from "./pages/Login";
 import SetPassword from "./pages/SetPassword";
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="roi" element={<AudienceROI />} />
           <Route path="messages" element={<MessageMap />} />
           <Route path="profile" element={<SegmentProfile />} />
+          <Route path="executive-summary" element={<ExecutiveSummary />} />
           <Route path="topline" element={<Topline />} />
           <Route path="admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -132,6 +132,10 @@ export default function MessageMap() {
     && dashboard.message_map_cells
     && Object.keys(dashboard.message_map_cells).length > 0;
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
   const defaultMetric = "sop";
   // OUTCOME — the measurement selector (4 cards). Values:
   //   'sop' | 'utility'            → their own views (built next)
@@ -1324,7 +1328,6 @@ export default function MessageMap() {
                           height={colFocus === seg.id ? 30 : 24}
                           compact={colFocus !== seg.id}
                           personaOpen={cellPersonaOpen}
-                          showLiftDelta
                           coreTitle={coreTextByMsg.get(m.id)}
                           tunedTitle={tokensByMsg.get(m.id)?.[0]
                             ?.text_by_persona?.[seg.code]}
@@ -1432,7 +1435,6 @@ export default function MessageMap() {
                                   height={open ? 26 : 20}
                                   compact={!open}
                                   personaOpen={open}
-                                  showLiftDelta
                                   coreTitle={tok.text_core}
                                   tunedTitle={tok.text_by_persona?.[seg.code]}
                                   onCellHover={cellHoverHandler(m, seg,
