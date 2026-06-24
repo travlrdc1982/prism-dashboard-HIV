@@ -429,12 +429,12 @@ function Donut({ value, label, subLabel, size = 88, strokeW = 9 }) {
             style={{ transition:"stroke-dashoffset 0.6s" }} />
         </svg>
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-          <div style={{ fontSize:18, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", lineHeight:1 }}>{value}%</div>
+          <div style={{ fontSize:22, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", lineHeight:1 }}>{value}%</div>
         </div>
       </div>
       <div style={{ marginTop:6, textAlign:"center" }}>
-        <div style={{ fontSize:9, fontWeight:700, color:C.accentLight, fontFamily:"'Nunito',sans-serif" }}>{label}</div>
-        <div style={{ fontSize:7, color:C.text3, fontFamily:"'Nunito',sans-serif", marginTop:1 }}>{subLabel}</div>
+        <div style={{ fontSize:12, fontWeight:700, color:C.accentLight, fontFamily:"'Nunito',sans-serif" }}>{label}</div>
+        <div style={{ fontSize:9, color:C.text3, fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{subLabel}</div>
       </div>
     </div>
   );
@@ -771,7 +771,7 @@ function DemographicsPanel({ seg }) {
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
         {/* Core Demographics */}
         <div style={{ background:C.card, borderRadius:8, padding:18, border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>CORE DEMOGRAPHICS</div>
+          <div style={{ fontSize:10, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>CORE DEMOGRAPHICS</div>
           <div style={{ display:"flex", justifyContent:"center", gap:32, marginBottom:18, paddingBottom:16, borderBottom:`1px solid ${C.border}` }}>
             <Donut value={male} label="Male" subLabel={`${100-male}% Female`} />
             <Donut value={white} label="White" subLabel={`${nw}% Nonwhite`} />
@@ -783,33 +783,33 @@ function DemographicsPanel({ seg }) {
               { label:"COLLEGE +", value:seg.demo.college },
             ].map((s, i) => (
               <div key={i} style={{ flex:1, textAlign:"center", borderRight:i<2?`1px solid ${C.border}`:"none", padding:"4px 0" }}>
-                <div style={{ fontSize:20, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", lineHeight:1 }}>{s.value}</div>
-                <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", textTransform:"uppercase", letterSpacing:1, marginTop:5 }}>{s.label}</div>
+                <div style={{ fontSize:26, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", lineHeight:1 }}>{s.value}</div>
+                <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", textTransform:"uppercase", letterSpacing:1, marginTop:6 }}>{s.label}</div>
               </div>
             ))}
           </div>
           {/* M4A / Vax Avoid */}
           <div style={{ display:"flex", gap:16, marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>
             <div style={{ textAlign:"center", flex:1 }}>
-              <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>SUPPORT M4A</div>
-              <div style={{ fontSize:18, fontWeight:800, color:"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.m4a}</div>
+              <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>SUPPORT M4A</div>
+              <div style={{ fontSize:20, fontWeight:800, color:"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.m4a}</div>
             </div>
             <div style={{ textAlign:"center", flex:1 }}>
-              <div style={{ fontSize:7, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>VAX AVOIDANT</div>
-              <div style={{ fontSize:18, fontWeight:800, color:parseInt(seg.demo.vaxAvoid)>=30?"#f87171":"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.vaxAvoid}</div>
+              <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>VAX AVOIDANT</div>
+              <div style={{ fontSize:20, fontWeight:800, color:parseInt(seg.demo.vaxAvoid)>=30?"#f87171":"#94a3b8", fontFamily:"'Nunito',sans-serif" }}>{seg.demo.vaxAvoid}</div>
             </div>
           </div>
         </div>
 
         {/* Geography */}
         <div style={{ background:C.card, borderRadius:8, padding:18, border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>GEOGRAPHY</div>
+          <div style={{ fontSize:10, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:16 }}>GEOGRAPHY</div>
           <CensusDivisionMap division={seg.demo.cenDiv} pct={seg.demo.cenPct} party={seg.party} />
           <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:14 }}>
-            <div style={{ fontSize:24, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", minWidth:52, textAlign:"center" }}>{seg.demo.rural}</div>
+            <div style={{ fontSize:30, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif", minWidth:64, textAlign:"center" }}>{seg.demo.rural}</div>
             <div>
-              <div style={{ fontSize:9, fontWeight:700, color:C.text1, fontFamily:"'Nunito',sans-serif" }}>Rural</div>
-              <div style={{ fontSize:8, color:C.text2, fontFamily:"'Nunito',sans-serif" }}>Share residing in rural areas</div>
+              <div style={{ fontSize:13, fontWeight:700, color:C.text1, fontFamily:"'Nunito',sans-serif" }}>Rural</div>
+              <div style={{ fontSize:10, color:C.text2, fontFamily:"'Nunito',sans-serif" }}>Share residing in rural areas</div>
             </div>
           </div>
         </div>
@@ -819,18 +819,18 @@ function DemographicsPanel({ seg }) {
       <div style={{ display:"grid", gridTemplateColumns:"200px 200px 1fr", gap:12, marginBottom:12 }}>
         {/* Military */}
         <div style={{ background:C.card, borderRadius:8, padding:16, border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>MILITARY</div>
+          <div style={{ fontSize:10, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>MILITARY</div>
           <div style={{ textAlign:"center" }}>
             <div style={{ fontSize:32, fontWeight:800, color:C.text1, fontFamily:"'Nunito',sans-serif" }}>
               {Math.round(MILITARY[segIdx])}%
             </div>
-            <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Active duty or veteran</div>
+            <div style={{ fontSize:10, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Active duty or veteran</div>
           </div>
           <div style={{ marginTop:10, paddingTop:8, borderTop:`1px solid ${C.border}` }}>
             <div style={{ height:6, background:"#0f172a", borderRadius:3, overflow:"hidden" }}>
               <div style={{ width:`${(MILITARY[segIdx]/20)*100}%`, height:"100%", background:"#5b93c7", borderRadius:3, transition:"width 0.5s" }} />
             </div>
-            <div style={{ display:"flex", justifyContent:"space-between", fontSize:7, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:8, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
               <span>0%</span><span>Pop avg ~9%</span><span>20%</span>
             </div>
           </div>
@@ -838,18 +838,18 @@ function DemographicsPanel({ seg }) {
 
         {/* Union */}
         <div style={{ background:C.card, borderRadius:8, padding:16, border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>UNION HOUSEHOLD</div>
+          <div style={{ fontSize:10, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>UNION HOUSEHOLD</div>
           <div style={{ textAlign:"center" }}>
             <div style={{ fontSize:32, fontWeight:800, color:UNION_HH[segIdx]>=20?"#a78bfa":C.text1, fontFamily:"'Nunito',sans-serif" }}>
               {Math.round(UNION_HH[segIdx])}%
             </div>
-            <div style={{ fontSize:9, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Union household member</div>
+            <div style={{ fontSize:10, color:C.text2, fontFamily:"'Nunito',sans-serif", marginTop:4 }}>Union household member</div>
           </div>
           <div style={{ marginTop:10, paddingTop:8, borderTop:`1px solid ${C.border}` }}>
             <div style={{ height:6, background:"#0f172a", borderRadius:3, overflow:"hidden" }}>
               <div style={{ width:`${(UNION_HH[segIdx]/30)*100}%`, height:"100%", background:UNION_HH[segIdx]>=20?"#a78bfa":"#5b93c7", borderRadius:3, transition:"width 0.5s" }} />
             </div>
-            <div style={{ display:"flex", justifyContent:"space-between", fontSize:7, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:8, color:C.text2, marginTop:3, fontFamily:"'Nunito',sans-serif" }}>
               <span>0%</span><span>Pop avg ~16%</span><span>30%</span>
             </div>
           </div>
@@ -857,18 +857,18 @@ function DemographicsPanel({ seg }) {
 
         {/* Religion */}
         <div style={{ background:C.card, borderRadius:8, padding:16, border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:9, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>RELIGION</div>
+          <div style={{ fontSize:10, fontWeight:700, color:C.text2, fontFamily:"'Roboto Slab',serif", textTransform:"uppercase", letterSpacing:2, marginBottom:12 }}>RELIGION</div>
           <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
             {relData.map((r, i) => (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:6 }}>
-                <span style={{ width:90, fontSize:9, color:r.overindex?C.accentLight:"#cbd5e1", fontWeight:r.overindex?700:500, fontFamily:"'Nunito',sans-serif", textAlign:"right", flexShrink:0 }}>{r.label}</span>
+                <span style={{ width:96, fontSize:10, color:r.overindex?C.accentLight:"#cbd5e1", fontWeight:r.overindex?700:500, fontFamily:"'Nunito',sans-serif", textAlign:"right", flexShrink:0 }}>{r.label}</span>
                 <div style={{ flex:1, height:14, background:"#0f172a", borderRadius:3, position:"relative", overflow:"hidden" }}>
                   <div style={{ width:`${(r.value/Math.max(maxRel,65))*100}%`, height:"100%", background:r.overindex?"#5b93c7":"#2a4a6a", borderRadius:3, transition:"width 0.5s", border:r.overindex?"1px solid #7eb3e0":"none" }} />
                 </div>
-                <span style={{ width:36, fontSize:9, fontWeight:r.overindex?800:500, color:r.overindex?"#7eb3e0":C.text2, fontFamily:"'Nunito',sans-serif", textAlign:"right" }}>
+                <span style={{ width:40, fontSize:10, fontWeight:r.overindex?800:500, color:r.overindex?"#7eb3e0":C.text2, fontFamily:"'Nunito',sans-serif", textAlign:"right" }}>
                   {r.value.toFixed(1)}%
                 </span>
-                {r.overindex && <span style={{ fontSize:7, fontWeight:800, color:"#fbbf24", fontFamily:"'Nunito',sans-serif" }}>↑</span>}
+                {r.overindex && <span style={{ fontSize:8, fontWeight:800, color:"#fbbf24", fontFamily:"'Nunito',sans-serif" }}>↑</span>}
               </div>
             ))}
           </div>
