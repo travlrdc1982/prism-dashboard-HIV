@@ -40,7 +40,9 @@ const PREPOST_SURVEY_BY_KEY = Object.fromEntries(
     })
     .filter(Boolean)
 );
+const EXECUTIVE_DEV_NOTES_STORAGE_KEY = "executiveSummaryDevNotes";
 const DEFAULT_EXECUTIVE_PREPOST_ITEMS = ["item1", "item6", "item7"];
+const EMPTY_EXECUTIVE_PREPOST_ITEMS = [null, null, null];
 const DEFAULT_SEGMENT_PREPOST_ITEMS = ["item1", "item6"];
 const EXECUTIVE_SURVEY_CAPTURE_HEIGHT = 372;
 const SEGMENT_SUMMARY_RULES = dashboard.ui?.segment_summary?.rules || {};
@@ -120,7 +122,11 @@ function proofTextFor(message, proofVariant) {
 function normalizePrePostSelection(saved, fallback) {
   if (!Array.isArray(saved)) return fallback;
   return fallback.map((defaultKey, index) => (
-    typeof saved[index] === "string" && PREPOST_BY_KEY[saved[index]] ? saved[index] : defaultKey
+    saved[index] == null
+      ? null
+      : typeof saved[index] === "string" && PREPOST_BY_KEY[saved[index]]
+        ? saved[index]
+        : defaultKey
   ));
 }
 
@@ -1012,45 +1018,58 @@ function PrePostFinding({ title, pair }) {
   );
 }
 
-function TotalPrePostCard({ title, pair }) {
+function TotalPrePostCard({ title, pair, index, onChange }) {
+  const metric = title ? PREPOST_BY_KEY[title] : null;
+  const hasSelection = !!metric;
+
+  if (!hasSelection) {
+    return (
+      <div
+        style={{
+          minHeight: 220,
+          display: "grid",
+          gridTemplateRows: "auto 1fr",
+          gap: 12,
+          padding: "18px 20px",
+          border: `1px solid ${C.cardBorder}`,
+          borderRadius: 8,
+          background: PANEL_DEEP,
+        }}
+      >
+        <div style={{ display: "grid", gap: 4 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            Question {index + 1}
+          </label>
+          <select
+            value=""
+            onChange={(e) => onChange?.(e.target.value || null)}
+            style={{
+              width: "100%",
+              minWidth: 0,
+              padding: "8px 10px",
+              background: C.cardBorder,
+              color: C.text,
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: 4,
+              fontFamily: FONT,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            <option value="">Select a question</option>
+            {PREPOST_METRICS.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}: {option.question}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
   if (!pair) return null;
 
-  const [pre, post] = pair;
-  const delta = +(post - pre).toFixed(1);
-  const preDisplay = Math.round(pre);
-  const postDisplay = Math.round(post);
-  const deltaColor = delta > 0 ? C.green : delta < 0 ? C.red : C.textMuted;
-  const { axisMinLabel, axisMaxLabel, preLeft, postLeft, swingLeft, swingWidth } = getCompressedPrePostScale(pre, post);
-  const valueCopy = {
-    item1: {
-      pre: "had HIV/AIDS in their top 3 before exposure.",
-      post: "had HIV/AIDS in their top 3 after exposure.",
-    },
-    item2: {
-      pre: "were concerned about HIV/AIDS impact before exposure.",
-      post: "were concerned about HIV/AIDS impact after exposure.",
-    },
-    item3: {
-      pre: "were concerned about reduced HIV access before exposure.",
-      post: "were concerned about reduced HIV access after exposure.",
-    },
-    item4: {
-      pre: "felt HIV/AIDS was relevant before exposure.",
-      post: "felt HIV/AIDS was relevant after exposure.",
-    },
-    item5: {
-      pre: "supported expanding access to PrEP/treatment before exposure.",
-      post: "supported expanding access to PrEP/treatment after exposure.",
-    },
-    item6: {
-      pre: "opposed treatment-assistance cuts before exposure.",
-      post: "opposed treatment-assistance cuts after exposure.",
-    },
-    item7: {
-      pre: "agreed with continued innovation investment before exposure.",
-      post: "agreed with continued innovation investment after exposure.",
-    },
-  }[title];
   const surveyPane = PREPOST_SURVEY_BY_KEY[title];
   const isPriorityRankCard = title === "item1";
   if (isPriorityRankCard) {
@@ -1059,7 +1078,7 @@ function TotalPrePostCard({ title, pair }) {
         style={{
           minHeight: 132,
           display: "grid",
-          gridTemplateRows: "auto minmax(0, 1fr) auto",
+          gridTemplateRows: "auto auto",
           gap: 12,
           padding: "18px 20px",
           border: `1px solid ${C.cardBorder}`,
@@ -1067,132 +1086,49 @@ function TotalPrePostCard({ title, pair }) {
           background: PANEL_DEEP,
         }}
       >
-        {surveyPane ? (
-          <div
+        <div style={{ display: "grid", gap: 4 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            Question {index + 1}
+          </label>
+          <select
+            value={title}
+            onChange={(e) => onChange?.(e.target.value || null)}
             style={{
-              borderRadius: 8,
-              overflow: "hidden",
-              height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT,
+              width: "100%",
+              minWidth: 0,
+              padding: "8px 10px",
+              background: C.cardBorder,
+              color: C.text,
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: 4,
+              fontFamily: FONT,
+              fontSize: 13,
+              cursor: "pointer",
             }}
           >
-            <div className="topline-root" style={{ margin: 0, height: "100%" }}>
-              <ItemSurveyPane
-                survey={surveyPane}
-                className="executive-summary-pane"
-                style={{ height: "100%" }}
-              />
-            </div>
-          </div>
-        ) : null}
-        <div style={{ display: "grid", gap: 14 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) 140px",
-              gap: 14,
-              alignItems: "stretch",
-            }}
-          >
-            <div
-              style={{
-                width: "100%",
-                border: `1px solid ${C.cardBorder}`,
-                borderRadius: 14,
-                padding: "14px 16px 14px 68px",
-                position: "relative",
-                minHeight: 180,
-                background: "linear-gradient(90deg, rgba(34,197,94,0.08) 0%, rgba(255,255,255,0.02) 28%)",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  left: 16,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 30,
-                  height: 30,
-                  borderRadius: 10,
-                  background: `${C.green}18`,
-                  border: `1px solid ${C.green}55`,
-                  display: "grid",
-                  placeItems: "center",
-                  color: C.green,
-                  fontSize: 18,
-                  fontWeight: 800,
-                }}
-              >↑</div>
-              <div style={{ fontSize: 15, lineHeight: 1.45, color: C.textMuted }}>
-                HIV rises <strong style={{ color: C.white }}>two full places</strong> as a top health care issue that policymakers should prioritize.
-              </div>
-            </div>
-            <div
-              style={{
-                width: "100%",
-                border: `1px solid ${C.cardBorder}`,
-                borderRadius: 12,
-                background: "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
-                display: "grid",
-                gridTemplateRows: "1fr auto 1fr",
-                alignItems: "center",
-                justifyItems: "center",
-                padding: "24px 10px",
-                minHeight: 144,
-                position: "relative",
-              }}
-            >
-              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "start" }}>
-                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.green, letterSpacing: 0.8 }}>
-                  POST
-                </div>
-                <div style={{ fontSize: 34, fontWeight: 800, color: C.white, lineHeight: 1 }}>5</div>
-              </div>
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  border: `2px solid ${C.green}`,
-                  display: "grid",
-                  placeItems: "center",
-                  color: C.green,
-                  background: `${C.green}10`,
-                  boxShadow: `0 0 0 6px ${C.green}10`,
-                }}
-              >
-                <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>↑</div>
-              </div>
-              <div style={{ textAlign: "center", display: "grid", gap: 4, alignSelf: "end" }}>
-                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textDim, letterSpacing: 0.8 }}>
-                  PRE
-                </div>
-                <div style={{ fontSize: 34, fontWeight: 800, color: "#94a3b8", lineHeight: 1 }}>7</div>
-              </div>
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: 62,
-                  bottom: 38,
-                  width: 2,
-                  transform: "translateX(-50%)",
-                  background: `linear-gradient(180deg, rgba(148,163,184,0.15) 0%, ${C.green}70 50%, rgba(148,163,184,0.15) 100%)`,
-                }}
-              />
-            </div>
-          </div>
+            <option value="">Select a question</option>
+            {PREPOST_METRICS.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}: {option.question}
+              </option>
+            ))}
+          </select>
         </div>
-        <div style={{ display: "grid", justifyItems: "center", gap: 6 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: MONO, fontSize: 12, color: deltaColor, fontWeight: 800 }}>
-              PRE RANK 7 → POST RANK 5
-            </span>
-            <span style={{ fontFamily: MONO, fontSize: 12, color: C.green, fontWeight: 800 }}>
-              SHIFT +2 PLACES
-            </span>
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
+            {metric.label}
           </div>
+          <div style={{ fontSize: 13, lineHeight: 1.45, color: C.textMuted }}>{metric.question}</div>
+          <div style={{ fontSize: 15, lineHeight: 1.45, color: C.textMuted }}>
+            HIV rises <strong style={{ color: C.white }}>two full places</strong> as a top health care issue that policymakers should prioritize.
+          </div>
+          {surveyPane ? (
+            <div style={{ borderRadius: 8, overflow: "hidden", height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT }}>
+              <div className="topline-root" style={{ margin: 0, height: "100%" }}>
+                <ItemSurveyPane survey={surveyPane} className="executive-summary-pane" style={{ height: "100%" }} />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     );
@@ -1203,7 +1139,7 @@ function TotalPrePostCard({ title, pair }) {
       style={{
         minHeight: 220,
         display: "grid",
-        gridTemplateRows: "minmax(80px, 1fr) auto auto",
+        gridTemplateRows: "auto auto",
         gap: 12,
         padding: "18px 20px",
         border: `1px solid ${C.cardBorder}`,
@@ -1211,192 +1147,46 @@ function TotalPrePostCard({ title, pair }) {
         background: PANEL_DEEP,
       }}
     >
-      {surveyPane ? (
-        <div
+      <div style={{ display: "grid", gap: 4 }}>
+        <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          Question {index + 1}
+        </label>
+        <select
+          value={title}
+          onChange={(e) => onChange?.(e.target.value || null)}
           style={{
-            borderRadius: 8,
-            overflow: "hidden",
-            height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT,
+            width: "100%",
+            minWidth: 0,
+            padding: "8px 10px",
+            background: C.cardBorder,
+            color: C.text,
+            border: `1px solid ${C.cardBorder}`,
+            borderRadius: 4,
+            fontFamily: FONT,
+            fontSize: 13,
+            cursor: "pointer",
           }}
         >
-          <div className="topline-root" style={{ margin: 0, height: "100%" }}>
-            <ItemSurveyPane
-              survey={surveyPane}
-              className="executive-summary-pane"
-              style={{ height: "100%" }}
-            />
-          </div>
-        </div>
-      ) : null}
-      <div style={{ display: "grid", gap: 10 }}>
-        <div
-          style={{
-            display: "grid",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-              height: 82,
-              borderRadius: 8,
-              border: `1px solid ${C.cardBorder}`,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
-              overflow: "hidden",
-              padding: "10px 12px",
-            }}
-          >
-            <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textMuted, letterSpacing: 0.4 }}>
-              PRE
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                left: 12,
-                right: 12,
-                top: "56%",
-                height: 2,
-                transform: "translateY(-50%)",
-                background: `linear-gradient(90deg, ${C.cardBorder} 0%, ${C.textDim}33 100%)`,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                left: preLeft,
-                top: "56%",
-                transform: "translate(-50%, -50%)",
-                width: 14,
-                height: 14,
-                borderRadius: "50%",
-                background: C.textMuted,
-                border: `2px solid ${PANEL_DEEP}`,
-                boxShadow: `0 0 0 2px ${C.textMuted}33`,
-              }}
-            />
-          </div>
-          <div style={{ fontSize: 11, lineHeight: 1.35, color: C.textMuted, textAlign: "center" }}>
-            <span style={{ fontFamily: MONO, fontSize: 12, color: C.textMuted }}>PRE {preDisplay}%</span>
-            {" "}
-            {valueCopy?.pre}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-              height: 82,
-              borderRadius: 8,
-              border: `1px solid ${delta >= 0 ? `${C.green}33` : `${C.red}33`}`,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
-              overflow: "hidden",
-              padding: "10px 12px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.white, letterSpacing: 0.4 }}>
-                POST
-              </div>
-              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: deltaColor, letterSpacing: 0.5 }}>
-                {delta > 0 ? "+" : ""}{delta.toFixed(1)}%
-              </div>
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                left: 12,
-                right: 12,
-                top: "56%",
-                height: 2,
-                transform: "translateY(-50%)",
-                background: `linear-gradient(90deg, ${C.cardBorder} 0%, ${C.textDim}33 100%)`,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                left: 12,
-                top: 32,
-                fontFamily: MONO,
-                fontSize: 9,
-                fontWeight: 800,
-                color: C.textDim,
-                letterSpacing: 0.4,
-              }}
-            >
-              {axisMinLabel}
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                right: 12,
-                top: 32,
-                fontFamily: MONO,
-                fontSize: 9,
-                fontWeight: 800,
-                color: C.textDim,
-                letterSpacing: 0.4,
-              }}
-            >
-              {axisMaxLabel}
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "56%",
-                width: 1,
-                height: 24,
-                transform: "translate(-50%, -50%)",
-                background: `${C.textMuted}55`,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                left: swingLeft,
-                width: swingWidth,
-                top: "56%",
-                height: 10,
-                transform: "translateY(-50%)",
-                background: `${delta >= 0 ? C.green : C.red}33`,
-                borderRadius: 999,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                left: postLeft,
-                top: "56%",
-                transform: "translate(-50%, -50%)",
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: delta >= 0 ? C.green : C.red,
-                border: `2px solid ${PANEL_DEEP}`,
-                boxShadow: `0 0 0 3px ${(delta >= 0 ? C.green : C.red)}22`,
-              }}
-            />
-          </div>
-          <div style={{ fontSize: 11, lineHeight: 1.35, color: C.text, textAlign: "center" }}>
-            <span style={{ fontFamily: MONO, fontSize: 12, color: C.white, fontWeight: 700 }}>POST {postDisplay}%</span>
-            {" "}
-            {valueCopy?.post}
-          </div>
-        </div>
+          <option value="">Select a question</option>
+          {PREPOST_METRICS.map((option) => (
+            <option key={option.key} value={option.key}>
+              {option.label}: {option.question}
+            </option>
+          ))}
+        </select>
       </div>
-      <div style={{ display: "grid", justifyItems: "center", gap: 6 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-          <span style={{ fontFamily: MONO, fontSize: 12, color: deltaColor, fontWeight: 800 }}>
-            SHIFT {delta > 0 ? "+" : ""}
-            {delta.toFixed(1)}%
-          </span>
+      <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
+          {metric.label}
         </div>
+        <div style={{ fontSize: 13, lineHeight: 1.45, color: C.textMuted }}>{metric.question}</div>
+        {surveyPane ? (
+          <div style={{ borderRadius: 8, overflow: "hidden", height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT }}>
+            <div className="topline-root" style={{ margin: 0, height: "100%" }}>
+              <ItemSurveyPane survey={surveyPane} className="executive-summary-pane" style={{ height: "100%" }} />
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -1957,25 +1747,30 @@ function SegmentRow({
 }
 
 export default function ExecutiveSummary() {
-  const [selectedPrePostItems, setSelectedPrePostItems] = useState(() => {
-    const saved = localStorage.getItem("prePostSelection");
-    return normalizePrePostSelection(saved ? JSON.parse(saved) : null, DEFAULT_EXECUTIVE_PREPOST_ITEMS);
-  });
+  const [selectedPrePostItems, setSelectedPrePostItems] = useState(EMPTY_EXECUTIVE_PREPOST_ITEMS);
+  const [devNotes, setDevNotes] = useState(() => localStorage.getItem(EXECUTIVE_DEV_NOTES_STORAGE_KEY) || "");
   const [resetState, setResetState] = useState("default");
   const resetTimerRef = useRef(null);
   const resetDoneTimerRef = useRef(null);
+  const devNotesSaveTimerRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem("prePostSelection", JSON.stringify(selectedPrePostItems));
-  }, [selectedPrePostItems]);
+    if (devNotesSaveTimerRef.current) clearTimeout(devNotesSaveTimerRef.current);
+    devNotesSaveTimerRef.current = setTimeout(() => {
+      localStorage.setItem(EXECUTIVE_DEV_NOTES_STORAGE_KEY, devNotes);
+    }, 500);
+
+    return () => {
+      if (devNotesSaveTimerRef.current) clearTimeout(devNotesSaveTimerRef.current);
+    };
+  }, [devNotes]);
 
   const handleResetPrePost = () => {
     if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     if (resetDoneTimerRef.current) clearTimeout(resetDoneTimerRef.current);
     setResetState("resetting");
     resetTimerRef.current = setTimeout(() => {
-      setSelectedPrePostItems(DEFAULT_EXECUTIVE_PREPOST_ITEMS);
-      localStorage.removeItem("prePostSelection");
+      setSelectedPrePostItems(EMPTY_EXECUTIVE_PREPOST_ITEMS);
       setResetState("reset");
       resetDoneTimerRef.current = setTimeout(() => {
         setResetState("default");
@@ -1984,6 +1779,9 @@ export default function ExecutiveSummary() {
   };
   const totalPopulation = SEGMENTS.reduce((sum, segment) => sum + (segment.pop || 0), 0);
   const totalPrePost = selectedPrePostItems.map((key) => {
+    if (!key) {
+      return { key: null, pair: null };
+    }
     const weighted = SEGMENTS.reduce((acc, segment) => {
       const pair = STUDY_METRICS[segment.code]?.prePost?.[key];
       const weight = segment.pop || 0;
@@ -2073,81 +1871,38 @@ export default function ExecutiveSummary() {
               {EXECUTIVE_KEY_OUTCOMES}
             </div>
           </div>
-          <div style={{ display: "grid", gap: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              <SectionTitle>Total Pre / Post Results</SectionTitle>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={handleResetPrePost}
-                  style={{
-                    background: resetState === "reset" ? `${C.green}18` : resetState === "resetting" ? `${C.violet}12` : "transparent",
-                    color: resetState === "reset" ? C.green : C.cyan,
-                    border: `1px solid ${resetState === "reset" ? C.green : resetState === "resetting" ? C.violet : C.cardBorder}`,
-                    borderRadius: 4,
-                    padding: "6px 10px",
-                    fontFamily: MONO,
-                    fontSize: 10,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    textTransform: "uppercase",
-                    letterSpacing: 0.6,
-                    transition: "background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease",
-                    transform: resetState === "resetting" ? "scale(1.03)" : "scale(1)",
-                  }}
-                >
-                  {resetState === "resetting" ? "Resetting..." : resetState === "reset" ? "Reset" : "Reset"}
-                </button>
-              </div>
-            </div>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, marginBottom: 8 }}>
-              {selectedPrePostItems.map((itemKey, index) => (
-                <div key={index} style={{ display: "grid", gap: 4, minWidth: 0 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                    Question {index + 1}
-                  </label>
-                  <select
-                    value={itemKey}
-                    onChange={(e) => {
-                      const nextValue = e.target.value;
-                      setSelectedPrePostItems((current) =>
-                        current.map((item, itemIndex) => (itemIndex === index ? nextValue : item))
-                      );
-                    }}
-                    style={{
-                      width: "100%",
-                      minWidth: 0,
-                      padding: "8px 10px",
-                      background: C.cardBorder,
-                      color: C.text,
-                      border: `1px solid ${C.cardBorder}`,
-                      borderRadius: 4,
-                      fontFamily: FONT,
-                      fontSize: 13,
-                      cursor: "pointer",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {PREPOST_METRICS.map((metric) => (
-                      <option key={metric.key} value={metric.key}>
-                        {metric.label}: {metric.question}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
-              {totalPrePost.map(({ key, pair }, index) => (
-                <TotalPrePostCard key={`${index}-${key}`} title={key} pair={pair} />
-              ))}
-            </div>
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              padding: "16px 18px",
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: 8,
+              background: PANEL_DEEP,
+            }}
+          >
+            <SectionTitle>Findings</SectionTitle>
+            <textarea
+              value={devNotes}
+              onChange={(e) => setDevNotes(e.target.value)}
+              onBlur={(e) => localStorage.setItem(EXECUTIVE_DEV_NOTES_STORAGE_KEY, e.target.value)}
+              placeholder="Add Key Findings Here..."
+              style={{
+                width: "100%",
+                minHeight: 120,
+                resize: "vertical",
+                padding: "12px 14px",
+                borderRadius: 8,
+                border: `1px solid ${C.cardBorder}`,
+                background: C.card,
+                color: C.text,
+                fontFamily: FONT,
+                fontSize: 14,
+                lineHeight: 1.5,
+                outline: "none",
+              }}
+            />
           </div>
-
           <div style={{ display: "grid", gap: 12 }}>
             <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0, 1fr)", gap: 18, alignItems: "baseline" }}>
               <SectionTitle>Target Audience</SectionTitle>
@@ -2203,6 +1958,73 @@ export default function ExecutiveSummary() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              padding: "16px 18px",
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: 8,
+              background: PANEL_DEEP,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+              }}
+            >
+              <SectionTitle>Total Pre / Post Results</SectionTitle>
+            </div>
+
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ fontSize: 13, color: C.textMuted }}>
+                  Weighted total across the selected executive pre/post questions.
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetPrePost}
+                  style={{
+                    background: resetState === "reset" ? `${C.green}18` : resetState === "resetting" ? `${C.violet}12` : "transparent",
+                    color: resetState === "reset" ? C.green : C.cyan,
+                    border: `1px solid ${resetState === "reset" ? C.green : resetState === "resetting" ? C.violet : C.cardBorder}`,
+                    borderRadius: 4,
+                    padding: "6px 10px",
+                    fontFamily: MONO,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.6,
+                    transition: "background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease",
+                    transform: resetState === "resetting" ? "scale(1.03)" : "scale(1)",
+                  }}
+                >
+                  {resetState === "resetting" ? "Resetting..." : resetState === "reset" ? "Reset" : "Reset"}
+                </button>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
+                {totalPrePost.map(({ key, pair }, index) => (
+                  <TotalPrePostCard
+                    key={`${index}-${key || "empty"}`}
+                    title={key}
+                    pair={pair}
+                    index={index}
+                    onChange={(nextValue) =>
+                      setSelectedPrePostItems((current) =>
+                        current.map((item, itemIndex) => (itemIndex === index ? nextValue : item))
+                      )
+                    }
+                  />
+                ))}
+              </div>
             </div>
           </div>
           </div>
