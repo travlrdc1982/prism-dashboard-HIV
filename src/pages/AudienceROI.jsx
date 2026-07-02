@@ -4,7 +4,7 @@ import DATA from "../data/studyData";
 import { STUDY_METRICS, PREPOST_METRICS, PERSUADABILITY_LABELS, getAssignedTier } from "../data/study";
 import PageHeader from "../components/PageHeader";
 import SegmentCircle from "../components/MessageMap/SegmentCircle";
-import { FONT, MONO } from "../data/theme";
+import { C as TC, FONT, MONO } from "../data/theme";
 
 // ─── Build segment data ───
 const HIV_SEGMENTS = DATA.segments.map(seg => {
@@ -40,26 +40,33 @@ const H = {
   influence: 105,
 };
 
-// ─── PALETTE ───
+// ─── FIXED CHART COLORS (semantic — unchanged across themes) ───
+const PERSUASION_COLOR = "#5b93c7";
+const PERSUASION_LIGHT = "#7eb3e0";
+const PERSUASION_MUTED = "#3a6a94";
+const INFLUENCE_COLOR  = "#818cf8";
+const COALITION_COLOR  = "#3b82f6";
+
+// ─── PALETTE (structural colors from theme; chart colors fixed above) ───
 const C = {
-  bg: "#080c16",
-  card: "#0f1520",
-  border: "#1e293b",
-  text1: "#f1f5f9",
-  text2: "#94a3b8",
-  text3: "#64748b",
-  accent: "#5b93c7",
-  accentLight: "#7eb3e0",
-  accentMuted: "#3a6a94",
-  accentDim: "#1a2030",
-  tier1: "#34d399", tier1Bg: "#064e3b",
-  tier2: "#eab308", tier2Bg: "#854d0e",
-  tier3: "#ef4444", tier3Bg: "#991b1b",
-  activation: "#a78bfa",
-  influence: "#818cf8",
-  coalition: "#3b82f6",
-  persuasion: "#5b93c7",
-  violet: "#a78bfa",
+  bg:           TC.bg,
+  card:         TC.card,
+  border:       TC.cardBorder,
+  text1:        TC.white,
+  text2:        TC.textMuted,
+  text3:        TC.textDim,
+  accent:       PERSUASION_COLOR,
+  accentLight:  PERSUASION_LIGHT,
+  accentMuted:  PERSUASION_MUTED,
+  accentDim:    TC.panelDeep,
+  tier1: "#34d399", tier1Bg: TC.tier1Bg,
+  tier2: "#eab308", tier2Bg: TC.tier2Bg,
+  tier3: "#ef4444", tier3Bg: TC.tier3Bg,
+  activation:   TC.violet,
+  influence:    INFLUENCE_COLOR,
+  coalition:    COALITION_COLOR,
+  persuasion:   PERSUASION_COLOR,
+  violet:       TC.violet,
 };
 
 function tierColor(t) { return t === 1 ? C.tier1 : t === 2 ? C.tier2 : C.tier3; }
@@ -329,7 +336,7 @@ function SegmentColumn({ seg, expanded, widened, dim, onClick, onNav }) {
         <div style={{
           borderBottom: `1px solid ${C.border}`, width: "100%",
           display: "flex", flexDirection: "column",
-          background: "#0d1118", height: prePostH,
+          background: TC.panelDeep, height: prePostH,
           padding: "4px 3px", justifyContent: "center"
         }}>
           <div style={{ height: H.prePostPad - 8 }} />

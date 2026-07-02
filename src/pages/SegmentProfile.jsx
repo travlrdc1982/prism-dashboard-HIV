@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { C as TC } from "../data/theme";
 import { USAMap } from "@mirawision/usa-map-react";
 import IdeologyHeatmap from "./IdeologyHeatmap";
 import HIVTab from "./HIVTab";
@@ -295,15 +296,28 @@ const TIER_ACCENT = {1:"#34d399",2:"#eab308",3:"#ef4444"};
 const TIER_LABELS = {1:"TIER 1",2:"TIER 2",3:"TIER 3"};
 
 
-// Color palette
+// Fixed chart/ring colors (semantic — unchanged across themes)
+const ACCENT_BLUE       = "#5b93c7";
+const ACCENT_BLUE_LIGHT = "#7eb3e0";
+
+// Color palette (structural colors from theme; chart colors fixed above)
 const C = {
-  bg:"#080c16", card:"#111620", border:"#1c2433",
-  text1:"#e7edf5", text2:"#96a7ba", text3:"#64748b",
-  accent:"#5b93c7", accentLight:"#7eb3e0",
-  ring1:"#5b93c7", ring2:"#1c2433",
-  mapActive:"#5b93c7", mapActiveBorder:"#7eb3e0",
-  mapIdle:"#151c28", mapIdleBorder:"#222d3d",
+  bg:               TC.bg,
+  card:             TC.card,
+  border:           TC.cardBorder,
+  text1:            TC.white,
+  text2:            TC.textMuted,
+  text3:            TC.textDim,
+  accent:           ACCENT_BLUE,
+  accentLight:      ACCENT_BLUE_LIGHT,
+  ring1:            ACCENT_BLUE,
+  ring2:            TC.cardBorder,
+  mapActive:        ACCENT_BLUE,
+  mapActiveBorder:  ACCENT_BLUE_LIGHT,
+  mapIdle:          TC.panelDeep,
+  mapIdleBorder:    TC.cardBorder,
 };
+
 
 // ─── US STATE PATHS for geography ───
 const STATE_PATHS = {

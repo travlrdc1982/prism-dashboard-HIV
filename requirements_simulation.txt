@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+statsmodels
+pydantic
+statsmodels
+pydantic

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { C } from './data/theme';
 import { supabase } from "./supabaseClient";
 import Shell from "./components/Shell";
 import SegmentMap from "./pages/SegmentMap";
@@ -40,7 +41,7 @@ export default function App() {
 
   if (!BYPASS_AUTH) {
     if (session === undefined) {
-      return <div style={{ minHeight:"100vh", background:"#080c16", display:"flex", alignItems:"center", justifyContent:"center", color:"#64748b", fontFamily:"'Nunito',sans-serif", fontSize:12 }}>Loading...</div>;
+      return <div style={{ minHeight:"100vh", background:C.bg, display:"flex", alignItems:"center", justifyContent:"center", color:"#64748b", fontFamily:"'Nunito',sans-serif", fontSize:12 }}>Loading...</div>;
     }
     if (!session) {
       return <Login onAuth={() => {}} />;

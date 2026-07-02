@@ -85,8 +85,8 @@ export default function Shell() {
               style={({ isActive }) => ({
                 fontSize: 9, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase",
                 padding: "4px 10px", borderRadius: 4,
-                border: `1px solid ${isActive ? "#3b82f6" : C.cardBorder}`,
-                color: isActive ? "#60a5fa" : C.textDim,
+                border: `1px solid ${isActive ? C.partyDEM : C.cardBorder}`,
+                color: isActive ? C.govtBlue : C.textDim,
                 textDecoration: "none", fontFamily: "'Nunito',sans-serif",
               })}
             >

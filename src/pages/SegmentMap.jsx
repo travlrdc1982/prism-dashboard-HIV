@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SEG_BY_CODE } from "../data/generated/segments";
+import { C } from "../data/theme";
 
 // ─── BUBBLE LAYOUT: exact coords/sizes/z from the HTML; display names
 // carry line breaks. party + pop come from the generated segment table
@@ -144,7 +145,7 @@ function BubbleCircle({ b, isActive, isDim, onClick }) {
       {/* Population badge */}
       <circle
         cx={cx + r * 0.55} cy={cy - r * 0.55} r={r * 0.14}
-        fill="#0f172a"
+        fill={C.card}
         stroke={stroke}
         strokeWidth={2}
         opacity={isDim ? 0.2 : 0.9}
@@ -153,7 +154,7 @@ function BubbleCircle({ b, isActive, isDim, onClick }) {
         x={cx + r * 0.55} y={cy - r * 0.55}
         textAnchor="middle"
         dominantBaseline="central"
-        fill="#e2e8f0"
+        fill={C.text}
         fontSize={r * 0.1}
         fontWeight={700}
         fontFamily="'JetBrains Mono', monospace"
@@ -205,16 +206,16 @@ export default function BubbleMap() {
           {/* Subtle grid */}
           <defs>
             <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse">
-              <path d="M 200 0 L 0 0 0 200" fill="none" stroke="#1a1f2a" strokeWidth="0.5" />
+              <path d="M 200 0 L 0 0 0 200" fill="none" stroke={C.cardBorder} strokeWidth="0.5" />
             </pattern>
           </defs>
-          <rect width={STAGE_W} height={STAGE_H} fill="#0b0e13" />
+          <rect width={STAGE_W} height={STAGE_H} fill={C.bg} />
           <rect width={STAGE_W} height={STAGE_H} fill="url(#grid)" opacity="0.4" />
 
           {/* Divider line between DEM and GOP clusters */}
           <line
             x1={2650} y1={0} x2={2650} y2={STAGE_H}
-            stroke="#1e293b" strokeWidth={3} strokeDasharray="20,15"
+            stroke={C.cardBorder} strokeWidth={3} strokeDasharray="20,15"
             opacity={0.4}
           />
           <text x={1300} y={60} fill="#3b82f6" fontSize={48} fontWeight={700}

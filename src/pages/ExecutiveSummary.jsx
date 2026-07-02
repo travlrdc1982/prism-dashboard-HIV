@@ -10,7 +10,7 @@ import dashboard from "../data/topline/dashboard.json";
 import { SEGMENTS } from "./SegmentProfile";
 
 const PANEL = C.card;
-const PANEL_DEEP = "#0a0f1a";
+const PANEL_DEEP = C.panelDeep;
 const TRACK = C.cardBorder;
 const PERSUADE = "#5b93c7";
 const SUPPORT = C.partyDEM;
@@ -42,7 +42,7 @@ const PREPOST_SURVEY_BY_KEY = Object.fromEntries(
 );
 const EXECUTIVE_DEV_NOTES_STORAGE_KEY = "executiveSummaryDevNotes";
 const DEFAULT_EXECUTIVE_PREPOST_ITEMS = ["item1", "item6", "item7"];
-const EMPTY_EXECUTIVE_PREPOST_ITEMS = [null, null, null];
+const EMPTY_EXECUTIVE_PREPOST_ITEMS = [...DEFAULT_EXECUTIVE_PREPOST_ITEMS];
 const DEFAULT_SEGMENT_PREPOST_ITEMS = ["item1", "item6"];
 const EXECUTIVE_SURVEY_CAPTURE_HEIGHT = 372;
 const SEGMENT_SUMMARY_RULES = dashboard.ui?.segment_summary?.rules || {};
@@ -92,6 +92,21 @@ const SCF_BY_CODE = Object.fromEntries(
     .filter(([code]) => code !== "TOTAL")
     .map(([code, value]) => [code, value.val])
 );
+
+const PREPOST_DROPDOWN_QUESTIONS = {
+  item1: "Priority of HIV/AIDS for elected officials",
+  item2: "Concern about HIV's impact locally",
+  item3: "Concern about reduced access to prevention and treatment",
+  item4: "How relevant HIV feels personally or locally",
+  item5: "Support for expanding PrEP and treatment access",
+  item6: "Opposition to cutting HIV treatment assistance",
+  item7: "View on next-generation HIV innovation investment",
+};
+
+function dropdownQuestionFor(metric) {
+  return PREPOST_DROPDOWN_QUESTIONS[metric?.key] || metric?.question || "";
+}
+
 function wordingFor(message, proofVariant, arm, segmentCode) {
   const variant = (dashboard.variants?.messages || []).find((item) => {
     const id = parseInt(String(item.msg_id).split("_").pop(), 10);
@@ -430,8 +445,8 @@ function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "de
                             type="button"
                             onClick={() => onSwap?.(option)}
                             style={{
-                              background: "#2563eb",
-                              color: C.white,
+                              background: C.cyan,
+                              color: C.card,
                               border: "none",
                               borderRadius: 4,
                               padding: "7px 12px",
@@ -623,7 +638,40 @@ function getCompressedPrePostScale(pre, post) {
   };
 }
 
-function PrePostFinding({ title, pair }) {
+function PrePostSelector({ index, value, onChange }) {
+  return (
+    <div style={{ display: "grid", gap: 4 }}>
+      <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+        Question {index + 1}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange?.(e.target.value || null)}
+        style={{
+          width: "100%",
+          minWidth: 0,
+          padding: "8px 10px",
+          background: C.cardBorder,
+          color: C.text,
+          border: `1px solid ${C.cardBorder}`,
+          borderRadius: 4,
+          fontFamily: FONT,
+          fontSize: 13,
+          cursor: "pointer",
+        }}
+      >
+        <option value="">Select a question</option>
+        {PREPOST_METRICS.map((option) => (
+          <option key={option.key} value={option.key}>
+            {option.label}: {dropdownQuestionFor(option)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function PrePostFinding({ title, pair, selector = null }) {
   if (!pair) {
     return <FindingSlot>[{title}]</FindingSlot>;
   }
@@ -675,7 +723,7 @@ function PrePostFinding({ title, pair }) {
         style={{
           minHeight: 132,
           display: "grid",
-          gridTemplateRows: "auto auto minmax(0, 1fr) auto",
+          gridTemplateRows: selector ? "auto auto auto minmax(0, 1fr) auto" : "auto auto minmax(0, 1fr) auto",
           gap: 12,
           padding: "18px 20px",
           border: `1px solid ${C.cardBorder}`,
@@ -683,6 +731,7 @@ function PrePostFinding({ title, pair }) {
           background: PANEL_DEEP,
         }}
       >
+        {selector}
         <div style={{ display: "grid", gap: 6 }}>
           <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
             {metric?.label || title}
@@ -722,7 +771,7 @@ function PrePostFinding({ title, pair }) {
                 padding: "14px 16px 14px 68px",
                 position: "relative",
                 minHeight: 144,
-                background: "linear-gradient(90deg, rgba(34,197,94,0.08) 0%, rgba(255,255,255,0.02) 28%)",
+                background: `linear-gradient(90deg, ${C.greenTint} 0%, ${C.glassB} 28%)`,
                 display: "flex",
                 alignItems: "center",
               }}
@@ -754,7 +803,7 @@ function PrePostFinding({ title, pair }) {
                 width: "100%",
                 border: `1px solid ${C.cardBorder}`,
                 borderRadius: 12,
-                background: "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
+                background: `linear-gradient(180deg, ${C.glassA}, ${C.glassB})`,
                 display: "grid",
                 gridTemplateRows: "1fr auto 1fr",
                 alignItems: "center",
@@ -789,7 +838,7 @@ function PrePostFinding({ title, pair }) {
                 <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.textDim, letterSpacing: 0.8 }}>
                   PRE
                 </div>
-                <div style={{ fontSize: 34, fontWeight: 800, color: "#94a3b8", lineHeight: 1 }}>7</div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: C.textDim, lineHeight: 1 }}>7</div>
               </div>
               <div
                 style={{
@@ -824,7 +873,7 @@ function PrePostFinding({ title, pair }) {
       style={{
         minHeight: 132,
         display: "grid",
-        gridTemplateRows: "auto auto minmax(0, 1fr) auto",
+        gridTemplateRows: selector ? "auto auto auto minmax(0, 1fr) auto" : "auto auto minmax(0, 1fr) auto",
         gap: 12,
         padding: "18px 20px",
         border: `1px solid ${C.cardBorder}`,
@@ -832,6 +881,7 @@ function PrePostFinding({ title, pair }) {
         background: PANEL_DEEP,
       }}
     >
+      {selector}
       <div style={{ display: "grid", gap: 6 }}>
         <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
           {metric?.label || title}
@@ -862,7 +912,7 @@ function PrePostFinding({ title, pair }) {
               height: 82,
               borderRadius: 8,
               border: `1px solid ${C.cardBorder}`,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
+              background: `linear-gradient(180deg, ${C.glassA} 0%, ${C.glassB} 100%)`,
               overflow: "hidden",
               padding: "10px 12px",
             }}
@@ -909,7 +959,7 @@ function PrePostFinding({ title, pair }) {
               height: 82,
               borderRadius: 8,
               border: `1px solid ${delta >= 0 ? `${C.green}33` : `${C.red}33`}`,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
+              background: `linear-gradient(180deg, ${C.glassA} 0%, ${C.glassB} 100%)`,
               overflow: "hidden",
               padding: "10px 12px",
             }}
@@ -1036,159 +1086,18 @@ function TotalPrePostCard({ title, pair, index, onChange }) {
           background: PANEL_DEEP,
         }}
       >
-        <div style={{ display: "grid", gap: 4 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Question {index + 1}
-          </label>
-          <select
-            value=""
-            onChange={(e) => onChange?.(e.target.value || null)}
-            style={{
-              width: "100%",
-              minWidth: 0,
-              padding: "8px 10px",
-              background: C.cardBorder,
-              color: C.text,
-              border: `1px solid ${C.cardBorder}`,
-              borderRadius: 4,
-              fontFamily: FONT,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            <option value="">Select a question</option>
-            {PREPOST_METRICS.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}: {option.question}
-              </option>
-            ))}
-          </select>
-        </div>
+        <PrePostSelector index={index} value="" onChange={onChange} />
       </div>
     );
   }
 
   if (!pair) return null;
-
-  const surveyPane = PREPOST_SURVEY_BY_KEY[title];
-  const isPriorityRankCard = title === "item1";
-  if (isPriorityRankCard) {
-    return (
-      <div
-        style={{
-          minHeight: 132,
-          display: "grid",
-          gridTemplateRows: "auto auto",
-          gap: 12,
-          padding: "18px 20px",
-          border: `1px solid ${C.cardBorder}`,
-          borderRadius: 8,
-          background: PANEL_DEEP,
-        }}
-      >
-        <div style={{ display: "grid", gap: 4 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Question {index + 1}
-          </label>
-          <select
-            value={title}
-            onChange={(e) => onChange?.(e.target.value || null)}
-            style={{
-              width: "100%",
-              minWidth: 0,
-              padding: "8px 10px",
-              background: C.cardBorder,
-              color: C.text,
-              border: `1px solid ${C.cardBorder}`,
-              borderRadius: 4,
-              fontFamily: FONT,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            <option value="">Select a question</option>
-            {PREPOST_METRICS.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}: {option.question}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "grid", gap: 10 }}>
-          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
-            {metric.label}
-          </div>
-          <div style={{ fontSize: 13, lineHeight: 1.45, color: C.textMuted }}>{metric.question}</div>
-          <div style={{ fontSize: 15, lineHeight: 1.45, color: C.textMuted }}>
-            HIV rises <strong style={{ color: C.white }}>two full places</strong> as a top health care issue that policymakers should prioritize.
-          </div>
-          {surveyPane ? (
-            <div style={{ borderRadius: 8, overflow: "hidden", height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT }}>
-              <div className="topline-root" style={{ margin: 0, height: "100%" }}>
-                <ItemSurveyPane survey={surveyPane} className="executive-summary-pane" style={{ height: "100%" }} />
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
-      style={{
-        minHeight: 220,
-        display: "grid",
-        gridTemplateRows: "auto auto",
-        gap: 12,
-        padding: "18px 20px",
-        border: `1px solid ${C.cardBorder}`,
-        borderRadius: 8,
-        background: PANEL_DEEP,
-      }}
-    >
-      <div style={{ display: "grid", gap: 4 }}>
-        <label style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-          Question {index + 1}
-        </label>
-        <select
-          value={title}
-          onChange={(e) => onChange?.(e.target.value || null)}
-          style={{
-            width: "100%",
-            minWidth: 0,
-            padding: "8px 10px",
-            background: C.cardBorder,
-            color: C.text,
-            border: `1px solid ${C.cardBorder}`,
-            borderRadius: 4,
-            fontFamily: FONT,
-            fontSize: 13,
-            cursor: "pointer",
-          }}
-        >
-          <option value="">Select a question</option>
-          {PREPOST_METRICS.map((option) => (
-            <option key={option.key} value={option.key}>
-              {option.label}: {option.question}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div style={{ display: "grid", gap: 10 }}>
-        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 800, color: C.textMuted, letterSpacing: 0.6, textTransform: "uppercase" }}>
-          {metric.label}
-        </div>
-        <div style={{ fontSize: 13, lineHeight: 1.45, color: C.textMuted }}>{metric.question}</div>
-        {surveyPane ? (
-          <div style={{ borderRadius: 8, overflow: "hidden", height: EXECUTIVE_SURVEY_CAPTURE_HEIGHT }}>
-            <div className="topline-root" style={{ margin: 0, height: "100%" }}>
-              <ItemSurveyPane survey={surveyPane} className="executive-summary-pane" style={{ height: "100%" }} />
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
+    <PrePostFinding
+      title={title}
+      pair={pair}
+      selector={<PrePostSelector index={index} value={title} onChange={onChange} />}
+    />
   );
 }
 
@@ -1638,7 +1547,7 @@ function SegmentRow({
               >
                 {PREPOST_METRICS.map((metric) => (
                   <option key={metric.key} value={metric.key}>
-                    {metric.label}: {metric.question}
+                    {metric.label}: {dropdownQuestionFor(metric)}
                   </option>
                 ))}
               </select>
@@ -1654,7 +1563,7 @@ function SegmentRow({
         <div
           style={{
             height: 0,
-            borderTop: "2px solid rgba(255,255,255,0.9)",
+            borderTop: `2px solid ${C.dividerStrong}`,
             margin: "8px 0 2px -324px",
           }}
         />

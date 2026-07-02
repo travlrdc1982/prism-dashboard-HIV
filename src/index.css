@@ -1,13 +1,13 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Inter', -apple-system, sans-serif;
-  background: #080c16;
-  color: #dde6f0;
+  background: var(--t-bg, #080c16);
+  color: var(--t-text, #dde6f0);
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }
 button { font-family: inherit; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0f1520; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--t-scrollbar-track, #0f1520); }
+::-webkit-scrollbar-thumb { background: var(--t-scrollbar-thumb, #334155); border-radius: 3px; }

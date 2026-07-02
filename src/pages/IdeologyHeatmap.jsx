@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { C } from '../data/theme';
 
 // ─── SEGMENT ORDER ───
 const SEGS = [
@@ -23,7 +24,7 @@ const SEGS = [
 // ─── GROUPED DIMENSIONS ───
 const GROUPS = [
   {
-    label: "MARKETS", color: "#34d399",
+    label: "MARKETS", color: C.green,
     dims: [
       { key:"regulation", label:"Regulation",   lo:"Necessary",       hi:"Harmful" },
       { key:"sizeofgovt", label:"Size of Govt", lo:"Do more",         hi:"Spends too much" },
@@ -31,13 +32,13 @@ const GROUPS = [
     ],
   },
   {
-    label: "MFA", color: "#f59e0b",
+    label: "MFA", color: C.amber,
     dims: [
       { key:"mfa", label:"Health Care", lo:"Right / public system", hi:"Private market" },
     ],
   },
   {
-    label: "PLANET", color: "#60a5fa",
+    label: "PLANET", color: C.blue,
     dims: [
       { key:"enviro",  label:"Environment",    lo:"Protect",        hi:"Gone too far" },
       { key:"climate", label:"Climate Change", lo:"Serious threat", hi:"Overblown" },
@@ -100,6 +101,13 @@ function getColor(val) {
 }
 
 function getTextColor(val) {
+  if (!C.isDark) {
+    if (val >= 5.3) return "#7f1d1d";
+    if (val >= 4.8) return "#374151";
+    if (val <= 2.5) return "#1e3a5f";
+    if (val <= 3.2) return "#374151";
+    return "#374151";
+  }
   if (val >= 5.3) return "#fecaca";
   if (val >= 4.8) return "#d1d5db";
   if (val <= 2.5) return "#bfdbfe";
@@ -132,22 +140,22 @@ export default function IdeologyHeatmap() {
   return (
     <div style={{
       fontFamily: "'Quicksand',-apple-system,sans-serif",
-      color: "#e2e8f0",
+      color: C.text,
     }}>
 
       <div style={{ maxWidth: 1500, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 9, letterSpacing: 3, color: "#475569", marginBottom: 3, fontWeight: 600 }}>
+          <div style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 9, letterSpacing: 3, color: C.textDim, marginBottom: 3, fontWeight: 600 }}>
             RESERVOIR HEALTH PRISM PULSE
           </div>
-          <h1 style={{ fontFamily: "'Poppins',sans-serif", fontSize: 22, fontWeight: 800, color: "#f1f5f9", margin: 0 }}>
+          <h1 style={{ fontFamily: "'Poppins',sans-serif", fontSize: 22, fontWeight: 800, color: C.white, margin: 0 }}>
             IDEOLOGY HEATMAP
           </h1>
-          <div style={{ fontFamily: "'Poppins',sans-serif", fontSize: 13, fontWeight: 600, color: "#a78bfa", marginTop: 2 }}>
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontSize: 13, fontWeight: 600, color: C.violet, marginTop: 2 }}>
             15 IDEOLOGICAL DIMENSIONS × 16 PRISM SEGMENTS
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", maxWidth: 900, lineHeight: 1.6, marginTop: 6 }}>
+          <div style={{ fontSize: 11, color: C.textMuted, maxWidth: 900, lineHeight: 1.6, marginTop: 6 }}>
             Segment means on 1–7 bipolar scales grouped by factor domain. Deviation from the 16-segment 
             mean shown below each score. Click any segment header to sort within groups.
           </div>
@@ -167,7 +175,7 @@ export default function IdeologyHeatmap() {
               </div>
             ))}
           </div>
-          <span style={{ fontSize: 8, color: "#60a5fa", fontWeight: 600 }}>← progressive</span>
+          <span style={{ fontSize: 8, color: C.blue, fontWeight: 600 }}>← progressive</span>
           <span style={{ fontSize: 8, color: "#f87171", fontWeight: 600 }}>conservative →</span>
           <div style={{ marginLeft: 12, display: "flex", gap: 10 }}>
             {GROUPS.map(g => (
@@ -184,29 +192,29 @@ export default function IdeologyHeatmap() {
           <table style={{ borderCollapse: "separate", borderSpacing: "1px 1px", width: "100%" }}>
             <thead>
               <tr>
-                <th style={{ background: "#080c16", width: 36 }} />
-                <th style={{ background: "#080c16", width: 86 }} />
-                <th style={{ background: "#080c16", width: 80 }} />
+                <th style={{ background: C.bg, width: 36 }} />
+                <th style={{ background: C.bg, width: 86 }} />
+                <th style={{ background: C.bg, width: 80 }} />
                 <th colSpan={10} style={{
-                  background: "#110808", color: "#f87171",
+                  background: C.gopSectionBg, color: C.partyGOP,
                   fontFamily: "'Poppins',sans-serif", fontSize: 8, fontWeight: 700,
                   letterSpacing: 2, padding: "4px 0", textAlign: "center",
-                  borderBottom: "2px solid rgba(248,113,113,0.4)",
+                  borderBottom: `2px solid ${C.partyGOP}66`,
                 }}>REPUBLICAN</th>
                 <th colSpan={6} style={{
-                  background: "#080811", color: "#60a5fa",
+                  background: C.demSectionBg, color: C.blue,
                   fontFamily: "'Poppins',sans-serif", fontSize: 8, fontWeight: 700,
                   letterSpacing: 2, padding: "4px 0", textAlign: "center",
-                  borderBottom: "2px solid rgba(96,165,250,0.4)",
+                  borderBottom: `2px solid ${C.partyDEM}66`,
                 }}>DEMOCRAT</th>
               </tr>
               <tr>
-                <th style={{ background: "#0a0d14", padding: 2 }} />
-                <th style={{ background: "#0a0d14", padding: "3px 4px", textAlign: "left" }}>
-                  <span style={{ fontSize: 7, color: "#475569", fontWeight: 600 }}>dimension</span>
+                <th style={{ background: C.panelDeep, padding: 2 }} />
+                <th style={{ background: C.panelDeep, padding: "3px 4px", textAlign: "left" }}>
+                  <span style={{ fontSize: 7, color: C.textDim, fontWeight: 600 }}>dimension</span>
                 </th>
-                <th style={{ background: "#0a0d14", padding: "3px 4px", textAlign: "left" }}>
-                  <span style={{ fontSize: 6, color: "#334155", fontWeight: 500 }}>polarity</span>
+                <th style={{ background: C.panelDeep, padding: "3px 4px", textAlign: "left" }}>
+                  <span style={{ fontSize: 6, color: C.textDim, fontWeight: 500 }}>polarity</span>
                 </th>
                 {SEGS.map((seg, si) => (
                   <th key={seg.code}
@@ -214,22 +222,22 @@ export default function IdeologyHeatmap() {
                     onMouseEnter={() => setHoverCol(si)}
                     onMouseLeave={() => setHoverCol(null)}
                     style={{
-                      background: sortCol === si ? "#111827" : "#0a0d14",
+                      background: sortCol === si ? C.card : C.panelDeep,
                       width: 58, minWidth: 58, maxWidth: 58,
                       padding: "4px 1px", cursor: "pointer",
                       verticalAlign: "bottom", textAlign: "center",
                       borderBottom: sortCol === si
-                        ? `2px solid ${seg.party === "GOP" ? "#f87171" : "#60a5fa"}`
+                        ? `2px solid ${seg.party === "GOP" ? "#f87171" : C.blue}`
                         : "1px solid transparent",
                       transition: "all 0.15s",
                     }}>
                     <div style={{
                       fontSize: 10, fontWeight: 700,
-                      color: seg.party === "GOP" ? "#fca5a5" : "#93c5fd",
+                      color: seg.party === "GOP" ? C.partyGOP : C.partyDEM,
                       fontFamily: "'Poppins',sans-serif",
                     }}>{seg.code}</div>
                     <div style={{
-                      fontSize: 5, fontWeight: 600, color: "#4b5563",
+                      fontSize: 5, fontWeight: 600, color: C.textDim,
                       textTransform: "uppercase", lineHeight: 1.2,
                       marginTop: 1, wordBreak: "break-word",
                       overflowWrap: "break-word",
@@ -254,7 +262,7 @@ export default function IdeologyHeatmap() {
                       >
                         {isFirst && (
                           <td rowSpan={group.dims.length} style={{
-                            background: "#0a0d14",
+                            background: C.panelDeep,
                             borderLeft: `3px solid ${group.color}`,
                             padding: "4px 2px", verticalAlign: "middle",
                             textAlign: "center", width: 36,
@@ -273,17 +281,17 @@ export default function IdeologyHeatmap() {
                         )}
 
                         <td style={{
-                          background: isHovRow ? "#0f1320" : "#0a0d14",
+                          background: isHovRow ? C.card : C.panelDeep,
                           padding: "5px 4px", verticalAlign: "middle",
                         }}>
                           <span style={{
-                            fontSize: 10, fontWeight: 700, color: "#bfc8d4",
+                            fontSize: 10, fontWeight: 700, color: C.textMuted,
                             letterSpacing: 0.2,
                           }}>{dim.label}</span>
                         </td>
 
                         <td style={{
-                          background: isHovRow ? "#0f1320" : "#0a0d14",
+                          background: isHovRow ? C.card : C.panelDeep,
                           padding: "3px 4px", verticalAlign: "middle",
                         }}>
                           <div style={{ fontSize: 6, color: "#6b93c0", fontWeight: 600, lineHeight: 1.3 }}>
@@ -332,7 +340,7 @@ export default function IdeologyHeatmap() {
                     );
                   })}
                   {gi < sortedGroups.length - 1 && (
-                    <tr><td colSpan={19} style={{ height: 5, background: "#080c16" }} /></tr>
+                    <tr><td colSpan={19} style={{ height: 5, background: C.bg }} /></tr>
                   )}
                 </React.Fragment>
               ))}
@@ -341,8 +349,8 @@ export default function IdeologyHeatmap() {
         </div>
 
         <div style={{
-          marginTop: 16, padding: "8px 0", borderTop: "1px solid #1e293b",
-          fontSize: 8, color: "#475569", fontWeight: 600,
+          marginTop: 16, padding: "8px 0", borderTop: `1px solid ${C.cardBorder}`,
+          fontSize: 8, color: C.textDim, fontWeight: 600,
           display: "flex", justifyContent: "space-between",
         }}>
           <span>PRISM V3.1 · RESERVOIR COMMUNICATIONS GROUP · CONFIDENTIAL & PROPRIETARY</span>
