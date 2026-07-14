@@ -6,11 +6,11 @@ import { STUDY_META } from "../data/study";
 import { isAdminEmail } from "../data/admins";
 
 const NAV_ITEMS = [
+  { to: "/executive-summary", label: "EXECUTIVE SUMMARY" },
   { to: "/",          label: "AUDIENCE MAP" },
   { to: "/roi",       label: "AUDIENCE ROI" },
   { to: "/messages",  label: "MESSAGE MAP" },
   { to: "/profile",   label: "AUDIENCE PROFILES" },
-  { to: "/executive-summary", label: "EXECUTIVE SUMMARY" },
   { to: "/topline",   label: "TOPLINE" },
 ];
 

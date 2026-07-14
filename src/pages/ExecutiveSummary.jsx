@@ -1706,7 +1706,7 @@ export default function ExecutiveSummary() {
   const rankedSegments = [...SEGMENTS].sort(
     (a, b) => (STUDY_METRICS[b.code]?.roi ?? -Infinity) - (STUDY_METRICS[a.code]?.roi ?? -Infinity)
   );
-  const visibleSegments = rankedSegments.slice(0, 5);
+  const visibleSegments = rankedSegments.slice(0, 7);
   const visibleSegmentRows = visibleSegments.map((segment) => {
     const metrics = STUDY_METRICS[segment.code];
     const scf = SCF_BY_CODE[segment.code];
@@ -1734,9 +1734,9 @@ export default function ExecutiveSummary() {
       engagementColor,
       messageBuckets,
       defaultMessages: [
-        { bucketKey: "lead_with", title: "Lead With", metricType: "utility", message: messageBuckets.lead_with?.[0] || preferredMessage || null },
-        { bucketKey: "persuade", title: "Persuade", metricType: "persuade", message: messageBuckets.persuade?.[0] || topPersuadeMessage || null },
-        { bucketKey: "reinforce", title: "Reinforce", metricType: "reinforce", message: messageBuckets.reinforce?.[0] || topReinforceMessage || null },
+        { bucketKey: "lead_with", title: "Key message 1", metricType: "utility", message: messageBuckets.lead_with?.[0] || preferredMessage || null },
+        { bucketKey: "persuade", title: "Key message 2", metricType: "persuade", message: messageBuckets.persuade?.[0] || topPersuadeMessage || null },
+        { bucketKey: "reinforce", title: "Key message 3", metricType: "reinforce", message: messageBuckets.reinforce?.[0] || topReinforceMessage || null },
       ],
       segmentQuote:
         trimQuote(
