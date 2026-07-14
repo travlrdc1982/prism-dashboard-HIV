@@ -231,7 +231,7 @@ function pickTopMessageCells(metric, segmentId, segmentCode, excludeMessageIds =
     }
   }
 
-  return [...bestByMessage.values()]
+  const rankedMessages = [...bestByMessage.values()]
     .map((cell) => {
       const message = DASHBOARD_MESSAGES.find((item) => item.id === cell.message);
       return {
@@ -249,8 +249,9 @@ function pickTopMessageCells(metric, segmentId, segmentCode, excludeMessageIds =
         significant: cell.ci_low > 0,
       };
     })
-    .sort((a, b) => b.lift_shrunk - a.lift_shrunk)
-    .slice(0, limit);
+    .sort((a, b) => b.lift_shrunk - a.lift_shrunk);
+
+  return Number.isFinite(limit) ? rankedMessages.slice(0, limit) : rankedMessages;
 }
 
 function buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage = null) {
@@ -262,12 +263,11 @@ function buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage 
       })
       .filter(Boolean)
   );
-  const fullBucketLimit = 8;
   const persuadeCells = dashboardSegment
-    ? pickTopMessageCells("persuasion_messaging", dashboardSegment.id, segment.code, new Set(), fullBucketLimit)
+    ? pickTopMessageCells("persuasion_messaging", dashboardSegment.id, segment.code, new Set(), Infinity)
     : [];
   const mobilizeCells = dashboardSegment
-    ? pickTopMessageCells("base_messaging", dashboardSegment.id, segment.code, new Set(), fullBucketLimit)
+    ? pickTopMessageCells("base_messaging", dashboardSegment.id, segment.code, new Set(), Infinity)
     : [];
   const persuadeMessages = persuadeCells.map((item) => ({
     ...item,
@@ -292,18 +292,127 @@ function buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage 
   };
 }
 
-function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "default", onSwap }) {
+function buildAllSegmentMessageOptions(segmentCode, dashboardSegment) {
+  const segmentId = dashboardSegment?.id;
+  const bestPersuadeByMessage = new Map();
+  const bestMobilizeByMessage = new Map();
+
+  if (segmentId != null) {
+    for (const metric of ["persuasion_messaging", "base_messaging"]) {
+      const metricMap =
+        metric === "persuasion_messaging" ? bestPersuadeByMessage : bestMobilizeByMessage;
+
+      for (const cell of dashboard.message_map_cells?.[metric] || []) {
+        if (cell.segment !== segmentId || cell.lift_shrunk == null) continue;
+
+        const currentMetricBest = metricMap.get(cell.message);
+        if (!currentMetricBest || cell.lift_shrunk > currentMetricBest.lift_shrunk) {
+          metricMap.set(cell.message, { ...cell, sourceMetric: metric });
+        }
+      }
+    }
+  }
+
+  return (dashboard.message_topline || [])
+    .map((entry) => {
+      const segmentData = entry.by_segment?.[segmentCode];
+      if (!segmentData) return null;
+      const message = DASHBOARD_MESSAGES.find((item) => item.id === entry.message);
+      if (!message) return null;
+      const bestPersuadeCell = bestPersuadeByMessage.get(entry.message);
+      const bestMobilizeCell = bestMobilizeByMessage.get(entry.message);
+
+      return {
+        id: entry.message,
+        label: message.theme_label,
+        quote: wordingFor(message, 0, 1, segmentCode) || coreWordingFor(message, 0),
+        coreQuote: coreWordingFor(message, 0),
+        proof: 0,
+        arm: 1,
+        proofText: "",
+        proofBaseText: wordingFor(message, 0, 1, segmentCode) || coreWordingFor(message, 0),
+        personaBaseText: coreWordingFor(message, 0),
+        isPersonaTuned: false,
+        sourceMetric: null,
+        utility: segmentData.utility_signed,
+        persuadeLift: bestPersuadeCell?.lift ?? bestPersuadeCell?.lift_shrunk ?? null,
+        mobilizeLift: bestMobilizeCell?.lift ?? bestMobilizeCell?.lift_shrunk ?? null,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function buildPersuasionTunedVariantsByMessage(segmentCode, dashboardSegment) {
+  const segmentId = dashboardSegment?.id;
+  const variantsByMessage = new Map();
+
+  if (segmentId == null) return variantsByMessage;
+
+  for (const cell of dashboard.message_map_cells?.persuasion_messaging || []) {
+    if (cell.segment !== segmentId || cell.arm !== 2 || cell.lift_shrunk == null) continue;
+
+    const message = DASHBOARD_MESSAGES.find((item) => item.id === cell.message);
+    if (!message) continue;
+
+    const variant = {
+      ...cell,
+      id: `${cell.message}-persuasion-${cell.proof}-${cell.arm}`,
+      messageId: cell.message,
+      label: message.theme_label,
+      quote: wordingFor(message, cell.proof, cell.arm, segmentCode) || coreWordingFor(message, cell.proof),
+      coreQuote: coreWordingFor(message, cell.proof),
+      proofText: proofTextFor(message, cell.proof),
+      proofBaseText: wordingFor(message, 0, cell.arm, segmentCode) || coreWordingFor(message, 0),
+      personaBaseText: coreWordingFor(message, cell.proof),
+      isPersonaTuned: true,
+      sourceMetric: "persuasion_messaging",
+      persuadeLift: cell.lift ?? cell.lift_shrunk ?? null,
+      mobilizeLift: null,
+    };
+
+    const current = variantsByMessage.get(cell.message) || [];
+    const deduped = current.filter((item) => !(item.proof === variant.proof && item.arm === variant.arm));
+    deduped.push(variant);
+    variantsByMessage.set(
+      cell.message,
+      deduped.sort((a, b) => (b.persuadeLift ?? -Infinity) - (a.persuadeLift ?? -Infinity))
+    );
+  }
+
+  return variantsByMessage;
+}
+
+function SegmentMessagePicker({
+  segmentCode,
+  messageBuckets,
+  allMessageOptions,
+  persuasionTunedVariantsByMessage,
+  initialFilter = "default",
+  onSwap,
+}) {
   const [filter, setFilter] = useState(initialFilter);
-  const allOptions = Object.values(messageBuckets || {})
-    .flat()
+  useEffect(() => {
+    setFilter(initialFilter);
+  }, [initialFilter]);
+  const defaultOptions = (allMessageOptions?.length ? allMessageOptions : Object.values(messageBuckets || {})
+    .flat())
     .filter(Boolean)
     .reduce((acc, option) => {
       if (!acc.some((item) => item.id === option.id)) acc.push(option);
       return acc;
     }, [])
     .sort((a, b) => a.label.localeCompare(b.label));
-  const filteredOptions = filter === "default" ? allOptions : (messageBuckets?.[filter] || []);
-  const [openIds, setOpenIds] = useState([]);
+  const optionsByFilter = {
+    default: defaultOptions,
+    ...(messageBuckets || {}),
+  };
+  const filteredOptions = optionsByFilter[filter] || [];
+  const [openId, setOpenId] = useState(null);
+
+  useEffect(() => {
+    setOpenId(null);
+  }, [filter]);
 
   return (
     <div style={{ display: "grid", gap: 10, alignContent: "start" }}>
@@ -331,15 +440,15 @@ function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "de
             value={filter}
             onChange={(event) => {
               setFilter(event.target.value);
-              setOpenIds([]);
+              setOpenId(null);
             }}
             style={{
-              width: 112,
+              width: 168,
               background: PANEL_DEEP,
               color: C.text,
               border: `1px solid ${C.cardBorder}`,
               borderRadius: 4,
-              padding: "7px 8px",
+              padding: "8px 10px",
               fontFamily: MONO,
               fontSize: 10,
               fontWeight: 700,
@@ -364,70 +473,113 @@ function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "de
               }}
             >
               {filteredOptions.map((option) => {
-                const selected = openIds.includes(String(option.id));
+                const selected = openId === String(option.id);
+                const hasOpenSelection = openId != null;
+                const tunedVariants = persuasionTunedVariantsByMessage?.get(option.id) || [];
+                const toggleOpen = () => setOpenId((current) => (current === String(option.id) ? null : String(option.id)));
+                if (hasOpenSelection && !selected) return null;
                 return (
                   <div
                     key={option.id}
                     style={{
                       border: `1px solid ${selected ? C.cyan : C.cardBorder}`,
                       borderRadius: 4,
-                      background: selected ? `${C.cyan}12` : PANEL_DEEP,
+                      background: selected ? PANEL : PANEL_DEEP,
                       overflow: "hidden",
+                      boxShadow: selected ? "0 8px 24px rgba(0,0,0,0.14)" : "none",
+                      transition: "border-color 180ms ease, background 180ms ease, box-shadow 180ms ease",
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenIds((current) =>
-                          selected
-                            ? current.filter((id) => id !== String(option.id))
-                            : [...current, String(option.id)]
-                        )
-                      }
+                    <div
+                      onClick={toggleOpen}
                       style={{
                         width: "100%",
-                        textAlign: "left",
-                        background: "transparent",
-                        color: C.text,
-                        border: "none",
-                        padding: "10px 12px",
-                        fontFamily: MONO,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        cursor: "pointer",
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "flex-start",
                         justifyContent: "space-between",
                         gap: 10,
+                        padding: "12px 12px 10px",
+                        cursor: "pointer",
                       }}
                     >
-                      <span>{option.label}</span>
-                      <span
+                      <div
                         style={{
-                          color:
-                            filter === "persuade" ? C.green
-                              : filter === "reinforce" ? C.green
-                              : option.utility >= 0 ? C.green : C.red,
-                          whiteSpace: "nowrap",
+                          flex: 1,
+                          minWidth: 0,
+                          textAlign: "left",
+                          color: C.text,
+                          fontFamily: MONO,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          display: "grid",
+                          gap: 3,
                         }}
                       >
-                        {filter === "persuade"
-                          ? (option.persuadeLift != null
-                            ? `Lift ${option.persuadeLift > 0 ? "+" : ""}${option.persuadeLift.toFixed(2)}`
-                            : "Lift --")
-                          : filter === "reinforce"
-                            ? (option.mobilizeLift != null
-                              ? `Lift ${option.mobilizeLift > 0 ? "+" : ""}${option.mobilizeLift.toFixed(2)}`
+                        <span style={{ textTransform: "uppercase", letterSpacing: 0.8 }}>{option.label}</span>
+                      </div>
+                      <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                        <span
+                          style={{
+                            color:
+                              filter === "persuade" ? C.green
+                                : filter === "reinforce" ? C.green
+                                : option.utility >= 0 ? C.green : C.red,
+                            whiteSpace: "nowrap",
+                            fontFamily: MONO,
+                            fontSize: 10,
+                            fontWeight: 800,
+                          }}
+                        >
+                          {filter === "persuade"
+                            ? (option.persuadeLift != null
+                              ? `Lift ${option.persuadeLift > 0 ? "+" : ""}${option.persuadeLift.toFixed(2)}`
                               : "Lift --")
-                            : option.utility != null
-                              ? `Utility ${option.utility >= 0 ? "+" : ""}${option.utility.toFixed(3)}`
-                              : "Utility --"}
+                            : filter === "reinforce"
+                              ? (option.mobilizeLift != null
+                                ? `Lift ${option.mobilizeLift > 0 ? "+" : ""}${option.mobilizeLift.toFixed(2)}`
+                                : "Lift --")
+                              : option.utility != null
+                                ? `Utility ${option.utility >= 0 ? "+" : ""}${option.utility.toFixed(3)}`
+                                : "Utility --"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onSwap?.(option);
+                          }}
+                          style={{
+                            background: C.cyan,
+                            color: C.card,
+                            border: "none",
+                            borderRadius: 4,
+                            padding: "7px 12px",
+                            fontFamily: MONO,
+                            fontSize: 9,
+                            fontWeight: 800,
+                            cursor: "pointer",
+                            textTransform: "uppercase",
+                            letterSpacing: 0.6,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Swap
+                        </button>
                       </span>
-                    </button>
+                    </div>
                     {selected ? (
-                      <div style={{ padding: "0 12px 12px", display: "grid", gap: 8 }}>
-                        <div style={{ fontSize: 13, lineHeight: 1.6, color: C.white, fontStyle: "italic" }}>
-                          "{trimQuote(option.quote, 165)}"
+                      <div
+                        style={{
+                          padding: "0 12px 14px",
+                          display: "grid",
+                          gap: 10,
+                          maxHeight: "58vh",
+                          overflowY: "auto",
+                          paddingRight: 8,
+                        }}
+                      >
+                        <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
+                          "{option.quote}"
                         </div>
                         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10 }}>
                           {option.persuadeLift != null ? (
@@ -441,27 +593,66 @@ function SegmentMessagePicker({ segmentCode, messageBuckets, initialFilter = "de
                             </span>
                           ) : null}
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <button
-                            type="button"
-                            onClick={() => onSwap?.(option)}
-                            style={{
-                              background: C.cyan,
-                              color: C.card,
-                              border: "none",
-                              borderRadius: 4,
-                              padding: "7px 12px",
-                              fontFamily: MONO,
-                              fontSize: 10,
-                              fontWeight: 800,
-                              cursor: "pointer",
-                              textTransform: "uppercase",
-                              letterSpacing: 0.6,
-                            }}
-                          >
-                            Swap
-                          </button>
-                        </div>
+                        {tunedVariants.length ? (
+                          <div style={{ display: "grid", gap: 10, paddingTop: 10, borderTop: `1px solid ${C.cardBorder}` }}>
+                            <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.cyan, letterSpacing: 0.9, textTransform: "uppercase" }}>
+                              Persuasion-Tuned Variants
+                            </div>
+                            <div style={{ display: "grid", gap: 8 }}>
+                              {tunedVariants.map((variant) => (
+                                <div
+                                  key={variant.id}
+                                  style={{
+                                    display: "grid",
+                                    gap: 8,
+                                    padding: "12px 12px 10px",
+                                    border: `1px solid ${C.cardBorder}`,
+                                    borderRadius: 4,
+                                    background: PANEL_DEEP,
+                                  }}
+                                >
+                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", fontFamily: MONO, fontSize: 10, fontWeight: 700 }}>
+                                      <span style={{ color: C.cyan }}>Proof {variant.proof}</span>
+                                      <span style={{ color: C.green }}>
+                                        Lift {variant.persuadeLift > 0 ? "+" : ""}{variant.persuadeLift.toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                      <button
+                                        type="button"
+                                        onClick={() => onSwap?.(variant)}
+                                        style={{
+                                          background: C.cyan,
+                                          color: C.card,
+                                          border: "none",
+                                          borderRadius: 4,
+                                          padding: "6px 10px",
+                                          fontFamily: MONO,
+                                          fontSize: 9,
+                                          fontWeight: 800,
+                                          cursor: "pointer",
+                                          textTransform: "uppercase",
+                                          letterSpacing: 0.6,
+                                        }}
+                                      >
+                                        Swap
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {variant.proofText ? (
+                                    <div style={{ fontFamily: MONO, fontSize: 10, lineHeight: 1.45, color: C.textMuted }}>
+                                      {variant.proofText}
+                                    </div>
+                                  ) : null}
+                                  <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
+                                    "{variant.quote}"
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -1102,7 +1293,14 @@ function TotalPrePostCard({ title, pair, index, onChange }) {
   );
 }
 
-function MessagePreviewBox({ title, message, metricType = "utility", onSwapClick, isActive = false }) {
+function MessagePreviewBox({
+  title,
+  message,
+  metricType = "utility",
+  onSwapClick,
+  isActive = false,
+}) {
+  const showFullQuote = !!message?.quote && (isActive || message?.isPersonaTuned);
   return (
     <div
       style={{
@@ -1123,7 +1321,7 @@ function MessagePreviewBox({ title, message, metricType = "utility", onSwapClick
         {message?.label || "No message available"}
       </div>
       <div style={{ fontSize: 14, lineHeight: 1.55, color: C.white, fontStyle: "italic" }}>
-        {message?.quote ? `"${trimQuote(message.quote, 165)}"` : "No message available"}
+        {message?.quote ? `"${showFullQuote ? message.quote : trimQuote(message.quote, 165)}"` : "No message available"}
       </div>
       {metricType === "utility" && message?.utility != null ? (
         <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: message.utility >= 0 ? C.green : C.red }}>
@@ -1140,7 +1338,7 @@ function MessagePreviewBox({ title, message, metricType = "utility", onSwapClick
           Reinforce lift {message.mobilizeLift > 0 ? "+" : ""}{message.mobilizeLift.toFixed(2)}
         </div>
       ) : null}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
         <button
           type="button"
           onClick={onSwapClick}
@@ -1294,6 +1492,8 @@ function SegmentRow({
   engagementCategory,
   engagementColor,
   messageBuckets,
+  allMessageOptions,
+  persuasionTunedVariantsByMessage,
   segmentQuote,
   initialMessages,
   savedMessages,
@@ -1309,6 +1509,7 @@ function SegmentRow({
   const prePostResetTimerRef = useRef(null);
   const prePostResetDoneTimerRef = useRef(null);
   const [activeSwapSlot, setActiveSwapSlot] = useState(null);
+  const [activeSwapFilter, setActiveSwapFilter] = useState("default");
   const [boxMessages, setBoxMessages] = useState(savedMessages);
   const [saveState, setSaveState] = useState("idle");
   const [resetState, setResetState] = useState("idle");
@@ -1348,6 +1549,7 @@ function SegmentRow({
       setBoxMessages(initialMessages);
       onSaveMessages?.(initialMessages);
       setActiveSwapSlot(null);
+      setActiveSwapFilter("default");
       setRecentlySwappedSlot(null);
       setResetState("reset");
       resetDoneTimerRef.current = setTimeout(() => {
@@ -1361,6 +1563,7 @@ function SegmentRow({
     if (saveDoneTimerRef.current) clearTimeout(saveDoneTimerRef.current);
     setSaveState("saving");
     setActiveSwapSlot(null);
+    setActiveSwapFilter("default");
     onSaveMessages?.(boxMessages);
     saveTimerRef.current = setTimeout(() => {
       setSaveState("saved");
@@ -1373,6 +1576,7 @@ function SegmentRow({
   const handleSwap = (nextMessage) => {
     if (!nextMessage) {
       setActiveSwapSlot(null);
+      setActiveSwapFilter("default");
       return;
     }
     setBoxMessages((current) => {
@@ -1388,6 +1592,7 @@ function SegmentRow({
       setRecentlySwappedSlot(null);
     }, 1200);
     setActiveSwapSlot(null);
+    setActiveSwapFilter("default");
   };
 
   useEffect(() => () => {
@@ -1405,6 +1610,7 @@ function SegmentRow({
       const insideMessageGrid = messageGridRef.current?.contains(target);
       if (!insidePanel && !insideMessageGrid) {
         setActiveSwapSlot(null);
+        setActiveSwapFilter("default");
       }
     };
 
@@ -1636,7 +1842,14 @@ function SegmentRow({
                 message={item.message}
                 metricType={item.metricType}
                 isActive={activeSwapSlot === item.bucketKey || recentlySwappedSlot === item.bucketKey}
-                onSwapClick={() => setActiveSwapSlot((current) => (current === item.bucketKey ? null : item.bucketKey))}
+                onSwapClick={() => {
+                  setActiveSwapFilter(
+                    item.bucketKey === "persuade" || item.bucketKey === "reinforce" || item.bucketKey === "avoid"
+                      ? item.bucketKey
+                      : "default"
+                  );
+                  setActiveSwapSlot((current) => (current === item.bucketKey ? null : item.bucketKey));
+                }}
               />
             ))}
           </div>
@@ -1645,7 +1858,9 @@ function SegmentRow({
               <SegmentMessagePicker
                 segmentCode={segment.code}
                 messageBuckets={messageBuckets}
-                initialFilter="default"
+                allMessageOptions={allMessageOptions}
+                persuasionTunedVariantsByMessage={persuasionTunedVariantsByMessage}
+                initialFilter={activeSwapFilter}
                 onSwap={handleSwap}
               />
             </div>
@@ -1742,6 +1957,8 @@ export default function ExecutiveSummary() {
     const topPersuadeMessage = persuadeMessages.find((message) => message.sourceMetric === "persuasion_messaging") || null;
     const topReinforceMessage = mobilizeMessages.find((message) => message.sourceMetric === "base_messaging") || null;
     const messageBuckets = buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage);
+    const allMessageOptions = buildAllSegmentMessageOptions(segment.code, dashboardSegment);
+    const persuasionTunedVariantsByMessage = buildPersuasionTunedVariantsByMessage(segment.code, dashboardSegment);
     return {
       segment,
       metrics,
@@ -1749,6 +1966,8 @@ export default function ExecutiveSummary() {
       engagementCategory,
       engagementColor,
       messageBuckets,
+      allMessageOptions,
+      persuasionTunedVariantsByMessage,
       defaultMessages: [
         { bucketKey: "lead_with", title: "Key message 1", metricType: "utility", message: messageBuckets.lead_with?.[0] || preferredMessage || null },
         { bucketKey: "persuade", title: "Key message 2", metricType: "persuade", message: messageBuckets.persuade?.[0] || topPersuadeMessage || null },
@@ -1862,6 +2081,8 @@ export default function ExecutiveSummary() {
                     engagementCategory={selectedSegmentRow.engagementCategory}
                     engagementColor={selectedSegmentRow.engagementColor}
                     messageBuckets={selectedSegmentRow.messageBuckets}
+                    allMessageOptions={selectedSegmentRow.allMessageOptions}
+                    persuasionTunedVariantsByMessage={selectedSegmentRow.persuasionTunedVariantsByMessage}
                     segmentQuote={selectedSegmentRow.segmentQuote}
                     initialMessages={selectedSegmentRow.defaultMessages}
                     savedMessages={savedMessagesBySegment[selectedSegmentRow.segment.code] || selectedSegmentRow.defaultMessages}
