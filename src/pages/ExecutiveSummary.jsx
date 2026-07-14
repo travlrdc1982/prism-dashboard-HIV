@@ -521,8 +521,8 @@ function SegmentMessagePicker({
                         <span
                           style={{
                             color:
-                              filter === "persuade" ? C.green
-                                : filter === "reinforce" ? C.green
+                              filter === "persuade" ? toneForSignedValue(option.persuadeLift)
+                                : filter === "reinforce" ? toneForSignedValue(option.mobilizeLift)
                                 : option.utility >= 0 ? C.green : C.red,
                             whiteSpace: "nowrap",
                             fontFamily: MONO,
@@ -583,12 +583,12 @@ function SegmentMessagePicker({
                         </div>
                         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10 }}>
                           {option.persuadeLift != null ? (
-                            <span style={{ color: C.green }}>
+                            <span style={{ color: toneForSignedValue(option.persuadeLift) }}>
                               Persuade lift {option.persuadeLift > 0 ? "+" : ""}{option.persuadeLift.toFixed(2)}
                             </span>
                           ) : null}
                           {option.mobilizeLift != null ? (
-                            <span style={{ color: C.green }}>
+                            <span style={{ color: toneForSignedValue(option.mobilizeLift) }}>
                               Reinforce lift {option.mobilizeLift > 0 ? "+" : ""}{option.mobilizeLift.toFixed(2)}
                             </span>
                           ) : null}
@@ -612,9 +612,9 @@ function SegmentMessagePicker({
                                   }}
                                 >
                                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", fontFamily: MONO, fontSize: 10, fontWeight: 700 }}>
-                                      <span style={{ color: C.cyan }}>Proof {variant.proof}</span>
-                                      <span style={{ color: C.green }}>
+                                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", fontFamily: MONO, fontSize: 10, fontWeight: 700 }}>
+                                    <span style={{ color: C.cyan }}>Proof {variant.proof}</span>
+                                      <span style={{ color: toneForSignedValue(variant.persuadeLift) }}>
                                         Lift {variant.persuadeLift > 0 ? "+" : ""}{variant.persuadeLift.toFixed(2)}
                                       </span>
                                     </div>
@@ -674,6 +674,11 @@ function trimQuote(text, maxLength = 140) {
   const clipped = normalized.slice(0, maxLength);
   const lastSpace = clipped.lastIndexOf(" ");
   return `${(lastSpace > 80 ? clipped.slice(0, lastSpace) : clipped).trim()}...`;
+}
+
+function toneForSignedValue(value) {
+  if (value == null || value === 0) return C.textMuted;
+  return value > 0 ? C.green : C.red;
 }
 
 function segmentColor(segment) {
@@ -1329,12 +1334,12 @@ function MessagePreviewBox({
         </div>
       ) : null}
       {metricType === "persuade" && message?.persuadeLift != null ? (
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.green }}>
+        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: toneForSignedValue(message.persuadeLift) }}>
           Persuade lift {message.persuadeLift > 0 ? "+" : ""}{message.persuadeLift.toFixed(2)}
         </div>
       ) : null}
       {metricType === "reinforce" && message?.mobilizeLift != null ? (
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: C.green }}>
+        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: toneForSignedValue(message.mobilizeLift) }}>
           Reinforce lift {message.mobilizeLift > 0 ? "+" : ""}{message.mobilizeLift.toFixed(2)}
         </div>
       ) : null}
