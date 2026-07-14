@@ -41,6 +41,7 @@ const PREPOST_SURVEY_BY_KEY = Object.fromEntries(
     .filter(Boolean)
 );
 const EXECUTIVE_DEV_NOTES_STORAGE_KEY = "executiveSummaryDevNotes";
+const EXECUTIVE_SAVED_MESSAGES_STORAGE_KEY = "executiveSummarySavedMessagesBySegment";
 const DEFAULT_EXECUTIVE_PREPOST_ITEMS = ["item1", "item6", "item7"];
 const EMPTY_EXECUTIVE_PREPOST_ITEMS = [...DEFAULT_EXECUTIVE_PREPOST_ITEMS];
 const DEFAULT_SEGMENT_PREPOST_ITEMS = ["item1", "item6"];
@@ -1658,6 +1659,14 @@ function SegmentRow({
 export default function ExecutiveSummary() {
   const [selectedPrePostItems, setSelectedPrePostItems] = useState(EMPTY_EXECUTIVE_PREPOST_ITEMS);
   const [devNotes, setDevNotes] = useState(() => localStorage.getItem(EXECUTIVE_DEV_NOTES_STORAGE_KEY) || "");
+  const [savedMessagesBySegment, setSavedMessagesBySegment] = useState(() => {
+    try {
+      const saved = localStorage.getItem(EXECUTIVE_SAVED_MESSAGES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [resetState, setResetState] = useState("default");
   const resetTimerRef = useRef(null);
   const resetDoneTimerRef = useRef(null);
@@ -1673,6 +1682,13 @@ export default function ExecutiveSummary() {
       if (devNotesSaveTimerRef.current) clearTimeout(devNotesSaveTimerRef.current);
     };
   }, [devNotes]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      EXECUTIVE_SAVED_MESSAGES_STORAGE_KEY,
+      JSON.stringify(savedMessagesBySegment)
+    );
+  }, [savedMessagesBySegment]);
 
   const handleResetPrePost = () => {
     if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
@@ -1747,7 +1763,6 @@ export default function ExecutiveSummary() {
         ),
     };
   });
-  const [savedMessagesBySegment, setSavedMessagesBySegment] = useState({});
   const [selectedSegmentCode, setSelectedSegmentCode] = useState(null);
   const selectedSegmentRow = visibleSegmentRows.find(({ segment }) => segment.code === selectedSegmentCode) || null;
 
