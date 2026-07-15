@@ -361,6 +361,7 @@ function buildPersuasionTunedVariantsByMessage(segmentCode, dashboardSegment) {
       messageId: cell.message,
       label: message.theme_label,
       quote: wordingFor(message, cell.proof, cell.arm, segmentCode) || coreWordingFor(message, cell.proof),
+      displayQuote: coreWordingFor(message, cell.proof) || wordingFor(message, cell.proof, cell.arm, segmentCode),
       coreQuote: coreWordingFor(message, cell.proof),
       proofText: proofTextFor(message, cell.proof),
       proofBaseText: wordingFor(message, 0, cell.arm, segmentCode) || coreWordingFor(message, 0),
@@ -408,6 +409,7 @@ function SegmentMessagePicker({
     ...(messageBuckets || {}),
   };
   const filteredOptions = optionsByFilter[filter] || [];
+  const defaultOptionsById = new Map(defaultOptions.map((option) => [option.id, option]));
   const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
@@ -475,9 +477,8 @@ function SegmentMessagePicker({
               {filteredOptions.map((option) => {
                 const selected = openId === String(option.id);
                 const hasOpenSelection = openId != null;
-                const tunedVariants = (persuasionTunedVariantsByMessage?.get(option.id) || []).filter(
-                  (variant) => normalizeMessageText(variant.quote) !== normalizeMessageText(option.quote)
-                );
+                const baseOption = defaultOptionsById.get(option.id) || option;
+                const tunedVariants = persuasionTunedVariantsByMessage?.get(option.id) || [];
                 const toggleOpen = () => setOpenId((current) => (current === String(option.id) ? null : String(option.id)));
                 if (hasOpenSelection && !selected) return null;
                 return (
@@ -517,7 +518,7 @@ function SegmentMessagePicker({
                           gap: 3,
                         }}
                       >
-                        <span style={{ textTransform: "uppercase", letterSpacing: 0.8 }}>{option.label}</span>
+                        <span style={{ textTransform: "uppercase", letterSpacing: 0.8 }}>{baseOption.label}</span>
                       </div>
                       <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                         <span
@@ -581,7 +582,7 @@ function SegmentMessagePicker({
                         }}
                       >
                         <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
-                          "{option.quote}"
+                          "{baseOption.quote}"
                         </div>
                         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10 }}>
                           {option.persuadeLift != null ? (
@@ -648,7 +649,7 @@ function SegmentMessagePicker({
                                     </div>
                                   ) : null}
                                   <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
-                                    "{variant.quote}"
+                                    "{variant.displayQuote || variant.quote}"
                                   </div>
                                 </div>
                               ))}
@@ -680,6 +681,10 @@ function trimQuote(text, maxLength = 140) {
 
 function normalizeMessageText(text) {
   return String(text || "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function meaningfullyDifferentText(a, b) {
+  return normalizeMessageText(a) !== normalizeMessageText(b);
 }
 
 function toneForSignedValue(value) {
@@ -1590,9 +1595,12 @@ function SegmentRow({
       setActiveSwapFilter("default");
       return;
     }
+    const resolvedMessage = nextMessage.displayQuote
+      ? { ...nextMessage, quote: nextMessage.displayQuote }
+      : nextMessage;
     setBoxMessages((current) => {
       const nextMessages = current.map((item) =>
-        item.bucketKey === activeSwapSlot ? { ...item, message: nextMessage } : item
+        item.bucketKey === activeSwapSlot ? { ...item, message: resolvedMessage } : item
       );
       onSaveMessages?.(nextMessages);
       return nextMessages;
