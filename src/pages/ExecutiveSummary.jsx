@@ -475,7 +475,9 @@ function SegmentMessagePicker({
               {filteredOptions.map((option) => {
                 const selected = openId === String(option.id);
                 const hasOpenSelection = openId != null;
-                const tunedVariants = persuasionTunedVariantsByMessage?.get(option.id) || [];
+                const tunedVariants = (persuasionTunedVariantsByMessage?.get(option.id) || []).filter(
+                  (variant) => normalizeMessageText(variant.quote) !== normalizeMessageText(option.quote)
+                );
                 const toggleOpen = () => setOpenId((current) => (current === String(option.id) ? null : String(option.id)));
                 if (hasOpenSelection && !selected) return null;
                 return (
@@ -674,6 +676,10 @@ function trimQuote(text, maxLength = 140) {
   const clipped = normalized.slice(0, maxLength);
   const lastSpace = clipped.lastIndexOf(" ");
   return `${(lastSpace > 80 ? clipped.slice(0, lastSpace) : clipped).trim()}...`;
+}
+
+function normalizeMessageText(text) {
+  return String(text || "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 function toneForSignedValue(value) {
