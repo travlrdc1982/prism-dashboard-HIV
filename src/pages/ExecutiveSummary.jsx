@@ -1339,21 +1339,23 @@ function MessagePreviewBox({
       <div style={{ fontSize: 14, lineHeight: 1.55, color: C.white, fontStyle: "italic" }}>
         {message?.quote ? `"${showFullQuote ? message.quote : trimQuote(message.quote, 165)}"` : "No message available"}
       </div>
-      {metricType === "utility" && message?.utility != null ? (
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: message.utility >= 0 ? C.green : C.red }}>
-          Utility {message.utility >= 0 ? "+" : ""}{message.utility.toFixed(3)}
-        </div>
-      ) : null}
-      {metricType === "persuade" && message?.persuadeLift != null ? (
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: toneForSignedValue(message.persuadeLift) }}>
-          Persuade lift {message.persuadeLift > 0 ? "+" : ""}{message.persuadeLift.toFixed(2)}
-        </div>
-      ) : null}
-      {metricType === "reinforce" && message?.mobilizeLift != null ? (
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 800, color: toneForSignedValue(message.mobilizeLift) }}>
-          Reinforce lift {message.mobilizeLift > 0 ? "+" : ""}{message.mobilizeLift.toFixed(2)}
-        </div>
-      ) : null}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10, fontWeight: 800 }}>
+        {metricType === "utility" && message?.utility != null ? (
+          <div style={{ color: message.utility >= 0 ? C.green : C.red }}>
+            Utility {message.utility >= 0 ? "+" : ""}{message.utility.toFixed(3)}
+          </div>
+        ) : null}
+        {message?.persuadeLift != null ? (
+          <div style={{ color: toneForSignedValue(message.persuadeLift) }}>
+            Persuade lift {message.persuadeLift > 0 ? "+" : ""}{message.persuadeLift.toFixed(2)}
+          </div>
+        ) : null}
+        {message?.mobilizeLift != null ? (
+          <div style={{ color: toneForSignedValue(message.mobilizeLift) }}>
+            Reinforce lift {message.mobilizeLift > 0 ? "+" : ""}{message.mobilizeLift.toFixed(2)}
+          </div>
+        ) : null}
+      </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
         <button
           type="button"
@@ -1978,6 +1980,15 @@ export default function ExecutiveSummary() {
     const messageBuckets = buildSegmentMessageBuckets(segment, dashboardSegment, preferredMessage);
     const allMessageOptions = buildAllSegmentMessageOptions(segment.code, dashboardSegment);
     const persuasionTunedVariantsByMessage = buildPersuasionTunedVariantsByMessage(segment.code, dashboardSegment);
+    const optionById = new Map(allMessageOptions.map((option) => [option.id, option]));
+    const enrichMessage = (message) => (
+      message?.id != null && optionById.has(message.id)
+        ? { ...optionById.get(message.id), ...message }
+        : message
+    );
+    const enrichedPreferredMessage = enrichMessage(preferredMessage);
+    const enrichedTopPersuadeMessage = enrichMessage(topPersuadeMessage);
+    const enrichedTopReinforceMessage = enrichMessage(topReinforceMessage);
     return {
       segment,
       metrics,
@@ -1988,15 +1999,15 @@ export default function ExecutiveSummary() {
       allMessageOptions,
       persuasionTunedVariantsByMessage,
       defaultMessages: [
-        { bucketKey: "lead_with", title: "Key message 1", metricType: "utility", message: messageBuckets.lead_with?.[0] || preferredMessage || null },
-        { bucketKey: "persuade", title: "Key message 2", metricType: "persuade", message: messageBuckets.persuade?.[0] || topPersuadeMessage || null },
-        { bucketKey: "reinforce", title: "Key message 3", metricType: "reinforce", message: messageBuckets.reinforce?.[0] || topReinforceMessage || null },
+        { bucketKey: "lead_with", title: "Key message 1", metricType: "utility", message: enrichMessage(messageBuckets.lead_with?.[0]) || enrichedPreferredMessage || null },
+        { bucketKey: "persuade", title: "Key message 2", metricType: "persuade", message: enrichMessage(messageBuckets.persuade?.[0]) || enrichedTopPersuadeMessage || null },
+        { bucketKey: "reinforce", title: "Key message 3", metricType: "reinforce", message: enrichMessage(messageBuckets.reinforce?.[0]) || enrichedTopReinforceMessage || null },
       ],
       segmentQuote:
         trimQuote(
-          preferredMessage?.quote
-          || topPersuadeMessage?.quote
-          || topReinforceMessage?.quote
+          enrichedPreferredMessage?.quote
+          || enrichedTopPersuadeMessage?.quote
+          || enrichedTopReinforceMessage?.quote
           || ""
         ),
     };
