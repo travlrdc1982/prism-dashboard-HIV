@@ -531,6 +531,7 @@ function SegmentMessagePicker({
                             fontFamily: MONO,
                             fontSize: 10,
                             fontWeight: 800,
+                            visibility: selected && filter !== "persuade" && filter !== "reinforce" ? "hidden" : "visible",
                           }}
                         >
                           {filter === "persuade"
@@ -581,18 +582,25 @@ function SegmentMessagePicker({
                           paddingRight: 8,
                         }}
                       >
+                        <div
+                          style={{
+                            fontFamily: MONO,
+                            fontSize: 10,
+                            fontWeight: 800,
+                            color: C.textMuted,
+                            letterSpacing: 0.8,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Core Message
+                        </div>
                         <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
                           "{baseOption.quote}"
                         </div>
                         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10 }}>
-                          {option.persuadeLift != null ? (
-                            <span style={{ color: toneForSignedValue(option.persuadeLift) }}>
-                              Persuade lift {option.persuadeLift > 0 ? "+" : ""}{option.persuadeLift.toFixed(2)}
-                            </span>
-                          ) : null}
-                          {option.mobilizeLift != null ? (
-                            <span style={{ color: toneForSignedValue(option.mobilizeLift) }}>
-                              Reinforce lift {option.mobilizeLift > 0 ? "+" : ""}{option.mobilizeLift.toFixed(2)}
+                          {baseOption.utility != null ? (
+                            <span style={{ color: baseOption.utility >= 0 ? C.green : C.red }}>
+                              Utility {baseOption.utility >= 0 ? "+" : ""}{baseOption.utility.toFixed(3)}
                             </span>
                           ) : null}
                         </div>
@@ -649,7 +657,12 @@ function SegmentMessagePicker({
                                     </div>
                                   ) : null}
                                   <div style={{ fontSize: 14, lineHeight: 1.65, color: C.white, fontStyle: "italic" }}>
-                                    "{variant.displayQuote || variant.quote}"
+                                    "
+                                    {renderHighlightedVariantText(
+                                      baseOption.quote || variant.coreQuote,
+                                      variant.quote || variant.displayQuote
+                                    )}
+                                    "
                                   </div>
                                 </div>
                               ))}
@@ -685,6 +698,86 @@ function normalizeMessageText(text) {
 
 function meaningfullyDifferentText(a, b) {
   return normalizeMessageText(a) !== normalizeMessageText(b);
+}
+
+function normalizeDiffToken(token) {
+  return String(token || "")
+    .toLowerCase()
+    .replace(/^[^a-z0-9]+/i, "")
+    .replace(/[^a-z0-9]+$/i, "");
+}
+
+function renderHighlightedVariantText(coreText, tunedText) {
+  const tunedTokens = String(tunedText || "").match(/\S+|\s+/g) || [];
+  const coreWords = String(coreText || "")
+    .match(/\S+/g)
+    ?.map((token) => normalizeDiffToken(token))
+    .filter(Boolean) || [];
+  const tunedWords = tunedTokens
+    .filter((token) => !/^\s+$/.test(token))
+    .map((token) => normalizeDiffToken(token))
+    .filter(Boolean);
+
+  const dp = Array.from({ length: coreWords.length + 1 }, () =>
+    Array(tunedWords.length + 1).fill(0)
+  );
+
+  for (let i = coreWords.length - 1; i >= 0; i -= 1) {
+    for (let j = tunedWords.length - 1; j >= 0; j -= 1) {
+      dp[i][j] = coreWords[i] === tunedWords[j]
+        ? dp[i + 1][j + 1] + 1
+        : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+
+  const matchedTunedWordIndexes = new Set();
+  let coreIndex = 0;
+  let tunedIndex = 0;
+  while (coreIndex < coreWords.length && tunedIndex < tunedWords.length) {
+    if (coreWords[coreIndex] === tunedWords[tunedIndex]) {
+      matchedTunedWordIndexes.add(tunedIndex);
+      coreIndex += 1;
+      tunedIndex += 1;
+    } else if (dp[coreIndex + 1][tunedIndex] >= dp[coreIndex][tunedIndex + 1]) {
+      coreIndex += 1;
+    } else {
+      tunedIndex += 1;
+    }
+  }
+
+  let tunedWordCursor = 0;
+  return tunedTokens.map((token, tokenIndex) => {
+    if (/^\s+$/.test(token)) {
+      return <span key={`space-${tokenIndex}`}>{token}</span>;
+    }
+
+    const normalized = normalizeDiffToken(token);
+    if (!normalized) {
+      return <span key={`token-${tokenIndex}`}>{token}</span>;
+    }
+
+    const isChanged = !matchedTunedWordIndexes.has(tunedWordCursor);
+    tunedWordCursor += 1;
+
+    return isChanged ? (
+      <span
+        key={`token-${tokenIndex}`}
+        style={{
+          fontWeight: 700,
+          color: "#ffffff",
+          background: "rgba(34, 211, 238, 0.10)",
+          borderRadius: 2,
+          padding: "0 1px",
+          boxDecorationBreak: "clone",
+          WebkitBoxDecorationBreak: "clone",
+        }}
+      >
+        {token}
+      </span>
+    ) : (
+      <span key={`token-${tokenIndex}`}>{token}</span>
+    );
+  });
 }
 
 function toneForSignedValue(value) {
@@ -1337,7 +1430,18 @@ function MessagePreviewBox({
         {message?.label || "No message available"}
       </div>
       <div style={{ fontSize: 14, lineHeight: 1.55, color: C.white, fontStyle: "italic" }}>
-        {message?.quote ? `"${showFullQuote ? message.quote : trimQuote(message.quote, 165)}"` : "No message available"}
+        {message?.quote ? (
+          message?.isPersonaTuned ? (
+            <>
+              "
+              {renderHighlightedVariantText(
+                message.coreQuote,
+                showFullQuote ? message.quote : trimQuote(message.quote, 165)
+              )}
+              "
+            </>
+          ) : `"${showFullQuote ? message.quote : trimQuote(message.quote, 165)}"`
+        ) : "No message available"}
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontFamily: MONO, fontSize: 10, fontWeight: 800 }}>
         {metricType === "utility" && message?.utility != null ? (
@@ -1345,12 +1449,12 @@ function MessagePreviewBox({
             Utility {message.utility >= 0 ? "+" : ""}{message.utility.toFixed(3)}
           </div>
         ) : null}
-        {message?.persuadeLift != null ? (
+        {metricType !== "utility" && message?.persuadeLift != null ? (
           <div style={{ color: toneForSignedValue(message.persuadeLift) }}>
             Persuade lift {message.persuadeLift > 0 ? "+" : ""}{message.persuadeLift.toFixed(2)}
           </div>
         ) : null}
-        {message?.mobilizeLift != null ? (
+        {metricType !== "utility" && message?.mobilizeLift != null ? (
           <div style={{ color: toneForSignedValue(message.mobilizeLift) }}>
             Reinforce lift {message.mobilizeLift > 0 ? "+" : ""}{message.mobilizeLift.toFixed(2)}
           </div>
