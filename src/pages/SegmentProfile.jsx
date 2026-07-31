@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { C as TC } from "../data/theme";
 import { USAMap } from "@mirawision/usa-map-react";
 import IdeologyHeatmap from "./IdeologyHeatmap";
-import HIVTab from "./HIVTab";
 import { getAssignedTier, STUDY_META, STUDY_METRICS } from "../data/study";
 import { hasPage } from "../data/variant";
 
@@ -1982,7 +1981,6 @@ function WellnessPanel({ segIdx }) {
 
 const PROFILE_TABS = [
   { id:"demo", label:"DEMOGRAPHICS" },
-  { id:"hiv", label:"HIV" },
   { id:"beliefs", label:"BELIEFS" },
   { id:"ideology", label:"VALUES" },
   { id:"trust", label:"TRUST" },
@@ -2145,16 +2143,6 @@ export default function SegmentProfile() {
 
         {/* Tab Content */}
         {profileTab === "demo" && <DemographicsPanel seg={seg} />}
-        {profileTab === "hiv" && (
-          <HIVTab
-            segmentId={seg.id}
-            segmentCode={seg.code}
-            segments={SEGMENTS}
-            currentIdx={segIdx}
-            onChangeSegment={setSegIdx}
-            tierAccent={TIER_ACCENT}
-          />
-        )}
         {profileTab === "beliefs" && <BeliefsPanel segIdx={segIdx} />}
         {profileTab === "ideology" && <IdeologyHeatmap />}
         {profileTab === "trust" && <TrustPanel segIdx={segIdx} />}
