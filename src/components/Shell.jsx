@@ -4,15 +4,18 @@ import { supabase } from "../supabaseClient";
 import { C, FONT } from "../data/theme";
 import { STUDY_META } from "../data/study";
 import { isAdminEmail } from "../data/admins";
+import { hasPage } from "../data/variant";
 
+// `page` keys map to data/variant.js — a deployment only shows the
+// tabs its VITE_APP_VARIANT enables.
 const NAV_ITEMS = [
-  { to: "/executive-summary", label: "EXECUTIVE SUMMARY" },
-  { to: "/",          label: "AUDIENCE MAP" },
-  { to: "/roi",       label: "AUDIENCE ROI" },
-  { to: "/messages",  label: "MESSAGE MAP" },
-  { to: "/profile",   label: "AUDIENCE PROFILES" },
-  { to: "/topline",   label: "TOPLINE" },
-];
+  { to: "/executive-summary", label: "EXECUTIVE SUMMARY", page: "executive-summary" },
+  { to: "/",          label: "AUDIENCE MAP",      page: "map" },
+  { to: "/roi",       label: "AUDIENCE ROI",      page: "roi" },
+  { to: "/messages",  label: "MESSAGE MAP",       page: "messages" },
+  { to: "/profile",   label: "AUDIENCE PROFILES", page: "profile" },
+  { to: "/topline",   label: "TOPLINE",           page: "topline" },
+].filter(item => hasPage(item.page));
 
 export default function Shell() {
   const [isAdmin, setIsAdmin] = useState(false);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { C } from './data/theme';
+import { hasPage } from './data/variant';
 import { supabase } from "./supabaseClient";
 import Shell from "./components/Shell";
 import SegmentMap from "./pages/SegmentMap";
@@ -54,13 +55,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Routes are gated by VITE_APP_VARIANT (see data/variant.js).
+            Any path a variant doesn't register falls through to the
+            catch-all below and redirects home. */}
         <Route element={<Shell />}>
           <Route index element={<SegmentMap />} />
-          <Route path="roi" element={<AudienceROI />} />
-          <Route path="messages" element={<MessageMap />} />
-          <Route path="profile" element={<SegmentProfile />} />
-          <Route path="executive-summary" element={<ExecutiveSummary />} />
-          <Route path="topline" element={<Topline />} />
+          {hasPage("roi") && <Route path="roi" element={<AudienceROI />} />}
+          {hasPage("messages") && <Route path="messages" element={<MessageMap />} />}
+          {hasPage("profile") && <Route path="profile" element={<SegmentProfile />} />}
+          {hasPage("executive-summary") && <Route path="executive-summary" element={<ExecutiveSummary />} />}
+          {hasPage("topline") && <Route path="topline" element={<Topline />} />}
           <Route path="admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
