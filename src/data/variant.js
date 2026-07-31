@@ -40,8 +40,22 @@ const enabledPages = new Set(
   PAGES_BY_VARIANT[VARIANT] || PAGES_BY_VARIANT.full
 );
 
+// Non-page chrome that some variants drop (study badge, etc.).
+const CHROME_BY_VARIANT = {
+  full: ["study-badge"],
+  profile: [],
+};
+
+const enabledChrome = new Set(
+  CHROME_BY_VARIANT[VARIANT] || CHROME_BY_VARIANT.full
+);
+
 export const APP_VARIANT = VARIANT;
 
 export function hasPage(id) {
   return enabledPages.has(id);
+}
+
+export function hasChrome(id) {
+  return enabledChrome.has(id);
 }

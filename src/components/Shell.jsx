@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 import { C, FONT } from "../data/theme";
 import { STUDY_META } from "../data/study";
 import { isAdminEmail } from "../data/admins";
-import { hasPage } from "../data/variant";
+import { hasPage, hasChrome } from "../data/variant";
 
 // `page` keys map to data/variant.js — a deployment only shows the
 // tabs its VITE_APP_VARIANT enables.
@@ -96,14 +96,16 @@ export default function Shell() {
               ADMIN
             </NavLink>
           )}
-          <div style={{
-            fontSize: 9, fontWeight: 600, color: C.textDim,
-            letterSpacing: 1, textTransform: "uppercase",
-            padding: "4px 10px", borderRadius: 4,
-            border: `1px solid ${C.cardBorder}`,
-          }}>
-            {STUDY_META.name} STUDY
-          </div>
+          {hasChrome("study-badge") && (
+            <div style={{
+              fontSize: 9, fontWeight: 600, color: C.textDim,
+              letterSpacing: 1, textTransform: "uppercase",
+              padding: "4px 10px", borderRadius: 4,
+              border: `1px solid ${C.cardBorder}`,
+            }}>
+              {STUDY_META.name} STUDY
+            </div>
+          )}
           <button
             onClick={() => supabase.auth.signOut()}
             style={{

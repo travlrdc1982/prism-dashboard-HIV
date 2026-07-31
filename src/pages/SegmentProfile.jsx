@@ -5,6 +5,7 @@ import { USAMap } from "@mirawision/usa-map-react";
 import IdeologyHeatmap from "./IdeologyHeatmap";
 import HIVTab from "./HIVTab";
 import { getAssignedTier, STUDY_META, STUDY_METRICS } from "../data/study";
+import { hasPage } from "../data/variant";
 
 // ─── SEGMENTS ──────────────────────────────────────────────────────────────
 export const SEGMENTS = [
@@ -2078,9 +2079,11 @@ export default function SegmentProfile() {
             </div>
           </div>
 
-          {/* ROI Card — study-specific (sourced from STUDY_ROI / STUDY_META) */}
+          {/* ROI Card — study-specific (sourced from STUDY_ROI / STUDY_META).
+              Gated on the ROI page: this card summarises the Audience ROI
+              dashboard, so variants that don't ship that page don't show it. */}
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {STUDY_ROI[seg.code] && (() => {
+            {hasPage("roi") && STUDY_ROI[seg.code] && (() => {
               const d = STUDY_ROI[seg.code].HIV;
               if (!d) return null;
               const studyTier = getAssignedTier(seg.code);
