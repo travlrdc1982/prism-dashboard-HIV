@@ -21,6 +21,13 @@ package approach (PR #39, closed as superseded).
 - `receptiveness` — observed fielded MaxDiff results: `messages[]` (id + full text)
   and `table[]` (segment × message weighted mean utility + within-segment rank).
 
+## Direction (r5, 2026-09-02)
+
+Every number in this file — observed and model alike — is **client-aligned: higher =
+toward the client's position** (engine rule 2026-09-02; the owner's item-level keying
+registry `client_direction.yaml` in the simulation repo is the authority). A positive
+shift is always movement toward the client. Do not re-orient anything in JS.
+
 ## Rules
 
 - Treat this file as an immutable input, like `dashboard.json` — no reprocessing,

@@ -1,11 +1,12 @@
 {
  "meta": {
   "study": "HIV",
-  "generated": "2026-08-28",
-  "model_version": "v3-pooled-2026-08-28.r3-member-reselect",
+  "generated": "2026-09-02",
+  "model_version": "v3-pooled-2026-09-02.r5-client-aligned",
   "design": "numbers-only hand-off (user directive 2026-08-28): models never ship to dashboard repos",
   "regenerate": "python research/persuasion/export_dashboard_numbers.py (travlrdc1982/simulation)",
-  "units": "standardized within study x party (z); ranks are within-segment"
+  "units": "standardized within study x party (z); ranks are within-segment",
+  "direction": "CLIENT-ALIGNED (r5 rule, owner 2026-09-02): higher = toward the client's position on every observed and model number in this file"
  },
  "badges": {
   "baseline_pre_obs": {
@@ -18,15 +19,15 @@
   },
   "alignment_composed_model": {
    "tier": "validated model",
-   "basis": "composed alignment, 13-fold LOSO segR 0.893 GOP / 0.793 DEM; HIV DEM fold 0.928. Caveat: GOP persuasion for HIV is not cross-topic predictable \u2014 treat GOP composed as own-model territory (LOSO_REPORT)."
+   "basis": "composed alignment (observed PRE + compose_ratio x predicted delta), r5 client-aligned era: 13-fold LOSO segR 0.921 GOP / 0.865 DEM; HIV folds 0.900 GOP / 0.964 DEM (r5_composed_folds.csv). Caveat: HIV GOP MOVEMENT (delta) is not cross-topic predictable (r5 fold -0.45) \u2014 composed strength is carried by the observed baseline, so treat predicted GOP *shift* for HIV as own-model territory."
   },
   "mobilization_model": {
    "tier": "model (transportable family)",
-   "basis": "pooled LOSO segR 0.703 GOP / 0.613 DEM; HIV fielded no mobilization battery"
+   "basis": "pooled LOSO segR 0.703 GOP / 0.613 DEM (family unchanged by the r5 direction rule \u2014 mobilization outcomes are not pre/post positions); HIV fielded no mobilization battery"
   },
   "receptiveness": {
    "tier": "observed",
-   "basis": "fielded MaxDiff count utilities, weighted segment x message means. NEW drafts on any topic are served by the pooled+flags model at the DIRECTIONAL tier (~0.24 GOP / 0.33 DEM message-holdout rankRho) and only inside the confidence gate (cue share <= 0.4, archive distance <= 2.5)."
+   "basis": "fielded MaxDiff count utilities, weighted segment x message means (the direct observation; in-house HB estimates exist in the engine as r4's model-input source). NEW drafts on any topic are served by the pooled+flags model at the DIRECTIONAL tier (~0.24 GOP / 0.33 DEM message-holdout rankRho, a pre-r4-era figure; the pooled model itself is r4 in-house-HB, 13-fold rankRho 0.282/0.358) and only inside the confidence gate (cue share <= 0.4, archive distance <= 2.5)."
   }
  },
  "segments": [
@@ -36,9 +37,9 @@
    "party": "GOP",
    "n": 314,
    "weighted_n": 94.7,
-   "baseline_pre_obs": 0.051,
-   "alignment_post_obs": 0.019,
-   "alignment_composed_model": 0.029,
+   "baseline_pre_obs": 0.047,
+   "alignment_post_obs": 0.015,
+   "alignment_composed_model": 0.044,
    "mobilization_model": -0.059
   },
   {
@@ -47,9 +48,9 @@
    "party": "GOP",
    "n": 159,
    "weighted_n": 210.1,
-   "baseline_pre_obs": -0.071,
-   "alignment_post_obs": -0.063,
-   "alignment_composed_model": -0.032,
+   "baseline_pre_obs": -0.111,
+   "alignment_post_obs": -0.078,
+   "alignment_composed_model": -0.003,
    "mobilization_model": -0.08
   },
   {
@@ -58,9 +59,9 @@
    "party": "GOP",
    "n": 71,
    "weighted_n": 180.5,
-   "baseline_pre_obs": -0.237,
-   "alignment_post_obs": -0.274,
-   "alignment_composed_model": -0.108,
+   "baseline_pre_obs": -0.261,
+   "alignment_post_obs": -0.309,
+   "alignment_composed_model": -0.134,
    "mobilization_model": -0.095
   },
   {
@@ -69,9 +70,9 @@
    "party": "GOP",
    "n": 74,
    "weighted_n": 272.9,
-   "baseline_pre_obs": -0.307,
-   "alignment_post_obs": -0.366,
-   "alignment_composed_model": -0.211,
+   "baseline_pre_obs": -0.335,
+   "alignment_post_obs": -0.382,
+   "alignment_composed_model": -0.224,
    "mobilization_model": -0.195
   },
   {
@@ -80,9 +81,9 @@
    "party": "GOP",
    "n": 68,
    "weighted_n": 84.6,
-   "baseline_pre_obs": -0.271,
-   "alignment_post_obs": -0.242,
-   "alignment_composed_model": -0.198,
+   "baseline_pre_obs": -0.282,
+   "alignment_post_obs": -0.27,
+   "alignment_composed_model": -0.228,
    "mobilization_model": -0.107
   },
   {
@@ -91,9 +92,9 @@
    "party": "GOP",
    "n": 241,
    "weighted_n": 76.5,
-   "baseline_pre_obs": 0.135,
-   "alignment_post_obs": 0.184,
-   "alignment_composed_model": 0.147,
+   "baseline_pre_obs": 0.168,
+   "alignment_post_obs": 0.192,
+   "alignment_composed_model": 0.144,
    "mobilization_model": 0.047
   },
   {
@@ -102,9 +103,9 @@
    "party": "GOP",
    "n": 62,
    "weighted_n": 133.5,
-   "baseline_pre_obs": -0.443,
-   "alignment_post_obs": -0.471,
-   "alignment_composed_model": -0.339,
+   "baseline_pre_obs": -0.422,
+   "alignment_post_obs": -0.463,
+   "alignment_composed_model": -0.367,
    "mobilization_model": -0.203
   },
   {
@@ -113,9 +114,9 @@
    "party": "GOP",
    "n": 358,
    "weighted_n": 103.0,
-   "baseline_pre_obs": 0.092,
-   "alignment_post_obs": 0.093,
-   "alignment_composed_model": 0.055,
+   "baseline_pre_obs": 0.094,
+   "alignment_post_obs": 0.109,
+   "alignment_composed_model": 0.042,
    "mobilization_model": -0.041
   },
   {
@@ -124,9 +125,9 @@
    "party": "GOP",
    "n": 156,
    "weighted_n": 162.2,
-   "baseline_pre_obs": -0.076,
-   "alignment_post_obs": -0.095,
-   "alignment_composed_model": -0.062,
+   "baseline_pre_obs": -0.089,
+   "alignment_post_obs": -0.091,
+   "alignment_composed_model": -0.044,
    "mobilization_model": -0.138
   },
   {
@@ -135,9 +136,9 @@
    "party": "GOP",
    "n": 69,
    "weighted_n": 156.5,
-   "baseline_pre_obs": -0.334,
-   "alignment_post_obs": -0.305,
-   "alignment_composed_model": -0.333,
+   "baseline_pre_obs": -0.333,
+   "alignment_post_obs": -0.328,
+   "alignment_composed_model": -0.304,
    "mobilization_model": -0.262
   },
   {
@@ -146,9 +147,9 @@
    "party": "DEM",
    "n": 342,
    "weighted_n": 336.3,
-   "baseline_pre_obs": 0.245,
-   "alignment_post_obs": 0.276,
-   "alignment_composed_model": 0.177,
+   "baseline_pre_obs": 0.216,
+   "alignment_post_obs": 0.249,
+   "alignment_composed_model": 0.153,
    "mobilization_model": 0.232
   },
   {
@@ -157,9 +158,9 @@
    "party": "DEM",
    "n": 351,
    "weighted_n": 312.0,
-   "baseline_pre_obs": 0.088,
-   "alignment_post_obs": 0.095,
-   "alignment_composed_model": 0.082,
+   "baseline_pre_obs": 0.101,
+   "alignment_post_obs": 0.106,
+   "alignment_composed_model": 0.06,
    "mobilization_model": 0.181
   },
   {
@@ -168,9 +169,9 @@
    "party": "DEM",
    "n": 348,
    "weighted_n": 237.1,
-   "baseline_pre_obs": -0.161,
-   "alignment_post_obs": -0.157,
-   "alignment_composed_model": -0.101,
+   "baseline_pre_obs": -0.144,
+   "alignment_post_obs": -0.135,
+   "alignment_composed_model": -0.117,
    "mobilization_model": -0.032
   },
   {
@@ -179,9 +180,9 @@
    "party": "DEM",
    "n": 63,
    "weighted_n": 224.1,
-   "baseline_pre_obs": -0.305,
-   "alignment_post_obs": -0.406,
-   "alignment_composed_model": -0.201,
+   "baseline_pre_obs": -0.272,
+   "alignment_post_obs": -0.39,
+   "alignment_composed_model": -0.203,
    "mobilization_model": 0.044
   },
   {
@@ -190,9 +191,9 @@
    "party": "DEM",
    "n": 64,
    "weighted_n": 189.1,
-   "baseline_pre_obs": -0.494,
-   "alignment_post_obs": -0.537,
-   "alignment_composed_model": -0.359,
+   "baseline_pre_obs": -0.441,
+   "alignment_post_obs": -0.509,
+   "alignment_composed_model": -0.349,
    "mobilization_model": -0.093
   },
   {
@@ -201,9 +202,9 @@
    "party": "DEM",
    "n": 347,
    "weighted_n": 313.8,
-   "baseline_pre_obs": 0.037,
-   "alignment_post_obs": 0.035,
-   "alignment_composed_model": 0.065,
+   "baseline_pre_obs": 0.026,
+   "alignment_post_obs": 0.024,
+   "alignment_composed_model": 0.054,
    "mobilization_model": 0.188
   }
  ],
