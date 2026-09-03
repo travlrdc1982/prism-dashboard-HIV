@@ -1,0 +1,1917 @@
+{
+ "meta": {
+  "study": "HIV",
+  "generated": "2026-09-02",
+  "model_version": "v3-pooled-2026-09-02.r5-client-aligned",
+  "design": "numbers-only hand-off (user directive 2026-08-28): models never ship to dashboard repos",
+  "regenerate": "python research/persuasion/export_dashboard_numbers.py (travlrdc1982/simulation)",
+  "units": "standardized within study x party (z); ranks are within-segment",
+  "direction": "CLIENT-ALIGNED (r5 rule, owner 2026-09-02): higher = toward the client's position on every observed and model number in this file"
+ },
+ "badges": {
+  "baseline_pre_obs": {
+   "tier": "observed",
+   "basis": "observed (fielded pre items, weighted segment means)"
+  },
+  "alignment_post_obs": {
+   "tier": "observed",
+   "basis": "fielded post items, weighted segment means"
+  },
+  "alignment_composed_model": {
+   "tier": "validated model",
+   "basis": "composed alignment (observed PRE + compose_ratio x predicted delta), r5 client-aligned era: 13-fold LOSO segR 0.921 GOP / 0.865 DEM; HIV folds 0.900 GOP / 0.964 DEM (r5_composed_folds.csv). Caveat: HIV GOP MOVEMENT (delta) is not cross-topic predictable (r5 fold -0.45) \u2014 composed strength is carried by the observed baseline, so treat predicted GOP *shift* for HIV as own-model territory."
+  },
+  "mobilization_model": {
+   "tier": "model (transportable family)",
+   "basis": "pooled LOSO segR 0.703 GOP / 0.613 DEM (family unchanged by the r5 direction rule \u2014 mobilization outcomes are not pre/post positions); HIV fielded no mobilization battery"
+  },
+  "receptiveness": {
+   "tier": "observed",
+   "basis": "fielded MaxDiff count utilities, weighted segment x message means (the direct observation; in-house HB estimates exist in the engine as r4's model-input source). NEW drafts on any topic are served by the pooled+flags model at the DIRECTIONAL tier (~0.24 GOP / 0.33 DEM message-holdout rankRho, a pre-r4-era figure; the pooled model itself is r4 in-house-HB, 13-fold rankRho 0.282/0.358) and only inside the confidence gate (cue share <= 0.4, archive distance <= 2.5)."
+  }
+ },
+ "segments": [
+  {
+   "seg_id": 1,
+   "label": "Trust The Science Pragmatists",
+   "party": "GOP",
+   "n": 314,
+   "weighted_n": 94.7,
+   "baseline_pre_obs": 0.047,
+   "alignment_post_obs": 0.015,
+   "alignment_composed_model": 0.044,
+   "mobilization_model": -0.059
+  },
+  {
+   "seg_id": 2,
+   "label": "Consumer Empowerment Champions",
+   "party": "GOP",
+   "n": 159,
+   "weighted_n": 210.1,
+   "baseline_pre_obs": -0.111,
+   "alignment_post_obs": -0.078,
+   "alignment_composed_model": -0.003,
+   "mobilization_model": -0.08
+  },
+  {
+   "seg_id": 3,
+   "label": "Traditional Conservatives",
+   "party": "GOP",
+   "n": 71,
+   "weighted_n": 180.5,
+   "baseline_pre_obs": -0.261,
+   "alignment_post_obs": -0.309,
+   "alignment_composed_model": -0.134,
+   "mobilization_model": -0.095
+  },
+  {
+   "seg_id": 4,
+   "label": "Wellness Evangelists",
+   "party": "GOP",
+   "n": 74,
+   "weighted_n": 272.9,
+   "baseline_pre_obs": -0.335,
+   "alignment_post_obs": -0.382,
+   "alignment_composed_model": -0.224,
+   "mobilization_model": -0.195
+  },
+  {
+   "seg_id": 5,
+   "label": "Price Populists",
+   "party": "GOP",
+   "n": 68,
+   "weighted_n": 84.6,
+   "baseline_pre_obs": -0.282,
+   "alignment_post_obs": -0.27,
+   "alignment_composed_model": -0.228,
+   "mobilization_model": -0.107
+  },
+  {
+   "seg_id": 6,
+   "label": "Health Futurists",
+   "party": "GOP",
+   "n": 241,
+   "weighted_n": 76.5,
+   "baseline_pre_obs": 0.168,
+   "alignment_post_obs": 0.192,
+   "alignment_composed_model": 0.144,
+   "mobilization_model": 0.047
+  },
+  {
+   "seg_id": 7,
+   "label": "Paleo Freedom Fighters",
+   "party": "GOP",
+   "n": 62,
+   "weighted_n": 133.5,
+   "baseline_pre_obs": -0.422,
+   "alignment_post_obs": -0.463,
+   "alignment_composed_model": -0.367,
+   "mobilization_model": -0.203
+  },
+  {
+   "seg_id": 8,
+   "label": "Holistic Health Naturalists",
+   "party": "GOP",
+   "n": 358,
+   "weighted_n": 103.0,
+   "baseline_pre_obs": 0.094,
+   "alignment_post_obs": 0.109,
+   "alignment_composed_model": 0.042,
+   "mobilization_model": -0.041
+  },
+  {
+   "seg_id": 9,
+   "label": "Medical Freedom Libertarians",
+   "party": "GOP",
+   "n": 156,
+   "weighted_n": 162.2,
+   "baseline_pre_obs": -0.089,
+   "alignment_post_obs": -0.091,
+   "alignment_composed_model": -0.044,
+   "mobilization_model": -0.138
+  },
+  {
+   "seg_id": 10,
+   "label": "Vaccine Skeptics",
+   "party": "GOP",
+   "n": 69,
+   "weighted_n": 156.5,
+   "baseline_pre_obs": -0.333,
+   "alignment_post_obs": -0.328,
+   "alignment_composed_model": -0.304,
+   "mobilization_model": -0.262
+  },
+  {
+   "seg_id": 11,
+   "label": "Universal Care Progressives",
+   "party": "DEM",
+   "n": 342,
+   "weighted_n": 336.3,
+   "baseline_pre_obs": 0.216,
+   "alignment_post_obs": 0.249,
+   "alignment_composed_model": 0.153,
+   "mobilization_model": 0.232
+  },
+  {
+   "seg_id": 12,
+   "label": "Faith & Justice Progressives",
+   "party": "DEM",
+   "n": 351,
+   "weighted_n": 312.0,
+   "baseline_pre_obs": 0.101,
+   "alignment_post_obs": 0.106,
+   "alignment_composed_model": 0.06,
+   "mobilization_model": 0.181
+  },
+  {
+   "seg_id": 13,
+   "label": "Health Care Protectionists",
+   "party": "DEM",
+   "n": 348,
+   "weighted_n": 237.1,
+   "baseline_pre_obs": -0.144,
+   "alignment_post_obs": -0.135,
+   "alignment_composed_model": -0.117,
+   "mobilization_model": -0.032
+  },
+  {
+   "seg_id": 14,
+   "label": "Health Abundance Democrats",
+   "party": "DEM",
+   "n": 63,
+   "weighted_n": 224.1,
+   "baseline_pre_obs": -0.272,
+   "alignment_post_obs": -0.39,
+   "alignment_composed_model": -0.203,
+   "mobilization_model": 0.044
+  },
+  {
+   "seg_id": 15,
+   "label": "Health Care Incrementalists",
+   "party": "DEM",
+   "n": 64,
+   "weighted_n": 189.1,
+   "baseline_pre_obs": -0.441,
+   "alignment_post_obs": -0.509,
+   "alignment_composed_model": -0.349,
+   "mobilization_model": -0.093
+  },
+  {
+   "seg_id": 16,
+   "label": "Global Health Institutionalists",
+   "party": "DEM",
+   "n": 347,
+   "weighted_n": 313.8,
+   "baseline_pre_obs": 0.026,
+   "alignment_post_obs": 0.024,
+   "alignment_composed_model": 0.054,
+   "mobilization_model": 0.188
+  }
+ ],
+ "receptiveness": {
+  "messages": [
+   {
+    "msg_id": "HIV_1",
+    "text": "HIV continues to generate new diagnoses and new deaths at a scale that warrants sustained public attention. The epidemic has not ended \u2014 public awareness of it has."
+   },
+   {
+    "msg_id": "HIV_2",
+    "text": "The United States turned HIV from a death sentence into a manageable condition by treating it as a serious public health crisis. It remains one, and the progress made is far more fragile than it appears."
+   },
+   {
+    "msg_id": "HIV_3",
+    "text": "Effective tools to prevent HIV transmission already exist. People are still being infected because those tools are not reaching them \u2014 not because the science has fallen short."
+   },
+   {
+    "msg_id": "HIV_4",
+    "text": "People living with HIV deserve the same compassion as anyone living with a serious chronic illness. "
+   },
+   {
+    "msg_id": "HIV_5",
+    "text": "HIV can be treated, but for most patients it requires medication every day for life. If treatment is interrupted \u2014 because someone loses access, loses insurance, or simply cannot maintain a daily regimen \u2014 the virus can develop resistance, become harder to treat, and be passed to others. [The progress made is real, but it requires constant vigilance to maintain.]"
+   },
+   {
+    "msg_id": "HIV_6",
+    "text": "HIV prevention is among the highest-return investments in public health. The cost of a prevented infection is a fraction of the lifetime healthcare costs that follow an untreated or late diagnosis \u2014 costs carried by taxpayers, employers, insurers, Medicare, and Medicaid."
+   },
+   {
+    "msg_id": "HIV_7",
+    "text": "The clinics, outreach workers, and treatment programs that support HIV prevention and care serve the same communities \u2014 and often the same individuals \u2014 affected by the opioid crisis and untreated mental illness. These are not competing priorities."
+   },
+   {
+    "msg_id": "HIV_8",
+    "text": "Untreated HIV takes people out of the workforce and out of their communities. The losses in productivity, in earnings, and in economic participation \u2014 combined with the long-term healthcare costs that follow \u2014 are carried not by the individual alone, but by employers, insurers, and public programs that everyone depends on."
+   },
+   {
+    "msg_id": "HIV_9",
+    "text": "Effective HIV prevention medication exists. Millions of Americans who need it don't have it even if their doctor prescribes it \u2014 because of coverage restrictions, cost barriers, and gaps in the healthcare system that could be closed if we treated this as the public health priority it is."
+   },
+   {
+    "msg_id": "HIV_10",
+    "text": "A generation ago, an HIV diagnosis was a death sentence. Today, transmission can be stopped, the epidemic is controllable, and a cure is in active development. This could be the generation that ends HIV \u2014 the way previous generations ended polio and smallpox."
+   },
+   {
+    "msg_id": "HIV_11",
+    "text": "American investment in HIV research produced scientific discoveries that now extend far beyond HIV \u2014 advances in how we understand the immune system, develop antiviral treatments, and fight cancer that benefit millions of Americans who have never been affected by HIV."
+   },
+   {
+    "msg_id": "HIV_12",
+    "text": "People with HIV who are on effective treatment cannot transmit the virus to others. And for people at higher risk of contracting HIV, preventive medication makes infection nearly impossible. [Many people who could benefit from knowing either of these things don't \u2014 and that gap is driving infections that don't need to happen.]"
+   },
+   {
+    "msg_id": "HIV_13",
+    "text": "More than half of all new HIV diagnoses in the United States occur in the South. The epidemic most Americans associate with coastal cities is raging in rural communities, smaller cities, and states where it is least visible and least expected."
+   },
+   {
+    "msg_id": "HIV_14",
+    "text": "One in five new HIV diagnoses occurs among people aged 13 to 24 \u2014 the group least likely to know their status, least likely to be on prevention medication, and least likely to be reached by current efforts. The epidemic is not aging out. It is getting younger."
+   },
+   {
+    "msg_id": "HIV_15",
+    "text": "In many rural communities, the federally-funded clinics that provide HIV prevention and care are also a primary healthcare resource available to local residents \u2014 serving patients well beyond those with HIV. Cutting HIV funding in these communities doesn't only affect people with HIV."
+   },
+   {
+    "msg_id": "HIV_16",
+    "text": "Black and Hispanic Americans are diagnosed with HIV at rates far exceeding their share of the population \u2014 and are significantly less likely to have access to prevention medication. The epidemic is most concentrated precisely where prevention is least available."
+   },
+   {
+    "msg_id": "HIV_17",
+    "text": "HIV touches every state and every kind of community. Where the burden falls most heavily is determined not by identity or lifestyle, but by geography, the availability of healthcare infrastructure, and the reach of prevention programs."
+   }
+  ],
+  "table": [
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.0051,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1418,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0613,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0257,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1326,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0307,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0176,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.1287,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_17",
+    "mean_utility": 0.0174,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0316,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0266,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0098,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.0924,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0041,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0717,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0445,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 1,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0397,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.034,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.2513,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1653,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0716,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.3305,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0529,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0086,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.2671,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0923,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0805,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0195,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0665,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1517,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0189,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0379,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0512,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 2,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.1881,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.0249,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.2903,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.2905,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.1256,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.3646,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0289,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.1245,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.3595,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0602,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.1263,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.035,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0829,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1643,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.157,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0675,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0919,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 3,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0369,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0054,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.2545,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0748,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0941,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.2601,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_14",
+    "mean_utility": 0.1928,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0187,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.3611,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_17",
+    "mean_utility": 0.0502,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0912,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.0029,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.2026,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1592,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0649,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0578,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.1493,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 4,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0216,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.1475,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1486,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1616,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_12",
+    "mean_utility": -0.0118,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1776,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0461,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_15",
+    "mean_utility": 0.0431,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.2904,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0442,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0875,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.1008,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0536,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1645,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0663,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_7",
+    "mean_utility": 0.0669,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0817,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 5,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0475,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0438,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.0105,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0327,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0948,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.0249,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0063,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0458,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.1065,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_17",
+    "mean_utility": 0.0086,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0214,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.0241,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0035,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.0504,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.015,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_7",
+    "mean_utility": 0.0145,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0618,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 6,
+    "msg_id": "HIV_9",
+    "mean_utility": -0.0426,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.0414,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.248,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0713,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0939,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1379,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0463,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0226,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.2934,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0137,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.1582,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0608,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0543,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.0584,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0253,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0823,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0109,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 7,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0166,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.0253,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.0711,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0935,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0507,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1149,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.026,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_15",
+    "mean_utility": 0.0021,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.093,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0355,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0284,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0195,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0564,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1132,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_6",
+    "mean_utility": -0.0269,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0635,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_8",
+    "mean_utility": 0.0119,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 8,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0646,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_1",
+    "mean_utility": -0.0092,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1662,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0785,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0087,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1945,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_14",
+    "mean_utility": 0.0095,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0523,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.2228,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0378,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.051,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0236,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0963,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.2119,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0501,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_7",
+    "mean_utility": 0.0106,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0779,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 9,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0357,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0125,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1896,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1124,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0065,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1328,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_14",
+    "mean_utility": 0.0954,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0081,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.2501,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0223,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_2",
+    "mean_utility": -0.0304,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0392,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0814,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.0888,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0741,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0995,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.1441,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 10,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0547,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0243,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.0402,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0101,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_12",
+    "mean_utility": -0.0016,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1206,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_14",
+    "mean_utility": 0.0097,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0131,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_16",
+    "mean_utility": 0.0298,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_17",
+    "mean_utility": 0.015,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_2",
+    "mean_utility": -0.0504,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.0116,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0143,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1207,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_6",
+    "mean_utility": -0.0298,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0643,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0738,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 11,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.1008,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0649,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_10",
+    "mean_utility": -0.0033,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0667,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_12",
+    "mean_utility": -0.0403,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.11,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_14",
+    "mean_utility": 0.0369,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_15",
+    "mean_utility": 0.0022,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_16",
+    "mean_utility": 0.0195,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0193,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0011,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.068,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0183,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1097,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_6",
+    "mean_utility": -0.0265,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0821,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.0299,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 12,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0564,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0198,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1297,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1062,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0167,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1997,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0487,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0962,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.1307,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0135,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0405,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.003,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0698,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.2045,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_6",
+    "mean_utility": -0.01,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0584,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.1035,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 13,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.1061,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0546,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1233,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.0747,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_12",
+    "mean_utility": -0.0381,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.1636,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0849,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0097,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.0763,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_17",
+    "mean_utility": 0.0021,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.0763,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_3",
+    "mean_utility": 0.0043,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0286,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1573,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_6",
+    "mean_utility": -0.0325,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0494,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.084,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 14,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0749,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0365,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.2947,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1857,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_12",
+    "mean_utility": 0.0232,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.2019,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0547,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0202,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.1009,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0787,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_2",
+    "mean_utility": -0.0319,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.018,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_4",
+    "mean_utility": -0.0061,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.1075,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0844,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.001,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.1763,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 15,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0787,
+    "rank_in_segment": 5
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_1",
+    "mean_utility": 0.0723,
+    "rank_in_segment": 6
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_10",
+    "mean_utility": 0.1664,
+    "rank_in_segment": 3
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_11",
+    "mean_utility": 0.1991,
+    "rank_in_segment": 2
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_12",
+    "mean_utility": -0.013,
+    "rank_in_segment": 10
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_13",
+    "mean_utility": -0.2653,
+    "rank_in_segment": 17
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_14",
+    "mean_utility": -0.0597,
+    "rank_in_segment": 11
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_15",
+    "mean_utility": -0.0711,
+    "rank_in_segment": 12
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_16",
+    "mean_utility": -0.094,
+    "rank_in_segment": 14
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_17",
+    "mean_utility": -0.0048,
+    "rank_in_segment": 9
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_2",
+    "mean_utility": 0.122,
+    "rank_in_segment": 4
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_3",
+    "mean_utility": -0.1117,
+    "rank_in_segment": 15
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_4",
+    "mean_utility": 0.0643,
+    "rank_in_segment": 7
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_5",
+    "mean_utility": 0.2003,
+    "rank_in_segment": 1
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_6",
+    "mean_utility": 0.0205,
+    "rank_in_segment": 8
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_7",
+    "mean_utility": -0.0752,
+    "rank_in_segment": 13
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_8",
+    "mean_utility": -0.209,
+    "rank_in_segment": 16
+   },
+   {
+    "seg_id": 16,
+    "msg_id": "HIV_9",
+    "mean_utility": 0.0933,
+    "rank_in_segment": 5
+   }
+  ]
+ }
+}
